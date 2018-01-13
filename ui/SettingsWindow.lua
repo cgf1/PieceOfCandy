@@ -63,69 +63,64 @@ function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
 			   end,
 			default = TGU_SettingsHandler.Default.Movable
 		},
-        [3] = {
-			type = "checkbox",
-			name = GetString(TGU_OPTIONS_ONLY_AVA_LABEL),
-			tooltip = GetString(TGU_OPTIONS_ONLY_AVA_TOOLTIP),
-			getFunc = 
-               function() 
-                   return TGU_SettingsHandler.SavedVariables.OnlyAva
-               end,
-			setFunc = 
-               function(value) 
-                   TGU_SettingsHandler.SetOnlyAvaSettings(value)
-			   end,
-			default = TGU_SettingsHandler.Default.OnlyAva
-		},
-        [4] = {
-			type = "checkbox",
-			name = GetString(TGU_OPTIONS_USE_LGS_LABEL),
-			tooltip = GetString(TGU_OPTIONS_USE_LGS_TOOLTIP),
-            requiresReload = true,
-			getFunc = 
-               function() 
-                   return TGU_SettingsHandler.SavedVariables.IsLgsActive
-               end,
-			setFunc = 
-               function(value) 
-                   TGU_SettingsHandler.SetIsLgsActiveSettings(value)
-			   end,
-			default = TGU_SettingsHandler.Default.IsLgsActive
-		},
-        [5] = {
-			type = "checkbox",
-			name = GetString(TGU_OPTIONS_USE_SORTING_LABEL),
-			tooltip = GetString(TGU_OPTIONS_USE_SORTING_TOOLTIP),
-			getFunc = 
-               function() 
-                   return TGU_SettingsHandler.SavedVariables.IsSortingActive
-               end,
-			setFunc = 
-               function(value) 
-                   TGU_SettingsHandler.SetIsSortingActiveSettings(value)
-			   end,
-			default = TGU_SettingsHandler.Default.IsSortingActive
-		},
-        [6] = {
-			type = "dropdown",
-			name = GetString(TGU_OPTIONS_STYLE_LABEL),
-			tooltip = GetString(TGU_OPTIONS_STYLE_TOOLTIP),
-            choices = styleChoices,
-			getFunc = 
-               function() 
-                   return styleChoices[TGU_SettingsHandler.SavedVariables.Style]
-               end,
-			setFunc = 
-               function(value) 
-                   for index, name in ipairs(styleChoices) do
-                      if (name == value) then
-                         TGU_SettingsHandler.SetStyleSettings(index)
-                         break
-                      end
-                   end
-			   end,
-			default = styleChoices[TGU_SettingsHandler.Default.Style]
-		},
+                [3] = {
+                                type = "checkbox",
+                                name = GetString(TGU_OPTIONS_ONLY_AVA_LABEL),
+                                tooltip = GetString(TGU_OPTIONS_ONLY_AVA_TOOLTIP),
+                                getFunc = 
+                       function() 
+                           return TGU_SettingsHandler.SavedVariables.OnlyAva
+                       end,
+                                setFunc = 
+                       function(value) 
+                           TGU_SettingsHandler.SetOnlyAvaSettings(value)
+                                   end,
+                                default = TGU_SettingsHandler.Default.OnlyAva
+                        },
+                [4] = {
+                        type = "checkbox",
+                        name = GetString(TGU_OPTIONS_USE_LGS_LABEL),
+                        tooltip = GetString(TGU_OPTIONS_USE_LGS_TOOLTIP),
+                        requiresReload = true,
+                        getFunc = 
+                           function() 
+                               return TGU_SettingsHandler.SavedVariables.IsLgsActive
+                           end,
+                        setFunc = 
+                           function(value) 
+                               TGU_SettingsHandler.SetIsLgsActiveSettings(value)
+                           end,
+                        default = TGU_SettingsHandler.Default.IsLgsActive
+                        },
+                [5] = {
+                                type = "dropdown",
+                                name = GetString(TGU_OPTIONS_STYLE_LABEL),
+                                tooltip = GetString(TGU_OPTIONS_STYLE_TOOLTIP),
+                    choices = styleChoices,
+                                getFunc = 
+                       function() 
+                           return styleChoices[TGU_SettingsHandler.SavedVariables.Style]
+                       end,
+                                setFunc = 
+                       function(value) 
+                           for index, name in ipairs(styleChoices) do
+                              if (name == value) then
+                                 TGU_SettingsHandler.SetStyleSettings(index)
+                                 break
+                              end
+                           end
+                                   end,
+                                default = styleChoices[TGU_SettingsHandler.Default.Style]
+                        },
+                [6] = {
+                                type = "slider",
+                                name = GetString(TGU_OPTIONS_SWIMLANE_MAX_LABEL),
+                                min = 1, max = 24, step = 1,
+                                getFunc = function() return TGU_SettingsHandler.SavedVariables.SwimlaneMax end,
+                                width = "full",
+                                setFunc = function(value) TGU_SettingsHandler.TGU_SetSwimlaneMax(value) end,
+                                default = 24,
+                        },
 	}
 	
 	local LAM = LibStub("LibAddonMenu-2.0")

@@ -17,6 +17,7 @@ local strings = {
     TGU_OPTIONS_STYLE_SIMPLE =           "Simple-List",
     TGU_OPTIONS_STYLE_SWIM =             "Swimlane-List",
     TGU_OPTIONS_STYLE_SHORT_SWIM =       "Compact Swimlane-List",
+    TGU_OPTIONS_SWIMLANE_MAX_LABEL =     "Max number of ultimates to display in a swimlane",
     TGU_DESCRIPTIONS_NEGATE =            "Negate ultimates from Sorcerer class",
     TGU_DESCRIPTIONS_ATRO =              "Atronach ultimates from Sorcerer class",
     TGU_DESCRIPTIONS_OVER =              "Overload ultimates from Sorcerer class",

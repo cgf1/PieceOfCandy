@@ -10,7 +10,6 @@
 local LOG_ACTIVE = false
 
 local SWIMLANES = 6
-local ROWS = 24
 local REFRESHRATE = 1000 -- ms; RegisterForUpdate is in miliseconds
 local TIMEOUT = 4 -- s; GetTimeStamp() is in seconds
 
@@ -48,27 +47,41 @@ end
 function TGU_SwimlaneList.SortSwimlane(swimlane)
 	if (LOG_ACTIVE) then _logger:logTrace("TGU_SwimlaneList.SortSwimlane") end
 
+    function sortval(x)
+        local a
+        if (x.IsPlayerDead) then
+            a = 0
+        else
+            a = x.RelativeUltimate
+        end
+        return a
+    end
     -- Comparer
     function compare(playerLeft, playerRight)
-        if (playerLeft.RelativeUltimate == playerRight.RelativeUltimate) then
+        a = sortval(playerLeft)
+        b = sortval(playerRight)
+        -- d("A " .. a)
+        -- d("B " .. b)
+        if (a == b) then
             return playerLeft.PingTag < playerRight.PingTag
         else
-            return playerLeft.RelativeUltimate > playerRight.RelativeUltimate
+            return a > b
        end
     end
 
     table.sort(swimlane.Players, compare)
 
+    -- d("MAX " .. TGU_SettingsHandler.SavedVariables.SwimlaneMax)
     -- Update sorted swimlane list
     for i,swimlanePlayer in ipairs(swimlane.Players) do
         if (swimlanePlayer.RelativeUltimate  >= 100) then
             if (swimlanePlayer.IsPlayerDead) then
                 swimlanePlayer.RelativeUltimate = 100
             else
-                swimlanePlayer.RelativeUltimate = 100 + ROWS - i
+                swimlanePlayer.RelativeUltimate = 100 + TGU_SettingsHandler.SavedVariables.SwimlaneMax - i
             end
         end
-        -- d(swimlanePlayer.PlayerName .. " " .. swimlanePlayer.RelativeUltimate)
+        -- d(swimlanePlayer.PlayerName .. " (" .. i .. ") " ..  swimlanePlayer.RelativeUltimate)
         TGU_SwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
     end
 end
@@ -77,7 +90,7 @@ end
 	Updates list row
 ]]--
 function TGU_SwimlaneList.UpdateListRow(row, player)
-	if (LOG_ACTIVE) then 
+    if (LOG_ACTIVE) then 
         _logger:logTrace("TGU_SwimlaneList.UpdateListRow")
     end
 
@@ -147,7 +160,7 @@ function TGU_SwimlaneList.UpdatePlayer(player)
 		            nextFreeRow = nextFreeRow + 1
 	            end
 
-                if (nextFreeRow <= ROWS) then
+                if (nextFreeRow <= TGU_SettingsHandler.SavedVariables.SwimlaneMax) then
                     if (LOG_ACTIVE) then 
                         _logger:logDebug("TGU_SwimlaneList.UpdatePlayer, add player " .. tostring(player.PlayerName) .. " to row " .. tostring(nextFreeRow)) 
                     end
@@ -162,13 +175,7 @@ function TGU_SwimlaneList.UpdatePlayer(player)
 
             -- Only update if player in a row
             if (row ~= nil) then
-                if (TGU_SettingsHandler.SavedVariables.IsSortingActive) then
-                    -- Sort swimlane with all players
-                    TGU_SwimlaneList.SortSwimlane(swimLane)
-                else
-                    -- Directly update row with player
-                    TGU_SwimlaneList.UpdateListRow(row, player)
-                end
+                TGU_SwimlaneList.SortSwimlane(swimLane)
             end
         else
             if (LOG_ACTIVE) then _logger:logDebug("TGU_SwimlaneList.UpdatePlayer, swimlane not found for ultimategroup " .. tostring(ultimateGroup.GroupName)) end
@@ -235,7 +242,7 @@ function TGU_SwimlaneList.ClearPlayersFromSwimlane(swimlane)
     end
 
     if (swimlane) then
-        for i=1, ROWS, 1 do
+        for i=1, TGU_SettingsHandler.SavedVariables.SwimlaneMax, 1 do
             local row = swimlane.SwimlaneControl:GetNamedChild("Row" .. i)
             local swimlanePlayer = swimlane.Players[i]
 
@@ -466,30 +473,29 @@ function TGU_SwimlaneList.CreateSwimLaneListHeaders()
 end
 
 --[[
-	CreateSwimlaneListRows creates swimlane lsit rows
+	CreateSwimlaneListRows creates swimlane list rows
 ]]--
 function TGU_SwimlaneList.CreateSwimlaneListRows(swimlaneControl)
     if (LOG_ACTIVE) then _logger:logTrace("TGU_SwimlaneList.CreateSwimlaneListRows") end
 
     if (swimlaneControl ~= nil) then
-	    for i=1, ROWS, 1 do
+	    for i=1, TGU_SettingsHandler.SavedVariables.SwimlaneMax, 1 do
 		    local row = CreateControlFromVirtual("$(parent)Row", swimlaneControl, "GroupUltimateSwimlaneRow", i)
-            if (LOG_ACTIVE) then _logger:logDebug("Row created " .. row:GetName()) end
+                if (LOG_ACTIVE) then _logger:logDebug("Row created " .. row:GetName()) end
 
-		    row:SetHidden(true) -- initial not visible
+                        row:SetHidden(true) -- initial not visible
 
-		    if (i == 1) then
-                row:SetAnchor(TOPLEFT, swimlaneControl, TOPLEFT, 0, 25)
-            elseif (i == 5) then -- Fix pixelbug, Why the hell ZOS?!
-                row:SetAnchor(TOPLEFT, lastRow, BOTTOMLEFT, 0, 0)
-            else
-				row:SetAnchor(TOPLEFT, lastRow, BOTTOMLEFT, 0, -1)
-			end
-
-		    lastRow = row
-	    end
-    else
-        _logger:logError("TGU_SwimlaneList.CreateSwimlaneListRows, swimlaneControl nil.")
+                        if (i == 1) then
+                            row:SetAnchor(TOPLEFT, swimlaneControl, TOPLEFT, 0, 25)
+                        elseif (i == 5) then -- Fix pixelbug, Why the hell ZOS?!
+                            row:SetAnchor(TOPLEFT, lastRow, BOTTOMLEFT, 0, 0)
+                        else
+                            row:SetAnchor(TOPLEFT, lastRow, BOTTOMLEFT, 0, -1)
+                        end
+                        lastRow = row
+                end
+        else
+            _logger:logError("TGU_SwimlaneList.CreateSwimlaneListRows, swimlaneControl nil.")
     end
 end
 

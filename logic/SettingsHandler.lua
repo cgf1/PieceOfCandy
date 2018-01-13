@@ -32,7 +32,8 @@ TGU_SettingsHandler.Default =
     ["SelectorPosY"] = 0,
     ["OnlyAva"] = false,
     ["IsLgsActive"] = false,
-    ["IsSortingActive"] = false,
+    ["IsSortingActive"] = true,
+    ["SwimlaneMax"] = 24,
     ["Movable"] = true,
     ["Style"] = 3,
     ["StaticUltimateID"] = 29861,
@@ -134,6 +135,17 @@ function TGU_SettingsHandler.SetIsLgsActiveSettings(isLgsActive)
     end
 
     TGU_SettingsHandler.SavedVariables.IsLgsActive = isLgsActive
+end
+
+--[[
+        Sets Swimlane max value
+]]--
+function TGU_SettingsHandler.TGU_SetSwimlaneMax(max)
+    if (LOG_ACTIVE) then 
+        _logger:logTrace("TGU_SettingsHandler.TGU_SetSwimlaneMax")
+        _logger:logDebug("SwimlaneMax", max)
+    end
+    TGU_SettingsHandler.SavedVariables.SwimlaneMax = max
 end
 
 --[[
