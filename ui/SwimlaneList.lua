@@ -10,7 +10,7 @@
 local LOG_ACTIVE = false
 
 local SWIMLANES = 6
-local ROWS = 6
+local ROWS = 24
 local REFRESHRATE = 1000 -- ms; RegisterForUpdate is in miliseconds
 local TIMEOUT = 4 -- s; GetTimeStamp() is in seconds
 
@@ -54,13 +54,21 @@ function TGU_SwimlaneList.SortSwimlane(swimlane)
             return playerLeft.PingTag < playerRight.PingTag
         else
             return playerLeft.RelativeUltimate > playerRight.RelativeUltimate
-        end
+       end
     end
 
     table.sort(swimlane.Players, compare)
 
     -- Update sorted swimlane list
     for i,swimlanePlayer in ipairs(swimlane.Players) do
+        if (swimlanePlayer.RelativeUltimate  >= 100) then
+            if (swimlanePlayer.IsPlayerDead) then
+                swimlanePlayer.RelativeUltimate = 100
+            else
+                swimlanePlayer.RelativeUltimate = 100 + ROWS - i
+            end
+        end
+        -- d(swimlanePlayer.PlayerName .. " " .. swimlanePlayer.RelativeUltimate)
         TGU_SwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
     end
 end
@@ -83,23 +91,23 @@ function TGU_SwimlaneList.UpdateListRow(row, player)
     row:GetNamedChild("SenderNameValueLabel"):SetText(playerName)
     row:GetNamedChild("RelativeUltimateStatusBar"):SetValue(player.RelativeUltimate)
 
-	if (player.IsPlayerDead) then
+    if (player.IsPlayerDead) then
         -- Dead Color
         row:GetNamedChild("SenderNameValueLabel"):SetColor(0.5, 0.5, 0.5, 0.8)
         row:GetNamedChild("RelativeUltimateStatusBar"):SetColor(0.8, 0.03, 0.03, 0.7)
-    elseif (player.RelativeUltimate == 100) then
+    elseif (player.RelativeUltimate >= 100) then
 		-- Ready Color
         row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 1)
         row:GetNamedChild("RelativeUltimateStatusBar"):SetColor(0.03, 0.7, 0.03, 0.7)
-	else
+    else
 		-- Inprogress Color
         row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 0.8)
         row:GetNamedChild("RelativeUltimateStatusBar"):SetColor(0.03, 0.03, 0.7, 0.7)
-	end
+    end
 
     if (row:IsHidden()) then
-		row:SetHidden(false)
-	end
+        row:SetHidden(false)
+    end
 end
 
 --[[
@@ -119,13 +127,18 @@ function TGU_SwimlaneList.UpdatePlayer(player)
             -- Update player
             if (row ~= nil) then
                 for i,swimlanePlayer in ipairs(swimLane.Players) do
-		            if (swimlanePlayer.PlayerName == player.PlayerName) then
-                        swimlanePlayer.LastMapPingTimestamp = GetTimeStamp()
-                        swimlanePlayer.IsPlayerDead = player.IsPlayerDead
-                        swimlanePlayer.RelativeUltimate = player.RelativeUltimate
-                        break
-                    end
-	            end
+                        if (swimlanePlayer.PlayerName == player.PlayerName) then
+                            swimlanePlayer.LastMapPingTimestamp = GetTimeStamp()
+                            swimlanePlayer.IsPlayerDead = player.IsPlayerDead
+                            if (player.PlayerName == "Sirech") then
+                                player.RelativeUltimate = 90
+                            end
+                            if (player.RelativeUltimate < 100 or swimlanePlayer.RelativeUltimate < 100) then
+                                swimlanePlayer.RelativeUltimate = player.RelativeUltimate
+                            end
+                            break
+                        end
+                end
             else
                 -- Add new player
                 local nextFreeRow = 1

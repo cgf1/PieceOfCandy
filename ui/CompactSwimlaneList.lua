@@ -10,7 +10,7 @@
 local LOG_ACTIVE = false
 
 local SWIMLANES = 6
-local ROWS = 6
+local ROWS = 24
 local REFRESHRATE = 1000 -- ms; RegisterForUpdate is in miliseconds
 local TIMEOUT = 4 -- s; GetTimeStamp() is in seconds
 
