@@ -1,0 +1,54 @@
+; This Add-on is not created by, affiliated with or sponsored by ZeniMax
+; Media Inc. or its affiliates. The Elder Scrolls® and related logos are
+; registered trademarks or trademarks of ZeniMax Media Inc. in the United
+; States and/or other countries. All rights reserved.
+; You can read the full terms at https://account.elderscrollsonline.com/add-on-terms
+
+## APIVersion: 100021
+## Description: Shares your ultimate to other group members via map pings
+## Title: |ca0a0a0Taos Group Ultimate|r 1.4.6
+## Version: 1.5.0
+## Author: |ca0a0a0TProg|r Taonnor
+## SavedVariables: TaosGroupUltimateSettings
+## OptionalDependsOn: LibAddonMenu-2.0
+
+libs/LibStub/LibStub.lua
+
+libs/LibAddonMenu-2.0/LibAddonMenu-2.0.lua
+libs/LibAddonMenu-2.0/controls/panel.lua
+libs/LibAddonMenu-2.0/controls/header.lua
+libs/LibAddonMenu-2.0/controls/checkbox.lua
+libs/LibAddonMenu-2.0/controls/dropdown.lua
+
+libs/LibMapPing/LibMapPing.lua
+libs/LibGPS/LibGPS.lua
+libs/LibGroupSocket/LibGroupSocket.lua
+
+i18n/de.lua
+i18n/$(language).lua
+
+util/DebugLogger.lua
+util/UiHelper.lua
+
+communication/Communicator.lua
+communication/UltimateHandler.lua
+
+logic/SettingsHandler.lua
+logic/GroupHandler.lua
+logic/MapPingHandler.lua
+logic/UltimateGroupHandler.lua
+logic/CommandsHandler.lua
+
+ui/VirtualControls.xml
+ui/SettingsWindow.lua
+ui/GroupUltimateSelector.xml
+ui/GroupUltimateSelector.lua
+ui/SimpleList.xml
+ui/SimpleList.lua
+ui/SwimlaneList.xml
+ui/SwimlaneList.lua
+ui/CompactSwimlaneList.xml
+ui/CompactSwimlaneList.lua
+ui/UltimateGroupMenu.lua
+
+TaosGroupUltimate.lua

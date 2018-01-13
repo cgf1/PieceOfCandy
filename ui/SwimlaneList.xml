@@ -1,0 +1,40 @@
+<GuiXml>
+	<Controls>
+		<TopLevelControl name="TGU_SwimlaneListControl" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
+			<Anchor point="TOPLEFT" relativeTo="GuiRoot" relativePoint="TOPLEFT"/>
+			<Dimensions x="610" y="265" />
+			<OnMoveStop>TGU_SwimlaneList:OnSwimlaneListMoveStop()</OnMoveStop>
+			
+			<Controls>
+        <Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">
+          <Anchor point="TOPLEFT"/>
+          <Anchor point="BOTTOMRIGHT" />
+        </Control>
+
+        <Control name="$(parent)Swimlane1" inherits="GroupUltimateSwimlane">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
+        </Control>
+        
+        <Control name="$(parent)Swimlane2" inherits="GroupUltimateSwimlane">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="102" offsetY="0"/>
+        </Control>
+      
+        <Control name="$(parent)Swimlane3" inherits="GroupUltimateSwimlane">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="204" offsetY="0"/>
+        </Control>
+
+        <Control name="$(parent)Swimlane4" inherits="GroupUltimateSwimlane">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="306" offsetY="0"/>
+        </Control>
+      
+        <Control name="$(parent)Swimlane5" inherits="GroupUltimateSwimlane">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="408" offsetY="0"/>
+        </Control>
+      
+        <Control name="$(parent)Swimlane6" inherits="GroupUltimateSwimlane">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="510" offsetY="0"/>
+        </Control>
+		  </Controls>
+	  </TopLevelControl>
+	</Controls>
+</GuiXml>

@@ -1,0 +1,37 @@
+<GuiXml>
+	<Controls>
+		<TopLevelControl name="TGU_UltimateSelectorControl" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
+			<Anchor point="TOPLEFT" relativeTo="GuiRoot" relativePoint="TOPLEFT"/>
+			<Dimensions x="75" y="75" />
+			<OnMoveStop>TGU_GroupUltimateSelector:OnGroupUltimateSelectorMoveStop()</OnMoveStop>
+			
+			<Controls>
+        <Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">
+          <Anchor point="TOPLEFT"/>
+          <Anchor point="BOTTOMRIGHT" />
+        </Control>
+        
+        <Control name="$(parent)SelectorButtonControl">
+          <Dimensions x="50" y="50"/>
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="12.5" offsetY="12.5"/>
+          <Controls>
+            <Button name="$(parent)Button"
+                    ButtonState="BSTATE_NORMAL"
+                    tier="1">
+              <Dimensions x="50" y="50"/>
+              <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+              <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
+                        pressed="/esoui/art/actionbar/abilityframe64_down.dds"
+                        mouseOver="/TaosGroupUltimate/textures/hover.dds"/>
+              <OnClicked>TGU_GroupUltimateSelector:OnGroupUltimateSelectorClicked()</OnClicked>
+            </Button>
+            <Texture name="$(parent)Icon" tier="0">
+              <Dimensions x="48" y="48"/>
+              <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER"/>
+            </Texture>
+          </Controls>
+        </Control>
+		  </Controls>
+	  </TopLevelControl>
+	</Controls>
+</GuiXml>

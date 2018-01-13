@@ -1,0 +1,87 @@
+--[[
+	Addon: util
+	Author: TProg Taonnor
+	Created by @Taonnor
+]]--
+
+--[[
+	Class definition (Static class)
+]]--
+-- A table in hole lua workspace must be unique
+-- The ui helper is global util table, used in several of my addons
+-- The table is created as "static" class without constructor and static helper methods
+if (TaosUiHelper == nil) then
+	TaosUiHelper = {}
+	TaosUiHelper.__index = TaosUiHelper
+
+    -- Global Callback Variables
+    TUI_HUD_HIDDEN_STATE_CHANGED = "TUI-HudHiddenStateChange"
+
+	-- isHidden logic for hud scenes
+    -- This logic will fire TUI_HUD_HIDDEN_STATE_CHANGED if hud scenes not visible:
+    -- hud = true; hudui = true -> isHidden = true
+    -- hud = true; hudui = false -> isHidden = false
+    -- hud = false; hudui = true -> isHidden = false
+    -- hud = false; hudui = false -> isHidden = false
+    local internalHudSceneState = true
+    local internalHudUiSceneState = true
+    local internalHudHiddenState = true
+
+    --[[
+        CurrentHudHiddenState Gets the hidden state of hud/hudui
+    ]]--
+    function CurrentHudHiddenState()
+        return internalHudHiddenState
+    end
+
+    --[[
+        UpdateHiddenState updates the hidden state on base of hud/hudui state
+    ]]--
+    local function UpdateHiddenState()
+		local isHidden = internalHudSceneState and internalHudUiSceneState
+		
+        if (isHidden ~= internalHudHiddenState) then
+            internalHudHiddenState = isHidden
+            CALLBACK_MANAGER:FireCallbacks(TUI_HUD_HIDDEN_STATE_CHANGED, isHidden)
+        end
+    end
+
+    --[[
+        HudSceneOnStateChange callback of hud OnStateChange
+    ]]--
+    local function HudSceneOnStateChange(oldState, newState)
+        if (newState == SCENE_HIDING) then
+            internalHudSceneState = true
+			-- make call async to catch both state changes before changing visibility
+			zo_callLater(UpdateHiddenState, 1)
+        elseif (newState == SCENE_SHOWING) then
+            internalHudSceneState = false
+			-- make call async to catch both state changes before changing visibility
+			zo_callLater(UpdateHiddenState, 1)
+        end
+    end
+
+    --[[
+        HudUiSceneOnStateChange callback of hudui OnStateChange
+    ]]--
+    local function HudUiSceneOnStateChange(oldState, newState)
+		if (newState == SCENE_HIDING) then
+            internalHudUiSceneState = true
+			-- make call async to catch both state changes before changing visibility
+			zo_callLater(UpdateHiddenState, 1)
+        elseif (newState == SCENE_SHOWING) then
+            internalHudUiSceneState = false
+			-- make call async to catch both state changes before changing visibility
+			zo_callLater(UpdateHiddenState, 1)
+        end
+    end
+
+    --[[
+        Register callbacks to scenes
+    ]]--
+     -- Reticle Scene
+    SCENE_MANAGER:GetScene("hud"):RegisterCallback("StateChange", HudSceneOnStateChange)
+     -- Mouse Scene
+    SCENE_MANAGER:GetScene("hudui"):RegisterCallback("StateChange", HudUiSceneOnStateChange)
+    
+end

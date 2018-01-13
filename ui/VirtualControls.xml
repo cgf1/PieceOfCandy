@@ -1,0 +1,219 @@
+<GuiXml>
+  <Font name="MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin"/>
+  <Font name="SwimlaneListFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
+  <Font name="SwimlaneListHeaderFont" font="$(BOLD_FONT)|21|soft-shadow-thin"/>
+  <Font name="GroupUltimateFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
+  <Font name="GroupUltimateHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
+  <Font name="CompactSwimlaneListFont" font="$(MEDIUM_FONT)|14|soft-shadow-thin"/>
+  
+	<Controls>
+    <Label 	name="MoveActiveLabel"
+            width="48"
+            height="18"
+            font="MoveActiveFont"
+            inheritAlpha="true"
+            color="FFFFFF"
+            virtual="true"/>
+    
+		<Label 	name="SwimlaneListLabel" 
+				    width="90"
+				    height="20" 
+				    font="SwimlaneListFont" 
+				    inheritAlpha="true" 
+				    color="FFFFFF"
+				    verticalAlignment="CENTER" 
+				    horizontalAlignment="LEFT" 
+				    virtual="true"/>
+    
+    <Label 	name="SwimlaneListHeaderLabel" 
+				    width="75" 
+				    height="25" 
+				    font="GroupUltimateHeaderFont" 
+				    inheritAlpha="true" 
+				    color="FFFFFF"
+				    verticalAlignment="TEXT_ALIGN_TOP" 
+				    horizontalAlignment="TEXT_ALIGN_LEFT" 
+				    virtual="true"/>
+
+    <Label 	name="GroupUltimateHeaderLabel"
+            width="200"
+            height="20"
+            font="GroupUltimateHeaderFont"
+            inheritAlpha="true"
+            color="FFFFFF"
+            verticalAlignment="TEXT_ALIGN_TOP"
+            horizontalAlignment="TEXT_ALIGN_LEFT"
+            text="Header"
+            virtual="true"/>
+
+    <Label 	name="GroupUltimateLabel"
+				    width="200"
+				    height="20"
+				    font="GroupUltimateFont"
+				    inheritAlpha="true"
+				    color="FFFFFF"
+				    verticalAlignment="TEXT_ALIGN_TOP"
+				    horizontalAlignment="TEXT_ALIGN_LEFT"
+				    text="Label"
+				    virtual="true"/>
+
+    <Label 	name="GroupUltimateShortLabel"
+				    width="100"
+				    height="20"
+				    font="GroupUltimateFont"
+				    inheritAlpha="true"
+				    color="FFFFFF"
+				    verticalAlignment="TEXT_ALIGN_TOP"
+				    horizontalAlignment="TEXT_ALIGN_LEFT"
+				    text="Label"
+				    virtual="true"/>
+    
+    <Label 	name="CompactSwimlaneListLabel"
+				    width="90"
+				    height="20"
+				    font="CompactSwimlaneListFont"
+				    inheritAlpha="true"
+				    color="FFFFFF"
+				    verticalAlignment="CENTER"
+				    horizontalAlignment="LEFT"
+				    virtual="true"/>
+
+    <Control name="MovableBackdropControl" virtual="true">
+      <Controls>
+        <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.4" >
+          <Anchor point="TOPLEFT"/>
+          <Anchor point="BOTTOMRIGHT" />
+          <Edge edgeSize="2" />
+        </Backdrop>
+        <Label name="$(parent)MoveActiveLabel" inherits="MoveActiveLabel" text="MOVE" tier="2">
+          <Anchor point="CENTER"/>
+        </Label>
+      </Controls>
+    </Control>
+
+    <Control name="GroupUltimateSwimlaneRow" virtual="true">
+			<Dimensions x="100" y="40" />
+			<Controls>
+        <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
+          <Dimensions x="100" y="40" />
+          <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+          <Edge edgeSize="1" />
+        </Backdrop>
+        <StatusBar name="$(parent)RelativeUltimateStatusBar" alpha="0.7" textureFile="/TaosGroupUltimate/textures/grainy.dds">
+          <Dimensions x="98" y="38" />
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="1"/>
+          <Limits min="0" max="100" />
+        </StatusBar>
+        <Label name="$(parent)SenderNameValueLabel" inherits="SwimlaneListLabel">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="5" offsetY="10"/>
+        </Label>
+			</Controls>
+		</Control>
+
+    <Control name="GroupUltimateSwimlaneHeader" virtual="true">
+      <Dimensions x="100" y="25" />
+      <Controls>
+        <Control name="$(parent)SelectorButtonControl">
+          <Dimensions x="25" y="25"/>
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" />
+          <Controls>
+            <Button name="$(parent)Button"
+                    ButtonState="BSTATE_NORMAL"
+                    tier="1">
+              <Dimensions x="25" y="25"/>
+              <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+              <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
+                        pressed="/esoui/art/actionbar/abilityframe64_down.dds"
+                        mouseOver="/TaosGroupUltimate/textures/hover.dds"/>
+            </Button>
+            <Texture name="$(parent)Icon" tier="0">
+              <Dimensions x="24" y="24"/>
+              <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER"/>
+            </Texture>
+          </Controls>
+        </Control>
+        <Label name="$(parent)UltimateLabel" inherits="SwimlaneListHeaderLabel" text="NEGATE">
+					<Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="28" offsetY="3"/>
+				</Label>
+      </Controls>
+    </Control>
+
+    <Control name="GroupUltimateSwimlane" virtual="true">
+      <Dimensions x="100" y="300"/>
+      <Controls>
+        <Control name="$(parent)Header" inherits="GroupUltimateSwimlaneHeader">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
+        </Control>
+      </Controls>
+    </Control>
+
+    <Control name="GroupUltimateSimpleListRow" virtual="true">
+      <Dimensions y="20" />
+      <Controls>
+        <Label name="$(parent)SenderNameValueLabel" inherits="GroupUltimateLabel" text="-">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0"/>
+        </Label>
+        <Label name="$(parent)UltimateValueLabel" inherits="GroupUltimateLabel" text="-">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="200"/>
+        </Label>
+        <Label name="$(parent)ReadyValueLabel" inherits="GroupUltimateShortLabel" text="0">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="400"/>
+        </Label>
+      </Controls>
+    </Control>
+
+    <Control name="CompactGroupUltimateSwimlaneRow" virtual="true">
+      <Dimensions x="50" y="25" />
+      <Controls>
+        <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
+          <Dimensions x="50" y="25" />
+          <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+          <Edge edgeSize="1" />
+        </Backdrop>
+        <StatusBar name="$(parent)RelativeUltimateStatusBar" alpha="0.7" textureFile="/TaosGroupUltimate/textures/grainy.dds">
+          <Dimensions x="48" y="23" />
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="1"/>
+          <Limits min="0" max="100" />
+        </StatusBar>
+        <Label name="$(parent)SenderNameValueLabel" inherits="CompactSwimlaneListLabel">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="3" offsetY="2"/>
+        </Label>
+      </Controls>
+    </Control>
+
+    <Control name="CompactGroupUltimateSwimlaneHeader" virtual="true">
+      <Dimensions x="50" y="50" />
+      <Controls>
+        <Control name="$(parent)SelectorButtonControl">
+          <Dimensions x="50" y="50"/>
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" />
+          <Controls>
+            <Button name="$(parent)Button"
+                    ButtonState="BSTATE_NORMAL"
+                    tier="1">
+              <Dimensions x="50" y="50"/>
+              <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+              <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
+                        pressed="/esoui/art/actionbar/abilityframe64_down.dds"
+                        mouseOver="/TaosGroupUltimate/textures/hover.dds"/>
+            </Button>
+            <Texture name="$(parent)Icon" tier="0">
+              <Dimensions x="48" y="48"/>
+              <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER"/>
+            </Texture>
+          </Controls>
+        </Control>
+      </Controls>
+    </Control>
+
+    <Control name="CompactGroupUltimateSwimlane" virtual="true">
+      <Dimensions x="50" y="150"/>
+      <Controls>
+        <Control name="$(parent)Header" inherits="CompactGroupUltimateSwimlaneHeader">
+          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
+        </Control>
+      </Controls>
+    </Control>
+    
+  </Controls>
+</GuiXml>
