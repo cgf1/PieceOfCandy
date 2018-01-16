@@ -1,10 +1,4 @@
 --[[
-	Addon: Taos Group Ultimate
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Local variables
 ]]--
 local LOG_ACTIVE = false

@@ -22,7 +22,7 @@
               <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
               <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
                         pressed="/esoui/art/actionbar/abilityframe64_down.dds"
-                        mouseOver="/TaosGroupUltimate/textures/hover.dds"/>
+                        mouseOver="/POC/textures/hover.dds"/>
               <OnClicked>TGU_GroupUltimateSelector:OnGroupUltimateSelectorClicked()</OnClicked>
             </Button>
             <Texture name="$(parent)Icon" tier="0">

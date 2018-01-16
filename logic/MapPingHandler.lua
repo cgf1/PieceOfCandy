@@ -1,10 +1,4 @@
 --[[
-	Addon: Taos Group Ultimate
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Local variables
 ]]--
 local LOG_ACTIVE = false
@@ -100,6 +94,6 @@ function TGU_MapPingHandler.Initialize(logger, isMocked)
     -- Register callbacks
     CALLBACK_MANAGER:RegisterCallback(TGU_MAP_PING_CHANGED, TGU_MapPingHandler.OnData)
 
-	-- Start timer
-	EVENT_MANAGER:RegisterForUpdate(TGU_MapPingHandler.Name, REFRESHRATE, TGU_MapPingHandler.OnTimedUpdate)
+    -- Start timer
+    EVENT_MANAGER:RegisterForUpdate(TGU_MapPingHandler.Name, REFRESHRATE, TGU_MapPingHandler.OnTimedUpdate)
 end

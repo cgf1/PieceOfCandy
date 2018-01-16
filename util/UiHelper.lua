@@ -1,18 +1,12 @@
 --[[
-	Addon: util
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Class definition (Static class)
 ]]--
 -- A table in hole lua workspace must be unique
 -- The ui helper is global util table, used in several of my addons
 -- The table is created as "static" class without constructor and static helper methods
-if (TaosUiHelper == nil) then
-	TaosUiHelper = {}
-	TaosUiHelper.__index = TaosUiHelper
+if (POCUiHelper == nil) then
+	POCUiHelper = {}
+	POCUiHelper.__index = POCUiHelper
 
     -- Global Callback Variables
     TUI_HUD_HIDDEN_STATE_CHANGED = "TUI-HudHiddenStateChange"

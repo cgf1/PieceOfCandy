@@ -1,10 +1,4 @@
 --[[
-	Addon: Taos Group Ultimate
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Local variables
 ]]--
 local LOG_ACTIVE = false
@@ -22,7 +16,7 @@ TGU_SettingsHandler.__index = TGU_SettingsHandler
 	Table Members
 ]]--
 TGU_SettingsHandler.Name = "TGU-SettingsHandler"
-TGU_SettingsHandler.SettingsName = "TaosGroupUltimateSettings"
+TGU_SettingsHandler.SettingsName = "POCSettings"
 TGU_SettingsHandler.SavedVariables = nil
 TGU_SettingsHandler.Default = 
 {
@@ -34,6 +28,8 @@ TGU_SettingsHandler.Default =
     ["IsLgsActive"] = false,
     ["IsSortingActive"] = true,
     ["SwimlaneMax"] = 24,
+    ["UltNumberShow"] = true,
+    ["UltNumberPos"] = {100,100},
     ["Movable"] = true,
     ["Style"] = 3,
     ["StaticUltimateID"] = 29861,
@@ -147,6 +143,12 @@ function TGU_SettingsHandler.TGU_SetSwimlaneMax(max)
     end
     TGU_SettingsHandler.SavedVariables.SwimlaneMax = max
 end
+
+function TGU_SettingsHandler.TGU_SetUltNumberShow(val)
+    TGU_SettingsHandler.SavedVariables.UltNumberShow = val
+    TGU_UltNumber:SetHidden(not value)
+end
+--
 
 --[[
 	Sets IsSortingActive settings

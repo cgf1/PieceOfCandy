@@ -1,19 +1,13 @@
 --[[
-	Addon: util
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Class definition
 ]]--
 -- A table in hole lua workspace must be unique
 -- The debug logger is global util table, used in several of my addons
-if (TaosDebugLogger == nil) then
-	TaosDebugLogger = {}
-	TaosDebugLogger.__index = TaosDebugLogger
+if (POCDebugLogger == nil) then
+	POCDebugLogger = {}
+	POCDebugLogger.__index = POCDebugLogger
 
-	setmetatable(TaosDebugLogger, {
+	setmetatable(POCDebugLogger, {
 		__call = function (cls, ...)
 			return cls.new(...)
 		end,
@@ -22,8 +16,8 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Class constructor
 	]]--
-	function TaosDebugLogger.new(name, logCommand, traceActive, debugActive, errorActive, directPrint, catchLuaErrors)
-		local self = setmetatable({}, TaosDebugLogger)
+	function POCDebugLogger.new(name, logCommand, traceActive, debugActive, errorActive, directPrint, catchLuaErrors)
+		local self = setmetatable({}, POCDebugLogger)
 		
 		-- class members
 		self.name = name
@@ -46,7 +40,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Trace
 	]]--
-	function TaosDebugLogger:logTrace(functionName)
+	function POCDebugLogger:logTrace(functionName)
 		if (self.TRACE_ACTIVE == false) then return end
 
 		local formatMessage = "[%s - TRACE] %s"
@@ -56,7 +50,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Debug
 	]]--
-	function TaosDebugLogger:logDebug(...)
+	function POCDebugLogger:logDebug(...)
 		if (self.DEBUG_ACTIVE == false) then return end
 
 		local formatMessage = "[%s - DEBUG] %s"
@@ -76,7 +70,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Error
 	]]--
-	function TaosDebugLogger:logError(...)
+	function POCDebugLogger:logError(...)
 		if (self.ERROR_ACTIVE == false) then return end
 
 		local formatMessage = "[%s - ERROR] %s"
@@ -96,7 +90,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Log
 	]]--
-	function TaosDebugLogger:logMessage(msg)
+	function POCDebugLogger:logMessage(msg)
 		self:AddMessage(msg)
 
 		if (self.DIRECT_PRINT) then
@@ -107,7 +101,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Adds messages to buffer
 	]]--
-	function TaosDebugLogger:AddMessage(msg)
+	function POCDebugLogger:AddMessage(msg)
 		if(not msg or self.buffer == nil) then return end
 
 		local buf = self.buffer
@@ -117,7 +111,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Print buffered messages
 	]]--
-	function TaosDebugLogger:PrintMessages()
+	function POCDebugLogger:PrintMessages()
 		if(self.buffer == nil) then return end
 		
 		for i,msg in ipairs(self.buffer) do
@@ -128,7 +122,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Prints buffered outputs
 	]]--
-	function TaosDebugLogger:OnPlayerActivated(eventCode) 
+	function POCDebugLogger:OnPlayerActivated(eventCode) 
 		self:PrintMessages()
 
 		EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_PLAYER_ACTIVATED)
@@ -137,7 +131,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Catches lua errors
 	]]--
-	function TaosDebugLogger:OnLuaError(eventCode, errorOutput)
+	function POCDebugLogger:OnLuaError(eventCode, errorOutput)
 		if (self.CATCH_LUA_ERRORS == false) then return end
 		
 		self:logMessage(errorOutput)
@@ -147,7 +141,7 @@ if (TaosDebugLogger == nil) then
 	--[[
 		Handles /tapslogs command
 	]]--
-	function TaosDebugLogger:CommandShowLogs()
+	function POCDebugLogger:CommandShowLogs()
 		self:PrintMessages()
 	end
 end

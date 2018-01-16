@@ -1,4 +1,4 @@
--- Taos Group ultimate french localization file
+-- POC french localization file
 
 -- Options
 local strings = {

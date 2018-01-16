@@ -1,10 +1,4 @@
 --[[
-	Addon: Taos Group Ultimate
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Local variables
 ]]--
 local LOG_ACTIVE = false
@@ -71,8 +65,11 @@ function TGU_SwimlaneList.SortSwimlane(swimlane)
 
     table.sort(swimlane.Players, compare)
 
+
     -- d("MAX " .. TGU_SettingsHandler.SavedVariables.SwimlaneMax)
     -- Update sorted swimlane list
+    local me = GetGroupUnitTagByIndex(GetGroupIndexByUnitTag("player"))
+
     for i,swimlanePlayer in ipairs(swimlane.Players) do
         if (swimlanePlayer.RelativeUltimate  >= 100) then
             if (swimlanePlayer.IsPlayerDead) then
@@ -81,7 +78,18 @@ function TGU_SwimlaneList.SortSwimlane(swimlane)
                 swimlanePlayer.RelativeUltimate = 100 + TGU_SettingsHandler.SavedVariables.SwimlaneMax - i
             end
         end
-        -- d(swimlanePlayer.PlayerName .. " (" .. i .. ") " ..  swimlanePlayer.RelativeUltimate)
+        if (swimlanePlayer.PingTag ~= me) then
+            -- nothing to do
+        elseif (not TGU_SettingsHandler.SavedVariables.UltNumberShow or
+                (swimlanePlayer.RelativeUltimate < 100) or
+                CurrentHudHiddenState() or
+                not TGU_GroupHandler.IsGrouped() or
+                not TGU_SettingsHandler.IsSwimlaneListVisible()) then
+            TGU_UltNumber:SetHidden(true)
+        else
+            TGU_UltNumberLabel:SetText("|c00ff00 #" .. i .. "|r")
+            TGU_UltNumber:SetHidden(false)
+        end
         TGU_SwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
     end
 end
@@ -144,7 +152,7 @@ function TGU_SwimlaneList.UpdatePlayer(player)
                             swimlanePlayer.LastMapPingTimestamp = GetTimeStamp()
                             swimlanePlayer.IsPlayerDead = player.IsPlayerDead
                             if (player.PlayerName == "Sirech") then
-                                player.RelativeUltimate = 90
+                                player.RelativeUltimate = 60
                             end
                             if (player.RelativeUltimate < 100 or swimlanePlayer.RelativeUltimate < 100) then
                                 swimlanePlayer.RelativeUltimate = player.RelativeUltimate
@@ -282,7 +290,7 @@ function TGU_SwimlaneList.SetControlMovable(isMovable)
     _control:GetNamedChild("MovableControl"):SetHidden(isMovable == false)
 
     _control:SetMovable(isMovable)
-	_control:SetMouseEnabled(isMovable)
+    _control:SetMouseEnabled(isMovable)
 end
 
 --[[
@@ -324,7 +332,7 @@ function TGU_SwimlaneList.SetControlHidden(isHidden)
         _logger:logDebug("isHidden", isHidden)
     end
 
-    if (TGU_GroupHandler.IsGrouped) then
+    if (TGU_GroupHandler.IsGrouped()) then
         _control:SetHidden(isHidden)
     else
         _control:SetHidden(true)
@@ -343,6 +351,7 @@ function TGU_SwimlaneList.SetControlActive()
     if (LOG_ACTIVE) then _logger:logDebug("isHidden", isHidden) end
     
     TGU_SwimlaneList.SetControlHidden(isHidden or CurrentHudHiddenState())
+    TGU_UltNumber:SetHidden(isHidden or CurrentHudHiddenState())
 
     if (isHidden) then
         -- Start timeout timer
@@ -514,7 +523,20 @@ function TGU_SwimlaneList.Initialize(logger, isMocked)
 
     TGU_SwimlaneList.CreateSwimLaneListHeaders()
 
+    TGU_UltNumber:ClearAnchors()
+    TGU_UltNumber:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
+                            TGU_SettingsHandler.SavedVariables.UltNumberPos[1],
+                            TGU_SettingsHandler.SavedVariables.UltNumberPos[2])
+    TGU_UltNumber:SetMovable(true)
+    TGU_UltNumber:SetMouseEnabled(true)
+    TGU_UltNumber:SetHidden(not TGU_SettingsHandler.SavedVariables.UltNumber)
+
+
     CALLBACK_MANAGER:RegisterCallback(TGU_STYLE_CHANGED, TGU_SwimlaneList.SetControlActive)
     CALLBACK_MANAGER:RegisterCallback(TGU_IS_ZONE_CHANGED, TGU_SwimlaneList.SetControlActive)
     CALLBACK_MANAGER:RegisterCallback(TGU_UNIT_GROUPED_CHANGED, TGU_SwimlaneList.SetControlActive)
+end
+
+function TGU_SwimlaneList.savePosNumber(self)
+    TGU_SettingsHandler.SavedVariables.UltNumberPos = {self:GetLeft(),self:GetTop()}
 end

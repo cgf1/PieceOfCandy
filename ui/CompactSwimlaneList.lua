@@ -1,10 +1,4 @@
 --[[
-	Addon: Taos Group Ultimate
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Local variables
 ]]--
 local LOG_ACTIVE = false
@@ -305,7 +299,7 @@ function TGU_CompactSwimlaneList.SetControlHidden(isHidden)
         _logger:logDebug("isHidden", isHidden)
     end
 
-    if (TGU_GroupHandler.IsGrouped) then
+    if (TGU_GroupHandler.IsGrouped()) then
         _control:SetHidden(isHidden)
     else
         _control:SetHidden(true)

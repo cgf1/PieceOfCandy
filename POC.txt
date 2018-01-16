@@ -5,11 +5,11 @@
 ; You can read the full terms at https://account.elderscrollsonline.com/add-on-terms
 
 ## APIVersion: 100021
-## Description: Shares your ultimate to other group members via map pings
-## Title: |ca0a0a0Taos Group Ultimate|r 1.4.6
-## Version: 1.5.0
-## Author: |ca0a0a0TProg|r Taonnor
-## SavedVariables: TaosGroupUltimateSettings
+## Description: PVP Helper
+## Title: Piece of Candy
+## Version: 2.0.0
+## Author: |ca0a0a0TProg|r Taonnor & Valandil
+## SavedVariables: POCSettings
 ## OptionalDependsOn: LibAddonMenu-2.0
 
 libs/LibStub/LibStub.lua
@@ -46,9 +46,10 @@ ui/GroupUltimateSelector.lua
 ui/SimpleList.xml
 ui/SimpleList.lua
 ui/SwimlaneList.xml
+ui/UltNumber.xml
 ui/SwimlaneList.lua
 ui/CompactSwimlaneList.xml
 ui/CompactSwimlaneList.lua
 ui/UltimateGroupMenu.lua
 
-TaosGroupUltimate.lua
+POC.lua

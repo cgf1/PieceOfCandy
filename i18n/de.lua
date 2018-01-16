@@ -1,4 +1,4 @@
--- Taos Group Ultimate german localization file
+-- POC german localization file
 
 -- Options
 local strings = {

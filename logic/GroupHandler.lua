@@ -1,10 +1,4 @@
 --[[
-	Addon: Taos Group Ultimate
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Local variables
 ]]--
 local LOG_ACTIVE = false
@@ -21,7 +15,6 @@ TGU_GroupHandler.__index = TGU_GroupHandler
 ]]--
 TGU_GroupHandler.Name = "TGU-GroupHandler"
 TGU_GroupHandler.IsMocked = false
-TGU_GroupHandler.IsGrouped = false
 
 --[[
 	Called when group member joined group
@@ -45,20 +38,14 @@ end
 	Called when groupUnitTags updated
 ]]--
 function TGU_GroupHandler.OnGroupUpdate()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupUpdate") end
+    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupUpdate") end
 	
     CALLBACK_MANAGER:FireCallbacks(TGU_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(TGU_UNIT_GROUPED_CHANGED)
+end
 
-    local isGrouped = IsUnitGrouped("player")
-
-    if (TGU_GroupHandler.IsMocked) then
-        isGrouped = true
-    end
-
-    if (isGrouped ~= TGU_GroupHandler.IsGrouped) then
-        TGU_GroupHandler.IsGrouped = isGrouped
-        CALLBACK_MANAGER:FireCallbacks(TGU_UNIT_GROUPED_CHANGED)
-    end
+function TGU_GroupHandler.IsGrouped()
+    return TGU_GroupHandler.IsMocked or IsUnitGrouped("player")
 end
 
 --[[
@@ -81,11 +68,11 @@ function TGU_GroupHandler.Initialize(logger, isMocked)
     TGU_GroupHandler.IsMocked = isMocked
 
     -- Initial call
-	TGU_GroupHandler:OnGroupUpdate()
+    TGU_GroupHandler:OnGroupUpdate()
 
-	-- Register events
-	EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_JOINED, TGU_GroupHandler.OnGroupMemberJoined)
-	EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_LEFT, TGU_GroupHandler.OnGroupMemberLeft)
-	EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_UPDATE, TGU_GroupHandler.OnGroupUpdate)
-	EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_UNIT_FRAME_UPDATE, TGU_GroupHandler.OnUnitFrameUpdate)
+    -- Register events
+    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_JOINED, TGU_GroupHandler.OnGroupMemberJoined)
+    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_LEFT, TGU_GroupHandler.OnGroupMemberLeft)
+    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_UPDATE, TGU_GroupHandler.OnGroupUpdate)
+    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_UNIT_FRAME_UPDATE, TGU_GroupHandler.OnUnitFrameUpdate)
 end

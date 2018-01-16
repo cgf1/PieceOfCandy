@@ -1,10 +1,4 @@
 --[[
-	Addon: Taos Group Ultimate
-	Author: TProg Taonnor
-	Created by @Taonnor
-]]--
-
---[[
 	Local variables
 ]]--
 local LOG_ACTIVE = false
@@ -18,7 +12,7 @@ TGU_SettingsWindow.__index = TGU_SettingsWindow
 --[[
 	Table Members
 ]]--
-TGU_SettingsWindow.MainMenuName = "TaosGroupUltimateSettingsMainMenu"
+TGU_SettingsWindow.MainMenuName = "POCSettingsMainMenu"
 
 --[[
 	Initialize creates settings window
@@ -37,7 +31,7 @@ function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
 
 	local panelData = {
 		type = "panel",
-		name = "Taos Group Ultimate",
+		name = "Piece Of Candy",
 		author = "TProg Taonnor",
 		version = major .. "." .. minor .. "." .. patch,
 		slashCommand = "/taosGroupUltimate",
@@ -96,20 +90,18 @@ function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
                                 type = "dropdown",
                                 name = GetString(TGU_OPTIONS_STYLE_LABEL),
                                 tooltip = GetString(TGU_OPTIONS_STYLE_TOOLTIP),
-                    choices = styleChoices,
-                                getFunc = 
-                       function() 
-                           return styleChoices[TGU_SettingsHandler.SavedVariables.Style]
-                       end,
-                                setFunc = 
-                       function(value) 
-                           for index, name in ipairs(styleChoices) do
-                              if (name == value) then
-                                 TGU_SettingsHandler.SetStyleSettings(index)
-                                 break
-                              end
-                           end
-                                   end,
+                                choices = styleChoices,
+                                getFunc = function() 
+                                    return styleChoices[TGU_SettingsHandler.SavedVariables.Style]
+                                end,
+                                setFunc = function(value)
+                                    for index, name in ipairs(styleChoices) do
+                                        if (name == value) then
+                                            TGU_SettingsHandler.SetStyleSettings(index)
+                                            break
+                                        end
+                                    end
+                                end,
                                 default = styleChoices[TGU_SettingsHandler.Default.Style]
                         },
                 [6] = {
@@ -120,6 +112,16 @@ function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
                                 width = "full",
                                 setFunc = function(value) TGU_SettingsHandler.TGU_SetSwimlaneMax(value) end,
                                 default = 24,
+                        },
+                [7] = {
+                        type = "checkbox",
+                        name = GetString(TGU_OPTIONS_ULTIMATE_NUMBER),
+                        tooltip = GetString(TGU_OPTIONS_ULTIMATE_NUMBER_TOOLTIP),
+                        getFunc = function()
+                            return TGU_SettingsHandler.SavedVariables.UltNumberShow
+                        end,
+                        setFunc = function(val) TGU_SettingsHandler.TGU_SetUltNumberShow(val) end,
+                        default = TGU_SettingsHandler.Default.UltNumberShow
                         },
 	}
 	
