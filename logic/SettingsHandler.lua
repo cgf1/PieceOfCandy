@@ -32,7 +32,7 @@ TGU_SettingsHandler.Default =
     ["UltNumberPos"] = {100,100},
     ["WereNumberOne"] = false,
     ["Movable"] = true,
-    ["Style"] = 3,
+    ["Style"] = 1,
     ["StaticUltimateID"] = 29861,
     ["SwimlaneUltimateGroupIds"] =
     {
@@ -179,7 +179,7 @@ function TGU_SettingsHandler.IsSimpleListVisible()
     if (LOG_ACTIVE) then _logger:logTrace("TGU_SettingsHandler.IsSimpleListVisible") end
     if (TGU_SettingsHandler.SavedVariables ~= nil) then
         if (LOG_ACTIVE) then _logger:logDebug("style", TGU_SettingsHandler.SavedVariables.Style) end
-        return tonumber(TGU_SettingsHandler.SavedVariables.Style) == 1 and TGU_SettingsHandler.IsControlsVisible()
+        return tonumber(TGU_SettingsHandler.SavedVariables.Style) == 2 and TGU_SettingsHandler.IsControlsVisible()
     else
         _logger:logError("TGU_SettingsHandler.SavedVariables is nil")
         return false
@@ -193,7 +193,7 @@ function TGU_SettingsHandler.IsSwimlaneListVisible()
     if (LOG_ACTIVE) then _logger:logTrace("TGU_SettingsHandler.IsSwimlaneListVisible") end
     if (TGU_SettingsHandler.SavedVariables ~= nil) then
         if (LOG_ACTIVE) then _logger:logDebug("style", TGU_SettingsHandler.SavedVariables.Style) end
-        return tonumber(TGU_SettingsHandler.SavedVariables.Style) == 2 and TGU_SettingsHandler.IsControlsVisible()
+        return tonumber(TGU_SettingsHandler.SavedVariables.Style) == 1 and TGU_SettingsHandler.IsControlsVisible()
     else
         _logger:logError("TGU_SettingsHandler.SavedVariables is nil")
         return false

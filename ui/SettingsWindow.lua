@@ -24,9 +24,7 @@ function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
     end
 
     local styleChoices = {
-        [1] = GetString(TGU_OPTIONS_STYLE_SIMPLE),
-        [2] = GetString(TGU_OPTIONS_STYLE_SWIM),
-        [3] = GetString(TGU_OPTIONS_STYLE_SHORT_SWIM),
+        GetString(TGU_OPTIONS_STYLE_SWIM)
     }
 
 	local panelData = {

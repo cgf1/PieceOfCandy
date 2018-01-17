@@ -135,8 +135,12 @@ function TGU_SwimlaneList.UpdateListRow(row, player)
     local playerName = player.PlayerName
     local nameLength = string.len(playerName)
 
-    if (nameLength > 10) then
-        playerName = string.sub(playerName, 0, 10) .. "..."
+    if (nameLength > 12) then
+        playerName = string.sub(playerName, 0, 12) .. '...'
+    end
+
+    if (IsUnitInCombat(player.PingTag)) then
+        playerName = "|cFF0000" .. playerName .. "|r"
     end
 
     row:GetNamedChild("SenderNameValueLabel"):SetText(playerName)
@@ -149,7 +153,7 @@ function TGU_SwimlaneList.UpdateListRow(row, player)
     elseif (player.RelativeUltimate >= 100) then
 		-- Ready Color
         row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 1)
-        row:GetNamedChild("RelativeUltimateStatusBar"):SetColor(0.03, 0.7, 0.03, 0.7)
+        row:GetNamedChild("RelativeUltimateStatusBar"):SetColor(0.03, 0.7, 0.03, 1)
     else
 		-- Inprogress Color
         row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 0.8)
