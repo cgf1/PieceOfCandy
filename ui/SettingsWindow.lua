@@ -123,6 +123,16 @@ function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
                         setFunc = function(val) TGU_SettingsHandler.TGU_SetUltNumberShow(val) end,
                         default = TGU_SettingsHandler.Default.UltNumberShow
                         },
+                [8] = {
+                        type = "checkbox",
+                        name = GetString(TGU_OPTIONS_WERE_NUMBER_ONE),
+                        tooltip = GetString(TGU_OPTIONS_WERE_NUMBER_ONE_TOOLTIP),
+                        getFunc = function()
+                            return TGU_SettingsHandler.SavedVariables.WereNumberOne
+                        end,
+                        setFunc = function(val) TGU_SettingsHandler.TGU_SetWereNumberOne(val) end,
+                        default = TGU_SettingsHandler.Default.WereNumberOne
+                        },
 	}
 	
 	local LAM = LibStub("LibAddonMenu-2.0")

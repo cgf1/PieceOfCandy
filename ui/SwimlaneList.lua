@@ -9,6 +9,7 @@ local TIMEOUT = 4 -- s; GetTimeStamp() is in seconds
 
 local _logger = nil
 local _control = nil
+local play_sound = true
 
 --[[
 	Table TGU_SwimlaneList
@@ -22,17 +23,39 @@ TGU_SwimlaneList.__index = TGU_SwimlaneList
 TGU_SwimlaneList.Name = "TGU-SwimlaneList"
 TGU_SwimlaneList.IsMocked = false
 TGU_SwimlaneList.Swimlanes = {}
+TGU_SwimlaneList.WasActive = false
 
 --[[
 	Sets visibility of labels
 ]]--
 function TGU_SwimlaneList.RefreshList()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_SwimlaneList.RefreshList") end
+    if (LOG_ACTIVE) then _logger:logTrace("TGU_SwimlaneList.RefreshList") end
 
-    -- Check all swimlanes
-    for i,swimlane in ipairs(TGU_SwimlaneList.Swimlanes) do
-        TGU_SwimlaneList.ClearPlayersFromSwimlane(swimlane)
-	end
+    if (not TGU_GroupHandler.IsGrouped()) then
+        d("POC: No longer grouped")
+        if (TGU_SwimlaneList.WasActive) then
+            TGU_SwimlaneList.SetControlActive()
+            TGU_SwimlaneList.WasActive = false
+            -- d("SetControlActive: set WasActive = false")
+        end
+    else
+        -- Check all swimlanes
+        local displayed = false
+        for i,swimlane in ipairs(TGU_SwimlaneList.Swimlanes) do
+            if TGU_SwimlaneList.ClearPlayersFromSwimlane(swimlane) then
+                displayed = true
+            end
+        end
+        if (not (displayed and TGU_SwimlaneList.WasActive)) then
+            -- d({"displayed", displayed})
+            -- d({"WasActive", TGU_SwimlaneList.WasActive})
+            TGU_SwimlaneList.SetControlActive()
+            if (not TGU_SwimlaneList.WasActive) then
+                d("POC: now grouped")
+            end
+            TGU_SwimlaneList.WasActive = true
+        end
+    end
 end
 
 --[[
@@ -86,9 +109,16 @@ function TGU_SwimlaneList.SortSwimlane(swimlane)
                 not TGU_GroupHandler.IsGrouped() or
                 not TGU_SettingsHandler.IsSwimlaneListVisible()) then
             TGU_UltNumber:SetHidden(true)
+            play_sound = swimlanePlayer.RelativeUltimate < 100
         else
             TGU_UltNumberLabel:SetText("|c00ff00 #" .. i .. "|r")
             TGU_UltNumber:SetHidden(false)
+            if (i ~= 1) then
+                play_sound = true
+            elseif (play_sound and TGU_SettingsHandler.SavedVariables.WereNumberOne) then
+                PlaySound(SOUNDS.DUEL_START)
+                play_sound = false
+            end
         end
         TGU_SwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
     end
@@ -135,11 +165,11 @@ end
 	Updates list player
 ]]--
 function TGU_SwimlaneList.UpdatePlayer(player)
-	if (LOG_ACTIVE) then 
+    if (LOG_ACTIVE) then 
         _logger:logTrace("TGU_SwimlaneList.UpdatePlayer")
     end
 
-	if (player) then
+    if (player) then
         local swimLane = TGU_SwimlaneList.GetSwimLane(player.UltimateGroup.GroupAbilityId)
 
         if (swimLane) then
@@ -188,7 +218,7 @@ function TGU_SwimlaneList.UpdatePlayer(player)
         else
             if (LOG_ACTIVE) then _logger:logDebug("TGU_SwimlaneList.UpdatePlayer, swimlane not found for ultimategroup " .. tostring(ultimateGroup.GroupName)) end
         end
-	end
+    end
 end
 
 --[[
@@ -249,12 +279,14 @@ function TGU_SwimlaneList.ClearPlayersFromSwimlane(swimlane)
         _logger:logDebug("swimlane ID", swimlane.Id)
     end
 
+    local updated = false
     if (swimlane) then
         for i=1, TGU_SettingsHandler.SavedVariables.SwimlaneMax, 1 do
             local row = swimlane.SwimlaneControl:GetNamedChild("Row" .. i)
             local swimlanePlayer = swimlane.Players[i]
 
             if (swimlanePlayer ~= nil) then
+                updated = true
                 local isPlayerNotGrouped = IsUnitGrouped(swimlanePlayer.PingTag) == false
 
                 if (TGU_SwimlaneList.IsMocked) then
@@ -276,6 +308,7 @@ function TGU_SwimlaneList.ClearPlayersFromSwimlane(swimlane)
             end
         end
     end
+    return updated
 end
 
 --[[
@@ -347,33 +380,33 @@ function TGU_SwimlaneList.SetControlActive()
         _logger:logTrace("TGU_SwimlaneList.SetControlActive")
     end
 
-    local isHidden = TGU_SettingsHandler.IsSwimlaneListVisible() == false
-    if (LOG_ACTIVE) then _logger:logDebug("isHidden", isHidden) end
+    local isVisible = TGU_SettingsHandler.IsSwimlaneListVisible() and TGU_GroupHandler.IsGrouped()
+    if (LOG_ACTIVE) then _logger:logDebug("isVisible", isHidden) end
     
-    TGU_SwimlaneList.SetControlHidden(isHidden or CurrentHudHiddenState())
-    TGU_UltNumber:SetHidden(isHidden or CurrentHudHiddenState())
+    local isHidden = not isVisible or CurrentHudHiddenState()
+    TGU_SwimlaneList.SetControlHidden(isHidden)
+    TGU_UltNumber:SetHidden(isHidden)
+    TGU_UltimateSelectorControl:SetHidden(isHidden)
 
-    if (isHidden) then
-        -- Start timeout timer
-	    EVENT_MANAGER:UnregisterForUpdate(TGU_SwimlaneList.Name)
-
-        CALLBACK_MANAGER:UnregisterCallback(TGU_GROUP_CHANGED, TGU_SwimlaneList.RefreshList)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_PLAYER_DATA_CHANGED, TGU_SwimlaneList.UpdatePlayer)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_MOVABLE_CHANGED, TGU_SwimlaneList.SetControlMovable)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, TGU_SwimlaneList.SetSwimlaneUltimate)
-        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_SwimlaneList.SetControlHidden)
-    else
+    if (isVisible) then
         TGU_SwimlaneList.SetControlMovable(TGU_SettingsHandler.SavedVariables.Movable)
         TGU_SwimlaneList.RestorePosition(TGU_SettingsHandler.SavedVariables.PosX, TGU_SettingsHandler.SavedVariables.PosY)
 
-        -- Start timeout timer
-	    EVENT_MANAGER:RegisterForUpdate(TGU_SwimlaneList.Name, REFRESHRATE, TGU_SwimlaneList.RefreshList)
+        EVENT_MANAGER:RegisterForUpdate(TGU_SwimlaneList.Name, REFRESHRATE, TGU_SwimlaneList.RefreshList)
 
-        CALLBACK_MANAGER:RegisterCallback(TGU_GROUP_CHANGED, TGU_SwimlaneList.RefreshList)
         CALLBACK_MANAGER:RegisterCallback(TGU_PLAYER_DATA_CHANGED, TGU_SwimlaneList.UpdatePlayer)
         CALLBACK_MANAGER:RegisterCallback(TGU_MOVABLE_CHANGED, TGU_SwimlaneList.SetControlMovable)
         CALLBACK_MANAGER:RegisterCallback(TGU_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, TGU_SwimlaneList.SetSwimlaneUltimate)
         CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_SwimlaneList.SetControlHidden)
+    else
+        -- Stop timeout timer
+        EVENT_MANAGER:UnregisterForUpdate(TGU_SwimlaneList.Name)
+
+        -- CALLBACK_MANAGER:UnregisterCallback(TGU_GROUP_CHANGED, TGU_SwimlaneList.RefreshList)
+        CALLBACK_MANAGER:UnregisterCallback(TGU_PLAYER_DATA_CHANGED, TGU_SwimlaneList.UpdatePlayer)
+        CALLBACK_MANAGER:UnregisterCallback(TGU_MOVABLE_CHANGED, TGU_SwimlaneList.SetControlMovable)
+        CALLBACK_MANAGER:UnregisterCallback(TGU_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, TGU_SwimlaneList.SetSwimlaneUltimate)
+        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_SwimlaneList.SetControlHidden)
     end
 end
 
@@ -532,6 +565,7 @@ function TGU_SwimlaneList.Initialize(logger, isMocked)
     TGU_UltNumber:SetHidden(not TGU_SettingsHandler.SavedVariables.UltNumber)
 
 
+    CALLBACK_MANAGER:RegisterCallback(TGU_GROUP_CHANGED, TGU_SwimlaneList.RefreshList)
     CALLBACK_MANAGER:RegisterCallback(TGU_STYLE_CHANGED, TGU_SwimlaneList.SetControlActive)
     CALLBACK_MANAGER:RegisterCallback(TGU_IS_ZONE_CHANGED, TGU_SwimlaneList.SetControlActive)
     CALLBACK_MANAGER:RegisterCallback(TGU_UNIT_GROUPED_CHANGED, TGU_SwimlaneList.SetControlActive)

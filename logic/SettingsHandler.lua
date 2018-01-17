@@ -30,6 +30,7 @@ TGU_SettingsHandler.Default =
     ["SwimlaneMax"] = 24,
     ["UltNumberShow"] = true,
     ["UltNumberPos"] = {100,100},
+    ["WereNumberOne"] = false,
     ["Movable"] = true,
     ["Style"] = 3,
     ["StaticUltimateID"] = 29861,
@@ -144,11 +145,20 @@ function TGU_SettingsHandler.TGU_SetSwimlaneMax(max)
     TGU_SettingsHandler.SavedVariables.SwimlaneMax = max
 end
 
+--[[
+        Set whether to show ultimate number on screen
+]]--
 function TGU_SettingsHandler.TGU_SetUltNumberShow(val)
     TGU_SettingsHandler.SavedVariables.UltNumberShow = val
     TGU_UltNumber:SetHidden(not value)
 end
---
+
+--[[
+        Set whether to play a sound when you hit #1 in ultimate order
+]]--
+function TGU_SettingsHandler.TGU_SetWereNumberOne(val)
+    TGU_SettingsHandler.SavedVariables.WereNumberOne = val
+end
 
 --[[
 	Sets IsSortingActive settings

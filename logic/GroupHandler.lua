@@ -20,7 +20,7 @@ TGU_GroupHandler.IsMocked = false
 	Called when group member joined group
 ]]--
 function TGU_GroupHandler.OnGroupMemberJoined()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupMemberJoined") end
+    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupMemberJoined") end
 	
     CALLBACK_MANAGER:FireCallbacks(TGU_GROUP_CHANGED)
 end
@@ -29,7 +29,7 @@ end
 	Called when group member left group
 ]]--
 function TGU_GroupHandler.OnGroupMemberLeft()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupMemberLeft") end
+    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupMemberLeft") end
 	
     CALLBACK_MANAGER:FireCallbacks(TGU_GROUP_CHANGED)
 end
@@ -74,5 +74,6 @@ function TGU_GroupHandler.Initialize(logger, isMocked)
     EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_JOINED, TGU_GroupHandler.OnGroupMemberJoined)
     EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_LEFT, TGU_GroupHandler.OnGroupMemberLeft)
     EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_UPDATE, TGU_GroupHandler.OnGroupUpdate)
+    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, TGU_GroupHandler.OnGroupUpdate)
     EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_UNIT_FRAME_UPDATE, TGU_GroupHandler.OnUnitFrameUpdate)
 end
