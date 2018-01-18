@@ -14,33 +14,33 @@ local _control = nil
 --[[
 	Table CompactSwimlaneList
 ]]--
-TGU_CompactSwimlaneList = {}
-TGU_CompactSwimlaneList.__index = TGU_CompactSwimlaneList
+POC_CompactSwimlaneList = {}
+POC_CompactSwimlaneList.__index = POC_CompactSwimlaneList
 
 --[[
 	Table Members
 ]]--
-TGU_CompactSwimlaneList.Name = "TGU-CompactSwimlaneList"
-TGU_CompactSwimlaneList.IsMocked = false
-TGU_CompactSwimlaneList.Swimlanes = {}
+POC_CompactSwimlaneList.Name = "TGU-CompactSwimlaneList"
+POC_CompactSwimlaneList.IsMocked = false
+POC_CompactSwimlaneList.Swimlanes = {}
 
 --[[
 	Sets visibility of labels
 ]]--
-function TGU_CompactSwimlaneList.RefreshList()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_CompactSwimlaneList.RefreshList") end
+function POC_CompactSwimlaneList.RefreshList()
+	if (LOG_ACTIVE) then _logger:logTrace("POC_CompactSwimlaneList.RefreshList") end
 
     -- Check all swimlanes
-    for i,swimlane in ipairs(TGU_CompactSwimlaneList.Swimlanes) do
-        TGU_CompactSwimlaneList.ClearPlayersFromSwimlane(swimlane)
+    for i,swimlane in ipairs(POC_CompactSwimlaneList.Swimlanes) do
+        POC_CompactSwimlaneList.ClearPlayersFromSwimlane(swimlane)
 	end
 end
 
 --[[
 	Sorts swimlane
 ]]--
-function TGU_CompactSwimlaneList.SortSwimlane(swimlane)
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_CompactSwimlaneList.SortSwimlane") end
+function POC_CompactSwimlaneList.SortSwimlane(swimlane)
+	if (LOG_ACTIVE) then _logger:logTrace("POC_CompactSwimlaneList.SortSwimlane") end
 
     -- Comparer
     function compare(playerLeft, playerRight)
@@ -57,16 +57,16 @@ function TGU_CompactSwimlaneList.SortSwimlane(swimlane)
 
     -- Update sorted swimlane list
     for i,swimlanePlayer in ipairs(swimlane.Players) do
-        TGU_CompactSwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
+        POC_CompactSwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
     end
 end
 
 --[[
 	Updates list row
 ]]--
-function TGU_CompactSwimlaneList.UpdateListRow(row, player)
+function POC_CompactSwimlaneList.UpdateListRow(row, player)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.UpdateListRow")
+        _logger:logTrace("POC_CompactSwimlaneList.UpdateListRow")
     end
 
     local playerName = player.PlayerName
@@ -99,16 +99,16 @@ end
 --[[
 	Updates list row
 ]]--
-function TGU_CompactSwimlaneList.UpdatePlayer(player)
+function POC_CompactSwimlaneList.UpdatePlayer(player)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.UpdatePlayer")
+        _logger:logTrace("POC_CompactSwimlaneList.UpdatePlayer")
     end
 
 	if (player) then
-        local swimLane = TGU_CompactSwimlaneList.GetSwimLane(player.UltimateGroup.GroupAbilityId)
+        local swimLane = POC_CompactSwimlaneList.GetSwimLane(player.UltimateGroup.GroupAbilityId)
 
         if (swimLane) then
-            local row = TGU_CompactSwimlaneList.GetSwimLaneRow(swimLane, player.PlayerName)
+            local row = POC_CompactSwimlaneList.GetSwimLaneRow(swimLane, player.PlayerName)
 
             -- Update timestamp
             if (row ~= nil) then
@@ -130,29 +130,29 @@ function TGU_CompactSwimlaneList.UpdatePlayer(player)
 
                 if (nextFreeRow <= ROWS) then
                     if (LOG_ACTIVE) then 
-                        _logger:logDebug("TGU_CompactSwimlaneList.UpdatePlayer, add player " .. tostring(player.PlayerName) .. " to row " .. tostring(nextFreeRow)) 
+                        _logger:logDebug("POC_CompactSwimlaneList.UpdatePlayer, add player " .. tostring(player.PlayerName) .. " to row " .. tostring(nextFreeRow)) 
                     end
 
                     player.LastMapPingTimestamp = GetTimeStamp()
                     swimLane.Players[nextFreeRow] = player
                     row = swimLane.SwimlaneControl:GetNamedChild("Row" .. nextFreeRow)
                 else
-                    if (LOG_ACTIVE) then _logger:logDebug("TGU_CompactSwimlaneList.UpdatePlayer, too much players for one swimlane " .. tostring(nextFreeRow)) end
+                    if (LOG_ACTIVE) then _logger:logDebug("POC_CompactSwimlaneList.UpdatePlayer, too much players for one swimlane " .. tostring(nextFreeRow)) end
                 end
             end
             
             -- Only update if player in a row
             if (row ~= nil) then
-                if (TGU_SettingsHandler.SavedVariables.IsSortingActive) then
+                if (POC_SettingsHandler.SavedVariables.IsSortingActive) then
                     -- Sort swimlane with all players
-                    TGU_CompactSwimlaneList.SortSwimlane(swimLane)
+                    POC_CompactSwimlaneList.SortSwimlane(swimLane)
                 else
                     -- Directly update row with player
-                    TGU_CompactSwimlaneList.UpdateListRow(row, player)
+                    POC_CompactSwimlaneList.UpdateListRow(row, player)
                 end
             end
         else
-            if (LOG_ACTIVE) then _logger:logDebug("TGU_CompactSwimlaneList.UpdatePlayer, swimlane not found for ultimategroup " .. tostring(ultimateGroup.GroupName)) end
+            if (LOG_ACTIVE) then _logger:logDebug("POC_CompactSwimlaneList.UpdatePlayer, swimlane not found for ultimategroup " .. tostring(ultimateGroup.GroupName)) end
         end
 	end
 end
@@ -160,23 +160,23 @@ end
 --[[
 	Get swimlane from current SwimLanes
 ]]--
-function TGU_CompactSwimlaneList.GetSwimLane(ultimateGroupId)
+function POC_CompactSwimlaneList.GetSwimLane(ultimateGroupId)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.GetSwimLane")
+        _logger:logTrace("POC_CompactSwimlaneList.GetSwimLane")
         _logger:logDebug("ultimateGroupId", ultimateGroupId)
     end
 
     if (ultimateGroupId ~= 0) then
-        for i,swimLane in ipairs(TGU_CompactSwimlaneList.Swimlanes) do
+        for i,swimLane in ipairs(POC_CompactSwimlaneList.Swimlanes) do
 		    if (swimLane.UltimateGroupId == ultimateGroupId) then
                 return swimLane
             end
 	    end
 
-        if (LOG_ACTIVE) then _logger:logDebug("TGU_CompactSwimlaneList.GetSwimLane, swimLane not found " .. tostring(ultimateGroupId)) end
+        if (LOG_ACTIVE) then _logger:logDebug("POC_CompactSwimlaneList.GetSwimLane, swimLane not found " .. tostring(ultimateGroupId)) end
         return nil
     else
-        _logger:logError("TGU_CompactSwimlaneList.GetSwimLane, ultimateGroupId is 0")
+        _logger:logError("POC_CompactSwimlaneList.GetSwimLane, ultimateGroupId is 0")
         return nil
     end
 end
@@ -184,9 +184,9 @@ end
 --[[
 	Get Player Row from current players in swimlane
 ]]--
-function TGU_CompactSwimlaneList.GetSwimLaneRow(swimLane, playerName)
+function POC_CompactSwimlaneList.GetSwimLaneRow(swimLane, playerName)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.GetSwimLaneRow")
+        _logger:logTrace("POC_CompactSwimlaneList.GetSwimLaneRow")
         _logger:logDebug("swimLane ID", swimLane.Id)
     end
 
@@ -198,10 +198,10 @@ function TGU_CompactSwimlaneList.GetSwimLaneRow(swimLane, playerName)
             end
 	    end
 
-        if (LOG_ACTIVE) then _logger:logDebug("TGU_CompactSwimlaneList.GetSwimLane, player not found " .. tostring(playerName)) end
+        if (LOG_ACTIVE) then _logger:logDebug("POC_CompactSwimlaneList.GetSwimLane, player not found " .. tostring(playerName)) end
         return nil
     else
-        _logger:logError("TGU_CompactSwimlaneList.GetSwimLane, swimLane is nil")
+        _logger:logError("POC_CompactSwimlaneList.GetSwimLane, swimLane is nil")
         return nil
     end
 end
@@ -209,9 +209,9 @@ end
 --[[
 	Clears all players in swimlane
 ]]--
-function TGU_CompactSwimlaneList.ClearPlayersFromSwimlane(swimlane)
+function POC_CompactSwimlaneList.ClearPlayersFromSwimlane(swimlane)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.ClearPlayersFromSwimlane")
+        _logger:logTrace("POC_CompactSwimlaneList.ClearPlayersFromSwimlane")
         _logger:logDebug("swimlane ID", swimlane.Id)
     end
 
@@ -223,7 +223,7 @@ function TGU_CompactSwimlaneList.ClearPlayersFromSwimlane(swimlane)
             if (swimlanePlayer ~= nil) then
                 local isPlayerNotGrouped = IsUnitGrouped(swimlanePlayer.PingTag) == false
 
-                if (TGU_CompactSwimlaneList.IsMocked) then
+                if (POC_CompactSwimlaneList.IsMocked) then
                     isPlayerNotGrouped = false
                 end
 
@@ -248,9 +248,9 @@ end
 --[[
 	SetControlMovable sets the Movable and MouseEnabled flag in UI elements
 ]]--
-function TGU_CompactSwimlaneList.SetControlMovable(isMovable)
+function POC_CompactSwimlaneList.SetControlMovable(isMovable)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.SetControlMovable")
+        _logger:logTrace("POC_CompactSwimlaneList.SetControlMovable")
         _logger:logDebug("isMovable", isMovable)
     end
 
@@ -261,11 +261,11 @@ function TGU_CompactSwimlaneList.SetControlMovable(isMovable)
 end
 
 --[[
-	RestorePosition sets TGU_CompactSwimlaneList on settings position
+	RestorePosition sets POC_CompactSwimlaneList on settings position
 ]]--
-function TGU_CompactSwimlaneList.RestorePosition(posX, posY)
+function POC_CompactSwimlaneList.RestorePosition(posX, posY)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.RestorePosition")
+        _logger:logTrace("POC_CompactSwimlaneList.RestorePosition")
         _logger:logDebug("posX, posY", posX, posY)
     end
 
@@ -274,32 +274,32 @@ function TGU_CompactSwimlaneList.RestorePosition(posX, posY)
 end
 
 --[[
-	OnTGU_CompactSwimlaneListMoveStop saves current TGU_CompactSwimlaneList position to settings
+	OnPOC_CompactSwimlaneListMoveStop saves current POC_CompactSwimlaneList position to settings
 ]]--
-function TGU_CompactSwimlaneList.OnCompactSwimlaneListMoveStop()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_CompactSwimlaneList.OnCompactSwimlaneListMoveStop") end
+function POC_CompactSwimlaneList.OnCompactSwimlaneListMoveStop()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_CompactSwimlaneList.OnCompactSwimlaneListMoveStop") end
 
 	local left = _control:GetLeft()
 	local top = _control:GetTop()
 	
-    TGU_SettingsHandler.SavedVariables.PosX = left
-    TGU_SettingsHandler.SavedVariables.PosY = top
+    POC_SettingsHandler.SavedVariables.PosX = left
+    POC_SettingsHandler.SavedVariables.PosY = top
 
     if (LOG_ACTIVE) then 
-        _logger:logDebug("PosX, PosY", TGU_SettingsHandler.SavedVariables.PosX, TGU_SettingsHandler.SavedVariables.PosY)
+        _logger:logDebug("PosX, PosY", POC_SettingsHandler.SavedVariables.PosX, POC_SettingsHandler.SavedVariables.PosY)
     end
 end
 
 --[[
 	SetControlHidden sets hidden on control
 ]]--
-function TGU_CompactSwimlaneList.SetControlHidden(isHidden)
+function POC_CompactSwimlaneList.SetControlHidden(isHidden)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.SetControlHidden")
+        _logger:logTrace("POC_CompactSwimlaneList.SetControlHidden")
         _logger:logDebug("isHidden", isHidden)
     end
 
-    if (TGU_GroupHandler.IsGrouped()) then
+    if (POC_GroupHandler.IsGrouped()) then
         _control:SetHidden(isHidden)
     else
         _control:SetHidden(true)
@@ -309,113 +309,113 @@ end
 --[[
 	SetControlActive sets hidden on control
 ]]--
-function TGU_CompactSwimlaneList.SetControlActive()
+function POC_CompactSwimlaneList.SetControlActive()
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.SetControlActive")
+        _logger:logTrace("POC_CompactSwimlaneList.SetControlActive")
     end
 
-    local isHidden = TGU_SettingsHandler.IsCompactSwimlaneListVisible() == false
+    local isHidden = POC_SettingsHandler.IsCompactSwimlaneListVisible() == false
     if (LOG_ACTIVE) then _logger:logDebug("isHidden", isHidden) end
     
-    TGU_CompactSwimlaneList.SetControlHidden(isHidden or CurrentHudHiddenState())
+    POC_CompactSwimlaneList.SetControlHidden(isHidden or CurrentHudHiddenState())
 
     if (isHidden) then
         -- Start timeout timer
-	    EVENT_MANAGER:UnregisterForUpdate(TGU_CompactSwimlaneList.Name)
+	    EVENT_MANAGER:UnregisterForUpdate(POC_CompactSwimlaneList.Name)
 
-        CALLBACK_MANAGER:UnregisterCallback(TGU_GROUP_CHANGED, TGU_CompactSwimlaneList.RefreshList)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_PLAYER_DATA_CHANGED, TGU_CompactSwimlaneList.UpdatePlayer)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_MOVABLE_CHANGED, TGU_CompactSwimlaneList.SetControlMovable)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, TGU_CompactSwimlaneList.SetSwimlaneUltimate)
-        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_CompactSwimlaneList.SetControlHidden)
+        CALLBACK_MANAGER:UnregisterCallback(POC_GROUP_CHANGED, POC_CompactSwimlaneList.RefreshList)
+        CALLBACK_MANAGER:UnregisterCallback(POC_PLAYER_DATA_CHANGED, POC_CompactSwimlaneList.UpdatePlayer)
+        CALLBACK_MANAGER:UnregisterCallback(POC_MOVABLE_CHANGED, POC_CompactSwimlaneList.SetControlMovable)
+        CALLBACK_MANAGER:UnregisterCallback(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, POC_CompactSwimlaneList.SetSwimlaneUltimate)
+        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_CompactSwimlaneList.SetControlHidden)
     else
-        TGU_CompactSwimlaneList.SetControlMovable(TGU_SettingsHandler.SavedVariables.Movable)
-        TGU_CompactSwimlaneList.RestorePosition(TGU_SettingsHandler.SavedVariables.PosX, TGU_SettingsHandler.SavedVariables.PosY)
+        POC_CompactSwimlaneList.SetControlMovable(POC_SettingsHandler.SavedVariables.Movable)
+        POC_CompactSwimlaneList.RestorePosition(POC_SettingsHandler.SavedVariables.PosX, POC_SettingsHandler.SavedVariables.PosY)
 
         -- Start timeout timer
-	    EVENT_MANAGER:RegisterForUpdate(TGU_CompactSwimlaneList.Name, REFRESHRATE, TGU_CompactSwimlaneList.RefreshList)
+	    EVENT_MANAGER:RegisterForUpdate(POC_CompactSwimlaneList.Name, REFRESHRATE, POC_CompactSwimlaneList.RefreshList)
 
-        CALLBACK_MANAGER:RegisterCallback(TGU_GROUP_CHANGED, TGU_CompactSwimlaneList.RefreshList)
-        CALLBACK_MANAGER:RegisterCallback(TGU_PLAYER_DATA_CHANGED, TGU_CompactSwimlaneList.UpdatePlayer)
-        CALLBACK_MANAGER:RegisterCallback(TGU_MOVABLE_CHANGED, TGU_CompactSwimlaneList.SetControlMovable)
-        CALLBACK_MANAGER:RegisterCallback(TGU_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, TGU_CompactSwimlaneList.SetSwimlaneUltimate)
-        CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_CompactSwimlaneList.SetControlHidden)
+        CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, POC_CompactSwimlaneList.RefreshList)
+        CALLBACK_MANAGER:RegisterCallback(POC_PLAYER_DATA_CHANGED, POC_CompactSwimlaneList.UpdatePlayer)
+        CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, POC_CompactSwimlaneList.SetControlMovable)
+        CALLBACK_MANAGER:RegisterCallback(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, POC_CompactSwimlaneList.SetSwimlaneUltimate)
+        CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_CompactSwimlaneList.SetControlHidden)
     end
 end
 
 --[[
 	OnSwimlaneHeaderClicked called on header clicked
 ]]--
-function TGU_CompactSwimlaneList.OnSwimlaneHeaderClicked(button, swimlaneId)
+function POC_CompactSwimlaneList.OnSwimlaneHeaderClicked(button, swimlaneId)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.OnSwimlaneHeaderClicked")
+        _logger:logTrace("POC_CompactSwimlaneList.OnSwimlaneHeaderClicked")
         _logger:logDebug("swimlaneId", swimlaneId)
     end
 
     if (button ~= nil) then
-        CALLBACK_MANAGER:RegisterCallback(TGU_SET_ULTIMATE_GROUP, TGU_CompactSwimlaneList.OnSetUltimateGroup)
-        CALLBACK_MANAGER:FireCallbacks(TGU_SHOW_ULTIMATE_GROUP_MENU, button, swimlaneId)
+        CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, POC_CompactSwimlaneList.OnSetUltimateGroup)
+        CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, button, swimlaneId)
     else
-        _logger:logError("TGU_CompactSwimlaneList.OnSwimlaneHeaderClicked, button nil")
+        _logger:logError("POC_CompactSwimlaneList.OnSwimlaneHeaderClicked, button nil")
     end
 end
 
 --[[
 	OnSetUltimateGroup called on header clicked
 ]]--
-function TGU_CompactSwimlaneList.OnSetUltimateGroup(group, swimlaneId)
+function POC_CompactSwimlaneList.OnSetUltimateGroup(group, swimlaneId)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.OnSetUltimateGroup")
+        _logger:logTrace("POC_CompactSwimlaneList.OnSetUltimateGroup")
         _logger:logDebug("group.GroupName, swimlaneId", group.GroupName, swimlaneId)
     end
 
-    CALLBACK_MANAGER:UnregisterCallback(TGU_SET_ULTIMATE_GROUP, TGU_CompactSwimlaneList.OnSetUltimateGroup)
+    CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, POC_CompactSwimlaneList.OnSetUltimateGroup)
 
     if (group ~= nil and swimlaneId ~= nil and swimlaneId >= 1 and swimlaneId <= 6) then
-        TGU_SettingsHandler.SetSwimlaneUltimateGroupIdSettings(swimlaneId, group)
+        POC_SettingsHandler.SetSwimlaneUltimateGroupIdSettings(swimlaneId, group)
     else
-        _logger:logError("TGU_UltimateGroupMenu.ShowUltimateGroupMenu, group nil or swimlaneId invalid")
+        _logger:logError("POC_UltimateGroupMenu.ShowUltimateGroupMenu, group nil or swimlaneId invalid")
     end
 end
 
 --[[
 	SetSwimlaneUltimate sets the swimlane header icon in base of ultimateGroupId
 ]]--
-function TGU_CompactSwimlaneList.SetSwimlaneUltimate(swimlaneId, ultimateGroup)
+function POC_CompactSwimlaneList.SetSwimlaneUltimate(swimlaneId, ultimateGroup)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CompactSwimlaneList.SetSwimlaneUltimate")
+        _logger:logTrace("POC_CompactSwimlaneList.SetSwimlaneUltimate")
         _logger:logDebug("ultimateGroup.GroupName, swimlaneId", ultimateGroup.GroupName, swimlaneId)
     end
 
-    local swimlaneObject = TGU_CompactSwimlaneList.Swimlanes[swimlaneId]
+    local swimlaneObject = POC_CompactSwimlaneList.Swimlanes[swimlaneId]
     local iconControl = swimlaneObject.SwimlaneControl:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
 
     if (ultimateGroup ~= nil and iconControl ~= nil) then
         iconControl:SetTexture(GetAbilityIcon(ultimateGroup.GroupAbilityId))
 
         swimlaneObject.UltimateGroupId = ultimateGroup.GroupAbilityId
-        TGU_CompactSwimlaneList.ClearPlayersFromSwimlane(swimlaneObject)
+        POC_CompactSwimlaneList.ClearPlayersFromSwimlane(swimlaneObject)
     else
-        _logger:logError("TGU_CompactSwimlaneList.SetSwimlaneUltimateIcon, icon is " .. tostring(icon) .. ";" .. tostring(iconControl) .. ";" .. tostring(ultimateGroup))
+        _logger:logError("POC_CompactSwimlaneList.SetSwimlaneUltimateIcon, icon is " .. tostring(icon) .. ";" .. tostring(iconControl) .. ";" .. tostring(ultimateGroup))
     end
 end
 
 --[[
 	CreateCompactSwimlaneListHeaders creates swimlane list headers
 ]]--
-function TGU_CompactSwimlaneList.CreateCompactSwimlaneListHeaders()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_CompactSwimlaneList.CreateCompactSwimlaneListHeaders") end
+function POC_CompactSwimlaneList.CreateCompactSwimlaneListHeaders()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_CompactSwimlaneList.CreateCompactSwimlaneListHeaders") end
 
 	for i=1, SWIMLANES, 1 do
-        local ultimateGroupId = TGU_SettingsHandler.SavedVariables.SwimlaneUltimateGroupIds[i]
-        local ultimateGroup = TGU_UltimateGroupHandler.GetUltimateGroupByAbilityId(ultimateGroupId)
+        local ultimateGroupId = POC_SettingsHandler.SavedVariables.SwimlaneUltimateGroupIds[i]
+        local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByAbilityId(ultimateGroupId)
 
         local swimlaneControlName = "Swimlane" .. tostring(i)
         local swimlaneControl = _control:GetNamedChild(swimlaneControlName)
         
         -- Add button
         local button = swimlaneControl:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
-        button:SetHandler("OnClicked", function() TGU_CompactSwimlaneList.OnSwimlaneHeaderClicked(button, i) end)
+        button:SetHandler("OnClicked", function() POC_CompactSwimlaneList.OnSwimlaneHeaderClicked(button, i) end)
 
         local swimLane = {}
         swimLane.Id = i
@@ -434,19 +434,19 @@ function TGU_CompactSwimlaneList.CreateCompactSwimlaneListHeaders()
 
             swimLane.UltimateGroupId = ultimateGroup.GroupAbilityId
         else
-            _logger:logError("TGU_CompactSwimlaneList.CreateCompactSwimlaneListHeaders, ultimateGroup nil.")
+            _logger:logError("POC_CompactSwimlaneList.CreateCompactSwimlaneListHeaders, ultimateGroup nil.")
         end
 
-        TGU_CompactSwimlaneList.CreateCompactSwimlaneListRows(swimlaneControl)
-	    TGU_CompactSwimlaneList.Swimlanes[i] = swimLane
+        POC_CompactSwimlaneList.CreateCompactSwimlaneListRows(swimlaneControl)
+	    POC_CompactSwimlaneList.Swimlanes[i] = swimLane
 	end
 end
 
 --[[
 	CreateCompactSwimlaneListRows creates swimlane lsit rows
 ]]--
-function TGU_CompactSwimlaneList.CreateCompactSwimlaneListRows(swimlaneControl)
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_CompactSwimlaneList.CreateCompactSwimlaneListRows") end
+function POC_CompactSwimlaneList.CreateCompactSwimlaneListRows(swimlaneControl)
+    if (LOG_ACTIVE) then _logger:logTrace("POC_CompactSwimlaneList.CreateCompactSwimlaneListRows") end
 
     if (swimlaneControl ~= nil) then
 	    for i=1, ROWS, 1 do
@@ -466,26 +466,26 @@ function TGU_CompactSwimlaneList.CreateCompactSwimlaneListRows(swimlaneControl)
 		    lastRow = row
 	    end
     else
-        _logger:logError("TGU_CompactSwimlaneList.CreateCompactSwimlaneListRows, swimlaneControl nil.")
+        _logger:logError("POC_CompactSwimlaneList.CreateCompactSwimlaneListRows, swimlaneControl nil.")
     end
 end
 
 --[[
-	Initialize initializes TGU_CompactSwimlaneList
+	Initialize initializes POC_CompactSwimlaneList
 ]]--
-function TGU_CompactSwimlaneList.Initialize(logger, isMocked)
+function POC_CompactSwimlaneList.Initialize(logger, isMocked)
     if (LOG_ACTIVE) then 
-        logger:logTrace("TGU_CompactSwimlaneList.Initialize")
+        logger:logTrace("POC_CompactSwimlaneList.Initialize")
     end
 
     _logger = logger
-    _control = TGU_CompactSwimlaneListControl
+    _control = POC_CompactSwimlaneListControl
 
-    TGU_CompactSwimlaneList.IsMocked = isMocked
+    POC_CompactSwimlaneList.IsMocked = isMocked
 
-    TGU_CompactSwimlaneList.CreateCompactSwimlaneListHeaders()
+    POC_CompactSwimlaneList.CreateCompactSwimlaneListHeaders()
 
-    CALLBACK_MANAGER:RegisterCallback(TGU_STYLE_CHANGED, TGU_CompactSwimlaneList.SetControlActive)
-    CALLBACK_MANAGER:RegisterCallback(TGU_IS_ZONE_CHANGED, TGU_CompactSwimlaneList.SetControlActive)
-    CALLBACK_MANAGER:RegisterCallback(TGU_UNIT_GROUPED_CHANGED, TGU_CompactSwimlaneList.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, POC_CompactSwimlaneList.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_IS_ZONE_CHANGED, POC_CompactSwimlaneList.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, POC_CompactSwimlaneList.SetControlActive)
 end

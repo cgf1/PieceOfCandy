@@ -9,8 +9,8 @@ local _control = nil
 --[[
 	Table GroupUltimateSelector
 ]]--
-TGU_GroupUltimateSelector = {}
-TGU_GroupUltimateSelector.__index = TGU_GroupUltimateSelector
+POC_GroupUltimateSelector = {}
+POC_GroupUltimateSelector.__index = POC_GroupUltimateSelector
 
 --[[
 	Table Members
@@ -19,9 +19,9 @@ TGU_GroupUltimateSelector.__index = TGU_GroupUltimateSelector
 --[[
 	SetUltimateIcon sets the button icon in base of staticUltimateID
 ]]--
-function TGU_GroupUltimateSelector.SetUltimateIcon(staticUltimateID)
+function POC_GroupUltimateSelector.SetUltimateIcon(staticUltimateID)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_GroupUltimateSelector.SetUltimateIcon")
+        _logger:logTrace("POC_GroupUltimateSelector.SetUltimateIcon")
         _logger:logDebug("staticUltimateID", staticUltimateID)
     end
 
@@ -36,16 +36,16 @@ function TGU_GroupUltimateSelector.SetUltimateIcon(staticUltimateID)
     if (icon ~= nil and iconControl ~= nil) then
         iconControl:SetTexture(icon)
     else
-        _logger:logError("TGU_GroupUltimateSelector.SetUltimateIcon, icon is " .. tostring(icon) .. "; iconControl is " .. tostring(iconControl))
+        _logger:logError("POC_GroupUltimateSelector.SetUltimateIcon, icon is " .. tostring(icon) .. "; iconControl is " .. tostring(iconControl))
     end
 end
 
 --[[
 	SetControlMovable sets the Movable and MouseEnabled flag in UI elements
 ]]--
-function TGU_GroupUltimateSelector.SetControlMovable(isMovable)
+function POC_GroupUltimateSelector.SetControlMovable(isMovable)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_GroupUltimateSelector.SetControlMovable")
+        _logger:logTrace("POC_GroupUltimateSelector.SetControlMovable")
         _logger:logDebug("isMovable", isMovable)
     end
 
@@ -56,11 +56,11 @@ function TGU_GroupUltimateSelector.SetControlMovable(isMovable)
 end
 
 --[[
-	RestorePosition sets TGU_GroupUltimateSelector on settings position
+	RestorePosition sets POC_GroupUltimateSelector on settings position
 ]]--
-function TGU_GroupUltimateSelector.RestorePosition(posX, posY)
+function POC_GroupUltimateSelector.RestorePosition(posX, posY)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_GroupUltimateSelector.RestorePosition")
+        _logger:logTrace("POC_GroupUltimateSelector.RestorePosition")
         _logger:logDebug("posX, posY", posX, posY)
     end
 
@@ -69,66 +69,66 @@ function TGU_GroupUltimateSelector.RestorePosition(posX, posY)
 end
 
 --[[
-	OnTGU_GroupUltimateSelectorMoveStop saves current TGU_GroupUltimateSelector position to settings
+	OnPOC_GroupUltimateSelectorMoveStop saves current POC_GroupUltimateSelector position to settings
 ]]--
-function TGU_GroupUltimateSelector.OnGroupUltimateSelectorMoveStop()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupUltimateSelector.OnGroupUltimateSelectorMoveStop") end
+function POC_GroupUltimateSelector.OnGroupUltimateSelectorMoveStop()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupUltimateSelector.OnGroupUltimateSelectorMoveStop") end
 
 	local left = _control:GetLeft()
 	local top = _control:GetTop()
 	
-    TGU_SettingsHandler.SavedVariables.SelectorPosX = left
-    TGU_SettingsHandler.SavedVariables.SelectorPosY = top
+    POC_SettingsHandler.SavedVariables.SelectorPosX = left
+    POC_SettingsHandler.SavedVariables.SelectorPosY = top
 
     if (LOG_ACTIVE) then 
-        _logger:logDebug("PosX, PosY", TGU_SettingsHandler.SavedVariables.SelectorPosX, TGU_SettingsHandler.SavedVariables.SelectorPosY)
+        _logger:logDebug("PosX, PosY", POC_SettingsHandler.SavedVariables.SelectorPosX, POC_SettingsHandler.SavedVariables.SelectorPosY)
     end
 end
 
 --[[
 	OnGroupUltimateSelectorClicked shows ultimate group menu
 ]]--
-function TGU_GroupUltimateSelector.OnGroupUltimateSelectorClicked()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupUltimateSelector.OnGroupUltimateSelectorClicked") end
+function POC_GroupUltimateSelector.OnGroupUltimateSelectorClicked()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupUltimateSelector.OnGroupUltimateSelectorClicked") end
 
     local button = _control:GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
 
     if (button ~= nil) then
-        CALLBACK_MANAGER:RegisterCallback(TGU_SET_ULTIMATE_GROUP, TGU_GroupUltimateSelector.OnSetUltimateGroup)
-        CALLBACK_MANAGER:FireCallbacks(TGU_SHOW_ULTIMATE_GROUP_MENU, button)
+        CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, POC_GroupUltimateSelector.OnSetUltimateGroup)
+        CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, button)
     else
-        _logger:logError("TGU_GroupUltimateSelector.OnGroupUltimateSelectorClicked, button nil")
+        _logger:logError("POC_GroupUltimateSelector.OnGroupUltimateSelectorClicked, button nil")
     end
 end
 
 --[[
 	OnSetUltimateGroup sets ultimate group for button
 ]]--
-function TGU_GroupUltimateSelector.OnSetUltimateGroup(group)
+function POC_GroupUltimateSelector.OnSetUltimateGroup(group)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_GroupUltimateSelector.OnSetUltimateGroup")
+        _logger:logTrace("POC_GroupUltimateSelector.OnSetUltimateGroup")
         _logger:logDebug("group.GroupName", group.GroupName)
     end
 
-    CALLBACK_MANAGER:UnregisterCallback(TGU_SET_ULTIMATE_GROUP, TGU_GroupUltimateSelector.OnSetUltimateGroup)
+    CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, POC_GroupUltimateSelector.OnSetUltimateGroup)
 
     if (group ~= nil) then
-        TGU_SettingsHandler.SetStaticUltimateIDSettings(group.GroupAbilityId)
+        POC_SettingsHandler.SetStaticUltimateIDSettings(group.GroupAbilityId)
     else
-        _logger:logError("TGU_UltimateGroupMenu.ShowUltimateGroupMenu, group nil")
+        _logger:logError("POC_UltimateGroupMenu.ShowUltimateGroupMenu, group nil")
     end
 end
 
 --[[
 	SetControlHidden sets hidden on control
 ]]--
-function TGU_GroupUltimateSelector.SetControlHidden(isHidden)
+function POC_GroupUltimateSelector.SetControlHidden(isHidden)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_GroupUltimateSelector.SetControlHidden")
+        _logger:logTrace("POC_GroupUltimateSelector.SetControlHidden")
         _logger:logDebug("isHidden", isHidden)
     end
 
-    if (TGU_GroupHandler.IsGrouped()) then
+    if (POC_GroupHandler.IsGrouped()) then
         _control:SetHidden(isHidden)
     else
         _control:SetHidden(true)
@@ -138,44 +138,44 @@ end
 --[[
 	SetControlActive activates/deactivates control
 ]]--
-function TGU_GroupUltimateSelector.SetControlActive()
+function POC_GroupUltimateSelector.SetControlActive()
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_GroupUltimateSelector.SetControlActive")
+        _logger:logTrace("POC_GroupUltimateSelector.SetControlActive")
     end
 
-    local isHidden = TGU_SettingsHandler.IsControlsVisible() == false
+    local isHidden = POC_SettingsHandler.IsControlsVisible() == false
     if (LOG_ACTIVE) then _logger:logDebug("isHidden", isHidden) end
 
-    TGU_GroupUltimateSelector.SetControlHidden(isHidden or CurrentHudHiddenState())
+    POC_GroupUltimateSelector.SetControlHidden(isHidden or CurrentHudHiddenState())
 
     if (isHidden) then
-        CALLBACK_MANAGER:UnregisterCallback(TGU_MOVABLE_CHANGED, TGU_GroupUltimateSelector.SetControlMovable)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_STATIC_ULTIMATE_ID_CHANGED, TGU_GroupUltimateSelector.SetUltimateIcon)
-        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_GroupUltimateSelector.SetControlHidden)
+        CALLBACK_MANAGER:UnregisterCallback(POC_MOVABLE_CHANGED, POC_GroupUltimateSelector.SetControlMovable)
+        CALLBACK_MANAGER:UnregisterCallback(POC_STATIC_ULTIMATE_ID_CHANGED, POC_GroupUltimateSelector.SetUltimateIcon)
+        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_GroupUltimateSelector.SetControlHidden)
     else
-        TGU_GroupUltimateSelector.SetControlMovable(TGU_SettingsHandler.SavedVariables.Movable)
-        TGU_GroupUltimateSelector.RestorePosition(TGU_SettingsHandler.SavedVariables.SelectorPosX, TGU_SettingsHandler.SavedVariables.SelectorPosY)
-        TGU_GroupUltimateSelector.SetUltimateIcon(TGU_SettingsHandler.SavedVariables.StaticUltimateID)
+        POC_GroupUltimateSelector.SetControlMovable(POC_SettingsHandler.SavedVariables.Movable)
+        POC_GroupUltimateSelector.RestorePosition(POC_SettingsHandler.SavedVariables.SelectorPosX, POC_SettingsHandler.SavedVariables.SelectorPosY)
+        POC_GroupUltimateSelector.SetUltimateIcon(POC_SettingsHandler.SavedVariables.StaticUltimateID)
 
-        CALLBACK_MANAGER:RegisterCallback(TGU_MOVABLE_CHANGED, TGU_GroupUltimateSelector.SetControlMovable)
-        CALLBACK_MANAGER:RegisterCallback(TGU_STATIC_ULTIMATE_ID_CHANGED, TGU_GroupUltimateSelector.SetUltimateIcon)
-        CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_GroupUltimateSelector.SetControlHidden)
+        CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, POC_GroupUltimateSelector.SetControlMovable)
+        CALLBACK_MANAGER:RegisterCallback(POC_STATIC_ULTIMATE_ID_CHANGED, POC_GroupUltimateSelector.SetUltimateIcon)
+        CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_GroupUltimateSelector.SetControlHidden)
     end
 end
 
 --[[
-	Initialize initializes TGU_GroupUltimateSelector
+	Initialize initializes POC_GroupUltimateSelector
 ]]--
-function TGU_GroupUltimateSelector.Initialize(logger)
+function POC_GroupUltimateSelector.Initialize(logger)
     if (LOG_ACTIVE) then 
-        logger:logTrace("TGU_GroupUltimateSelector.Initialize")
+        logger:logTrace("POC_GroupUltimateSelector.Initialize")
     end
 
     _logger = logger
-    _control = TGU_UltimateSelectorControl
+    _control = POC_UltimateSelectorControl
 
-    TGU_GroupUltimateSelector.SetUltimateIcon(staticUltimateID)
+    POC_GroupUltimateSelector.SetUltimateIcon(staticUltimateID)
 
-    CALLBACK_MANAGER:RegisterCallback(TGU_IS_ZONE_CHANGED, TGU_GroupUltimateSelector.SetControlActive)
-    CALLBACK_MANAGER:RegisterCallback(TGU_UNIT_GROUPED_CHANGED, TGU_GroupUltimateSelector.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_IS_ZONE_CHANGED, POC_GroupUltimateSelector.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, POC_GroupUltimateSelector.SetControlActive)
 end

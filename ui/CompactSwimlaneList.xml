@@ -1,9 +1,9 @@
 <GuiXml>
 	<Controls>
-		<TopLevelControl name="TGU_CompactSwimlaneListControl" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
+		<TopLevelControl name="POC_CompactSwimlaneListControl" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
 			<Anchor point="TOPLEFT" relativeTo="GuiRoot" relativePoint="TOPLEFT"/>
 			<Dimensions x="310" y="200" />
-			<OnMoveStop>TGU_CompactSwimlaneList:OnCompactSwimlaneListMoveStop()</OnMoveStop>
+			<OnMoveStop>POC_CompactSwimlaneList:OnCompactSwimlaneListMoveStop()</OnMoveStop>
 			
 			<Controls>
         <Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">

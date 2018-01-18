@@ -7,31 +7,31 @@ local _logger = nil
 local REFRESHRATE = 2000 -- ms; RegisterForUpdate is in miliseconds
 
 --[[
-	Table TGU_MapPingHandler
+	Table POC_MapPingHandler
 ]]--
-TGU_MapPingHandler = {}
-TGU_MapPingHandler.__index = TGU_MapPingHandler
+POC_MapPingHandler = {}
+POC_MapPingHandler.__index = POC_MapPingHandler
 
 --[[
 	Table Members
 ]]--
-TGU_MapPingHandler.Name = "TGU-MapPingHandler"
-TGU_MapPingHandler.IsMocked = false
+POC_MapPingHandler.Name = "TGU-MapPingHandler"
+POC_MapPingHandler.IsMocked = false
 
 --[[
 	Called on new data from LibGroupSocket
 ]]--
-function TGU_MapPingHandler.OnData(pingTag, abilityPing, relativeUltimate)
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_MapPingHandler.OnData") end
+function POC_MapPingHandler.OnData(pingTag, abilityPing, relativeUltimate)
+    if (LOG_ACTIVE) then _logger:logTrace("POC_MapPingHandler.OnData") end
 
-    local ultimateGroup = TGU_UltimateGroupHandler.GetUltimateGroupByAbilityPing(abilityPing)
+    local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByAbilityPing(abilityPing)
 
     if (ultimateGroup ~= nil and relativeUltimate ~= -1) then
         local player = {}
         local playerName = ""
         local isPlayerDead = false
 
-        if (TGU_MapPingHandler.IsMocked == false) then
+        if (POC_MapPingHandler.IsMocked == false) then
             playerName = GetUnitName(pingTag)
             isPlayerDead = IsUnitDead(pingTag)
         else
@@ -55,45 +55,45 @@ function TGU_MapPingHandler.OnData(pingTag, abilityPing, relativeUltimate)
             _logger:logDebug("player.RelativeUltimate", player.RelativeUltimate)
         end
 
-        CALLBACK_MANAGER:FireCallbacks(TGU_PLAYER_DATA_CHANGED, player)
+        CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)
     else
-        _logger:logError("TGU_MapPingHandler.OnMapPing, Ping invalid ultimateGroup: " .. tostring(ultimateGroup) .. "; relativeUltimate: " .. tostring(relativeUltimate))
+        _logger:logError("POC_MapPingHandler.OnMapPing, Ping invalid ultimateGroup: " .. tostring(ultimateGroup) .. "; relativeUltimate: " .. tostring(relativeUltimate))
     end
 end
 
 --[[
 	Called on refresh of timer
 ]]--
-function TGU_MapPingHandler.OnTimedUpdate(eventCode)
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_MapPingHandler.OnTimedUpdate") end
+function POC_MapPingHandler.OnTimedUpdate(eventCode)
+    if (LOG_ACTIVE) then _logger:logTrace("POC_MapPingHandler.OnTimedUpdate") end
 
-	if (IsUnitGrouped("player") == false and TGU_MapPingHandler.IsMocked == false) then return end -- only if player is in group and system is not mocked
+	if (IsUnitGrouped("player") == false and POC_MapPingHandler.IsMocked == false) then return end -- only if player is in group and system is not mocked
 
-    local abilityGroup = TGU_UltimateGroupHandler.GetUltimateGroupByAbilityId(TGU_SettingsHandler.SavedVariables.StaticUltimateID)
+    local abilityGroup = POC_UltimateGroupHandler.GetUltimateGroupByAbilityId(POC_SettingsHandler.SavedVariables.StaticUltimateID)
 
     if (abilityGroup ~= nil) then
-	    TGU_Communicator.SendData(abilityGroup)
+	    POC_Communicator.SendData(abilityGroup)
     else
-        _logger:logError("TGU_MapPingHandler.OnTimedUpdate, abilityGroup is nil, change ultimate. StaticID: " .. tostring(TGU_SettingsHandler.SavedVariables.StaticUltimateID))
+        _logger:logError("POC_MapPingHandler.OnTimedUpdate, abilityGroup is nil, change ultimate. StaticID: " .. tostring(POC_SettingsHandler.SavedVariables.StaticUltimateID))
     end
 end
 
 --[[
-	Initialize initializes TGU_MapPingHandler
+	Initialize initializes POC_MapPingHandler
 ]]--
-function TGU_MapPingHandler.Initialize(logger, isMocked)
+function POC_MapPingHandler.Initialize(logger, isMocked)
     if (LOG_ACTIVE) then 
-        logger:logTrace("TGU_MapPingHandler.Initialize")
+        logger:logTrace("POC_MapPingHandler.Initialize")
         logger:logDebug("isMocked", isMocked)
     end
 
     _logger = logger
 
-    TGU_MapPingHandler.IsMocked = isMocked
+    POC_MapPingHandler.IsMocked = isMocked
 
     -- Register callbacks
-    CALLBACK_MANAGER:RegisterCallback(TGU_MAP_PING_CHANGED, TGU_MapPingHandler.OnData)
+    CALLBACK_MANAGER:RegisterCallback(POC_MAP_PING_CHANGED, POC_MapPingHandler.OnData)
 
     -- Start timer
-    EVENT_MANAGER:RegisterForUpdate(TGU_MapPingHandler.Name, REFRESHRATE, TGU_MapPingHandler.OnTimedUpdate)
+    EVENT_MANAGER:RegisterForUpdate(POC_MapPingHandler.Name, REFRESHRATE, POC_MapPingHandler.OnTimedUpdate)
 end

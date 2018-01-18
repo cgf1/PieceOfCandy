@@ -5,27 +5,27 @@ local LOG_ACTIVE = false
 local _logger = nil
 
 --[[
-	Table TGU_CommandsHandler
+	Table POC_CommandsHandler
 ]]--
-TGU_CommandsHandler = {}
-TGU_CommandsHandler.__index = TGU_CommandsHandler
+POC_CommandsHandler = {}
+POC_CommandsHandler.__index = POC_CommandsHandler
 
 --[[
 	Table Members
 ]]--
-TGU_CommandsHandler.Name = "TGU-CommandsHandler"
+POC_CommandsHandler.Name = "TGU-CommandsHandler"
 
 --[[
 	Called on /setgroupultimatestyle command
 ]]--
-function TGU_CommandsHandler.SetGroupUltimateStyleCommand(style)
+function POC_CommandsHandler.SetGroupUltimateStyleCommand(style)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CommandsHandler.SetGroupUltimateStyleCommand")
+        _logger:logTrace("POC_CommandsHandler.SetGroupUltimateStyleCommand")
         _logger:logDebug("style", style)
     end
 
     if (style ~= nil and style ~= "") then
-        TGU_SettingsHandler.SetStyleSettings(style)
+        POC_SettingsHandler.SetStyleSettings(style)
     else
         d("Invalid style: " .. tostring(style))
     end
@@ -34,17 +34,17 @@ end
 --[[
 	Called on /setultimateid command
 ]]--
-function TGU_CommandsHandler.SetUltimateIdCommand(groupName)
+function POC_CommandsHandler.SetUltimateIdCommand(groupName)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CommandsHandler.SetUltimateId")
+        _logger:logTrace("POC_CommandsHandler.SetUltimateId")
         _logger:logDebug("groupName", groupName)
     end
 
     if (groupName ~= nil and groupName ~= "") then
-        local ultimateGroup = TGU_UltimateGroupHandler.GetUltimateGroupByGroupName(groupName)
+        local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByGroupName(groupName)
 
         if (ultimateGroup ~= nil) then
-            TGU_SettingsHandler.SetStaticUltimateIDSettings(ultimateGroup.GroupAbilityId)
+            POC_SettingsHandler.SetStaticUltimateIDSettings(ultimateGroup.GroupAbilityId)
         else
             d("Invalid group name: " .. tostring(groupName))
         end
@@ -56,9 +56,9 @@ end
 --[[
 	Called on /setswimlaneid command
 ]]--
-function TGU_CommandsHandler.SetSwimlaneIdCommand(option)
+function POC_CommandsHandler.SetSwimlaneIdCommand(option)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_CommandsHandler.SetSwimlaneId")
+        _logger:logTrace("POC_CommandsHandler.SetSwimlaneId")
         _logger:logDebug("option", option)
     end
 
@@ -76,10 +76,10 @@ function TGU_CommandsHandler.SetSwimlaneIdCommand(option)
     if (arrayLength == 2) then
         local swimlane = tonumber(options[1])
         local swimlaneGroup = options[2]
-        local ultimateGroup = TGU_UltimateGroupHandler.GetUltimateGroupByGroupName(swimlaneGroup)
+        local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByGroupName(swimlaneGroup)
 
         if (swimlane ~= nil and ultimateGroup ~= nil and swimlane >= 1 and swimlane <= 6) then
-            TGU_SettingsHandler.SetSwimlaneUltimateGroupIdSettings(swimlane, ultimateGroup)
+            POC_SettingsHandler.SetSwimlaneUltimateGroupIdSettings(swimlane, ultimateGroup)
         else
             d("Invalid options: " .. tostring(option))
         end
@@ -91,10 +91,10 @@ end
 --[[
 	Called on /getultimategroups command
 ]]--
-function TGU_CommandsHandler.GetUltimateGroupsCommand()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_CommandsHandler.GetUltimateGroupsCommand") end
+function POC_CommandsHandler.GetUltimateGroupsCommand()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_CommandsHandler.GetUltimateGroupsCommand") end
 
-    local ultimateGroups = TGU_UltimateGroupHandler.GetUltimateGroups()
+    local ultimateGroups = POC_UltimateGroupHandler.GetUltimateGroups()
 
     d("Ultimate Groups:")
 
@@ -104,11 +104,11 @@ function TGU_CommandsHandler.GetUltimateGroupsCommand()
 end
 
 --[[
-	Initialize initializes TGU_CommandsHandler
+	Initialize initializes POC_CommandsHandler
 ]]--
-function TGU_CommandsHandler.Initialize(logger)
+function POC_CommandsHandler.Initialize(logger)
     if (LOG_ACTIVE) then 
-        logger:logTrace("TGU_CommandsHandler.Initialize")
+        logger:logTrace("POC_CommandsHandler.Initialize")
         logger:logDebug("Commands active:")
         logger:logDebug("/setgroupultimatestyle <STYLEID> - Sets the style (0 = SimpleList, 1 = SwimlaneList).")
         logger:logDebug("/setultimateid <GROUPNAME> - Sets the static ultimate group; See /getultimategroups to get group names.")
@@ -119,8 +119,8 @@ function TGU_CommandsHandler.Initialize(logger)
     _logger = logger
 
     -- Define commands
-    SLASH_COMMANDS["/setgroupultimatestyle"] = TGU_CommandsHandler.SetGroupUltimateStyleCommand
-    SLASH_COMMANDS["/setultimateid"] = TGU_CommandsHandler.SetUltimateIdCommand
-    SLASH_COMMANDS["/setswimlaneid"] = TGU_CommandsHandler.SetSwimlaneIdCommand
-    SLASH_COMMANDS["/getultimategroups"] = TGU_CommandsHandler.GetUltimateGroupsCommand
+    SLASH_COMMANDS["/setgroupultimatestyle"] = POC_CommandsHandler.SetGroupUltimateStyleCommand
+    SLASH_COMMANDS["/setultimateid"] = POC_CommandsHandler.SetUltimateIdCommand
+    SLASH_COMMANDS["/setswimlaneid"] = POC_CommandsHandler.SetSwimlaneIdCommand
+    SLASH_COMMANDS["/getultimategroups"] = POC_CommandsHandler.GetUltimateGroupsCommand
 end

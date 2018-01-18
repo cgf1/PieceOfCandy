@@ -5,10 +5,10 @@ local LOG_ACTIVE = false
 local _logger = nil
 
 --[[
-	Table TGU_UltimateGroupMenu
+	Table POC_UltimateGroupMenu
 ]]--
-TGU_UltimateGroupMenu = {}
-TGU_UltimateGroupMenu.__index = TGU_UltimateGroupMenu
+POC_UltimateGroupMenu = {}
+POC_UltimateGroupMenu.__index = POC_UltimateGroupMenu
 
 --[[
 	Table Members
@@ -17,48 +17,48 @@ TGU_UltimateGroupMenu.__index = TGU_UltimateGroupMenu
 --[[
 	SetUltimateGroup shows ultimate group menu
 ]]--
-function TGU_UltimateGroupMenu.SetUltimateGroup(group, arg)
+function POC_UltimateGroupMenu.SetUltimateGroup(group, arg)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_UltimateGroupMenu.SetultimateGroup")
+        _logger:logTrace("POC_UltimateGroupMenu.SetultimateGroup")
         _logger:logDebug("group.GroupName, arg", group.GroupName, arg)
     end
 
-    CALLBACK_MANAGER:FireCallbacks(TGU_SET_ULTIMATE_GROUP, group, arg)
+    CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, group, arg)
 end
 
 --[[
 	ShowUltimateGroupMenu shows ultimate group menu
 ]]--
-function TGU_UltimateGroupMenu.ShowUltimateGroupMenu(control, arg)
+function POC_UltimateGroupMenu.ShowUltimateGroupMenu(control, arg)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_UltimateGroupMenu.ShowUltimateGroupMenu")
+        _logger:logTrace("POC_UltimateGroupMenu.ShowUltimateGroupMenu")
         _logger:logDebug("arg", arg)
     end
 
     if (control ~= nil) then
         ClearMenu()
 
-        local ultimateGroups = TGU_UltimateGroupHandler.GetUltimateGroups()
+        local ultimateGroups = POC_UltimateGroupHandler.GetUltimateGroups()
 
         for i, group in pairs(ultimateGroups) do
-            AddMenuItem(group.GroupName .. " - " .. group.GroupDescription, function() TGU_UltimateGroupMenu.SetUltimateGroup(group, arg) end)
+            AddMenuItem(group.GroupName .. " - " .. group.GroupDescription, function() POC_UltimateGroupMenu.SetUltimateGroup(group, arg) end)
         end
 
         ShowMenu(control)
     else
-        _logger:logError("TGU_UltimateGroupMenu.ShowUltimateGroupMenu, control nil")
+        _logger:logError("POC_UltimateGroupMenu.ShowUltimateGroupMenu, control nil")
     end
 end
 
 --[[
-	Initialize initializes TGU_UltimateGroupMenu
+	Initialize initializes POC_UltimateGroupMenu
 ]]--
-function TGU_UltimateGroupMenu.Initialize(logger)
+function POC_UltimateGroupMenu.Initialize(logger)
     if (LOG_ACTIVE) then 
-        logger:logTrace("TGU_UltimateGroupMenu.Initialize")
+        logger:logTrace("POC_UltimateGroupMenu.Initialize")
     end
 
     _logger = logger
 
-    CALLBACK_MANAGER:RegisterCallback(TGU_SHOW_ULTIMATE_GROUP_MENU, TGU_UltimateGroupMenu.ShowUltimateGroupMenu)
+    CALLBACK_MANAGER:RegisterCallback(POC_SHOW_ULTIMATE_GROUP_MENU, POC_UltimateGroupMenu.ShowUltimateGroupMenu)
 end

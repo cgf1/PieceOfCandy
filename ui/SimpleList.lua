@@ -11,30 +11,30 @@ local _control = nil
 local _players = {}
 
 --[[
-	Table TGU_SimpleList
+	Table POC_SimpleList
 ]]--
-TGU_SimpleList = {}
-TGU_SimpleList.__index = TGU_SimpleList
+POC_SimpleList = {}
+POC_SimpleList.__index = POC_SimpleList
 
 --[[
 	Table Members
 ]]--
-TGU_SimpleList.IsMocked = false
+POC_SimpleList.IsMocked = false
 
 --[[
 	Sets visibility of labels
 ]]--
-function TGU_SimpleList.RefreshList()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_SimpleList.RefreshList") end
+function POC_SimpleList.RefreshList()
+	if (LOG_ACTIVE) then _logger:logTrace("POC_SimpleList.RefreshList") end
 
     for i=1, GROUP_SIZE_MAX, 1 do
-        local row = TGU_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. i)
+        local row = POC_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. i)
         local listPlayer = _players[i]
 
         if (listPlayer ~= nil) then
             local isPlayerNotGrouped = IsUnitGrouped(listPlayer.PingTag) == false
 
-            if (TGU_SimpleList.IsMocked) then
+            if (POC_SimpleList.IsMocked) then
                 isPlayerNotGrouped = false
             end
 
@@ -52,17 +52,17 @@ function TGU_SimpleList.RefreshList()
         end
     end
 	
-	if (TGU_SettingsHandler.SavedVariables.IsSortingActive) then
+	if (POC_SettingsHandler.SavedVariables.IsSortingActive) then
 		-- Sort list with all players
-		TGU_SimpleList.SortList()
+		POC_SimpleList.SortList()
 	end
 end
 
 --[[
 	Sorts swimlane
 ]]--
-function TGU_SimpleList.SortList()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_SimpleList.SortList") end
+function POC_SimpleList.SortList()
+	if (LOG_ACTIVE) then _logger:logTrace("POC_SimpleList.SortList") end
 
     -- Comparer
     function compare(playerLeft, playerRight)
@@ -77,16 +77,16 @@ function TGU_SimpleList.SortList()
 
     -- Update sorted swimlane list
     for i,listPlayer in ipairs(_players) do
-        TGU_SimpleList.UpdateListRow(TGU_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. i), listPlayer)
+        POC_SimpleList.UpdateListRow(POC_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. i), listPlayer)
     end
 end
 
 --[[
 	Updates list row
 ]]--
-function TGU_SimpleList.UpdateListRow(row, player)
+function POC_SimpleList.UpdateListRow(row, player)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_SimpleList.UpdateListRow")
+        _logger:logTrace("POC_SimpleList.UpdateListRow")
     end
 
     local localizedUltimateName = zo_strformat(SI_ABILITY_TOOLTIP_NAME, player.UltimateName)
@@ -122,9 +122,9 @@ end
 --[[
 	Updates list row
 ]]--
-function TGU_SimpleList.UpdatePlayer(player)
+function POC_SimpleList.UpdatePlayer(player)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_SimpleList.UpdatePlayer")
+        _logger:logTrace("POC_SimpleList.UpdatePlayer")
     end
 
 	if (player) then
@@ -133,7 +133,7 @@ function TGU_SimpleList.UpdatePlayer(player)
         for i,listPlayer in ipairs(_players) do
             if (LOG_ACTIVE) then _logger:logDebug(listPlayer.PlayerName .. " == " .. player.PlayerName) end
 		    if (listPlayer.PlayerName == player.PlayerName) then
-                row = TGU_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. i)
+                row = POC_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. i)
             end
 	    end
 
@@ -157,21 +157,21 @@ function TGU_SimpleList.UpdatePlayer(player)
 
             if (nextFreeRow <= GROUP_SIZE_MAX) then
                 if (LOG_ACTIVE) then 
-                    _logger:logDebug("TGU_SimpleList.UpdatePlayer, add player " .. tostring(player.PlayerName) .. " to row " .. tostring(nextFreeRow)) 
+                    _logger:logDebug("POC_SimpleList.UpdatePlayer, add player " .. tostring(player.PlayerName) .. " to row " .. tostring(nextFreeRow)) 
                 end
 
                 player.LastMapPingTimestamp = GetTimeStamp()
                 _players[nextFreeRow] = player
-                row = TGU_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. nextFreeRow)
+                row = POC_SimpleListControlContainerScrollChild:GetNamedChild("Row" .. nextFreeRow)
             else
-                if (LOG_ACTIVE) then _logger:logDebug("TGU_SimpleList.UpdatePlayer, too much players for list" .. tostring(nextFreeRow)) end
+                if (LOG_ACTIVE) then _logger:logDebug("POC_SimpleList.UpdatePlayer, too much players for list" .. tostring(nextFreeRow)) end
             end
         end
 
         -- Only update if player in a row
         if (row ~= nil) then
             -- Directly update row with player, sorting will be triggered on RefreshList
-			TGU_SimpleList.UpdateListRow(row, player)
+			POC_SimpleList.UpdateListRow(row, player)
         end
     end
 end
@@ -179,9 +179,9 @@ end
 --[[
 	SetControlMovable sets the Movable and MouseEnabled flag in UI elements
 ]]--
-function TGU_SimpleList.SetControlMovable(isMovable)
+function POC_SimpleList.SetControlMovable(isMovable)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_SimpleList.SetControlMovable")
+        _logger:logTrace("POC_SimpleList.SetControlMovable")
         _logger:logDebug("isMovable", isMovable)
     end
 
@@ -192,11 +192,11 @@ function TGU_SimpleList.SetControlMovable(isMovable)
 end
 
 --[[
-	RestorePosition sets TGU_SimpleList on settings position
+	RestorePosition sets POC_SimpleList on settings position
 ]]--
-function TGU_SimpleList.RestorePosition(posX, posY)
+function POC_SimpleList.RestorePosition(posX, posY)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_SimpleList.RestorePosition")
+        _logger:logTrace("POC_SimpleList.RestorePosition")
         _logger:logDebug("posX, posY", posX, posY)
     end
 
@@ -205,32 +205,32 @@ function TGU_SimpleList.RestorePosition(posX, posY)
 end
 
 --[[
-	OnSimpleListMoveStop saves current TGU_SimpleList position to settings
+	OnSimpleListMoveStop saves current POC_SimpleList position to settings
 ]]--
-function TGU_SimpleList.OnSimpleListMoveStop()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_SimpleList.OnSimpleListMoveStop") end
+function POC_SimpleList.OnSimpleListMoveStop()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_SimpleList.OnSimpleListMoveStop") end
 
 	local left = _control:GetLeft()
 	local top = _control:GetTop()
 	
-    TGU_SettingsHandler.SavedVariables.PosX = left
-    TGU_SettingsHandler.SavedVariables.PosY = top
+    POC_SettingsHandler.SavedVariables.PosX = left
+    POC_SettingsHandler.SavedVariables.PosY = top
 
     if (LOG_ACTIVE) then 
-        _logger:logDebug("PosX, PosY", TGU_SettingsHandler.SavedVariables.PosX, TGU_SettingsHandler.SavedVariables.PosY)
+        _logger:logDebug("PosX, PosY", POC_SettingsHandler.SavedVariables.PosX, POC_SettingsHandler.SavedVariables.PosY)
     end
 end
 
 --[[
 	SetControlHidden sets hidden on control
 ]]--
-function TGU_SimpleList.SetControlHidden(isHidden)
+function POC_SimpleList.SetControlHidden(isHidden)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_SimpleList.SetControlHidden")
+        _logger:logTrace("POC_SimpleList.SetControlHidden")
         _logger:logDebug("isHidden", isHidden)
     end
 
-    if (TGU_GroupHandler.IsGrouped) then
+    if (POC_GroupHandler.IsGrouped) then
         _control:SetHidden(isHidden)
     else
         _control:SetHidden(true)
@@ -240,52 +240,52 @@ end
 --[[
 	SetControlActive sets hidden on control
 ]]--
-function TGU_SimpleList.SetControlActive()
+function POC_SimpleList.SetControlActive()
     if (LOG_ACTIVE) then 
-        _logger:logTrace("TGU_SimpleList.SetControlActive")
+        _logger:logTrace("POC_SimpleList.SetControlActive")
     end
 
-    local isHidden = TGU_SettingsHandler.IsSimpleListVisible() == false
+    local isHidden = POC_SettingsHandler.IsSimpleListVisible() == false
     if (LOG_ACTIVE) then _logger:logDebug("isHidden", isHidden) end
     
-    TGU_SimpleList.SetControlHidden(isHidden or CurrentHudHiddenState())
+    POC_SimpleList.SetControlHidden(isHidden or CurrentHudHiddenState())
 
     if (isHidden) then
 		-- Stop timeout timer
-	    EVENT_MANAGER:UnregisterForUpdate(TGU_SimpleList.Name)
+	    EVENT_MANAGER:UnregisterForUpdate(POC_SimpleList.Name)
 		
-        CALLBACK_MANAGER:UnregisterCallback(TGU_GROUP_CHANGED, TGU_SimpleList.RefreshList)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_PLAYER_DATA_CHANGED, TGU_SimpleList.UpdatePlayer)
-        CALLBACK_MANAGER:UnregisterCallback(TGU_MOVABLE_CHANGED, TGU_SimpleList.SetControlMovable)
-        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_SimpleList.SetControlHidden)
+        CALLBACK_MANAGER:UnregisterCallback(POC_GROUP_CHANGED, POC_SimpleList.RefreshList)
+        CALLBACK_MANAGER:UnregisterCallback(POC_PLAYER_DATA_CHANGED, POC_SimpleList.UpdatePlayer)
+        CALLBACK_MANAGER:UnregisterCallback(POC_MOVABLE_CHANGED, POC_SimpleList.SetControlMovable)
+        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_SimpleList.SetControlHidden)
     else
-        TGU_SimpleList.SetControlMovable(TGU_SettingsHandler.SavedVariables.Movable)
-        TGU_SimpleList.RestorePosition(TGU_SettingsHandler.SavedVariables.PosX, TGU_SettingsHandler.SavedVariables.PosY)
+        POC_SimpleList.SetControlMovable(POC_SettingsHandler.SavedVariables.Movable)
+        POC_SimpleList.RestorePosition(POC_SettingsHandler.SavedVariables.PosX, POC_SettingsHandler.SavedVariables.PosY)
 
 		-- Start timeout timer
-	    EVENT_MANAGER:RegisterForUpdate(TGU_SimpleList.Name, REFRESHRATE, TGU_SimpleList.RefreshList)
+	    EVENT_MANAGER:RegisterForUpdate(POC_SimpleList.Name, REFRESHRATE, POC_SimpleList.RefreshList)
 		
-        CALLBACK_MANAGER:RegisterCallback(TGU_GROUP_CHANGED, TGU_SimpleList.RefreshList)
-        CALLBACK_MANAGER:RegisterCallback(TGU_PLAYER_DATA_CHANGED, TGU_SimpleList.UpdatePlayer)
-        CALLBACK_MANAGER:RegisterCallback(TGU_MOVABLE_CHANGED, TGU_SimpleList.SetControlMovable)
-        CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, TGU_SimpleList.SetControlHidden)
+        CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, POC_SimpleList.RefreshList)
+        CALLBACK_MANAGER:RegisterCallback(POC_PLAYER_DATA_CHANGED, POC_SimpleList.UpdatePlayer)
+        CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, POC_SimpleList.SetControlMovable)
+        CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_SimpleList.SetControlHidden)
     end
 end
 
 --[[
 	CreateSimpleListRows creates simple list rows
 ]]--
-function TGU_SimpleList.CreateSimpleListRows()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_SimpleList.CreateSimpleListRows") end
+function POC_SimpleList.CreateSimpleListRows()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_SimpleList.CreateSimpleListRows") end
 
 	for i=1, GROUP_SIZE_MAX, 1 do
-		local row = CreateControlFromVirtual("$(parent)Row", TGU_SimpleListControlContainerScrollChild, "GroupUltimateSimpleListRow", i)
+		local row = CreateControlFromVirtual("$(parent)Row", POC_SimpleListControlContainerScrollChild, "GroupUltimateSimpleListRow", i)
         if (LOG_ACTIVE) then _logger:logDebug("Row created " .. row:GetName()) end
 
 		row:SetHidden(true) -- initial not visible
 		
 		if i == 1 then
-            row:SetAnchor(TOPLEFT, TGU_SimpleListControlContainerScrollChild, TOPLEFT, 0, 0)
+            row:SetAnchor(TOPLEFT, POC_SimpleListControlContainerScrollChild, TOPLEFT, 0, 0)
         else
             row:SetAnchor(TOP, lastRow, BOTTOM, 0, 0)
         end
@@ -295,21 +295,21 @@ function TGU_SimpleList.CreateSimpleListRows()
 end
 
 --[[
-	Initialize initializes TGU_SimpleList
+	Initialize initializes POC_SimpleList
 ]]--
-function TGU_SimpleList.Initialize(logger, isMocked)
+function POC_SimpleList.Initialize(logger, isMocked)
     if (LOG_ACTIVE) then 
-        logger:logTrace("TGU_SimpleList.Initialize")
+        logger:logTrace("POC_SimpleList.Initialize")
     end
 
     _logger = logger
-    _control = TGU_SimpleListControl
+    _control = POC_SimpleListControl
     
-    TGU_SimpleList.IsMocked = isMocked
+    POC_SimpleList.IsMocked = isMocked
 
-    TGU_SimpleList.CreateSimpleListRows()
+    POC_SimpleList.CreateSimpleListRows()
 
-    CALLBACK_MANAGER:RegisterCallback(TGU_STYLE_CHANGED, TGU_SimpleList.SetControlActive)
-    CALLBACK_MANAGER:RegisterCallback(TGU_IS_ZONE_CHANGED, TGU_SimpleList.SetControlActive)
-    CALLBACK_MANAGER:RegisterCallback(TGU_UNIT_GROUPED_CHANGED, TGU_SimpleList.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, POC_SimpleList.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_IS_ZONE_CHANGED, POC_SimpleList.SetControlActive)
+    CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, POC_SimpleList.SetControlActive)
 end

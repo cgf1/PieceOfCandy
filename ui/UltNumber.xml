@@ -1,10 +1,10 @@
 <GuiXml>
   <Controls>
-    <TopLevelControl name="TGU_UltNumber" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
+    <TopLevelControl name="POC_UltNumber" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
         <Anchor point="BOTTOM" relativeTo="GuiRoot" relativePoint="CENTER" offsetY="-20" />
         <Dimensions x="100" y="100" />
         <OnMoveStop>
-            TGU_SwimlaneList.savePosNumber(self)
+            POC_SwimlaneList.savePosNumber(self)
         </OnMoveStop>
  
       <Controls>

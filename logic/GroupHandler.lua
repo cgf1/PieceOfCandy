@@ -5,75 +5,75 @@ local LOG_ACTIVE = false
 local _logger = nil
 
 --[[
-	Table TGU_GroupHandler
+	Table POC_GroupHandler
 ]]--
-TGU_GroupHandler = {}
-TGU_GroupHandler.__index = TGU_GroupHandler
+POC_GroupHandler = {}
+POC_GroupHandler.__index = POC_GroupHandler
 
 --[[
 	Table Members
 ]]--
-TGU_GroupHandler.Name = "TGU-GroupHandler"
-TGU_GroupHandler.IsMocked = false
+POC_GroupHandler.Name = "TGU-GroupHandler"
+POC_GroupHandler.IsMocked = false
 
 --[[
 	Called when group member joined group
 ]]--
-function TGU_GroupHandler.OnGroupMemberJoined()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupMemberJoined") end
+function POC_GroupHandler.OnGroupMemberJoined()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnGroupMemberJoined") end
 	
-    CALLBACK_MANAGER:FireCallbacks(TGU_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
 end
 
 --[[
 	Called when group member left group
 ]]--
-function TGU_GroupHandler.OnGroupMemberLeft()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupMemberLeft") end
+function POC_GroupHandler.OnGroupMemberLeft()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnGroupMemberLeft") end
 	
-    CALLBACK_MANAGER:FireCallbacks(TGU_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
 end
 
 --[[
 	Called when groupUnitTags updated
 ]]--
-function TGU_GroupHandler.OnGroupUpdate()
-    if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnGroupUpdate") end
+function POC_GroupHandler.OnGroupUpdate()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnGroupUpdate") end
 	
-    CALLBACK_MANAGER:FireCallbacks(TGU_GROUP_CHANGED)
-    CALLBACK_MANAGER:FireCallbacks(TGU_UNIT_GROUPED_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_UNIT_GROUPED_CHANGED)
 end
 
-function TGU_GroupHandler.IsGrouped()
-    return TGU_GroupHandler.IsMocked or IsUnitGrouped("player")
+function POC_GroupHandler.IsGrouped()
+    return POC_GroupHandler.IsMocked or IsUnitGrouped("player")
 end
 
 --[[
 	Called on ???
 ]]--
-function TGU_GroupHandler.OnUnitFrameUpdate()
-	if (LOG_ACTIVE) then _logger:logTrace("TGU_GroupHandler.OnUnitFrameUpdate") end
+function POC_GroupHandler.OnUnitFrameUpdate()
+	if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnUnitFrameUpdate") end
 	
-    CALLBACK_MANAGER:FireCallbacks(TGU_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
 end
 
 --[[
-	Initialize initializes TGU_GroupHandler
+	Initialize initializes POC_GroupHandler
 ]]--
-function TGU_GroupHandler.Initialize(logger, isMocked)
-    if (LOG_ACTIVE) then logger:logTrace("TGU_GroupHandler.Initialize") end
+function POC_GroupHandler.Initialize(logger, isMocked)
+    if (LOG_ACTIVE) then logger:logTrace("POC_GroupHandler.Initialize") end
 
     _logger = logger
     
-    TGU_GroupHandler.IsMocked = isMocked
+    POC_GroupHandler.IsMocked = isMocked
 
     -- Initial call
-    TGU_GroupHandler:OnGroupUpdate()
+    POC_GroupHandler:OnGroupUpdate()
 
     -- Register events
-    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_JOINED, TGU_GroupHandler.OnGroupMemberJoined)
-    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_LEFT, TGU_GroupHandler.OnGroupMemberLeft)
-    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_UPDATE, TGU_GroupHandler.OnGroupUpdate)
-    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, TGU_GroupHandler.OnGroupUpdate)
-    EVENT_MANAGER:RegisterForEvent(TGU_GroupHandler.Name, EVENT_UNIT_FRAME_UPDATE, TGU_GroupHandler.OnUnitFrameUpdate)
+    EVENT_MANAGER:RegisterForEvent(POC_GroupHandler.Name, EVENT_GROUP_MEMBER_JOINED, POC_GroupHandler.OnGroupMemberJoined)
+    EVENT_MANAGER:RegisterForEvent(POC_GroupHandler.Name, EVENT_GROUP_MEMBER_LEFT, POC_GroupHandler.OnGroupMemberLeft)
+    EVENT_MANAGER:RegisterForEvent(POC_GroupHandler.Name, EVENT_GROUP_UPDATE, POC_GroupHandler.OnGroupUpdate)
+    EVENT_MANAGER:RegisterForEvent(POC_GroupHandler.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, POC_GroupHandler.OnGroupUpdate)
+    EVENT_MANAGER:RegisterForEvent(POC_GroupHandler.Name, EVENT_UNIT_FRAME_UPDATE, POC_GroupHandler.OnUnitFrameUpdate)
 end

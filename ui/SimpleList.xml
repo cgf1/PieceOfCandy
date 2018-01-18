@@ -1,9 +1,9 @@
 <GuiXml>
 	<Controls>
-		<TopLevelControl name="TGU_SimpleListControl" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
+		<TopLevelControl name="POC_SimpleListControl" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
 			<Anchor point="TOPLEFT" relativeTo="GuiRoot" relativePoint="TOPLEFT"/>
 			<Dimensions x="500" y="520" />
-			<OnMoveStop>TGU_SimpleList:OnSimpleListMoveStop()</OnMoveStop>
+			<OnMoveStop>POC_SimpleList:OnSimpleListMoveStop()</OnMoveStop>
 			
 			<Controls>
         <Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">

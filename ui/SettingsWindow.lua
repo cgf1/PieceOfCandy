@@ -6,25 +6,25 @@ local LOG_ACTIVE = false
 --[[
 	Table SettingsWindow
 ]]--
-TGU_SettingsWindow = {}
-TGU_SettingsWindow.__index = TGU_SettingsWindow
+POC_SettingsWindow = {}
+POC_SettingsWindow.__index = POC_SettingsWindow
 
 --[[
 	Table Members
 ]]--
-TGU_SettingsWindow.MainMenuName = "POCSettingsMainMenu"
+POC_SettingsWindow.MainMenuName = "POCSettingsMainMenu"
 
 --[[
 	Initialize creates settings window
 ]]--
-function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
+function POC_SettingsWindow.Initialize(logger, major, minor, patch)
     if (LOG_ACTIVE) then 
-        logger:logTrace("TGU_SettingsWindow.Initialize")
+        logger:logTrace("POC_SettingsWindow.Initialize")
         logger:logDebug("major, minor, patch", major, minor, patch)
     end
 
     local styleChoices = {
-        GetString(TGU_OPTIONS_STYLE_SWIM)
+        GetString(POC_OPTIONS_STYLE_SWIM)
     }
 
 	local panelData = {
@@ -39,101 +39,101 @@ function TGU_SettingsWindow.Initialize(logger, major, minor, patch)
 	local optionsData = {
 		[1] = {
 			type = "header",
-			name = GetString(TGU_OPTIONS_HEADER),
+			name = GetString(POC_OPTIONS_HEADER),
 		},
 		[2] = {
 			type = "checkbox",
-			name = GetString(TGU_OPTIONS_DRAG_LABEL),
-			tooltip = GetString(TGU_OPTIONS_DRAG_TOOLTIP),
+			name = GetString(POC_OPTIONS_DRAG_LABEL),
+			tooltip = GetString(POC_OPTIONS_DRAG_TOOLTIP),
 			getFunc = 
                function() 
-                   return TGU_SettingsHandler.SavedVariables.Movable
+                   return POC_SettingsHandler.SavedVariables.Movable
                end,
 			setFunc = 
                function(value) 
-                   TGU_SettingsHandler.SetMovableSettings(value)
+                   POC_SettingsHandler.SetMovableSettings(value)
 			   end,
-			default = TGU_SettingsHandler.Default.Movable
+			default = POC_SettingsHandler.Default.Movable
 		},
                 [3] = {
                                 type = "checkbox",
-                                name = GetString(TGU_OPTIONS_ONLY_AVA_LABEL),
-                                tooltip = GetString(TGU_OPTIONS_ONLY_AVA_TOOLTIP),
+                                name = GetString(POC_OPTIONS_ONLY_AVA_LABEL),
+                                tooltip = GetString(POC_OPTIONS_ONLY_AVA_TOOLTIP),
                                 getFunc = 
                        function() 
-                           return TGU_SettingsHandler.SavedVariables.OnlyAva
+                           return POC_SettingsHandler.SavedVariables.OnlyAva
                        end,
                                 setFunc = 
                        function(value) 
-                           TGU_SettingsHandler.SetOnlyAvaSettings(value)
+                           POC_SettingsHandler.SetOnlyAvaSettings(value)
                                    end,
-                                default = TGU_SettingsHandler.Default.OnlyAva
+                                default = POC_SettingsHandler.Default.OnlyAva
                         },
                 [4] = {
                         type = "checkbox",
-                        name = GetString(TGU_OPTIONS_USE_LGS_LABEL),
-                        tooltip = GetString(TGU_OPTIONS_USE_LGS_TOOLTIP),
+                        name = GetString(POC_OPTIONS_USE_LGS_LABEL),
+                        tooltip = GetString(POC_OPTIONS_USE_LGS_TOOLTIP),
                         requiresReload = true,
                         getFunc = 
                            function() 
-                               return TGU_SettingsHandler.SavedVariables.IsLgsActive
+                               return POC_SettingsHandler.SavedVariables.IsLgsActive
                            end,
                         setFunc = 
                            function(value) 
-                               TGU_SettingsHandler.SetIsLgsActiveSettings(value)
+                               POC_SettingsHandler.SetIsLgsActiveSettings(value)
                            end,
-                        default = TGU_SettingsHandler.Default.IsLgsActive
+                        default = POC_SettingsHandler.Default.IsLgsActive
                         },
                 [5] = {
                                 type = "dropdown",
-                                name = GetString(TGU_OPTIONS_STYLE_LABEL),
-                                tooltip = GetString(TGU_OPTIONS_STYLE_TOOLTIP),
+                                name = GetString(POC_OPTIONS_STYLE_LABEL),
+                                tooltip = GetString(POC_OPTIONS_STYLE_TOOLTIP),
                                 choices = styleChoices,
                                 getFunc = function() 
-                                    return styleChoices[TGU_SettingsHandler.SavedVariables.Style]
+                                    return styleChoices[POC_SettingsHandler.SavedVariables.Style]
                                 end,
                                 setFunc = function(value)
                                     for index, name in ipairs(styleChoices) do
                                         if (name == value) then
-                                            TGU_SettingsHandler.SetStyleSettings(index)
+                                            POC_SettingsHandler.SetStyleSettings(index)
                                             break
                                         end
                                     end
                                 end,
-                                default = styleChoices[TGU_SettingsHandler.Default.Style]
+                                default = styleChoices[POC_SettingsHandler.Default.Style]
                         },
                 [6] = {
                                 type = "slider",
-                                name = GetString(TGU_OPTIONS_SWIMLANE_MAX_LABEL),
+                                name = GetString(POC_OPTIONS_SWIMLANE_MAX_LABEL),
                                 min = 1, max = 24, step = 1,
-                                getFunc = function() return TGU_SettingsHandler.SavedVariables.SwimlaneMax end,
+                                getFunc = function() return POC_SettingsHandler.SavedVariables.SwimlaneMax end,
                                 width = "full",
-                                setFunc = function(value) TGU_SettingsHandler.TGU_SetSwimlaneMax(value) end,
+                                setFunc = function(value) POC_SettingsHandler.POC_SetSwimlaneMax(value) end,
                                 default = 24,
                         },
                 [7] = {
                         type = "checkbox",
-                        name = GetString(TGU_OPTIONS_ULTIMATE_NUMBER),
-                        tooltip = GetString(TGU_OPTIONS_ULTIMATE_NUMBER_TOOLTIP),
+                        name = GetString(POC_OPTIONS_ULTIMATE_NUMBER),
+                        tooltip = GetString(POC_OPTIONS_ULTIMATE_NUMBER_TOOLTIP),
                         getFunc = function()
-                            return TGU_SettingsHandler.SavedVariables.UltNumberShow
+                            return POC_SettingsHandler.SavedVariables.UltNumberShow
                         end,
-                        setFunc = function(val) TGU_SettingsHandler.TGU_SetUltNumberShow(val) end,
-                        default = TGU_SettingsHandler.Default.UltNumberShow
+                        setFunc = function(val) POC_SettingsHandler.POC_SetUltNumberShow(val) end,
+                        default = POC_SettingsHandler.Default.UltNumberShow
                         },
                 [8] = {
                         type = "checkbox",
-                        name = GetString(TGU_OPTIONS_WERE_NUMBER_ONE),
-                        tooltip = GetString(TGU_OPTIONS_WERE_NUMBER_ONE_TOOLTIP),
+                        name = GetString(POC_OPTIONS_WERE_NUMBER_ONE),
+                        tooltip = GetString(POC_OPTIONS_WERE_NUMBER_ONE_TOOLTIP),
                         getFunc = function()
-                            return TGU_SettingsHandler.SavedVariables.WereNumberOne
+                            return POC_SettingsHandler.SavedVariables.WereNumberOne
                         end,
-                        setFunc = function(val) TGU_SettingsHandler.TGU_SetWereNumberOne(val) end,
-                        default = TGU_SettingsHandler.Default.WereNumberOne
+                        setFunc = function(val) POC_SettingsHandler.POC_SetWereNumberOne(val) end,
+                        default = POC_SettingsHandler.Default.WereNumberOne
                         },
 	}
 	
 	local LAM = LibStub("LibAddonMenu-2.0")
-	LAM:RegisterAddonPanel(TGU_SettingsWindow.MainMenuName, panelData)
-	LAM:RegisterOptionControls(TGU_SettingsWindow.MainMenuName, optionsData)
+	LAM:RegisterAddonPanel(POC_SettingsWindow.MainMenuName, panelData)
+	LAM:RegisterOptionControls(POC_SettingsWindow.MainMenuName, optionsData)
 end

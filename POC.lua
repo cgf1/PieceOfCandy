@@ -2,17 +2,17 @@
 	Global variables
 ]]--
 -- Callbacks
-TGU_GROUP_CHANGED = "TGU-GroupChanged"
-TGU_UNIT_GROUPED_CHANGED = "TGU-UnitGroupedChanged"
-TGU_MAP_PING_CHANGED = "TGU-MapPingChanged"
-TGU_PLAYER_DATA_CHANGED = "TGU-PlayerDataChanged"
-TGU_STYLE_CHANGED = "TGU-StyleChanged"
-TGU_MOVABLE_CHANGED = "TGU-MovableChanged"
-TGU_IS_ZONE_CHANGED = "TGU-IsZoneChanged"
-TGU_STATIC_ULTIMATE_ID_CHANGED = "TGU-StaticUltimateIDChanged"
-TGU_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "TGU-SwimlaneUltimateGroupIdChanged"
-TGU_SHOW_ULTIMATE_GROUP_MENU = "TGU-ShowUltimateGroupMenu"
-TGU_SET_ULTIMATE_GROUP = "TGU-SetUltimateGroup"
+POC_GROUP_CHANGED = "TGU-GroupChanged"
+POC_UNIT_GROUPED_CHANGED = "TGU-UnitGroupedChanged"
+POC_MAP_PING_CHANGED = "TGU-MapPingChanged"
+POC_PLAYER_DATA_CHANGED = "TGU-PlayerDataChanged"
+POC_STYLE_CHANGED = "TGU-StyleChanged"
+POC_MOVABLE_CHANGED = "TGU-MovableChanged"
+POC_IS_ZONE_CHANGED = "TGU-IsZoneChanged"
+POC_STATIC_ULTIMATE_ID_CHANGED = "TGU-StaticUltimateIDChanged"
+POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "TGU-SwimlaneUltimateGroupIdChanged"
+POC_SHOW_ULTIMATE_GROUP_MENU = "TGU-ShowUltimateGroupMenu"
+POC_SET_ULTIMATE_GROUP = "TGU-SetUltimateGroup"
 
 --[[
 	Local variables
@@ -52,26 +52,26 @@ function POC:initialize()
     d("Piece of Candy!")
 
     -- Initialize settings
-    TGU_SettingsHandler.Initialize(logger)
+    POC_SettingsHandler.Initialize(logger)
 
     -- Initialize communication
-    TGU_Communicator.Initialize(logger, TGU_SettingsHandler.SavedVariables.IsLgsActive, ISMOCKED)
+    POC_Communicator.Initialize(logger, POC_SettingsHandler.SavedVariables.IsLgsActive, ISMOCKED)
 
     -- Initialize logic
-    TGU_GroupHandler.Initialize(logger, ISMOCKED)
-    TGU_MapPingHandler.Initialize(logger, ISMOCKED)
-    TGU_UltimateGroupHandler.Initialize(logger)
-    TGU_CommandsHandler.Initialize(logger)
+    POC_GroupHandler.Initialize(logger, ISMOCKED)
+    POC_MapPingHandler.Initialize(logger, ISMOCKED)
+    POC_UltimateGroupHandler.Initialize(logger)
+    POC_CommandsHandler.Initialize(logger)
 
     -- Initialize ui
-    TGU_SettingsWindow.Initialize(logger, MAJOR, MINOR, PATCH)
+    POC_SettingsWindow.Initialize(logger, MAJOR, MINOR, PATCH)
 
-    TGU_UltimateGroupMenu.Initialize(logger)
-    TGU_GroupUltimateSelector.Initialize(logger)
+    POC_UltimateGroupMenu.Initialize(logger)
+    POC_GroupUltimateSelector.Initialize(logger)
 
-    TGU_SimpleList.Initialize(logger, ISMOCKED)
-    TGU_SwimlaneList.Initialize(logger, ISMOCKED)
-    TGU_CompactSwimlaneList.Initialize(logger, ISMOCKED)
+    POC_SimpleList.Initialize(logger, ISMOCKED)
+    POC_SwimlaneList.Initialize(logger, ISMOCKED)
+    POC_CompactSwimlaneList.Initialize(logger, ISMOCKED)
 
     logger:logTrace("POC:initialized")
 end
