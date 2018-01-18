@@ -32,8 +32,8 @@ function TGU_SwimlaneList.RefreshList()
     if (LOG_ACTIVE) then _logger:logTrace("TGU_SwimlaneList.RefreshList") end
 
     if (not TGU_GroupHandler.IsGrouped()) then
-        d("POC: No longer grouped")
         if (TGU_SwimlaneList.WasActive) then
+            d("POC: No longer grouped")
             TGU_SwimlaneList.SetControlActive()
             TGU_SwimlaneList.WasActive = false
             -- d("SetControlActive: set WasActive = false")
@@ -106,6 +106,7 @@ function TGU_SwimlaneList.SortSwimlane(swimlane)
         elseif (not TGU_SettingsHandler.SavedVariables.UltNumberShow or
                 (swimlanePlayer.RelativeUltimate < 100) or
                 CurrentHudHiddenState() or
+                swimlanePlayer.IsPlayerDead or
                 not TGU_GroupHandler.IsGrouped() or
                 not TGU_SettingsHandler.IsSwimlaneListVisible()) then
             TGU_UltNumber:SetHidden(true)
@@ -136,10 +137,10 @@ function TGU_SwimlaneList.UpdateListRow(row, player)
     local nameLength = string.len(playerName)
 
     if (nameLength > 12) then
-        playerName = string.sub(playerName, 0, 12) .. '...'
+        playerName = string.sub(playerName, 0, 12) .. '..'
     end
 
-    if (IsUnitInCombat(player.PingTag)) then
+    if (not player.IsPlayerDead and IsUnitInCombat(player.PingTag)) then
         playerName = "|cFF0000" .. playerName .. "|r"
     end
 
