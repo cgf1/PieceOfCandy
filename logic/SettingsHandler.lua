@@ -144,7 +144,7 @@ end
 ]]--
 function POC_SettingsHandler.POC_SetUltNumberShow(show)
     POC_SettingsHandler.SavedVariables.UltNumberShow = show
-    POC_UltNumber.SetHidden(not show)
+    POC_UltNumber.Hide(not show)
 end
 
 --[[

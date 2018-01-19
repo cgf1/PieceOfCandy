@@ -9,7 +9,7 @@ local TIMEOUT = 4 -- s; GetTimeStamp() is in seconds
 
 local _logger = nil
 local _control = nil
-local play_sound = true
+local play_sound = false
 local curstyle = ""
 local registered = false
 local namelen = 12
@@ -118,18 +118,17 @@ function POC_SwimlaneList.SortSwimlane(swimlane)
                 swimlanePlayer.IsPlayerDead or
                 not POC_GroupHandler.IsGrouped() or
                 not POC_SettingsHandler.IsSwimlaneListVisible()) then
-            POC_UltNumber.SetHidden(true)
+            POC_UltNumber.Hide(true)
             play_sound = swimlanePlayer.RelativeUltimate < 100
         else
-            if (not POC_UltNumber.SetHidden(false))
-                local color
-                if (i == 1) then
-                    color = "|c00ff00"
-                else
-                    color = "|cff0000"
-                end
-                POC_UltNumberLabel:SetText(color .. " #" .. i .. "|r")
+            local color
+            if (i == 1) then
+                color = "00ff00"
+            else
+                color = "ff0000"
             end
+            POC_UltNumberLabel:SetText("|c" .. color .. " #" .. i .. "|r")
+            POC_UltNumber.Hide(false)
             if (i ~= 1) then
                 play_sound = true
             elseif (play_sound and POC_SettingsHandler.SavedVariables.WereNumberOne) then
@@ -444,7 +443,7 @@ function POC_SwimlaneList.SetControlActive()
     
     local isHidden = not isVisible or CurrentHudHiddenState()
     POC_SwimlaneList.SetControlHidden(isHidden)
-    POC_UltNumber.SetHidden(isHidden)
+    POC_UltNumber.Hide(isHidden)
     POC_UltimateSelectorControl:SetHidden(isHidden)
 
     if (isVisible) then
@@ -624,7 +623,7 @@ function POC_SwimlaneList.Initialize(logger, isMocked)
                             POC_SettingsHandler.SavedVariables.UltNumberPos[2])
     POC_UltNumber:SetMovable(true)
     POC_UltNumber:SetMouseEnabled(true)
-    POC_UltNumber.SetHidden(not POC_SettingsHandler.SavedVariables.UltNumber)
+    POC_UltNumber.Hide(not POC_SettingsHandler.SavedVariables.UltNumber)
 
 
     POC_SwimlaneList.StyleChanged()
@@ -638,9 +637,9 @@ function POC_SwimlaneList.savePosNumber(self)
     POC_SettingsHandler.SavedVariables.UltNumberPos = {self:GetLeft(),self:GetTop()}
 end
 
-POC_UltNumber.SetHidden(hide)
+function POC_UltNumber.Hide(hide)
     if (POC_UltNumber.ishidden ~= hide) then
-        POC_UltNumber::SetHidden(hide)
+        POC_UltNumber:SetHidden(hide)
         POC_UltNumber.ishidden = hide
     end
 end
