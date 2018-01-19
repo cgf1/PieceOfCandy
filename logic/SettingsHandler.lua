@@ -142,9 +142,9 @@ end
 --[[
         Set whether to show ultimate number on screen
 ]]--
-function POC_SettingsHandler.POC_SetUltNumberShow(val)
-    POC_SettingsHandler.SavedVariables.UltNumberShow = val
-    POC_UltNumber:SetHidden(not value)
+function POC_SettingsHandler.POC_SetUltNumberShow(show)
+    POC_SettingsHandler.SavedVariables.UltNumberShow = show
+    POC_UltNumber.SetHidden(not show)
 end
 
 --[[
