@@ -10,6 +10,15 @@ local TIMEOUT = 4 -- s; GetTimeStamp() is in seconds
 local _logger = nil
 local _control = nil
 local play_sound = true
+local curstyle = ""
+local registered = false
+local namelen = 12
+local topleft = 25
+local styles_enabled = {
+    ["Standard"] = false,
+    ["Compact"] = false
+}
+local swimlanerow
 
 --[[
 	Table POC_SwimlaneList
@@ -20,7 +29,7 @@ POC_SwimlaneList.__index = POC_SwimlaneList
 --[[
 	Table Members
 ]]--
-POC_SwimlaneList.Name = "TGU-SwimlaneList"
+POC_SwimlaneList.Name = "POC-SwimlaneList"
 POC_SwimlaneList.IsMocked = false
 POC_SwimlaneList.Swimlanes = {}
 POC_SwimlaneList.WasActive = false
@@ -136,8 +145,8 @@ function POC_SwimlaneList.UpdateListRow(row, player)
     local playerName = player.PlayerName
     local nameLength = string.len(playerName)
 
-    if (nameLength > 12) then
-        playerName = string.sub(playerName, 0, 12) .. '..'
+    if (nameLength > namelen) then
+        playerName = string.sub(playerName, 0, namelen) .. '..'
     end
 
     if (not player.IsPlayerDead and IsUnitInCombat(player.PingTag)) then
@@ -229,23 +238,23 @@ end
 --[[
 	Get swimlane from current SwimLanes
 ]]--
-function POC_SwimlaneList.GetSwimLane(ultimateGroupId)
+function POC_SwimlaneList.GetSwimLane(gid)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_SwimlaneList.GetSwimLane")
-        _logger:logDebug("ultimateGroupId", ultimateGroupId)
+        _logger:logDebug("gid", gid)
     end
 
-    if (ultimateGroupId ~= 0) then
+    if (gid ~= 0) then
         for i,swimLane in ipairs(POC_SwimlaneList.Swimlanes) do
-		    if (swimLane.UltimateGroupId == ultimateGroupId) then
+		    if (swimLane.UltimateGroupId == gid) then
                 return swimLane
             end
 	    end
 
-        if (LOG_ACTIVE) then _logger:logDebug("POC_SwimlaneList.GetSwimLane, swimLane not found " .. tostring(ultimateGroupId)) end
+        if (LOG_ACTIVE) then _logger:logDebug("POC_SwimlaneList.GetSwimLane, swimLane not found " .. tostring(gid)) end
         return nil
     else
-        _logger:logError("POC_SwimlaneList.GetSwimLane, ultimateGroupId is 0")
+        _logger:logError("POC_SwimlaneList.GetSwimLane, gid is 0")
         return nil
     end
 end
@@ -378,6 +387,38 @@ function POC_SwimlaneList.SetControlHidden(isHidden)
 end
 
 --[[
+    Style changed
+--]]
+
+function POC_SwimlaneList.StyleChanged()
+    local style = POC_SettingsHandler.SavedVariables.Style
+    if (style ~= curstyle) then
+        curstyle = style
+        if (_control ~= nil) then
+            _control:SetHidden(true)
+        end
+        if (style == "Compact") then
+            _control = POC_CompactSwimlaneListControl
+            swimlanerow = "CompactGroupUltimateSwimlaneRow"
+            namelen = 6
+            topleft = 50
+        else
+            _control = POC_SwimlaneListControl
+            swimlanerow = "GroupUltimateSwimlaneRow"
+            namelen = 12
+            topleft = 25
+        end
+        if (not styles_enabled[style]) then
+            POC_SwimlaneList.CreateSwimLaneListHeaders()
+            POC_SwimlaneList.SetControlMovable(POC_SettingsHandler.SavedVariables.Movable)
+            POC_SwimlaneList.RestorePosition(POC_SettingsHandler.SavedVariables.PosX, POC_SettingsHandler.SavedVariables.PosY)
+            styles_enabled[style] = true
+        end
+        POC_SwimlaneList.SetControlActive()
+    end
+end
+
+--[[
 	SetControlActive sets hidden on control
 ]]--
 function POC_SwimlaneList.SetControlActive()
@@ -394,6 +435,10 @@ function POC_SwimlaneList.SetControlActive()
     POC_UltimateSelectorControl:SetHidden(isHidden)
 
     if (isVisible) then
+        if (registered) then
+            return
+        end
+        registered = true
         POC_SwimlaneList.SetControlMovable(POC_SettingsHandler.SavedVariables.Movable)
         POC_SwimlaneList.RestorePosition(POC_SettingsHandler.SavedVariables.PosX, POC_SettingsHandler.SavedVariables.PosY)
 
@@ -403,7 +448,8 @@ function POC_SwimlaneList.SetControlActive()
         CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, POC_SwimlaneList.SetControlMovable)
         CALLBACK_MANAGER:RegisterCallback(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, POC_SwimlaneList.SetSwimlaneUltimate)
         CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_SwimlaneList.SetControlHidden)
-    else
+    elseif (registered) then
+        registered = false
         -- Stop timeout timer
         EVENT_MANAGER:UnregisterForUpdate(POC_SwimlaneList.Name)
 
@@ -451,7 +497,7 @@ function POC_SwimlaneList.OnSetUltimateGroup(group, swimlaneId)
 end
 
 --[[
-	SetSwimlaneUltimate sets the swimlane header icon in base of ultimateGroupId
+	SetSwimlaneUltimate sets the swimlane header icon in base of gid
 ]]--
 function POC_SwimlaneList.SetSwimlaneUltimate(swimlaneId, ultimateGroup)
     if (LOG_ACTIVE) then 
@@ -481,41 +527,43 @@ function POC_SwimlaneList.CreateSwimLaneListHeaders()
     if (LOG_ACTIVE) then _logger:logTrace("POC_SwimlaneList.CreateSwimLaneListHeaders") end
 
 	for i=1, SWIMLANES, 1 do
-        local ultimateGroupId = POC_SettingsHandler.SavedVariables.SwimlaneUltimateGroupIds[i]
-        local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByAbilityId(ultimateGroupId)
+            local gid = POC_SettingsHandler.SavedVariables.SwimlaneUltimateGroupIds[i]
+            local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByAbilityId(gid)
 
-        local swimlaneControlName = "Swimlane" .. tostring(i)
-        local swimlaneControl = _control:GetNamedChild(swimlaneControlName)
+            local name = "Swimlane" .. tostring(i)
+            local swimlaneControl = _control:GetNamedChild(name)
 
-        -- Add button
-        local button = swimlaneControl:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
-        button:SetHandler("OnClicked", function() POC_SwimlaneList.OnSwimlaneHeaderClicked(button, i) end)
-        
-        local swimLane = {}
-        swimLane.Id = i
-        swimLane.SwimlaneControl = swimlaneControl
-        swimLane.Players = {}
+            -- Add button
+            local button = swimlaneControl:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
+            button:SetHandler("OnClicked", function() POC_SwimlaneList.OnSwimlaneHeaderClicked(button, i) end)
+            
+            local swimLane = {}
+            swimLane.Id = i
+            swimLane.SwimlaneControl = swimlaneControl
+            swimLane.Players = {}
 
-        if (ultimateGroup ~= nil) then
-            if (LOG_ACTIVE) then 
-                _logger:logDebug("Create Swimlane", i)
-                _logger:logDebug("ultimateGroup.GroupName", ultimateGroup.GroupName)
-                _logger:logDebug("swimlaneControlName", swimlaneControlName)
+            if (ultimateGroup == nil) then
+                _logger:logError("POC_SwimlaneList.CreateSwimLaneListHeaders, ultimateGroup nil.")
+            else
+                if (LOG_ACTIVE) then 
+                    _logger:logDebug("Create Swimlane", i)
+                    _logger:logDebug("ultimateGroup.GroupName", ultimateGroup.GroupName)
+                    _logger:logDebug("swimlaneControlName", swimlaneControlName)
+                end
+
+                local icon = swimlaneControl:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
+                icon:SetTexture(GetAbilityIcon(ultimateGroup.GroupAbilityId))
+
+                local label = swimlaneControl:GetNamedChild("Header"):GetNamedChild("UltimateLabel")
+                if (label ~= nil) then
+                    label:SetText(ultimateGroup.GroupName)
+                end
+
+                swimLane.UltimateGroupId = ultimateGroup.GroupAbilityId
             end
 
-            local icon = swimlaneControl:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
-            icon:SetTexture(GetAbilityIcon(ultimateGroup.GroupAbilityId))
-
-            local label = swimlaneControl:GetNamedChild("Header"):GetNamedChild("UltimateLabel")
-            label:SetText(ultimateGroup.GroupName)
-
-            swimLane.UltimateGroupId = ultimateGroup.GroupAbilityId
-        else
-            _logger:logError("POC_SwimlaneList.CreateSwimLaneListHeaders, ultimateGroup nil.")
-        end
-
-        POC_SwimlaneList.CreateSwimlaneListRows(swimlaneControl)
-        POC_SwimlaneList.Swimlanes[i] = swimLane
+            POC_SwimlaneList.CreateSwimlaneListRows(swimlaneControl)
+            POC_SwimlaneList.Swimlanes[i] = swimLane
 	end
 end
 
@@ -527,13 +575,13 @@ function POC_SwimlaneList.CreateSwimlaneListRows(swimlaneControl)
 
     if (swimlaneControl ~= nil) then
 	    for i=1, POC_SettingsHandler.SavedVariables.SwimlaneMax, 1 do
-		    local row = CreateControlFromVirtual("$(parent)Row", swimlaneControl, "GroupUltimateSwimlaneRow", i)
+                local row = CreateControlFromVirtual("$(parent)Row", swimlaneControl, swimlanerow, i)
                 if (LOG_ACTIVE) then _logger:logDebug("Row created " .. row:GetName()) end
 
                         row:SetHidden(true) -- initial not visible
 
                         if (i == 1) then
-                            row:SetAnchor(TOPLEFT, swimlaneControl, TOPLEFT, 0, 25)
+                            row:SetAnchor(TOPLEFT, swimlaneControl, TOPLEFT, 0, topleft)
                         elseif (i == 5) then -- Fix pixelbug, Why the hell ZOS?!
                             row:SetAnchor(TOPLEFT, lastRow, BOTTOMLEFT, 0, 0)
                         else
@@ -555,11 +603,7 @@ function POC_SwimlaneList.Initialize(logger, isMocked)
     end
 
     _logger = logger
-    _control = POC_SwimlaneListControl
-
     POC_SwimlaneList.IsMocked = isMocked
-
-    POC_SwimlaneList.CreateSwimLaneListHeaders()
 
     POC_UltNumber:ClearAnchors()
     POC_UltNumber:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
@@ -570,8 +614,9 @@ function POC_SwimlaneList.Initialize(logger, isMocked)
     POC_UltNumber:SetHidden(not POC_SettingsHandler.SavedVariables.UltNumber)
 
 
+    POC_SwimlaneList.StyleChanged()
+    CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, POC_SwimlaneList.StyleChanged)
     CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, POC_SwimlaneList.RefreshList)
-    CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, POC_SwimlaneList.SetControlActive)
     CALLBACK_MANAGER:RegisterCallback(POC_IS_ZONE_CHANGED, POC_SwimlaneList.SetControlActive)
     CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, POC_SwimlaneList.SetControlActive)
 end

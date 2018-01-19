@@ -13,7 +13,7 @@ POC_UltimateGroupHandler.__index = POC_UltimateGroupHandler
 --[[
 	Table Members
 ]]--
-POC_UltimateGroupHandler.Name = "TGU-UltimateGroupHandler"
+POC_UltimateGroupHandler.Name = "POC-UltimateGroupHandler"
 POC_UltimateGroupHandler.UltimateGroups = nil
 
 --[[

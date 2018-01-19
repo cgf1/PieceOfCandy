@@ -13,7 +13,7 @@ POC_CommandsHandler.__index = POC_CommandsHandler
 --[[
 	Table Members
 ]]--
-POC_CommandsHandler.Name = "TGU-CommandsHandler"
+POC_CommandsHandler.Name = "POC-CommandsHandler"
 
 --[[
 	Called on /setgroupultimatestyle command

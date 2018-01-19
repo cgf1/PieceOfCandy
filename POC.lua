@@ -2,17 +2,17 @@
 	Global variables
 ]]--
 -- Callbacks
-POC_GROUP_CHANGED = "TGU-GroupChanged"
-POC_UNIT_GROUPED_CHANGED = "TGU-UnitGroupedChanged"
-POC_MAP_PING_CHANGED = "TGU-MapPingChanged"
-POC_PLAYER_DATA_CHANGED = "TGU-PlayerDataChanged"
-POC_STYLE_CHANGED = "TGU-StyleChanged"
-POC_MOVABLE_CHANGED = "TGU-MovableChanged"
-POC_IS_ZONE_CHANGED = "TGU-IsZoneChanged"
-POC_STATIC_ULTIMATE_ID_CHANGED = "TGU-StaticUltimateIDChanged"
-POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "TGU-SwimlaneUltimateGroupIdChanged"
-POC_SHOW_ULTIMATE_GROUP_MENU = "TGU-ShowUltimateGroupMenu"
-POC_SET_ULTIMATE_GROUP = "TGU-SetUltimateGroup"
+POC_GROUP_CHANGED = "POC-GroupChanged"
+POC_UNIT_GROUPED_CHANGED = "POC-UnitGroupedChanged"
+POC_MAP_PING_CHANGED = "POC-MapPingChanged"
+POC_PLAYER_DATA_CHANGED = "POC-PlayerDataChanged"
+POC_STYLE_CHANGED = "POC-StyleChanged"
+POC_MOVABLE_CHANGED = "POC-MovableChanged"
+POC_IS_ZONE_CHANGED = "POC-IsZoneChanged"
+POC_STATIC_ULTIMATE_ID_CHANGED = "POC-StaticUltimateIDChanged"
+POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltimateGroupIdChanged"
+POC_SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltimateGroupMenu"
+POC_SET_ULTIMATE_GROUP = "POC-SetUltimateGroup"
 
 --[[
 	Local variables
@@ -23,7 +23,7 @@ local PATCH = "0"
 
 local ISMOCKED = false
 
-local LOG_NAME = "TGU-DebugLogger"
+local LOG_NAME = "POC-DebugLogger"
 local LOG_COMMAND = "/tgulogs"
 local TRACE_ACTIVE = false
 local DEBUG_ACTIVE = false
@@ -69,9 +69,7 @@ function POC:initialize()
     POC_UltimateGroupMenu.Initialize(logger)
     POC_GroupUltimateSelector.Initialize(logger)
 
-    POC_SimpleList.Initialize(logger, ISMOCKED)
     POC_SwimlaneList.Initialize(logger, ISMOCKED)
-    POC_CompactSwimlaneList.Initialize(logger, ISMOCKED)
 
     logger:logTrace("POC:initialized")
 end

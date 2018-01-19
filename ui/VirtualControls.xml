@@ -6,8 +6,9 @@
   <Font name="GroupUltimateHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
   <Font name="CompactSwimlaneListFont" font="$(MEDIUM_FONT)|14|soft-shadow-thin"/>
   
-	<Controls>
-    <Label 	name="MoveActiveLabel"
+    <Controls>
+        <Label
+            name="MoveActiveLabel"
             width="48"
             height="18"
             font="MoveActiveFont"
@@ -15,15 +16,16 @@
             color="FFFFFF"
             virtual="true"/>
     
-		<Label 	name="SwimlaneListLabel" 
-				    width="90"
-				    height="20" 
-				    font="SwimlaneListFont" 
-				    inheritAlpha="true" 
-				    color="FFFFFF"
-				    verticalAlignment="CENTER" 
-				    horizontalAlignment="LEFT" 
-				    virtual="true"/>
+        <Label
+            name="SwimlaneListLabel"
+            width="90"
+            height="20"
+            font="SwimlaneListFont"
+            inheritAlpha="true"
+            color="FFFFFF"
+            verticalAlignment="CENTER"
+            horizontalAlignment="LEFT"
+            virtual="true"/>
     
     <Label 	name="SwimlaneListHeaderLabel" 
 				    width="75" 

@@ -13,7 +13,7 @@ POC_GroupHandler.__index = POC_GroupHandler
 --[[
 	Table Members
 ]]--
-POC_GroupHandler.Name = "TGU-GroupHandler"
+POC_GroupHandler.Name = "POC-GroupHandler"
 POC_GroupHandler.IsMocked = false
 
 --[[

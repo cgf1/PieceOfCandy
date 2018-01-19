@@ -15,7 +15,7 @@ POC_SettingsHandler.__index = POC_SettingsHandler
 --[[
 	Table Members
 ]]--
-POC_SettingsHandler.Name = "TGU-SettingsHandler"
+POC_SettingsHandler.Name = "POC-SettingsHandler"
 POC_SettingsHandler.SettingsName = "POCSettings"
 POC_SettingsHandler.SavedVariables = nil
 POC_SettingsHandler.Default = 
@@ -32,7 +32,7 @@ POC_SettingsHandler.Default =
     ["UltNumberPos"] = {100,100},
     ["WereNumberOne"] = false,
     ["Movable"] = true,
-    ["Style"] = 1,
+    ["Style"] = "Standard",
     ["StaticUltimateID"] = 29861,
     ["SwimlaneUltimateGroupIds"] =
     {
@@ -46,7 +46,7 @@ POC_SettingsHandler.Default =
 }
 
 --[[
-	Sets SetStyleSettings and fires TGU-StyleChanged callbacks
+	Sets SetStyleSettings and fires POC-StyleChanged callbacks
 ]]--
 function POC_SettingsHandler.SetStyleSettings(style)
     if (LOG_ACTIVE) then 
@@ -54,19 +54,13 @@ function POC_SettingsHandler.SetStyleSettings(style)
         _logger:logDebug("style", style)
     end
 
-    local numberStyle = tonumber(style)
+    POC_SettingsHandler.SavedVariables.Style = style
 
-    if (numberStyle == 1 or numberStyle == 2 or numberStyle == 3) then
-        POC_SettingsHandler.SavedVariables.Style = numberStyle
-
-        CALLBACK_MANAGER:FireCallbacks(POC_STYLE_CHANGED)
-    else
-        _logger:logError("POC_SettingsHandler.SetStyleSettings, invalid style " .. tostring(style))
-    end
+    CALLBACK_MANAGER:FireCallbacks(POC_STYLE_CHANGED)
 end
 
 --[[
-	Sets MovableSettings and fires TGU-MovableChanged callbacks
+	Sets MovableSettings and fires POC-MovableChanged callbacks
 ]]--
 function POC_SettingsHandler.SetStaticUltimateIDSettings(staticUltimateID)
     if (LOG_ACTIVE) then 
@@ -80,7 +74,7 @@ function POC_SettingsHandler.SetStaticUltimateIDSettings(staticUltimateID)
 end
 
 --[[
-	Sets MovableSettings and fires TGU-MovableChanged callbacks
+	Sets MovableSettings and fires POC-MovableChanged callbacks
 ]]--
 function POC_SettingsHandler.SetSwimlaneUltimateGroupIdSettings(swimlane, ultimateGroup)
     if (LOG_ACTIVE) then 
@@ -95,7 +89,7 @@ function POC_SettingsHandler.SetSwimlaneUltimateGroupIdSettings(swimlane, ultima
 end
 
 --[[
-	Sets MovableSettings and fires TGU-MovableChanged callbacks
+	Sets MovableSettings and fires POC-MovableChanged callbacks
 ]]--
 function POC_SettingsHandler.SetMovableSettings(movable)
     if (LOG_ACTIVE) then 
@@ -109,7 +103,7 @@ function POC_SettingsHandler.SetMovableSettings(movable)
 end
 
 --[[
-	Sets MovableSettings and fires TGU-MovableChanged callbacks
+	Sets MovableSettings and fires POC-MovableChanged callbacks
 ]]--
 function POC_SettingsHandler.SetOnlyAvaSettings(onlyAva)
     if (LOG_ACTIVE) then 
@@ -173,46 +167,12 @@ function POC_SettingsHandler.SetIsSortingActiveSettings(isSortingActive)
 end
 
 --[[
-	Gets SimpleList visible in connection with selected style
-]]--
-function POC_SettingsHandler.IsSimpleListVisible()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_SettingsHandler.IsSimpleListVisible") end
-    if (POC_SettingsHandler.SavedVariables ~= nil) then
-        if (LOG_ACTIVE) then _logger:logDebug("style", POC_SettingsHandler.SavedVariables.Style) end
-        return tonumber(POC_SettingsHandler.SavedVariables.Style) == 2 and POC_SettingsHandler.IsControlsVisible()
-    else
-        _logger:logError("POC_SettingsHandler.SavedVariables is nil")
-        return false
-    end
-end
-
---[[
 	Gets SwimlaneList visible in connection with selected style
 ]]--
 function POC_SettingsHandler.IsSwimlaneListVisible()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_SettingsHandler.IsSwimlaneListVisible") end
-    if (POC_SettingsHandler.SavedVariables ~= nil) then
-        if (LOG_ACTIVE) then _logger:logDebug("style", POC_SettingsHandler.SavedVariables.Style) end
-        return tonumber(POC_SettingsHandler.SavedVariables.Style) == 1 and POC_SettingsHandler.IsControlsVisible()
-    else
-        _logger:logError("POC_SettingsHandler.SavedVariables is nil")
-        return false
-    end
+    return POC_SettingsHandler.IsControlsVisible()
 end
 
---[[
-	Gets CompactSwimlaneList visible in connection with selected style
-]]--
-function POC_SettingsHandler.IsCompactSwimlaneListVisible()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_SettingsHandler.IsCompactSwimlaneListVisible") end
-    if (POC_SettingsHandler.SavedVariables ~= nil) then
-        if (LOG_ACTIVE) then _logger:logDebug("style", POC_SettingsHandler.SavedVariables.Style) end
-        return tonumber(POC_SettingsHandler.SavedVariables.Style) == 3 and POC_SettingsHandler.IsControlsVisible()
-    else
-        _logger:logError("POC_SettingsHandler.SavedVariables is nil")
-        return false
-    end
-end
 
 --[[
 	Gets CompactSwimlaneList visible in connection with selected style
@@ -256,4 +216,13 @@ function POC_SettingsHandler.Initialize(logger)
 
     -- Register
     EVENT_MANAGER:RegisterForEvent(POC_SettingsHandler.Name, EVENT_PLAYER_ACTIVATED, POC_SettingsHandler.OnPlayerActivated)
+end
+
+SLASH_COMMANDS["/pocstyle"] = function(style)
+    style = string.lower(style):gsub("^%l", string.upper)
+    if (style ~= "Compact" and style ~= "Standard") then
+        d("POC: *** unknown style: " .. style)
+    else
+        POC_SettingsHandler.SetStyleSettings(style)
+    end
 end

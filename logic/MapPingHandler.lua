@@ -15,7 +15,7 @@ POC_MapPingHandler.__index = POC_MapPingHandler
 --[[
 	Table Members
 ]]--
-POC_MapPingHandler.Name = "TGU-MapPingHandler"
+POC_MapPingHandler.Name = "POC-MapPingHandler"
 POC_MapPingHandler.IsMocked = false
 
 --[[

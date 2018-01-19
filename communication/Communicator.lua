@@ -23,7 +23,7 @@ POC_Communicator.__index = POC_Communicator
 --[[
 	Table Members
 ]]--
-POC_Communicator.Name = "TGU-Communicator"
+POC_Communicator.Name = "POC-Communicator"
 POC_Communicator.IsMocked = false
 POC_Communicator.IsLgsActive = false
 
