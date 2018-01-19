@@ -24,8 +24,7 @@ libs/LibMapPing/LibMapPing.lua
 libs/LibGPS/LibGPS.lua
 libs/LibGroupSocket/LibGroupSocket.lua
 
-i18n/de.lua
-i18n/$(language).lua
+i18n/en.lua
 
 util/DebugLogger.lua
 util/UiHelper.lua
