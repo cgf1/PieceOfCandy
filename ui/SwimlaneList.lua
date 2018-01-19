@@ -14,11 +14,10 @@ local curstyle = ""
 local registered = false
 local namelen = 12
 local topleft = 25
-local styles_enabled = {
-    ["Standard"] = false,
-    ["Compact"] = false
-}
+local style_swimlanes = {}
 local swimlanerow
+
+local SWIMLANEULTMAX = 24
 
 --[[
 	Table POC_SwimlaneList
@@ -110,6 +109,7 @@ function POC_SwimlaneList.SortSwimlane(swimlane)
                 swimlanePlayer.RelativeUltimate = 100 + POC_SettingsHandler.SavedVariables.SwimlaneMax - i
             end
         end
+        POC_SwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
         if (swimlanePlayer.PingTag ~= me) then
             -- nothing to do
         elseif (not POC_SettingsHandler.SavedVariables.UltNumberShow or
@@ -130,7 +130,6 @@ function POC_SwimlaneList.SortSwimlane(swimlane)
                 play_sound = false
             end
         end
-        POC_SwimlaneList.UpdateListRow(swimlane.SwimlaneControl:GetNamedChild("Row" .. i), swimlanePlayer)
     end
 end
 
@@ -386,10 +385,8 @@ function POC_SwimlaneList.SetControlHidden(isHidden)
     end
 end
 
---[[
-    Style changed
---]]
-
+-- Style changed
+--
 function POC_SwimlaneList.StyleChanged()
     local style = POC_SettingsHandler.SavedVariables.Style
     if (style ~= curstyle) then
@@ -408,11 +405,20 @@ function POC_SwimlaneList.StyleChanged()
             namelen = 12
             topleft = 25
         end
-        if (not styles_enabled[style]) then
+        if (style_swimlanes[style] ~= nil) then
+            for i, v in pairs(style_swimlanes[style]) do
+               POC_SwimlaneList.Swimlanes[i] = v 
+            end
+            d("Used saved swimlane")
+        else
             POC_SwimlaneList.CreateSwimLaneListHeaders()
             POC_SwimlaneList.SetControlMovable(POC_SettingsHandler.SavedVariables.Movable)
             POC_SwimlaneList.RestorePosition(POC_SettingsHandler.SavedVariables.PosX, POC_SettingsHandler.SavedVariables.PosY)
-            styles_enabled[style] = true
+            style_swimlanes[style] = {}
+            for i, v in pairs(POC_SwimlaneList.Swimlanes) do
+                style_swimlanes[style][i] = v
+            end
+            d("Saved new swimlane")
         end
         POC_SwimlaneList.SetControlActive()
     end
@@ -574,7 +580,7 @@ function POC_SwimlaneList.CreateSwimlaneListRows(swimlaneControl)
     if (LOG_ACTIVE) then _logger:logTrace("POC_SwimlaneList.CreateSwimlaneListRows") end
 
     if (swimlaneControl ~= nil) then
-	    for i=1, POC_SettingsHandler.SavedVariables.SwimlaneMax, 1 do
+	    for i=1, SWIMLANEULTMAX, 1 do
                 local row = CreateControlFromVirtual("$(parent)Row", swimlaneControl, swimlanerow, i)
                 if (LOG_ACTIVE) then _logger:logDebug("Row created " .. row:GetName()) end
 
