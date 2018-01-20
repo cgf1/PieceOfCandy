@@ -4,7 +4,7 @@
         <Anchor point="BOTTOM" relativeTo="GuiRoot" relativePoint="CENTER" offsetY="-20" />
         <Dimensions x="100" y="100" />
         <OnMoveStop>
-            POC_SwimlaneList.savePosNumber(self)
+            POC_Swimlane.savePosNumber(self)
         </OnMoveStop>
  
       <Controls>

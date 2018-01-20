@@ -25,7 +25,7 @@ function POC_CommandsHandler.SetGroupUltimateStyleCommand(style)
     end
 
     if (style ~= nil and style ~= "") then
-        POC_SettingsHandler.SetStyleSettings(style)
+        POC_Settings.SetStyleSettings(style)
     else
         d("Invalid style: " .. tostring(style))
     end
@@ -44,7 +44,7 @@ function POC_CommandsHandler.SetUltimateIdCommand(groupName)
         local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByGroupName(groupName)
 
         if (ultimateGroup ~= nil) then
-            POC_SettingsHandler.SetStaticUltimateIDSettings(ultimateGroup.GroupAbilityId)
+            POC_Settings.SetStaticUltimateIDSettings(ultimateGroup.GroupAbilityId)
         else
             d("Invalid group name: " .. tostring(groupName))
         end
@@ -79,7 +79,7 @@ function POC_CommandsHandler.SetSwimlaneIdCommand(option)
         local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByGroupName(swimlaneGroup)
 
         if (swimlane ~= nil and ultimateGroup ~= nil and swimlane >= 1 and swimlane <= 6) then
-            POC_SettingsHandler.SetSwimlaneUltimateGroupIdSettings(swimlane, ultimateGroup)
+            POC_Settings.SetSwimlaneUltimateGroupIdSettings(swimlane, ultimateGroup)
         else
             d("Invalid options: " .. tostring(option))
         end

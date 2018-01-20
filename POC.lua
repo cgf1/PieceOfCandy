@@ -17,9 +17,9 @@ POC_SET_ULTIMATE_GROUP = "POC-SetUltimateGroup"
 --[[
 	Local variables
 ]]--
-local MAJOR = "1"
-local MINOR = "5"
-local PATCH = "0"
+local MAJOR = "2"
+local MINOR = "0"
+local PATCH = "2"
 
 local ISMOCKED = false
 
@@ -52,10 +52,10 @@ function POC:initialize()
     d("Piece of Candy!")
 
     -- Initialize settings
-    POC_SettingsHandler.Initialize(logger)
+    POC_Settings.Initialize(logger)
 
     -- Initialize communication
-    POC_Communicator.Initialize(logger, POC_SettingsHandler.SavedVariables.IsLgsActive, ISMOCKED)
+    POC_Communicator.Initialize(logger, POC_Settings.SavedVariables.IsLgsActive, ISMOCKED)
 
     -- Initialize logic
     POC_GroupHandler.Initialize(logger, ISMOCKED)
@@ -69,7 +69,7 @@ function POC:initialize()
     POC_UltimateGroupMenu.Initialize(logger)
     POC_GroupUltimateSelector.Initialize(logger)
 
-    POC_SwimlaneList.Initialize(logger, ISMOCKED)
+    POC_Swimlane.Initialize(logger, ISMOCKED)
 
     logger:logTrace("POC:initialized")
 end

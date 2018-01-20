@@ -43,12 +43,14 @@ end
 
 function handler:GetLastUpdateTime(unitTag)
     local unitResources = GetCachedUnitResources(unitTag, SKIP_CREATE)
-    if(unitResources) then return unitResources.lastUpdate end
+    if unitResources then
+        return unitResources.lastUpdate
+    end
     return -1
 end
 
 function handler:SetUltimateCost(cost)
-	ultimateCost = cost
+    ultimateCost = cost
 end
 
 function handler:SetUltimateGroupId(groupId)
@@ -56,7 +58,7 @@ function handler:SetUltimateGroupId(groupId)
 end
 
 local function OnData(unitTag, data, isSelf)
-	if (handler.callbacks == 0) then return end --dont do anything if nobody is using this handler
+    if (handler.callbacks == 0) then return end --dont do anything if nobody is using this handler
 	
     local index, bitIndex = 1, 1
     local isFullUpdate, index, bitIndex = LGS:ReadBit(data, index, bitIndex)
@@ -74,10 +76,10 @@ local function OnData(unitTag, data, isSelf)
     local unitResources = GetCachedUnitResources(unitTag)
     local ultimate = unitResources[POWERTYPE_ULTIMATE]
     ultimate.current, index = LGS:ReadUint8(data, index)
-    if(isFullUpdate) then
-		ultimate.cost, index = LGS:ReadUint8(data, index)
+    if isFullUpdate then
+        ultimate.cost, index = LGS:ReadUint8(data, index)
         ultimate.groupId, index = LGS:ReadUint8(data, index)
-	end
+    end
 
     unitResources.lastUpdate = GetTimeStamp()
 

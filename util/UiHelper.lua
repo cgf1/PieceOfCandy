@@ -9,10 +9,10 @@ if (POCUiHelper == nil) then
 	POCUiHelper.__index = POCUiHelper
 
     -- Global Callback Variables
-    TUI_HUD_HIDDEN_STATE_CHANGED = "TUI-HudHiddenStateChange"
+    POC_HUD_HIDDEN_STATE_CHANGED = "POC-HudHiddenStateChange"
 
 	-- isHidden logic for hud scenes
-    -- This logic will fire TUI_HUD_HIDDEN_STATE_CHANGED if hud scenes not visible:
+    -- This logic will fire POC_HUD_HIDDEN_STATE_CHANGED if hud scenes not visible:
     -- hud = true; hudui = true -> isHidden = true
     -- hud = true; hudui = false -> isHidden = false
     -- hud = false; hudui = true -> isHidden = false
@@ -36,7 +36,7 @@ if (POCUiHelper == nil) then
 		
         if (isHidden ~= internalHudHiddenState) then
             internalHudHiddenState = isHidden
-            CALLBACK_MANAGER:FireCallbacks(TUI_HUD_HIDDEN_STATE_CHANGED, isHidden)
+            CALLBACK_MANAGER:FireCallbacks(POC_HUD_HIDDEN_STATE_CHANGED, isHidden)
         end
     end
 

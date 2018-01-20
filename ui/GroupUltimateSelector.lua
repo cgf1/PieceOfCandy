@@ -77,11 +77,11 @@ function POC_GroupUltimateSelector.OnGroupUltimateSelectorMoveStop()
 	local left = _control:GetLeft()
 	local top = _control:GetTop()
 	
-    POC_SettingsHandler.SavedVariables.SelectorPosX = left
-    POC_SettingsHandler.SavedVariables.SelectorPosY = top
+    POC_Settings.SavedVariables.SelectorPosX = left
+    POC_Settings.SavedVariables.SelectorPosY = top
 
     if (LOG_ACTIVE) then 
-        _logger:logDebug("PosX, PosY", POC_SettingsHandler.SavedVariables.SelectorPosX, POC_SettingsHandler.SavedVariables.SelectorPosY)
+        _logger:logDebug("PosX, PosY", POC_Settings.SavedVariables.SelectorPosX, POC_Settings.SavedVariables.SelectorPosY)
     end
 end
 
@@ -113,7 +113,7 @@ function POC_GroupUltimateSelector.OnSetUltimateGroup(group)
     CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, POC_GroupUltimateSelector.OnSetUltimateGroup)
 
     if (group ~= nil) then
-        POC_SettingsHandler.SetStaticUltimateIDSettings(group.GroupAbilityId)
+        POC_Settings.SetStaticUltimateIDSettings(group.GroupAbilityId)
     else
         _logger:logError("POC_UltimateGroupMenu.ShowUltimateGroupMenu, group nil")
     end
@@ -143,7 +143,7 @@ function POC_GroupUltimateSelector.SetControlActive()
         _logger:logTrace("POC_GroupUltimateSelector.SetControlActive")
     end
 
-    local isHidden = POC_SettingsHandler.IsControlsVisible() == false
+    local isHidden = POC_Settings.IsControlsVisible() == false
     if (LOG_ACTIVE) then _logger:logDebug("isHidden", isHidden) end
 
     POC_GroupUltimateSelector.SetControlHidden(isHidden or CurrentHudHiddenState())
@@ -151,15 +151,15 @@ function POC_GroupUltimateSelector.SetControlActive()
     if (isHidden) then
         CALLBACK_MANAGER:UnregisterCallback(POC_MOVABLE_CHANGED, POC_GroupUltimateSelector.SetControlMovable)
         CALLBACK_MANAGER:UnregisterCallback(POC_STATIC_ULTIMATE_ID_CHANGED, POC_GroupUltimateSelector.SetUltimateIcon)
-        CALLBACK_MANAGER:UnregisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_GroupUltimateSelector.SetControlHidden)
+        CALLBACK_MANAGER:UnregisterCallback(POC_HUD_HIDDEN_STATE_CHANGED, POC_GroupUltimateSelector.SetControlHidden)
     else
-        POC_GroupUltimateSelector.SetControlMovable(POC_SettingsHandler.SavedVariables.Movable)
-        POC_GroupUltimateSelector.RestorePosition(POC_SettingsHandler.SavedVariables.SelectorPosX, POC_SettingsHandler.SavedVariables.SelectorPosY)
-        POC_GroupUltimateSelector.SetUltimateIcon(POC_SettingsHandler.SavedVariables.StaticUltimateID)
+        POC_GroupUltimateSelector.SetControlMovable(POC_Settings.SavedVariables.Movable)
+        POC_GroupUltimateSelector.RestorePosition(POC_Settings.SavedVariables.SelectorPosX, POC_Settings.SavedVariables.SelectorPosY)
+        POC_GroupUltimateSelector.SetUltimateIcon(POC_Settings.SavedVariables.StaticUltimateID)
 
         CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, POC_GroupUltimateSelector.SetControlMovable)
         CALLBACK_MANAGER:RegisterCallback(POC_STATIC_ULTIMATE_ID_CHANGED, POC_GroupUltimateSelector.SetUltimateIcon)
-        CALLBACK_MANAGER:RegisterCallback(TUI_HUD_HIDDEN_STATE_CHANGED, POC_GroupUltimateSelector.SetControlHidden)
+        CALLBACK_MANAGER:RegisterCallback(POC_HUD_HIDDEN_STATE_CHANGED, POC_GroupUltimateSelector.SetControlHidden)
     end
 end
 

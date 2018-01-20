@@ -4,8 +4,8 @@
 local LOG_ACTIVE = false
 
 local LMP = LibStub("LibMapPing")
-if(not LMP) then
-	error("Cannot load without LibMapPing")
+if not LMP then
+    error("Cannot load without LibMapPing")
 end
 
 local _logger = nil
@@ -14,35 +14,30 @@ local _ultimateHandler = nil
 local ABILITY_COEFFICIENT = 100
 local ULTIMATE_COEFFICIENT = 1000
 
---[[
-	Table POC_Communicator
-]]--
-POC_Communicator = {}
-POC_Communicator.__index = POC_Communicator
+-- POC_Communicator table
+--
+POC_Communicator = {
+  IsLgsActive = false,
+  IsMocked = false,
+  Name = "POC-Communicator",
+__index = POC_Communicator
+}
 
---[[
-	Table Members
-]]--
-POC_Communicator.Name = "POC-Communicator"
-POC_Communicator.IsMocked = false
-POC_Communicator.IsLgsActive = false
-
---[[
-	Called on data from LGS
-]]--
+-- Called on data from LGS
+--
 function POC_Communicator.OnUltimateReceived(unitTag, ultimateCurrent, ultimateCost, ultimateGroupId, isSelf)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_Communicator.OnUltimateReceived")
         _logger:logDebug("unitTag; ultimateCurrent; ultimateCost; ultimateGroupId", unitTag, ultimateCurrent, ultimateCost, ultimateGroupId)
     end
 
-	local relativeUltimate = math.floor((ultimateCurrent / ultimateCost) * 100)
+    local ultpct = math.floor((ultimateCurrent / ultimateCost) * 100)
 
-	if (relativeUltimate > 100) then
-		relativeUltimate = 100
-	end
+    if (ultpct > 124) then
+        ultpct = 124
+    end
 
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, unitTag, ultimateGroupId, relativeUltimate)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, unitTag, ultimateGroupId, ultpct)
 end
 
 --[[
@@ -53,11 +48,10 @@ function POC_Communicator.OnMapPing(pingType, pingTag, offsetX, offsetY, isLocal
         _logger:logTrace("POC_Communicator.OnMapPing")
         --_logger:logDebug("pingTag; offsetX; offsetY", pingTag, offsetX, offsetY)
     end
-
-	if (pingType == MAP_PIN_TYPE_PING and
-        LMP:IsPositionOnMap(offsetX, offsetY) and
-		POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
-        
+    
+    if (pingType == MAP_PIN_TYPE_PING and LMP:IsPositionOnMap(offsetX, offsetY) and
+        POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
+    
         if (LOG_ACTIVE) then
             _logger:logDebug("SuppressPing ->", pingType, pingTag)
         end
@@ -65,16 +59,16 @@ function POC_Communicator.OnMapPing(pingType, pingTag, offsetX, offsetY, isLocal
         LMP:SuppressPing(pingType, pingTag)
 
         local abilityPing = POC_Communicator.GetAbilityPing(offsetX)
-		local relativeUltimate = POC_Communicator.GetRelativeUltimate(offsetY)
+        local ultpct = POC_Communicator.GetUltPct(offsetY)
 
         if (LOG_ACTIVE) then
-            _logger:logDebug("pingTag; abilityPing; relativeUltimate", pingTag, abilityPing, relativeUltimate)
+            _logger:logDebug("pingTag; abilityPing; ultpct", pingTag, abilityPing, ultpct)
         end
 
-        if (abilityPing ~= -1 and relativeUltimate ~= -1) then
-            CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingTag, abilityPing, relativeUltimate)
+        if (abilityPing ~= -1 and ultpct ~= -1) then
+            CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingTag, abilityPing, ultpct)
         else
-            _logger:logError("POC_Communicator.OnMapPing, Ping invalid abilityPing: " .. tostring(abilityPing) .. "; relativeUltimate: " .. tostring(relativeUltimate))
+            _logger:logError("POC_Communicator.OnMapPing, Ping invalid abilityPing: " .. tostring(abilityPing) .. "; ultpct: " .. tostring(ultpct))
         end
     end
 end
@@ -129,22 +123,28 @@ function POC_Communicator.SendData(abilityGroup)
             end
         -- Standard communication
         else
-            local relativeUltimate = math.floor((current / abilityCost) * 100)
+            local ultpct = math.floor((current / abilityCost) * 100)
 
-	        if (relativeUltimate > 100) then
-		        relativeUltimate = 100
-	        end
+            -- d("UltPct " .. tostring(POC_Swimlane.UltPct))
+            if (ultpct < 100) then
+                -- nothing to do
+            elseif (POC_Swimlane.UltPct ~= nil) then
+                ultpct = POC_Swimlane.UltPct
+            else
+                ultpct = 100
+            end
 
-	        local abilityPing = abilityGroup.GroupAbilityPing / ABILITY_COEFFICIENT
-            local ultimatePing = 0.0001 -- Zero, if you send "0", the map ping will be invalid
+            local abilityPing = abilityGroup.GroupAbilityPing / ABILITY_COEFFICIENT
 
-            if (relativeUltimate > 0) then
-	            ultimatePing = relativeUltimate / ULTIMATE_COEFFICIENT
+            if (ultpct > 0) then
+                ultimatePing = ultpct / ULTIMATE_COEFFICIENT
+            else
+                ultimatePing = 0.0001 -- Zero, if you send "0", the map ping will be invalid
             end
 
             if (LOG_ACTIVE) then 
 		        --_logger:logDebug("abilityGroup.GroupName", abilityGroup.GroupName)
-                --_logger:logDebug("relativeUltimate", relativeUltimate)
+                --_logger:logDebug("ultpct", ultpct)
                 --_logger:logDebug("abilityPing", abilityPing)
                 --_logger:logDebug("ultimatePing", ultimatePing)
             end
@@ -165,12 +165,12 @@ function POC_Communicator.IsPossiblePing(offsetX, offsetY)
         --_logger:logDebug("offsetX; offsetY", offsetX, offsetY)
     end
 
-	local isValidPing = (offsetX ~= 0 or offsetY ~= 0)
-	local isCorrectOffsetX = (offsetX >= 0.009 and offsetX <= 0.30)
-	local isCorrectOffsetY = (offsetY >= 0.000 and offsetY <= 0.11)
+    local isValidPing = (offsetX ~= 0 or offsetY ~= 0)
+    local isCorrectOffsetX = (offsetX >= 0.009 and offsetX <= 0.30)
+    local isCorrectOffsetY = (offsetY >= 0.000 and offsetY <= 0.25)
 
     if (LOG_ACTIVE) then 
-        --_logger:logDebug("isValidPing; isCorrectOffsetX; isCorrectOffsetY", isValidPing, isCorrectOffsetX, isCorrectOffsetY)
+        _logger:logDebug("isValidPing; isCorrectOffsetX; isCorrectOffsetY", isValidPing, isCorrectOffsetX, isCorrectOffsetY)
     end
 
 	return isValidPing and (isCorrectOffsetX and isCorrectOffsetY)
@@ -199,24 +199,22 @@ function POC_Communicator.GetAbilityPing(offset)
     end
 end
 
---[[
-	Gets relative ultimate
-]]--
-function POC_Communicator.GetRelativeUltimate(offset)
+-- Gets ultimate percentage
+--
+function POC_Communicator.GetUltPct(offset)
     if (LOG_ACTIVE) then 
-        --_logger:logTrace("POC_Communicator.GetRelativeUltimate")
+        --_logger:logTrace("POC_Communicator.GetUltPct")
         --_logger:logDebug("offset", offset)
     end
 
     if (offset >= 0) then
-        local relativeUltimate = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
-        if (relativeUltimate >= 0 and relativeUltimate <= 100) then
-            return relativeUltimate
-        elseif (relativeUltimate >= 100 and relativeUltimate <= 110) then
-            if (LOG_ACTIVE) then _logger:logDebug("offset; relativeUltimate", offset, relativeUltimate) end
-            return 100
+        local ultpct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
+
+        -- d("GetUltPct " .. tostring(ultpct))
+        if (ultpct >= 0 and ultpct <= 124) then
+            return ultpct
         else
-            _logger:logError("relativeUltimate is incorrect: " .. tostring(relativeUltimate) .. "; offset: " .. tostring(offset))
+            _logger:logError("ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
             return -1
         end
     else
@@ -309,4 +307,12 @@ function POC_Communicator.Initialize(logger, isLgsActive, isMocked)
 
     POC_Communicator.IsLgsActive = isLgsActive
     POC_Communicator.UpdateCommunicationType()
+    SLASH_COMMANDS["/pocyow"] = function()
+        if UseIt then
+            UseIt = false
+        else
+            UseIt = true
+        end
+        d(tostring(UseIt))
+    end
 end

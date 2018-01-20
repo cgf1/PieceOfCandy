@@ -47,24 +47,24 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
                     name = GetString(POC_OPTIONS_DRAG_LABEL),
                     tooltip = GetString(POC_OPTIONS_DRAG_TOOLTIP),
                     getFunc = function() 
-                        return POC_SettingsHandler.SavedVariables.Movable
+                        return POC_Settings.SavedVariables.Movable
                     end,
                     setFunc = function(value)
-                        POC_SettingsHandler.SetMovableSettings(value)
+                        POC_Settings.SetMovableSettings(value)
                     end,
-                    default = POC_SettingsHandler.Default.Movable
+                    default = POC_Settings.Default.Movable
                   },
             [3] = {
                     type = "checkbox",
                     name = GetString(POC_OPTIONS_ONLY_AVA_LABEL),
                     tooltip = GetString(POC_OPTIONS_ONLY_AVA_TOOLTIP),
                     getFunc = function()
-                        return POC_SettingsHandler.SavedVariables.OnlyAva
+                        return POC_Settings.SavedVariables.OnlyAva
                     end,
                     setFunc = function(value)
-                        POC_SettingsHandler.SetOnlyAvaSettings(value)
+                        POC_Settings.SetOnlyAvaSettings(value)
                     end,
-                    default = POC_SettingsHandler.Default.OnlyAva
+                    default = POC_Settings.Default.OnlyAva
                   },
             [4] = {
                     type = "checkbox",
@@ -72,12 +72,12 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
                     tooltip = GetString(POC_OPTIONS_USE_LGS_TOOLTIP),
                     requiresReload = true,
                     getFunc = function()
-                        return POC_SettingsHandler.SavedVariables.IsLgsActive
+                        return POC_Settings.SavedVariables.IsLgsActive
                     end,
                     setFunc = function(value)
-                        POC_SettingsHandler.SetIsLgsActiveSettings(value)
+                        POC_Settings.SetIsLgsActiveSettings(value)
                     end,
-                    default = POC_SettingsHandler.Default.IsLgsActive
+                    default = POC_Settings.Default.IsLgsActive
                   },
             [5] = {
                     type = "dropdown",
@@ -85,20 +85,20 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
                     tooltip = GetString(POC_OPTIONS_STYLE_TOOLTIP),
                     choices = styleChoices,
                     getFunc = function()
-                        return POC_SettingsHandler.SavedVariables.Style
+                        return POC_Settings.SavedVariables.Style
                     end,
                     setFunc = function(value)
-                        POC_SettingsHandler.SetStyleSettings(value)
+                        POC_Settings.SetStyleSettings(value)
                     end,
-                    default = POC_SettingsHandler.Default.Style
+                    default = POC_Settings.Default.Style
                   },
             [6] = {
                     type = "slider",
                     name = GetString(POC_OPTIONS_SWIMLANE_MAX_LABEL),
                     min = 1, max = 24, step = 1,
-                    getFunc = function() return POC_SettingsHandler.SavedVariables.SwimlaneMax end,
+                    getFunc = function() return POC_Settings.SavedVariables.SwimlaneMax end,
                     width = "full",
-                    setFunc = function(value) POC_SettingsHandler.POC_SetSwimlaneMax(value) end,
+                    setFunc = function(value) POC_Settings.POC_SetSwimlaneMax(value) end,
                     default = 24,
                   },
             [7] = {
@@ -106,20 +106,20 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
                     name = GetString(POC_OPTIONS_ULTIMATE_NUMBER),
                     tooltip = GetString(POC_OPTIONS_ULTIMATE_NUMBER_TOOLTIP),
                     getFunc = function()
-                        return POC_SettingsHandler.SavedVariables.UltNumberShow
+                        return POC_Settings.SavedVariables.UltNumberShow
                     end,
-                    setFunc = function(val) POC_SettingsHandler.POC_SetUltNumberShow(val) end,
-                    default = POC_SettingsHandler.Default.UltNumberShow
+                    setFunc = function(val) POC_Settings.POC_SetUltNumberShow(val) end,
+                    default = POC_Settings.Default.UltNumberShow
                   },
             [8] = {
                     type = "checkbox",
                     name = GetString(POC_OPTIONS_WERE_NUMBER_ONE),
                     tooltip = GetString(POC_OPTIONS_WERE_NUMBER_ONE_TOOLTIP),
                     getFunc = function()
-                        return POC_SettingsHandler.SavedVariables.WereNumberOne
+                        return POC_Settings.SavedVariables.WereNumberOne
                     end,
-                    setFunc = function(val) POC_SettingsHandler.POC_SetWereNumberOne(val) end,
-                    default = POC_SettingsHandler.Default.WereNumberOne
+                    setFunc = function(val) POC_Settings.POC_SetWereNumberOne(val) end,
+                    default = POC_Settings.Default.WereNumberOne
                   },
     }
     
