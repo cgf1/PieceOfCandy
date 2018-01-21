@@ -200,9 +200,7 @@ function POC_SwimlaneList.UpdatePlayer(player)
                         if (swimlanePlayer.PlayerName == player.PlayerName) then
                             swimlanePlayer.LastMapPingTimestamp = GetTimeStamp()
                             swimlanePlayer.IsPlayerDead = player.IsPlayerDead
-                            if (player.PlayerName == "Sirech") then
-                                player.RelativeUltimate = 60
-                            end
+                            swimlanePlayer.PingTag = player.PingTag
                             if (player.RelativeUltimate < 100 or swimlanePlayer.RelativeUltimate < 100) then
                                 swimlanePlayer.RelativeUltimate = player.RelativeUltimate
                             end
