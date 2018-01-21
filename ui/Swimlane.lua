@@ -20,9 +20,9 @@ local swimlanerow
 local SWIMLANEULTMAX = 24
 
 local forcepct = nil
-local sldebug
+local sldebug = false
 
-local group_members = {}
+local ping_refresh
 
 -- Table POC_Swimlane
 --
@@ -36,16 +36,18 @@ POC_Swimlane = {
     __index = POC_Swimlane
 }
 
-local playerkeys = {'IsPlayerDead', 'PingTag', 'UltPct', 'UltGrp'}
+local playerkeys = {'IsPlayerDead', 'PingTag', 'UltPct', 'UltGrp', 'InCombat'}
 
 local _this = POC_Swimlane
 
 POC_UltNumber.ishidden = nil
 
---[[
-	Sets visibility of labels
-]]--
-function _this.RefreshList()
+-- Sets visibility of labels
+--
+function _this.RefreshList(x, what)
+    -- if x ~= nil and what ~= nil then
+    --    d("RefreshList " .. tostring(what) .. " = '" .. x .. "'")
+    -- end
     if LOG_ACTIVE then
         _logger:logTrace("POC_Swimlane.RefreshList")
     end
@@ -140,7 +142,7 @@ function _this.SortSwimlane(swimlane)
             end
             displayed = true
             if not player.IsMe then
-                _this.UpdateListRow(swimlane, i, player, playername)
+                _this.UpdateCell(swimlane, i, player, playername)
                 -- d(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
             else
                 local not100
@@ -158,7 +160,7 @@ function _this.SortSwimlane(swimlane)
                     player.UltPct = _this.UltPct
                 end
                 -- d(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
-                _this.UpdateListRow(swimlane, i, playername)
+                _this.UpdateCell(swimlane, i, playername)
                 if (not POC_Settings.SavedVariables.UltNumberShow or
                         not100 or
                         CurrentHudHiddenState() or
@@ -191,12 +193,11 @@ function _this.SortSwimlane(swimlane)
     return displayed
 end
 
---[[
-	Updates list row
-]]--
-function _this.UpdateListRow(swimlane, i, player, playername)
+-- Update a cell
+--
+function _this.UpdateCell(swimlane, i, player, playername)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_Swimlane.UpdateListRow")
+        _logger:logTrace("POC_Swimlane.UpdateCell")
     end
 
     local row = swimlane.SwimlaneControl:GetNamedChild("Row" .. i)
@@ -221,6 +222,9 @@ function _this.UpdateListRow(swimlane, i, player, playername)
         ultpct = player.UltPct
     end
 
+    row:GetNamedChild("SenderNameValueLabel"):SetText(playername)
+    row:GetNamedChild("UltPctStatusBar"):SetValue(ultpct)
+
     if (player.IsPlayerDead) then
         -- Dead Color
         row:GetNamedChild("SenderNameValueLabel"):SetColor(0.5, 0.5, 0.5, 0.8)
@@ -237,8 +241,6 @@ function _this.UpdateListRow(swimlane, i, player, playername)
         row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 0.8)
         row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.03, 0.7, 0.7)
     end
-    row:GetNamedChild("SenderNameValueLabel"):SetText(playername)
-    row:GetNamedChild("UltPctStatusBar"):SetValue(ultpct)
 
     if (row:IsHidden()) then
         row:SetHidden(false)
@@ -270,7 +272,10 @@ function _this.UpdatePlayer(player)
 
     swimplayer = swimlane.Players[playername]
 
+    player.InCombat = IsUnitInCombat(player.PingTag)
+    player.Online = IsUnitOnline(player.PingTag)
     -- Update player
+    local orig_swimlane
     if (swimplayer ~= nil) then
         if (LOG_ACTIVE) then 
             _logger:logDebug("POC_Swimlane.UpdatePlayer, update player " .. tostring(playername)) 
@@ -278,6 +283,7 @@ function _this.UpdatePlayer(player)
         if swimplayer.IsMe and _this.PlayerTimedOut(swimplayer) then
             _this.UltPct = nil
         end
+        orig_swimlane = _this.GetSwimLane(swimplayer.UltGrp.GroupAbilityId)
     else
         swimlane.Players[playername] = {}
         swimplayer = swimlane.Players[playername]
@@ -288,11 +294,11 @@ function _this.UpdatePlayer(player)
     end
 
     local changed = false
-    for i,n in pairs(playerkeys) do
-        if swimplayer[n] == nil or swimplayer[n] ~= player[n] then
-            -- d(n .. " changed")
+    for n,v in pairs(player) do
+        if swimplayer[n] == nil or swimplayer[n] ~= v then
+            d(tostring(n) .. " " .. tostring(v))
             changed = true
-            swimplayer[n] = player[n]
+            swimplayer[n] = v
         end
     end
 
@@ -455,7 +461,7 @@ function _this.SetControlActive()
         _this.SetControlMovable(POC_Settings.SavedVariables.Movable)
         _this.RestorePosition(POC_Settings.SavedVariables.PosX, POC_Settings.SavedVariables.PosY)
 
-        EVENT_MANAGER:RegisterForUpdate(_this.Name, REFRESHRATE, _this.RefreshList)
+        -- EVENT_MANAGER:RegisterForUpdate(_this.Name, REFRESHRATE, _this.RefreshList)
 
         CALLBACK_MANAGER:RegisterCallback(POC_PLAYER_DATA_CHANGED, _this.UpdatePlayer)
         CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, _this.SetControlMovable)
@@ -464,7 +470,7 @@ function _this.SetControlActive()
     elseif (registered) then
         registered = false
         -- Stop timeout timer
-        EVENT_MANAGER:UnregisterForUpdate(_this.Name)
+        -- EVENT_MANAGER:UnregisterForUpdate(_this.Name)
 
         -- CALLBACK_MANAGER:UnregisterCallback(POC_GROUP_CHANGED, _this.RefreshList)
         CALLBACK_MANAGER:UnregisterCallback(POC_PLAYER_DATA_CHANGED, _this.UpdatePlayer)
@@ -647,6 +653,7 @@ function _this.Initialize(logger, isMocked)
 
 
     _this.StyleChanged()
+    _this.RefreshList("init", "init")
     CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, _this.StyleChanged)
     CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, _this.RefreshList)
     CALLBACK_MANAGER:RegisterCallback(POC_IS_ZONE_CHANGED, _this.SetControlActive)
@@ -665,5 +672,15 @@ function _this.Initialize(logger, isMocked)
     SLASH_COMMANDS["/pocsldebug"] = function(pct)
         sldebug = not sldebug
         d(sldebug)
+    end
+    SLASH_COMMANDS["/pocrefresh"] = function(pct)
+        ping_refresh = not ping_refresh
+        if ping_refresh then
+            EVENT_MANAGER:RegisterForUpdate(_this.Name, REFRESHRATE, _this.RefreshList)
+            d("refresh on")
+        else
+            EVENT_MANAGER:UnregisterForUpdate(_this.Name)
+            d("refresh off")
+        end
     end
 end

@@ -16,32 +16,34 @@ POC_GroupHandler.__index = POC_GroupHandler
 POC_GroupHandler.Name = "POC-GroupHandler"
 POC_GroupHandler.IsMocked = false
 
---[[
-	Called when group member joined group
-]]--
-function POC_GroupHandler.OnGroupMemberJoined()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnGroupMemberJoined") end
+-- Called when group member joined group
+--
+function POC_GroupHandler.OnGroupMemberJoined(x, member)
+    if LOG_ACTIVE then
+        _logger:logTrace("POC_GroupHandler.OnGroupMemberJoined")
+    end
 	
-    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED, member, "joined")
 end
 
---[[
-	Called when group member left group
-]]--
-function POC_GroupHandler.OnGroupMemberLeft()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnGroupMemberLeft") end
+-- Called when group member left group
+--
+function POC_GroupHandler.OnGroupMemberLeft(x, member)
+    if LOG_ACTIVE then
+        _logger:logTrace("POC_GroupHandler.OnGroupMemberLeft")
+    end
 	
-    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED, member, "left")
 end
 
 -- Called when groupUnitTags updated
 --
-function POC_GroupHandler.OnGroupUpdate()
+function POC_GroupHandler.OnGroupUpdate(x, hmm)
     if (LOG_ACTIVE) then
         _logger:logTrace("POC_GroupHandler.OnGroupUpdate")
     end
 	
-    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED, hmm, "update")
     CALLBACK_MANAGER:FireCallbacks(POC_UNIT_GROUPED_CHANGED)
 end
 

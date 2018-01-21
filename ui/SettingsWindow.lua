@@ -24,8 +24,8 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
     end
 
     local styleChoices = {
-        GetString(POC_OPTIONS_STYLE_SWIM),
-        GetString(POC_OPTIONS_STYLE_SHORT_SWIM)
+        [1] = GetString(POC_OPTIONS_STYLE_SWIM),
+        [2] = GetString(POC_OPTIONS_STYLE_SHORT_SWIM)
     }
 
     local panelData = {

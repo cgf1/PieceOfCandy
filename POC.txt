@@ -42,10 +42,10 @@ ui/VirtualControls.xml
 ui/SettingsWindow.lua
 ui/GroupUltimateSelector.xml
 ui/GroupUltimateSelector.lua
-ui/SwimlaneList.xml
+ui/Swimlane.xml
 ui/UltNumber.xml
-ui/SwimlaneList.lua
-ui/CompactSwimlaneList.xml
+ui/Swimlane.lua
+ui/CompactSwimlane.xml
 ui/UltimateGroupMenu.lua
 
 POC.lua
