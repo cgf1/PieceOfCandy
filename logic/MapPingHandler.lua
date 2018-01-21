@@ -24,14 +24,13 @@ POC_MapPingHandler.IsMocked = false
 function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
     if (LOG_ACTIVE) then _logger:logTrace("POC_MapPingHandler.OnData") end
 
-    local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByAbilityPing(abilityPing)
+    local ultimateGroup = POC_UltGrpHandler.GetUltGrpByAbilityPing(abilityPing)
 
     if (ultimateGroup ~= nil and ultpct ~= -1) then
         local player = {}
         local playerName = ""
         local isPlayerDead = false
 
-        local mypingtag = GetGroupUnitTagByIndex(GetGroupIndexByUnitTag("player"))
         if (POC_MapPingHandler.IsMocked == false) then
             playerName = GetUnitName(pingTag)
             isPlayerDead = IsUnitDead(pingTag)
@@ -40,11 +39,10 @@ function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
             isPlayerDead = math.random() > 0.8
         end
 
-        player.IsMe = mypingtag == pingTag
         player.PingTag = pingTag
         player.PlayerName = playerName
         player.IsPlayerDead = isPlayerDead
-        player.UltimateGroup = ultimateGroup
+        player.UltGrp = ultimateGroup
         player.UltimateName = GetAbilityName(ultimateGroup.GroupAbilityId)
         player.UltimateIcon = GetAbilityIcon(ultimateGroup.GroupAbilityId)
         player.UltPct = ultpct
@@ -54,7 +52,7 @@ function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
             _logger:logDebug("player.PingTag", player.PingTag)
             _logger:logDebug("player.PlayerName", player.PlayerName)
             _logger:logDebug("player.IsPlayerDead", player.IsPlayerDead)
-            _logger:logDebug("player.UltimateGroup.GroupName", player.UltimateGroup.GroupName)
+            _logger:logDebug("player.UltGrp.GroupName", player.UltGrp.GroupName)
             _logger:logDebug("player.UltPct", player.UltPct)
         end
 
@@ -74,7 +72,7 @@ function POC_MapPingHandler.OnTimedUpdate(eventCode)
         return
     end -- only if player is in group and system is not mocked
 
-    local abilityGroup = POC_UltimateGroupHandler.GetUltimateGroupByAbilityId(POC_Settings.SavedVariables.StaticUltimateID)
+    local abilityGroup = POC_UltGrpHandler.GetUltGrpByAbilityId(POC_Settings.SavedVariables.StaticUltimateID)
 
     if (abilityGroup ~= nil) then
         POC_Communicator.SendData(abilityGroup)

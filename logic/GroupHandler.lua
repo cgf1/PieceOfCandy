@@ -34,11 +34,12 @@ function POC_GroupHandler.OnGroupMemberLeft()
     CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
 end
 
---[[
-	Called when groupUnitTags updated
-]]--
+-- Called when groupUnitTags updated
+--
 function POC_GroupHandler.OnGroupUpdate()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnGroupUpdate") end
+    if (LOG_ACTIVE) then
+        _logger:logTrace("POC_GroupHandler.OnGroupUpdate")
+    end
 	
     CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
     CALLBACK_MANAGER:FireCallbacks(POC_UNIT_GROUPED_CHANGED)
@@ -48,18 +49,16 @@ function POC_GroupHandler.IsGrouped()
     return POC_GroupHandler.IsMocked or IsUnitGrouped("player")
 end
 
---[[
-	Called on ???
-]]--
+-- Called on ???
+--
 function POC_GroupHandler.OnUnitFrameUpdate()
 	if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnUnitFrameUpdate") end
 	
     CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
 end
 
---[[
-	Initialize initializes POC_GroupHandler
-]]--
+-- Initialize POC_GroupHandler
+--
 function POC_GroupHandler.Initialize(logger, isMocked)
     if (LOG_ACTIVE) then logger:logTrace("POC_GroupHandler.Initialize") end
 

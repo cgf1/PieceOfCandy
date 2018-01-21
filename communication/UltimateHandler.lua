@@ -53,7 +53,7 @@ function handler:SetUltimateCost(cost)
     ultimateCost = cost
 end
 
-function handler:SetUltimateGroupId(groupId)
+function handler:SetUltGrpId(groupId)
     ultimateGroupId = groupId
 end
 

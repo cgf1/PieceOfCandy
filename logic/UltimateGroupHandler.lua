@@ -5,27 +5,27 @@ local LOG_ACTIVE = false
 local _logger = nil
 
 --[[
-	Table POC_UltimateGroupHandler
+	Table POC_UltGrpHandler
 ]]--
-POC_UltimateGroupHandler = {}
-POC_UltimateGroupHandler.__index = POC_UltimateGroupHandler
+POC_UltGrpHandler = {}
+POC_UltGrpHandler.__index = POC_UltGrpHandler
 
 --[[
 	Table Members
 ]]--
-POC_UltimateGroupHandler.Name = "POC-UltimateGroupHandler"
-POC_UltimateGroupHandler.UltimateGroups = nil
+POC_UltGrpHandler.Name = "POC-UltGrpHandler"
+POC_UltGrpHandler.UltGrps = nil
 
 --[[
-	GetUltimateGroupByAbilityPing gets the ultimate group from given ability ping
+	GetUltGrpByAbilityPing gets the ultimate group from given ability ping
 ]]--
-function POC_UltimateGroupHandler.GetUltimateGroupByAbilityPing(abilityPing)
+function POC_UltGrpHandler.GetUltGrpByAbilityPing(abilityPing)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltimateGroupHandler.GetUltimateGroupByAbilityPing")
+        _logger:logTrace("POC_UltGrpHandler.GetUltGrpByAbilityPing")
         _logger:logDebug("abilityPing", abilityPing)
     end
 
-    for i, group in pairs(POC_UltimateGroupHandler.UltimateGroups) do
+    for i, group in pairs(POC_UltGrpHandler.UltGrps) do
         if (group.GroupAbilityPing == abilityPing) then
             return group
         end
@@ -38,15 +38,15 @@ function POC_UltimateGroupHandler.GetUltimateGroupByAbilityPing(abilityPing)
 end
 
 --[[
-	GetUltimateGroupByAbilityId gets the ultimate group from given ability ID
+	GetUltGrpByAbilityId gets the ultimate group from given ability ID
 ]]--
-function POC_UltimateGroupHandler.GetUltimateGroupByAbilityId(abilityID)
+function POC_UltGrpHandler.GetUltGrpByAbilityId(abilityID)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltimateGroupHandler.GetUltimateGroupByAbilityId")
+        _logger:logTrace("POC_UltGrpHandler.GetUltGrpByAbilityId")
         _logger:logDebug("abilityID", abilityID)
     end
 
-    for i, group in pairs(POC_UltimateGroupHandler.UltimateGroups) do
+    for i, group in pairs(POC_UltGrpHandler.UltGrps) do
         if (group.GroupAbilityId == abilityID) then
             return group
         end
@@ -59,15 +59,15 @@ function POC_UltimateGroupHandler.GetUltimateGroupByAbilityId(abilityID)
 end
 
 --[[
-	GetUltimateGroupByGroupName gets the ultimate group from given group name
+	GetUltGrpByGroupName gets the ultimate group from given group name
 ]]--
-function POC_UltimateGroupHandler.GetUltimateGroupByGroupName(groupName)
+function POC_UltGrpHandler.GetUltGrpByGroupName(groupName)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltimateGroupHandler.GetUltimateGroupByGroupName")
+        _logger:logTrace("POC_UltGrpHandler.GetUltGrpByGroupName")
         _logger:logDebug("groupName", groupName)
     end
 
-    for i, group in pairs(POC_UltimateGroupHandler.UltimateGroups) do
+    for i, group in pairs(POC_UltGrpHandler.UltGrps) do
         if (string.lower(group.GroupName) == string.lower(groupName)) then
             return group
         end
@@ -80,19 +80,19 @@ function POC_UltimateGroupHandler.GetUltimateGroupByGroupName(groupName)
 end
 
 --[[
-	GetUltimateGroups gets all ultimate groups
+	GetUltGrps gets all ultimate groups
 ]]--
-function POC_UltimateGroupHandler.GetUltimateGroups()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_UltimateGroupHandler.GetUltimateGroups") end
+function POC_UltGrpHandler.GetUltGrps()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_UltGrpHandler.GetUltGrps") end
 
-    return POC_UltimateGroupHandler.UltimateGroups
+    return POC_UltGrpHandler.UltGrps
 end
 
 --[[
-	CreateUltimateGroups Creates UltimateGroups array
+	CreateUltGrps Creates UltGrps array
 ]]--
-function POC_UltimateGroupHandler.CreateUltimateGroups()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_UltimateGroupHandler.CreateUltimateGroups") end
+function POC_UltGrpHandler.CreateUltGrps()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_UltGrpHandler.CreateUltGrps") end
 
     -- Sorc
     local negate = {}
@@ -289,7 +289,7 @@ function POC_UltimateGroupHandler.CreateUltimateGroups()
     horn.GroupAbilityId = 46537
 
     -- Add groups
-    POC_UltimateGroupHandler.UltimateGroups = 
+    POC_UltGrpHandler.UltGrps = 
     { 
         negate, atro, overload, 
         sweep, nova, templarHeal, 
@@ -305,12 +305,12 @@ function POC_UltimateGroupHandler.CreateUltimateGroups()
 end
 
 --[[
-	Initialize initializes POC_UltimateGroupHandler
+	Initialize initializes POC_UltGrpHandler
 ]]--
-function POC_UltimateGroupHandler.Initialize(logger)
-    if (LOG_ACTIVE) then logger:logTrace("POC_UltimateGroupHandler.Initialize") end
+function POC_UltGrpHandler.Initialize(logger)
+    if (LOG_ACTIVE) then logger:logTrace("POC_UltGrpHandler.Initialize") end
 
     _logger = logger
 
-    POC_UltimateGroupHandler.CreateUltimateGroups()
+    POC_UltGrpHandler.CreateUltGrps()
 end

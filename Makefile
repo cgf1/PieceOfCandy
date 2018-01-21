@@ -1,6 +1,6 @@
 .PHONY: all install clean install-gotham install-norton
 all:
-	@/usr/bin/lua eso.lua `/usr/bin/find . -name '*.lua' | sort`
+	: /usr/bin/lua eso.lua `/usr/bin/find . -name '*.lua' | sort`
 
 install: install-gotham install-norton
 

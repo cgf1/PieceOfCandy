@@ -116,7 +116,7 @@ function POC_Communicator.SendData(abilityGroup)
         elseif (POC_Communicator.IsLgsActive) then
             if (_ultimateHandler ~= nil) then
                 _ultimateHandler:SetUltimateCost(abilityCost)
-                _ultimateHandler:SetUltimateGroupId(abilityGroup.GroupAbilityPing)
+                _ultimateHandler:SetUltGrpId(abilityGroup.GroupAbilityPing)
 				_ultimateHandler:Refresh()
             else
                 _logger:logError("POC_Communicator.SendData, _ultimateHandler is nil")
@@ -229,7 +229,7 @@ end
 function POC_Communicator.SendFakePings()
     if (LOG_ACTIVE) then  _logger:logTrace("POC_Communicator.SendFakePings") end
 
-    local ultimateGroups = POC_UltimateGroupHandler.GetUltimateGroups()
+    local ultimateGroups = POC_UltGrpHandler.GetUltGrps()
 
     -- Directly send to test only UI
     CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group1", ultimateGroups[1].GroupAbilityPing, 100)

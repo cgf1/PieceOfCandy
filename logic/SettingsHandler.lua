@@ -34,7 +34,7 @@ POC_Settings.Default =
     ["Movable"] = true,
     ["Style"] = "Standard",
     ["StaticUltimateID"] = 29861,
-    ["SwimlaneUltimateGroupIds"] =
+    ["SwimlaneUltGrpIds"] =
     {
         [1] = 29861,
         [2] = 27413,
@@ -76,14 +76,14 @@ end
 --[[
 	Sets MovableSettings and fires POC-MovableChanged callbacks
 ]]--
-function POC_Settings.SetSwimlaneUltimateGroupIdSettings(swimlane, ultimateGroup)
+function POC_Settings.SetSwimlaneUltGrpIdSettings(swimlane, ultimateGroup)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_Settings.StaticUltimateIDSettings")
         _logger:logDebug("swimlane", swimlane)
         _logger:logDebug("ultimateGroup", ultimateGroup)
     end
 
-    POC_Settings.SavedVariables.SwimlaneUltimateGroupIds[swimlane] = ultimateGroup.GroupAbilityId
+    POC_Settings.SavedVariables.SwimlaneUltGrpIds[swimlane] = ultimateGroup.GroupAbilityId
 
     CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, ultimateGroup)
 end

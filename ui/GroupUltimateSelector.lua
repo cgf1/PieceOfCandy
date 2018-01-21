@@ -94,7 +94,7 @@ function POC_GroupUltimateSelector.OnGroupUltimateSelectorClicked()
     local button = _control:GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
 
     if (button ~= nil) then
-        CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, POC_GroupUltimateSelector.OnSetUltimateGroup)
+        CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, POC_GroupUltimateSelector.OnSetUltGrp)
         CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, button)
     else
         _logger:logError("POC_GroupUltimateSelector.OnGroupUltimateSelectorClicked, button nil")
@@ -102,20 +102,20 @@ function POC_GroupUltimateSelector.OnGroupUltimateSelectorClicked()
 end
 
 --[[
-	OnSetUltimateGroup sets ultimate group for button
+	OnSetUltGrp sets ultimate group for button
 ]]--
-function POC_GroupUltimateSelector.OnSetUltimateGroup(group)
+function POC_GroupUltimateSelector.OnSetUltGrp(group)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_GroupUltimateSelector.OnSetUltimateGroup")
+        _logger:logTrace("POC_GroupUltimateSelector.OnSetUltGrp")
         _logger:logDebug("group.GroupName", group.GroupName)
     end
 
-    CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, POC_GroupUltimateSelector.OnSetUltimateGroup)
+    CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, POC_GroupUltimateSelector.OnSetUltGrp)
 
     if (group ~= nil) then
         POC_Settings.SetStaticUltimateIDSettings(group.GroupAbilityId)
     else
-        _logger:logError("POC_UltimateGroupMenu.ShowUltimateGroupMenu, group nil")
+        _logger:logError("POC_UltGrpMenu.ShowUltGrpMenu, group nil")
     end
 end
 

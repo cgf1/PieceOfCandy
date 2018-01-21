@@ -5,21 +5,21 @@ local LOG_ACTIVE = false
 local _logger = nil
 
 --[[
-	Table POC_UltimateGroupMenu
+	Table POC_UltGrpMenu
 ]]--
-POC_UltimateGroupMenu = {}
-POC_UltimateGroupMenu.__index = POC_UltimateGroupMenu
+POC_UltGrpMenu = {}
+POC_UltGrpMenu.__index = POC_UltGrpMenu
 
 --[[
 	Table Members
 ]]--
 
 --[[
-	SetUltimateGroup shows ultimate group menu
+	SetUltGrp shows ultimate group menu
 ]]--
-function POC_UltimateGroupMenu.SetUltimateGroup(group, arg)
+function POC_UltGrpMenu.SetUltGrp(group, arg)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltimateGroupMenu.SetultimateGroup")
+        _logger:logTrace("POC_UltGrpMenu.SetultimateGroup")
         _logger:logDebug("group.GroupName, arg", group.GroupName, arg)
     end
 
@@ -27,38 +27,38 @@ function POC_UltimateGroupMenu.SetUltimateGroup(group, arg)
 end
 
 --[[
-	ShowUltimateGroupMenu shows ultimate group menu
+	ShowUltGrpMenu shows ultimate group menu
 ]]--
-function POC_UltimateGroupMenu.ShowUltimateGroupMenu(control, arg)
+function POC_UltGrpMenu.ShowUltGrpMenu(control, arg)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltimateGroupMenu.ShowUltimateGroupMenu")
+        _logger:logTrace("POC_UltGrpMenu.ShowUltGrpMenu")
         _logger:logDebug("arg", arg)
     end
 
     if (control ~= nil) then
         ClearMenu()
 
-        local ultimateGroups = POC_UltimateGroupHandler.GetUltimateGroups()
+        local ultimateGroups = POC_UltGrpHandler.GetUltGrps()
 
         for i, group in pairs(ultimateGroups) do
-            AddMenuItem(group.GroupName .. " - " .. group.GroupDescription, function() POC_UltimateGroupMenu.SetUltimateGroup(group, arg) end)
+            AddMenuItem(group.GroupName .. " - " .. group.GroupDescription, function() POC_UltGrpMenu.SetUltGrp(group, arg) end)
         end
 
         ShowMenu(control)
     else
-        _logger:logError("POC_UltimateGroupMenu.ShowUltimateGroupMenu, control nil")
+        _logger:logError("POC_UltGrpMenu.ShowUltGrpMenu, control nil")
     end
 end
 
 --[[
-	Initialize initializes POC_UltimateGroupMenu
+	Initialize initializes POC_UltGrpMenu
 ]]--
-function POC_UltimateGroupMenu.Initialize(logger)
+function POC_UltGrpMenu.Initialize(logger)
     if (LOG_ACTIVE) then 
-        logger:logTrace("POC_UltimateGroupMenu.Initialize")
+        logger:logTrace("POC_UltGrpMenu.Initialize")
     end
 
     _logger = logger
 
-    CALLBACK_MANAGER:RegisterCallback(POC_SHOW_ULTIMATE_GROUP_MENU, POC_UltimateGroupMenu.ShowUltimateGroupMenu)
+    CALLBACK_MANAGER:RegisterCallback(POC_SHOW_ULTIMATE_GROUP_MENU, POC_UltGrpMenu.ShowUltGrpMenu)
 end

@@ -41,7 +41,7 @@ function POC_CommandsHandler.SetUltimateIdCommand(groupName)
     end
 
     if (groupName ~= nil and groupName ~= "") then
-        local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByGroupName(groupName)
+        local ultimateGroup = POC_UltGrpHandler.GetUltGrpByGroupName(groupName)
 
         if (ultimateGroup ~= nil) then
             POC_Settings.SetStaticUltimateIDSettings(ultimateGroup.GroupAbilityId)
@@ -76,10 +76,10 @@ function POC_CommandsHandler.SetSwimlaneIdCommand(option)
     if (arrayLength == 2) then
         local swimlane = tonumber(options[1])
         local swimlaneGroup = options[2]
-        local ultimateGroup = POC_UltimateGroupHandler.GetUltimateGroupByGroupName(swimlaneGroup)
+        local ultimateGroup = POC_UltGrpHandler.GetUltGrpByGroupName(swimlaneGroup)
 
         if (swimlane ~= nil and ultimateGroup ~= nil and swimlane >= 1 and swimlane <= 6) then
-            POC_Settings.SetSwimlaneUltimateGroupIdSettings(swimlane, ultimateGroup)
+            POC_Settings.SetSwimlaneUltGrpIdSettings(swimlane, ultimateGroup)
         else
             d("Invalid options: " .. tostring(option))
         end
@@ -91,10 +91,10 @@ end
 --[[
 	Called on /getultimategroups command
 ]]--
-function POC_CommandsHandler.GetUltimateGroupsCommand()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_CommandsHandler.GetUltimateGroupsCommand") end
+function POC_CommandsHandler.GetUltGrpsCommand()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_CommandsHandler.GetUltGrpsCommand") end
 
-    local ultimateGroups = POC_UltimateGroupHandler.GetUltimateGroups()
+    local ultimateGroups = POC_UltGrpHandler.GetUltGrps()
 
     d("Ultimate Groups:")
 
@@ -122,5 +122,5 @@ function POC_CommandsHandler.Initialize(logger)
     SLASH_COMMANDS["/setgroupultimatestyle"] = POC_CommandsHandler.SetGroupUltimateStyleCommand
     SLASH_COMMANDS["/setultimateid"] = POC_CommandsHandler.SetUltimateIdCommand
     SLASH_COMMANDS["/setswimlaneid"] = POC_CommandsHandler.SetSwimlaneIdCommand
-    SLASH_COMMANDS["/getultimategroups"] = POC_CommandsHandler.GetUltimateGroupsCommand
+    SLASH_COMMANDS["/getultimategroups"] = POC_CommandsHandler.GetUltGrpsCommand
 end
