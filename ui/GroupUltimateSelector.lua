@@ -12,6 +12,8 @@ local _control = nil
 POC_GroupUltimateSelector = {}
 POC_GroupUltimateSelector.__index = POC_GroupUltimateSelector
 
+local myclass = GetUnitClass("player")
+
 --[[
 	Table Members
 ]]--
@@ -74,8 +76,8 @@ end
 function POC_GroupUltimateSelector.OnGroupUltimateSelectorMoveStop()
     if (LOG_ACTIVE) then _logger:logTrace("POC_GroupUltimateSelector.OnGroupUltimateSelectorMoveStop") end
 
-	local left = _control:GetLeft()
-	local top = _control:GetTop()
+    local left = _control:GetLeft()
+    local top = _control:GetTop()
 	
     POC_Settings.SavedVariables.SelectorPosX = left
     POC_Settings.SavedVariables.SelectorPosY = top
@@ -155,7 +157,7 @@ function POC_GroupUltimateSelector.SetControlActive()
     else
         POC_GroupUltimateSelector.SetControlMovable(POC_Settings.SavedVariables.Movable)
         POC_GroupUltimateSelector.RestorePosition(POC_Settings.SavedVariables.SelectorPosX, POC_Settings.SavedVariables.SelectorPosY)
-        POC_GroupUltimateSelector.SetUltimateIcon(POC_Settings.SavedVariables.StaticUltimateID)
+        POC_GroupUltimateSelector.SetUltimateIcon(POC_Settings.SavedVariables.MyUltId[myclass])
 
         CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, POC_GroupUltimateSelector.SetControlMovable)
         CALLBACK_MANAGER:RegisterCallback(POC_STATIC_ULTIMATE_ID_CHANGED, POC_GroupUltimateSelector.SetUltimateIcon)

@@ -18,6 +18,8 @@ POC_MapPingHandler.__index = POC_MapPingHandler
 POC_MapPingHandler.Name = "POC-MapPingHandler"
 POC_MapPingHandler.IsMocked = false
 
+local myclass = GetUnitClass("player")
+
 --[[
 	Called on new data from LibGroupSocket
 ]]--
@@ -72,12 +74,12 @@ function POC_MapPingHandler.OnTimedUpdate(eventCode)
         return
     end -- only if player is in group and system is not mocked
 
-    local abilityGroup = POC_UltGrpHandler.GetUltGrpByAbilityId(POC_Settings.SavedVariables.StaticUltimateID)
+    local abilityGroup = POC_UltGrpHandler.GetUltGrpByAbilityId(POC_Settings.SavedVariables.MyUltId[myclass])
 
     if (abilityGroup ~= nil) then
         POC_Communicator.SendData(abilityGroup)
     else
-        _logger:logError("POC_MapPingHandler.OnTimedUpdate, abilityGroup is nil, change ultimate. StaticID: " .. tostring(POC_Settings.SavedVariables.StaticUltimateID))
+        _logger:logError("POC_MapPingHandler.OnTimedUpdate, abilityGroup is nil, change ultimate. StaticID: " .. tostring(abilityGroup))
     end
 end
 

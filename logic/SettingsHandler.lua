@@ -33,7 +33,7 @@ POC_Settings.Default =
     ["WereNumberOne"] = true,
     ["Movable"] = true,
     ["Style"] = "Standard",
-    ["StaticUltimateID"] = 29861,
+    ["MyUltId"] = {},
     ["SwimlaneUltGrpIds"] =
     {
         [1] = 29861,
@@ -62,15 +62,19 @@ end
 --[[
 	Sets MovableSettings and fires POC-MovableChanged callbacks
 ]]--
-function POC_Settings.SetStaticUltimateIDSettings(staticUltimateID)
+function POC_Settings.SetStaticUltimateIDSettings(ultid)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_Settings.StaticUltimateIDSettings")
         _logger:logDebug("staticUltimateID", staticUltimateID)
     end
 
-    POC_Settings.SavedVariables.StaticUltimateID = staticUltimateID
+    local class = GetUnitClass("player")
+    if POC_Settings.SavedVariables.MyUltId == nil then
+        POC_Settings.SavedVariables.MyUltId = {}
+    end
+    POC_Settings.SavedVariables.MyUltId[class] = ultid
 
-    CALLBACK_MANAGER:FireCallbacks(POC_STATIC_ULTIMATE_ID_CHANGED, staticUltimateID)
+    CALLBACK_MANAGER:FireCallbacks(POC_STATIC_ULTIMATE_ID_CHANGED, ultid)
 end
 
 --[[
@@ -213,6 +217,8 @@ function POC_Settings.Initialize(logger)
     _logger = logger
 
     POC_Settings.SavedVariables = ZO_SavedVars:NewAccountWide(POC_Settings.SettingsName, SETTINGS_VERSION, nil, POC_Settings.Default)
+    POC_Settings.SavedVariables.SwimlaneUltimateGroupIds = nil
+    POC_Settings.SavedVariables.StaticUltimateID = nil
 
     -- Register
     EVENT_MANAGER:RegisterForEvent(POC_Settings.Name, EVENT_PLAYER_ACTIVATED, POC_Settings.OnPlayerActivated)

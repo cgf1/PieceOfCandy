@@ -33,7 +33,7 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
             name = "Piece Of Candy",
             author = "TProg Taonnor & Valandil",
             version = major .. "." .. minor .. "." .. patch,
-            slashCommand = "/taosGroupUltimate",
+            slashCommand = "/poc",
             registerForDefaults = true
     }
 
@@ -67,17 +67,8 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
                     default = POC_Settings.Default.OnlyAva
                   },
             [4] = {
-                    type = "checkbox",
-                    name = GetString(POC_OPTIONS_USE_LGS_LABEL),
-                    tooltip = GetString(POC_OPTIONS_USE_LGS_TOOLTIP),
-                    requiresReload = true,
-                    getFunc = function()
-                        return POC_Settings.SavedVariables.IsLgsActive
-                    end,
-                    setFunc = function(value)
-                        POC_Settings.SetIsLgsActiveSettings(value)
-                    end,
-                    default = POC_Settings.Default.IsLgsActive
+                    type = "description",
+                    title = ""
                   },
             [5] = {
                     type = "dropdown",

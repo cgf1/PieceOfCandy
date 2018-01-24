@@ -125,11 +125,11 @@ function POC_Communicator.SendData(abilityGroup)
         else
             local ultpct = math.floor((current / abilityCost) * 100)
 
-            -- d("UltPct " .. tostring(POC_Swimlane.UltPct))
+            -- d("UltPct " .. tostring(POC_Swimlanes.UltPct))
             if (ultpct < 100) then
                 -- nothing to do
-            elseif (POC_Swimlane.UltPct ~= nil) then
-                ultpct = POC_Swimlane.UltPct
+            elseif (POC_Swimlanes.UltPct ~= nil) then
+                ultpct = POC_Swimlanes.UltPct
             else
                 ultpct = 100
             end
@@ -223,9 +223,9 @@ function POC_Communicator.GetUltPct(offset)
     end
 end
 
---[[
-	Sends fake pings for all group members
-]]--
+-- Sends fake pings for all group members
+-- FIXME: This is currently broken
+--
 function POC_Communicator.SendFakePings()
     if (LOG_ACTIVE) then  _logger:logTrace("POC_Communicator.SendFakePings") end
 

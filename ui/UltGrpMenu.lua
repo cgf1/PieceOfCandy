@@ -1,22 +1,13 @@
---[[
-	Local variables
-]]--
+-- Local variables
+--
 local LOG_ACTIVE = false
 local _logger = nil
 
---[[
-	Table POC_UltGrpMenu
-]]--
 POC_UltGrpMenu = {}
 POC_UltGrpMenu.__index = POC_UltGrpMenu
 
---[[
-	Table Members
-]]--
-
---[[
-	SetUltGrp shows ultimate group menu
-]]--
+-- Select ultimate group menu
+--
 function POC_UltGrpMenu.SetUltGrp(group, arg)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_UltGrpMenu.SetultimateGroup")
@@ -26,9 +17,8 @@ function POC_UltGrpMenu.SetUltGrp(group, arg)
     CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, group, arg)
 end
 
---[[
-	ShowUltGrpMenu shows ultimate group menu
-]]--
+-- Show ultimate group menu
+--
 function POC_UltGrpMenu.ShowUltGrpMenu(control, arg)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_UltGrpMenu.ShowUltGrpMenu")
@@ -40,8 +30,8 @@ function POC_UltGrpMenu.ShowUltGrpMenu(control, arg)
 
         local ultimateGroups = POC_UltGrpHandler.GetUltGrps()
 
-        for i, group in pairs(ultimateGroups) do
-            AddMenuItem(group.GroupName .. " - " .. group.GroupDescription, function() POC_UltGrpMenu.SetUltGrp(group, arg) end)
+        for i, group in ipairs(ultimateGroups) do
+            AddMenuItem(group.GroupDescription, function() POC_UltGrpMenu.SetUltGrp(group, arg) end)
         end
 
         ShowMenu(control)
@@ -50,9 +40,8 @@ function POC_UltGrpMenu.ShowUltGrpMenu(control, arg)
     end
 end
 
---[[
-	Initialize initializes POC_UltGrpMenu
-]]--
+-- Initialize POC_UltGrpMenu
+--
 function POC_UltGrpMenu.Initialize(logger)
     if (LOG_ACTIVE) then 
         logger:logTrace("POC_UltGrpMenu.Initialize")

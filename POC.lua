@@ -1,6 +1,5 @@
---[[
-	Global variables
-]]--
+-- Global variables
+--
 -- Callbacks
 POC_GROUP_CHANGED = "POC-GroupChanged"
 POC_UNIT_GROUPED_CHANGED = "POC-UnitGroupedChanged"
@@ -24,7 +23,7 @@ local PATCH = "2"
 local ISMOCKED = false
 
 local LOG_NAME = "POC-DebugLogger"
-local LOG_COMMAND = "/tgulogs"
+local LOG_COMMAND = "/poclogs"
 local TRACE_ACTIVE = false
 local DEBUG_ACTIVE = false
 local ERROR_ACTIVE = true
@@ -69,7 +68,7 @@ function POC:initialize()
     POC_UltGrpMenu.Initialize(logger)
     POC_GroupUltimateSelector.Initialize(logger)
 
-    POC_Swimlane.Initialize(logger, ISMOCKED)
+    POC_Swimlanes.Initialize(logger, ISMOCKED)
 
     logger:logTrace("POC:initialized")
 end

@@ -53,11 +53,11 @@ function POC_CommandsHandler.SetUltimateIdCommand(groupName)
     end
 end
 
---[[
-	Called on /setswimlaneid command
-]]--
+-- Called on /setswimlaneid command
+-- FIXME: Probably broken
+--
 function POC_CommandsHandler.SetSwimlaneIdCommand(option)
-	if (LOG_ACTIVE) then 
+    if (LOG_ACTIVE) then 
         _logger:logTrace("POC_CommandsHandler.SetSwimlaneId")
         _logger:logDebug("option", option)
     end
@@ -94,11 +94,11 @@ end
 function POC_CommandsHandler.GetUltGrpsCommand()
     if (LOG_ACTIVE) then _logger:logTrace("POC_CommandsHandler.GetUltGrpsCommand") end
 
-    local ultimateGroups = POC_UltGrpHandler.GetUltGrps()
+    local ultimates = POC_UltGrpHandler.GetUltGrps()
 
     d("Ultimate Groups:")
 
-    for i, group in pairs(ultimateGroups) do
+    for i, group in ipairs(ultimate) do
         d(group.GroupName .. " - " .. group.GroupDescription)
     end
 end
