@@ -44,11 +44,6 @@ end
 	Called on map ping from LibMapPing
 ]]--
 function POC_Communicator.OnMapPing(pingType, pingTag, offsetX, offsetY, isLocalPlayerOwner)
-    if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_Communicator.OnMapPing")
-        --_logger:logDebug("pingTag; offsetX; offsetY", pingTag, offsetX, offsetY)
-    end
-    
     if (pingType == MAP_PIN_TYPE_PING and LMP:IsPositionOnMap(offsetX, offsetY) and
         POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
     
@@ -100,11 +95,6 @@ end
 	Called on refresh of timer
 ]]--
 function POC_Communicator.SendData(abilityGroup)
-    if (LOG_ACTIVE) then 
-		_logger:logTrace("POC_Communicator.SendData")
-		--_logger:logDebug("abilityGroup", abilityGroup)
-	end
-
     if (abilityGroup ~= nil) then
         local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
         local abilityCost = math.max(1, GetAbilityCost(abilityGroup.GroupAbilityId))
@@ -167,7 +157,7 @@ function POC_Communicator.IsPossiblePing(offsetX, offsetY)
 
     local isValidPing = (offsetX ~= 0 or offsetY ~= 0)
     local isCorrectOffsetX = (offsetX >= 0.009 and offsetX <= 0.30)
-    local isCorrectOffsetY = (offsetY >= 0.000 and offsetY <= 0.25)
+    local isCorrectOffsetY = (offsetY >= 0.000 and offsetY <= 0.60)
 
     if (LOG_ACTIVE) then 
         _logger:logDebug("isValidPing; isCorrectOffsetX; isCorrectOffsetY", isValidPing, isCorrectOffsetX, isCorrectOffsetY)
@@ -210,7 +200,6 @@ function POC_Communicator.GetUltPct(offset)
     if (offset >= 0) then
         local ultpct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
 
-        -- d("GetUltPct " .. tostring(ultpct))
         if (ultpct >= 0 and ultpct <= 124) then
             return ultpct
         else
@@ -313,6 +302,5 @@ function POC_Communicator.Initialize(logger, isLgsActive, isMocked)
         else
             UseIt = true
         end
-        d(tostring(UseIt))
     end
 end
