@@ -42,8 +42,11 @@ POC_Settings.Default =
         [4] = 86112,
         [5] = 46537,
         [6] = 46622,
+        ['MIA'] = 'MIA',
     },
 }
+
+local ultix = GetUnitName("player")
 
 --[[
 	Sets SetStyleSettings and fires POC-StyleChanged callbacks
@@ -68,11 +71,10 @@ function POC_Settings.SetStaticUltimateIDSettings(ultid)
         _logger:logDebug("staticUltimateID", staticUltimateID)
     end
 
-    local class = GetUnitClass("player")
     if POC_Settings.SavedVariables.MyUltId == nil then
         POC_Settings.SavedVariables.MyUltId = {}
     end
-    POC_Settings.SavedVariables.MyUltId[class] = ultid
+    POC_Settings.SavedVariables.MyUltId[ultix] = ultid
 
     CALLBACK_MANAGER:FireCallbacks(POC_STATIC_ULTIMATE_ID_CHANGED, ultid)
 end
@@ -219,6 +221,7 @@ function POC_Settings.Initialize(logger)
     POC_Settings.SavedVariables = ZO_SavedVars:NewAccountWide(POC_Settings.SettingsName, SETTINGS_VERSION, nil, POC_Settings.Default)
     POC_Settings.SavedVariables.SwimlaneUltimateGroupIds = nil
     POC_Settings.SavedVariables.StaticUltimateID = nil
+    POC_Settings.SavedVariables.SwimlaneUltGrpIds.MIA = 'MIA'
 
     -- Register
     EVENT_MANAGER:RegisterForEvent(POC_Settings.Name, EVENT_PLAYER_ACTIVATED, POC_Settings.OnPlayerActivated)

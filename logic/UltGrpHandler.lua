@@ -9,7 +9,7 @@ POC_UltGrpHandler = {
 }
 POC_UltGrpHandler.__index = POC_UltGrpHandler
 
-local myclass = GetUnitClass("player")
+local ultix = GetUnitName("player")
 
 --[[
 	GetUltGrpByAbilityPing gets the ultimate group from given ability ping
@@ -83,11 +83,13 @@ local function insert_group_table(to_table, from_table, from_key, i)
         i = i + 1
         v.Id = i
         _, _, name, class = string.find(v.GroupDescription, "^(.*) ultimates from (.+)")
-        class = string.gsub(class, " class$", "")
-        class = string.gsub(class, " weapons?$", "")
-        class = string.gsub(class, " lines?", "s")
-        class = string.gsub(class, "Assoult", "Assault")
-        v.GroupDescription = name .. " (" .. class .. ")"
+        if name ~= nil then
+            class = string.gsub(class, " class$", "")
+            class = string.gsub(class, " weapons?$", "")
+            class = string.gsub(class, " lines?", "s")
+            class = string.gsub(class, "Assoult", "Assault")
+            v.GroupDescription = name .. " (" .. class .. ")"
+        end
         to_table[k] = v
     end
     from_table[from_key] = nil
@@ -99,6 +101,7 @@ end
 function POC_UltGrpHandler.CreateUltGrps()
     if (LOG_ACTIVE) then _logger:logTrace("POC_UltGrpHandler.CreateUltGrps") end
 
+    local class = GetUnitClass("player")
     local ults = {
         ["Sorceror"] = {
             ["NEGATE"] = {
@@ -275,7 +278,15 @@ function POC_UltGrpHandler.CreateUltGrps()
 		GroupAbilityPing = 29,
 		GroupAbilityId = 46537
 	    }
+        },
+        ["POC"] = {
+            ['MIA'] = {
+                GroupDescription = "Incommunicado players",
+                GroupAbilityPing = 30,  -- a contradiction?
+                GroupAbilityId = 'MIA' 
+            }
         }
+
     }
     -- Add groups
     for _, x in pairs(ults) do
@@ -286,10 +297,9 @@ function POC_UltGrpHandler.CreateUltGrps()
         end
     end
     local i = 0
-    i = insert_group_table(POC_UltGrpHandler.UltGrpByNames, ults, myclass, i)
-    if POC_Settings.SavedVariables.MyUltId[myclass] == nil then
+    i = insert_group_table(POC_UltGrpHandler.UltGrpByNames, ults, class, i)
+    if POC_Settings.SavedVariables.MyUltId[ultix] == nil then
         for _, v in ipairs(POC_IdSort(POC_UltGrpHandler.UltGrpByNames, 'Id')) do
-            d("HERE " .. v.GroupAbilityId)
             POC_Settings.SetStaticUltimateIDSettings(v.GroupAbilityId)
             break
         end

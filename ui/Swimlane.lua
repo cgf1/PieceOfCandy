@@ -58,21 +58,21 @@ if POC_UltNumber == nil then
 end
 POC_UltNumber.ishidden = nil
 
+local function _noop()
+end
+
 local xxx = d
 
 -- Sets visibility of labels
 --
-function POC_Lanes:Refresh(x, what)
+function POC_Lanes:Refresh()
     -- if x ~= nil and what ~= nil then
     --    xxx("POC_Lanes:Refresh " .. tostring(what) .. " = '" .. x .. "'")
     -- end
-    if LOG_ACTIVE then
-        _logger:logTrace("POC_Lanes.Refresh")
-    end
-
     local refresh
     if (POC_GroupHandler.IsGrouped()) then
         refresh = true
+        self.MIA:CheckGroup()
     elseif (not _this.WasActive) then
         refresh = false
     else
@@ -86,7 +86,7 @@ function POC_Lanes:Refresh(x, what)
         -- Check all swimlanes
         local displayed = false
         for _,lane in ipairs(POC_IdSort(self, "Id")) do
-            if lane:Refresh() then
+            if lane:Refresh(_) then
                 displayed = true
             else
                 -- xxx("Didn't refresh " .. tostring(gid))
@@ -110,17 +110,49 @@ function POC_Player:TimedOut()
     return (GetTimeStamp() - self.LastTimeStamp) > TIMEOUT
 end
 
+-- Check for absent group members
+--
+function POC_Lane:CheckGroup()
+    for i = 1, 24, 1 do
+        local unitid = "group" .. tostring(i)
+        local unitname = GetUnitName(unitid)
+        if unitname == nil or unitname:len() == 0 then
+            break
+        end
+        if group_members[unitname] == nil then
+            local player = {}
+            player.PlayerName = unitname
+            player.Lane = self
+            player.UltGrp = {GroupAbilityId = 'MIA'}
+            player.PingTag = unitid
+            player.UltPct = 100
+            POC_Player.new(player)
+        end
+    end
+end
+
+-- Refresh unpinged group members
+--
+function POC_Player:Refresh(name)
+    for i = 1, 24, 1 do
+        local unitid = "group" .. tostring(i)
+        local unitname = GetUnitName(unitid)
+        if unitname == nil or unitname:len() == 0 then
+            break
+        end
+        if unitname == name then
+            self.PingTag = unitid
+            self.IsPlayerDead = IsUnitDead(unitid)
+            self.UltPct = 100   -- who knows?
+            break
+        end
+    end
+end
+
 -- Refresh swimlane
 --
-function POC_Lane:Refresh(player, name)
-    if (LOG_ACTIVE) then
-        _logger:logTrace("POC_Lane:Refresh")
-    end
-
+function POC_Lane:Refresh(n)
     local players = self.Players
-    if player ~= nil then
-        players[name] = player
-    end
 
     function sortval(player)
         local a
@@ -154,16 +186,21 @@ function POC_Lane:Refresh(player, name)
     end
 
     table.sort(keys, compare)
-    -- xxx(keys)
 
     -- Update sorted swimlane
     local i = 1
     local displayed = false
-    for uneeded, playername in ipairs(keys) do
+    for _, playername in ipairs(keys) do
         local player = players[playername]
+        if player:TimedOut() then
+            player:Refresh(playername)
+        end
         local player_grouped =  IsUnitGrouped(player.PingTag)
         if not player_grouped or player.Lane ~= self then
-            player:destroy(playername, player_grouped)
+            self.Players[playername] = nil
+            if not player_grouped then
+                group_members[playername] = nil
+            end
         else
             if i > POC_Settings.SavedVariables.SwimlaneMax then
                 -- log here?
@@ -233,6 +270,13 @@ function POC_Lane:Refresh(player, name)
         end
     end
 
+    if (n == 7) then
+        local hide = not displayed
+        self.Button:SetHidden(hide)
+        self.Icon:SetHidden(hide)
+        self.Label:SetHidden(hide)
+    end
+
     return displayed
 end
 
@@ -265,11 +309,17 @@ function POC_Lane:UpdateCell(i, player, playername)
         ultpct = player.UltPct
     end
 
-    local alphaminus
-    if IsGroupMemberInRemoteRegion(player.PingTag) then
-        alphaminus = .4
+    local alivealpha
+    local deadalpha
+    local inprogressalpha
+    if not IsUnitInGroupSupportRange(player.PingTag) then
+        alivealpha = .5
+        deadalpha = .4
+        inprogressalpha = .4
     else
-        alphaminus= 0
+        alivealpha = 1
+        deadalpha = .8
+        inprogressalpha = .7
     end
 
     row:GetNamedChild("SenderNameValueLabel"):SetText(playername)
@@ -277,32 +327,23 @@ function POC_Lane:UpdateCell(i, player, playername)
 
     if (player.IsPlayerDead) then
         -- Dead Color
-        row:GetNamedChild("SenderNameValueLabel"):SetColor(0.5, 0.5, 0.5, 0.8 - alphaminus)
-        row:GetNamedChild("UltPctStatusBar"):SetColor(0.8, 0.03, 0.03, 0.7 - alphaminus)
+        row:GetNamedChild("SenderNameValueLabel"):SetColor(0.5, 0.5, 0.5, .8)
+        row:GetNamedChild("UltPctStatusBar"):SetColor(0.8, 0.03, 0.03, deadalpha)
     elseif player:TimedOut(player) then
         row:GetNamedChild("SenderNameValueLabel"):SetColor(0.8, 0.8, 0.8, 0.7)
         row:GetNamedChild("UltPctStatusBar"):SetColor(0.8, 0.8, 0.8, 0.7)
     elseif (player.UltPct >= 100) then
 		-- Ready Color
-        row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 1 - alphaminus)
-        row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.7, 0.03, 1 - alphaminus)
+        row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 1)
+        row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.7, 0.03, alivealpha)
     else
 		-- In-progress Color
-        row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 0.8 - alphaminus)
-        row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.03, 0.7, 0.7 - alphaminus)
+        row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 0.8)
+        row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.03, 0.7, inprogressalpha)
     end
 
     if (row:IsHidden()) then
         row:SetHidden(false)
-    end
-end
-
-function POC_Player:destroy(name, grouped)
-    if self.Lane ~= nil and self.Lane.Players ~= nil then
-        self.Lane.Players[name] = nil
-    end
-    if not grouped then
-        group_members[name] = nil
     end
 end
 
@@ -325,7 +366,15 @@ function POC_Player.new(inplayer)
 
     local changed = false
     local orig_swimlane = self.Lane
-    inplayer.Lane = _this.Lanes[inplayer.UltGrp.GroupAbilityId]
+    local skip_refresh
+    if inplayer.Lane ~= nil then
+        skip_refresh = true
+    else
+        inplayer.Lane = _this.Lanes[inplayer.UltGrp.GroupAbilityId]
+        if inplayer.Lane == nil then
+            inplayer.Lane = 'MIA'
+        end
+    end
 
     -- Don't need these
     inplayer.PlayerName = nil
@@ -346,12 +395,12 @@ function POC_Player.new(inplayer)
         self.Backoff = GetTimeStamp() + BACKOFF
     end
 
-    if (changed and self.Lane) then
-        -- xxx("UPDATING " .. name)
-        self.Lane:Refresh(self, name)
-        if orig_swimlane ~= nill and orig_swimlane ~= self.Lane then
-            orig_swimlane:Refresh()
-        end
+    if self.Lane.Players[name] == nil then
+        self.Lane.Players[name] = self
+    end
+
+    if not skip_refresh then
+        _this.Lanes:Refresh()
     end
 end
 
@@ -525,6 +574,7 @@ function POC_Lanes:SetUlt(id, newult)
     for gid, lane in pairs(self) do
         if lane.Id == id then
             self[newgid] = lane -- New row
+            local icon
             lane.Icon:SetTexture(GetAbilityIcon(newgid))
             lane.Label:SetText(newult.GroupName)
             self[gid] = nil     -- Delete old row
@@ -553,9 +603,6 @@ end
 --
 function POC_Lane.new(lanes, i)
     local self = setmetatable({}, POC_Lane)
-    if LOG_ACTIVE then
-        _logger:logTrace("POC_Lane.new")
-    end
 
     self.Id = i
 
@@ -564,7 +611,6 @@ function POC_Lane.new(lanes, i)
 
     self.Control = widget:GetNamedChild("Swimlane" .. i)
 
-
     if (ult == nil) then
         -- Pretty screwed up if this is true
         _logger:logError("POC_Lane.new, ult nil.")
@@ -572,9 +618,17 @@ function POC_Lane.new(lanes, i)
     end
     -- Add button
     self.Button = self.Control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
-    self.Button:SetHandler("OnClicked", function() self:Click() end)
+    if i ~= 'MIA' then
+        self.Button:SetHandler("OnClicked", function() self:Click() end)
+    end
     self.Icon = self.Control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
-    self.Icon:SetTexture(GetAbilityIcon(ult.GroupAbilityId))
+    local icon
+    if ult.GroupAbilityId == 'MIA' then
+        icon = "/POC/icons/lollipop.dds"
+    else
+        icon = GetAbilityIcon(ult.GroupAbilityId)
+    end
+    self.Icon:SetTexture(icon)
 
     self.Label = self.Control:GetNamedChild("Header"):GetNamedChild("UltimateLabel")
     if (self.Label ~= nil) then
@@ -590,7 +644,7 @@ function POC_Lane.new(lanes, i)
             _logger:logDebug("Row created " .. row:GetName())
         end
 
-        row:SetHidden(true) -- initial not visible
+        row:SetHidden(true) -- not visible initially
 
         if (i == 1) then
             row:SetAnchor(TOPLEFT, last_row, TOPLEFT, 0, topleft)
@@ -609,6 +663,7 @@ function POC_Lanes.new()
     for i = 1, SWIMLANES, 1 do
         POC_Lane.new(self, i)
     end
+    POC_Lane.new(self, 'MIA')
     return self
 end
 

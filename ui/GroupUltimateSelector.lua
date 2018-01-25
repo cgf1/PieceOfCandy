@@ -12,26 +12,23 @@ local _control = nil
 POC_GroupUltimateSelector = {}
 POC_GroupUltimateSelector.__index = POC_GroupUltimateSelector
 
-local myclass = GetUnitClass("player")
+local ultix = GetUnitName("player")
 
 --[[
 	Table Members
 ]]--
 
---[[
-	SetUltimateIcon sets the button icon in base of staticUltimateID
-]]--
+-- SetUltimateIcon sets the button icon in base of staticUltimateID
+--
 function POC_GroupUltimateSelector.SetUltimateIcon(staticUltimateID)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_GroupUltimateSelector.SetUltimateIcon")
         _logger:logDebug("staticUltimateID", staticUltimateID)
     end
 
-    local icon = "/esoui/art/icons/icon_missing.dds"
+    local icon
 
-    if (staticUltimateID ~= 0) then
-        icon = GetAbilityIcon(staticUltimateID)
-    end
+    icon = GetAbilityIcon(staticUltimateID)
 
     local iconControl = _control:GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
 
@@ -157,7 +154,7 @@ function POC_GroupUltimateSelector.SetControlActive()
     else
         POC_GroupUltimateSelector.SetControlMovable(POC_Settings.SavedVariables.Movable)
         POC_GroupUltimateSelector.RestorePosition(POC_Settings.SavedVariables.SelectorPosX, POC_Settings.SavedVariables.SelectorPosY)
-        POC_GroupUltimateSelector.SetUltimateIcon(POC_Settings.SavedVariables.MyUltId[myclass])
+        POC_GroupUltimateSelector.SetUltimateIcon(POC_Settings.SavedVariables.MyUltId[ultix])
 
         CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, POC_GroupUltimateSelector.SetControlMovable)
         CALLBACK_MANAGER:RegisterCallback(POC_STATIC_ULTIMATE_ID_CHANGED, POC_GroupUltimateSelector.SetUltimateIcon)

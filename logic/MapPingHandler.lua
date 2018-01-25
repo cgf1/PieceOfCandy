@@ -18,7 +18,7 @@ POC_MapPingHandler.__index = POC_MapPingHandler
 POC_MapPingHandler.Name = "POC-MapPingHandler"
 POC_MapPingHandler.IsMocked = false
 
-local myclass = GetUnitClass("player")
+local ultix = GetUnitName("player")
 
 --[[
 	Called on new data from LibGroupSocket
@@ -74,7 +74,7 @@ function POC_MapPingHandler.OnTimedUpdate(eventCode)
         return
     end -- only if player is in group and system is not mocked
 
-    local abilityGroup = POC_UltGrpHandler.GetUltGrpByAbilityId(POC_Settings.SavedVariables.MyUltId[myclass])
+    local abilityGroup = POC_UltGrpHandler.GetUltGrpByAbilityId(POC_Settings.SavedVariables.MyUltId[ultix])
 
     if (abilityGroup ~= nil) then
         POC_Communicator.SendData(abilityGroup)
