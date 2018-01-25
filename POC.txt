@@ -42,8 +42,8 @@ logic/Util.lua
 
 ui/VirtualControls.xml
 ui/SettingsWindow.lua
-ui/GroupUltimateSelector.xml
-ui/GroupUltimateSelector.lua
+ui/UltSelector.xml
+ui/UltSelector.lua
 ui/Swimlane.xml
 ui/UltNumber.xml
 ui/Swimlane.lua

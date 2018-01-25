@@ -66,7 +66,7 @@ function POC:initialize()
     POC_SettingsWindow.Initialize(logger, MAJOR, MINOR, PATCH)
 
     POC_UltGrpMenu.Initialize(logger)
-    POC_GroupUltimateSelector.Initialize(logger)
+    POC_UltSelector.Initialize(logger)
 
     POC_Swimlanes.Initialize(logger, ISMOCKED)
 

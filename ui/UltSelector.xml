@@ -5,7 +5,7 @@
                          clampedToScreen="true">
             <Anchor point="TOPLEFT" relativeTo="GuiRoot" relativePoint="TOPLEFT"/>
             <Dimensions x="75" y="75" />
-            <OnMoveStop>POC_GroupUltimateSelector:OnGroupUltimateSelectorMoveStop()</OnMoveStop>
+            <OnMoveStop>POC_UltSelector:OnUltSelectorMoveStop()</OnMoveStop>
                 
             <Controls>
                 <Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">
@@ -25,7 +25,7 @@
                           <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
                                     pressed="/esoui/art/actionbar/abilityframe64_down.dds"
                                     mouseOver="/POC/textures/hover.dds"/>
-                          <OnClicked>POC_GroupUltimateSelector:OnGroupUltimateSelectorClicked()</OnClicked>
+                          <OnClicked>POC_UltSelector:OnUltSelectorClicked()</OnClicked>
                       </Button>
                       <Texture name="$(parent)Icon" tier="0">
                           <Dimensions x="48" y="48"/>
