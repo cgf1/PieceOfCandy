@@ -27,8 +27,11 @@ function POC_GroupUltimateSelector.SetUltimateIcon(staticUltimateID)
     end
 
     local icon
-
-    icon = GetAbilityIcon(staticUltimateID)
+    if (staticUltimateID == 0) then
+        icon = "/esoui/art/icons/icon_missing.dds"
+    else
+        icon = GetAbilityIcon(staticUltimateID)
+    end
 
     local iconControl = _control:GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
 
