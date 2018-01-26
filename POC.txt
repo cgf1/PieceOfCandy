@@ -18,6 +18,8 @@ libs/LibStub/LibStub.lua
 libs/LibAddonMenu-2.0/LibAddonMenu-2.0.lua
 libs/LibAddonMenu-2.0/controls/panel.lua
 libs/LibAddonMenu-2.0/controls/header.lua
+libs/LibAddonMenu-2.0/controls/iconpicker.lua
+libs/LibAddonMenu-2.0/controls/divider.lua
 libs/LibAddonMenu-2.0/controls/checkbox.lua
 libs/LibAddonMenu-2.0/controls/dropdown.lua
 
