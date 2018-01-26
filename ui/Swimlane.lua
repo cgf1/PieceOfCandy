@@ -478,12 +478,12 @@ function _this.StyleChanged()
         end
         if (style == "Compact") then
             widget = POC_CompactSwimlaneControl
-            swimlanerow = "CompactGroupUltimateSwimlaneRow"
+            swimlanerow = "CompactUltSwimlaneRow"
             namelen = 6
             topleft = 50
         else
             widget = POC_SwimlaneControl
-            swimlanerow = "GroupUltimateSwimlaneRow"
+            swimlanerow = "UltSwimlaneRow"
             namelen = 12
             topleft = 25
         end

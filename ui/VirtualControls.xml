@@ -2,8 +2,8 @@
   <Font name="MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin"/>
   <Font name="SwimlaneListFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
   <Font name="SwimlaneListHeaderFont" font="$(BOLD_FONT)|21|soft-shadow-thin"/>
-  <Font name="GroupUltimateFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
-  <Font name="GroupUltimateHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
+  <Font name="UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
+  <Font name="UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
   <Font name="CompactSwimlaneListFont" font="$(MEDIUM_FONT)|14|soft-shadow-thin"/>
   
     <Controls>
@@ -30,17 +30,17 @@
     <Label 	name="SwimlaneListHeaderLabel" 
 				    width="75" 
 				    height="25" 
-				    font="GroupUltimateHeaderFont" 
+				    font="UltHeaderFont" 
 				    inheritAlpha="true" 
 				    color="FFFFFF"
 				    verticalAlignment="TEXT_ALIGN_TOP" 
 				    horizontalAlignment="TEXT_ALIGN_LEFT" 
 				    virtual="true"/>
 
-    <Label 	name="GroupUltimateHeaderLabel"
+    <Label 	name="UltHeaderLabel"
             width="200"
             height="20"
-            font="GroupUltimateHeaderFont"
+            font="UltHeaderFont"
             inheritAlpha="true"
             color="FFFFFF"
             verticalAlignment="TEXT_ALIGN_TOP"
@@ -48,10 +48,10 @@
             text="Header"
             virtual="true"/>
 
-    <Label 	name="GroupUltimateLabel"
+    <Label 	name="UltLabel"
 				    width="200"
 				    height="20"
-				    font="GroupUltimateFont"
+				    font="UltFont"
 				    inheritAlpha="true"
 				    color="FFFFFF"
 				    verticalAlignment="TEXT_ALIGN_TOP"
@@ -59,10 +59,10 @@
 				    text="Label"
 				    virtual="true"/>
 
-    <Label 	name="GroupUltimateShortLabel"
+    <Label 	name="UltShortLabel"
 				    width="100"
 				    height="20"
-				    font="GroupUltimateFont"
+				    font="UltFont"
 				    inheritAlpha="true"
 				    color="FFFFFF"
 				    verticalAlignment="TEXT_ALIGN_TOP"
@@ -93,7 +93,7 @@
       </Controls>
     </Control>
 
-    <Control name="GroupUltimateSwimlaneRow" virtual="true">
+    <Control name="UltSwimlaneRow" virtual="true">
 			<Dimensions x="100" y="40" />
 			<Controls>
         <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
@@ -112,7 +112,7 @@
 			</Controls>
 		</Control>
 
-    <Control name="GroupUltimateSwimlaneHeader" virtual="true">
+    <Control name="UltSwimlaneHeader" virtual="true">
       <Dimensions x="100" y="25" />
       <Controls>
         <Control name="$(parent)SelectorButtonControl">
@@ -140,31 +140,31 @@
       </Controls>
     </Control>
 
-    <Control name="GroupUltimateSwimlane" virtual="true">
+    <Control name="UltSwimlane" virtual="true">
       <Dimensions x="100" y="300"/>
       <Controls>
-        <Control name="$(parent)Header" inherits="GroupUltimateSwimlaneHeader">
+        <Control name="$(parent)Header" inherits="UltSwimlaneHeader">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
         </Control>
       </Controls>
     </Control>
 
-    <Control name="GroupUltimateSimpleListRow" virtual="true">
+    <Control name="UltSimpleListRow" virtual="true">
       <Dimensions y="20" />
       <Controls>
-        <Label name="$(parent)SenderNameValueLabel" inherits="GroupUltimateLabel" text="-">
+        <Label name="$(parent)SenderNameValueLabel" inherits="UltLabel" text="-">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0"/>
         </Label>
-        <Label name="$(parent)UltimateValueLabel" inherits="GroupUltimateLabel" text="-">
+        <Label name="$(parent)UltimateValueLabel" inherits="UltLabel" text="-">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="200"/>
         </Label>
-        <Label name="$(parent)ReadyValueLabel" inherits="GroupUltimateShortLabel" text="0">
+        <Label name="$(parent)ReadyValueLabel" inherits="UltShortLabel" text="0">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="400"/>
         </Label>
       </Controls>
     </Control>
 
-    <Control name="CompactGroupUltimateSwimlaneRow" virtual="true">
+    <Control name="CompactUltSwimlaneRow" virtual="true">
       <Dimensions x="50" y="25" />
       <Controls>
         <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
@@ -183,7 +183,7 @@
       </Controls>
     </Control>
 
-    <Control name="CompactGroupUltimateSwimlaneHeader" virtual="true">
+    <Control name="CompactUltSwimlaneHeader" virtual="true">
       <Dimensions x="50" y="50" />
       <Controls>
         <Control name="$(parent)SelectorButtonControl">
@@ -208,10 +208,10 @@
       </Controls>
     </Control>
 
-    <Control name="CompactGroupUltimateSwimlane" virtual="true">
+    <Control name="CompactUltSwimlane" virtual="true">
       <Dimensions x="50" y="150"/>
       <Controls>
-        <Control name="$(parent)Header" inherits="CompactGroupUltimateSwimlaneHeader">
+        <Control name="$(parent)Header" inherits="CompactUltSwimlaneHeader">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
         </Control>
       </Controls>

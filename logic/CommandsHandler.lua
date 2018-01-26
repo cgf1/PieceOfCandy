@@ -18,9 +18,9 @@ POC_CommandsHandler.Name = "POC-CommandsHandler"
 --[[
 	Called on /setgroupultimatestyle command
 ]]--
-function POC_CommandsHandler.SetGroupUltimateStyleCommand(style)
+function POC_CommandsHandler.SetUltStyleCommand(style)
 	if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_CommandsHandler.SetGroupUltimateStyleCommand")
+        _logger:logTrace("POC_CommandsHandler.SetUltStyleCommand")
         _logger:logDebug("style", style)
     end
 
@@ -119,7 +119,7 @@ function POC_CommandsHandler.Initialize(logger)
     _logger = logger
 
     -- Define commands
-    SLASH_COMMANDS["/setgroupultimatestyle"] = POC_CommandsHandler.SetGroupUltimateStyleCommand
+    SLASH_COMMANDS["/setgroupultimatestyle"] = POC_CommandsHandler.SetUltStyleCommand
     SLASH_COMMANDS["/setultimateid"] = POC_CommandsHandler.SetUltimateIdCommand
     SLASH_COMMANDS["/setswimlaneid"] = POC_CommandsHandler.SetSwimlaneIdCommand
     SLASH_COMMANDS["/getultimategroups"] = POC_CommandsHandler.GetUltsCommand

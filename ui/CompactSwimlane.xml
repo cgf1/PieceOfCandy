@@ -12,31 +12,31 @@
 		    <Anchor point="BOTTOMRIGHT" />
 		</Control>
 
-		<Control name="$(parent)Swimlane1" inherits="CompactGroupUltimateSwimlane">
+		<Control name="$(parent)Swimlane1" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
 		</Control>
 
-		<Control name="$(parent)Swimlane2" inherits="CompactGroupUltimateSwimlane">
+		<Control name="$(parent)Swimlane2" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="52" offsetY="0"/>
 		</Control>
 
-		<Control name="$(parent)Swimlane3" inherits="CompactGroupUltimateSwimlane">
+		<Control name="$(parent)Swimlane3" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="104" offsetY="0"/>
 		</Control>
 
-		<Control name="$(parent)Swimlane4" inherits="CompactGroupUltimateSwimlane">
+		<Control name="$(parent)Swimlane4" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="156" offsetY="0"/>
 		</Control>
 
-		<Control name="$(parent)Swimlane5" inherits="CompactGroupUltimateSwimlane">
+		<Control name="$(parent)Swimlane5" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="208" offsetY="0"/>
 		</Control>
 
-		<Control name="$(parent)Swimlane6" inherits="CompactGroupUltimateSwimlane">
+		<Control name="$(parent)Swimlane6" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="260" offsetY="0"/>
 		</Control>
 
-		<Control name="$(parent)SwimlaneMIA" inherits="CompactGroupUltimateSwimlane">
+		<Control name="$(parent)SwimlaneMIA" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="312" offsetY="0"/>
 		</Control>
 	    </Controls>
