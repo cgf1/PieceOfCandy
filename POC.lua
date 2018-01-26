@@ -9,9 +9,9 @@ POC_STYLE_CHANGED = "POC-StyleChanged"
 POC_MOVABLE_CHANGED = "POC-MovableChanged"
 POC_IS_ZONE_CHANGED = "POC-IsZoneChanged"
 POC_STATIC_ULTIMATE_ID_CHANGED = "POC-StaticUltimateIDChanged"
-POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltGrpIdChanged"
-POC_SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltGrpMenu"
-POC_SET_ULTIMATE_GROUP = "POC-SetUltGrp"
+POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltIdChanged"
+POC_SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
+POC_SET_ULTIMATE_GROUP = "POC-SetUlt"
 
 --[[
 	Local variables
@@ -59,14 +59,13 @@ function POC:initialize()
     -- Initialize logic
     POC_GroupHandler.Initialize(logger, ISMOCKED)
     POC_MapPingHandler.Initialize(logger, ISMOCKED)
-    POC_UltGrpHandler.Initialize(logger)
+    POC_Ult.Initialize(logger)
     POC_CommandsHandler.Initialize(logger)
 
     -- Initialize ui
     POC_SettingsWindow.Initialize(logger, MAJOR, MINOR, PATCH)
 
-    POC_UltGrpMenu.Initialize(logger)
-    POC_UltSelector.Initialize(logger)
+    POC_UltMenu.Initialize(logger)
 
     POC_Swimlanes.Initialize(logger, ISMOCKED)
 

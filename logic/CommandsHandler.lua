@@ -41,7 +41,7 @@ function POC_CommandsHandler.SetUltimateIdCommand(groupName)
     end
 
     if (groupName ~= nil and groupName ~= "") then
-        local ultimateGroup = POC_UltGrpHandler.GetUltGrpByGroupName(groupName)
+        local ultimateGroup = POC_Ult.GetUltByName(groupName)
 
         if (ultimateGroup ~= nil) then
             POC_Settings.SetStaticUltimateIDSettings(ultimateGroup.GroupAbilityId)
@@ -76,10 +76,10 @@ function POC_CommandsHandler.SetSwimlaneIdCommand(option)
     if (arrayLength == 2) then
         local swimlane = tonumber(options[1])
         local swimlaneGroup = options[2]
-        local ultimateGroup = POC_UltGrpHandler.GetUltGrpByGroupName(swimlaneGroup)
+        local ultimateGroup = POC_Ult.GetUltByName(swimlaneGroup)
 
         if (swimlane ~= nil and ultimateGroup ~= nil and swimlane >= 1 and swimlane <= 6) then
-            POC_Settings.SetSwimlaneUltGrpIdSettings(swimlane, ultimateGroup)
+            POC_Settings.SetSwimlaneUltIdSettings(swimlane, ultimateGroup)
         else
             d("Invalid options: " .. tostring(option))
         end
@@ -91,10 +91,10 @@ end
 --[[
 	Called on /getultimategroups command
 ]]--
-function POC_CommandsHandler.GetUltGrpsCommand()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_CommandsHandler.GetUltGrpsCommand") end
+function POC_CommandsHandler.GetUltsCommand()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_CommandsHandler.GetUltsCommand") end
 
-    local ultimates = POC_UltGrpHandler.GetUltGrps()
+    local ultimates = POC_Ult.GetUlts()
 
     d("Ultimate Groups:")
 
@@ -122,5 +122,5 @@ function POC_CommandsHandler.Initialize(logger)
     SLASH_COMMANDS["/setgroupultimatestyle"] = POC_CommandsHandler.SetGroupUltimateStyleCommand
     SLASH_COMMANDS["/setultimateid"] = POC_CommandsHandler.SetUltimateIdCommand
     SLASH_COMMANDS["/setswimlaneid"] = POC_CommandsHandler.SetSwimlaneIdCommand
-    SLASH_COMMANDS["/getultimategroups"] = POC_CommandsHandler.GetUltGrpsCommand
+    SLASH_COMMANDS["/getultimategroups"] = POC_CommandsHandler.GetUltsCommand
 end

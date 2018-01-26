@@ -68,6 +68,17 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
         default = POC_Settings.Default.OnlyAva
     }
     o[#o + 1] = {
+        type = "iconpicker",
+        name = "Choose your ultimate",
+        choices = POC_Ult.Icons(),
+        choicesTooltips = POC_Ult.Descriptions(),
+        getFunc = POC_Ult.GetSaved,
+        setFunc = POC_Ult.SetSaved,
+        maxColumns = 7,
+        visibleRows = 10,
+        iconSize = 40
+    }
+    o[#o + 1] = {
         type = "divider",
         reference = "DividerWeStand"
     }

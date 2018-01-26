@@ -36,18 +36,16 @@ communication/UltimateHandler.lua
 logic/SettingsHandler.lua
 logic/GroupHandler.lua
 logic/MapPingHandler.lua
-logic/UltGrpHandler.lua
+logic/Ult.lua
 logic/CommandsHandler.lua
 logic/Util.lua
 
 ui/VirtualControls.xml
 ui/SettingsWindow.lua
-ui/UltSelector.xml
-ui/UltSelector.lua
 ui/Swimlane.xml
 ui/UltNumber.xml
 ui/Swimlane.lua
 ui/CompactSwimlane.xml
-ui/UltGrpMenu.lua
+ui/UltMenu.lua
 
 POC.lua

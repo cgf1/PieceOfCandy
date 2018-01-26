@@ -26,7 +26,7 @@ local ultix = GetUnitName("player")
 function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
     if (LOG_ACTIVE) then _logger:logTrace("POC_MapPingHandler.OnData") end
 
-    local ultimateGroup = POC_UltGrpHandler.GetUltGrpByAbilityPing(abilityPing)
+    local ultimateGroup = POC_Ult.GetUltByAbilityPing(abilityPing)
 
     if (ultimateGroup ~= nil and ultpct ~= -1) then
         local player = {}
@@ -44,7 +44,7 @@ function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
         player.PingTag = pingTag
         player.PlayerName = playerName
         player.IsPlayerDead = isPlayerDead
-        player.UltGrp = ultimateGroup
+        player.Ult = ultimateGroup
         player.UltimateName = GetAbilityName(ultimateGroup.GroupAbilityId)
         player.UltimateIcon = GetAbilityIcon(ultimateGroup.GroupAbilityId)
         player.UltPct = ultpct
@@ -54,7 +54,7 @@ function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
             _logger:logDebug("player.PingTag", player.PingTag)
             _logger:logDebug("player.PlayerName", player.PlayerName)
             _logger:logDebug("player.IsPlayerDead", player.IsPlayerDead)
-            _logger:logDebug("player.UltGrp.GroupName", player.UltGrp.GroupName)
+            _logger:logDebug("player.Ult.GroupName", player.Ult.GroupName)
             _logger:logDebug("player.UltPct", player.UltPct)
         end
 
@@ -74,7 +74,7 @@ function POC_MapPingHandler.OnTimedUpdate(eventCode)
         return
     end -- only if player is in group and system is not mocked
 
-    local abilityGroup = POC_UltGrpHandler.GetUltGrpByAbilityId(POC_Settings.SavedVariables.MyUltId[ultix])
+    local abilityGroup = POC_Ult.GetUltByAbilityId(POC_Settings.SavedVariables.MyUltId[ultix])
 
     if (abilityGroup ~= nil) then
         POC_Communicator.SendData(abilityGroup)

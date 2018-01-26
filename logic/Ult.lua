@@ -1,27 +1,27 @@
 local LOG_ACTIVE = false
 local _logger = nil
 
-POC_UltGrpHandler = {
-    Name = "POC-UltGrpHandler",
-    UltGrpByIds = {},
-    UltGrpByNames = {},
-    UltGrpByPings = {}
+POC_Ult = {
+    Name = "POC-Ult",
 }
-POC_UltGrpHandler.__index = POC_UltGrpHandler
+POC_Ult.__index = POC_Ult
 
 local ultix = GetUnitName("player")
+local bynames = {}
+local byids = {}
+local bypings = {}
 
 --[[
-	GetUltGrpByAbilityPing gets the ultimate group from given ability ping
+	GetUltByAbilityPing gets the ultimate group from given ability ping
 ]]--
-function POC_UltGrpHandler.GetUltGrpByAbilityPing(pid)
+function POC_Ult.GetUltByAbilityPing(pid)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltGrpHandler.GetUltGrpByAbilityPing")
+        _logger:logTrace("POC_Ult.GetUltByAbilityPing")
         _logger:logDebug("pid", pid)
     end
 
-    if POC_UltGrpHandler.UltGrpByPings[pid] ~= nil then
-        return POC_UltGrpHandler.UltGrpByPings[pid]
+    if bypings[pid] ~= nil then
+        return bypings[pid]
     end
 
     -- not found
@@ -31,16 +31,16 @@ function POC_UltGrpHandler.GetUltGrpByAbilityPing(pid)
 end
 
 --[[
-	GetUltGrpByAbilityId gets the ultimate group from given ability ID
+	GetUltByAbilityId gets the ultimate group from given ability ID
 ]]--
-function POC_UltGrpHandler.GetUltGrpByAbilityId(aid)
+function POC_Ult.GetUltByAbilityId(aid)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltGrpHandler.GetUltGrpByAbilityId")
+        _logger:logTrace("POC_Ult.GetUltByAbilityId")
         _logger:logDebug("aid", aid)
     end
 
-    if POC_UltGrpHandler.UltGrpByIds[aid] ~= nil then
-        return POC_UltGrpHandler.UltGrpByIds[aid]
+    if byids[aid] ~= nil then
+        return byids[aid]
     end
 
     -- not found
@@ -50,16 +50,16 @@ function POC_UltGrpHandler.GetUltGrpByAbilityId(aid)
 end
 
 --[[
-	GetUltGrpByGroupName gets the ultimate group from given group name
+	GetUltByName gets the ultimate group from given group name
 ]]--
-function POC_UltGrpHandler.GetUltGrpByGroupName(gname)
+function POC_Ult.GetUltByName(gname)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltGrpHandler.GetUltGrpByGroupName")
+        _logger:logTrace("POC_Ult.GetUltByName")
         _logger:logDebug("groupName", groupName)
     end
 
-    if POC_UltGrpHandler.UltGrpByNames[gname] ~= nil then
-        return POC_UltGrpHandler.UltGrpByNames[gname]
+    if bynames[gname] ~= nil then
+        return bynames[gname]
     end
 
     -- not found
@@ -68,14 +68,14 @@ function POC_UltGrpHandler.GetUltGrpByGroupName(gname)
     return nil
 end
 
--- GetUltGrps gets all ultimate groups
+-- GetUlts gets all ultimate groups
 --
-function POC_UltGrpHandler.GetUltGrps()
+function POC_Ult.GetUlts()
     if LOG_ACTIVE then
-        _logger:logTrace("POC_UltGrpHandler.GetUltGrps")
+        _logger:logTrace("POC_Ult.GetUlts")
     end
 
-    return POC_IdSort(POC_UltGrpHandler.UltGrpByNames, "Id")
+    return POC_IdSort(bynames, "Id")
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
@@ -96,10 +96,30 @@ local function insert_group_table(to_table, from_table, from_key, i)
     return i
 end
 
--- CreateUltGrps Creates UltGrps array
+function POC_Ult.Icons()
+    local iconlist = {}
+    for i, v in ipairs(POC_IdSort(bynames, 'Id')) do
+        if v.GroupAbilityId ~= 'MIA' then
+            table.insert(iconlist, GetAbilityIcon(v.GroupAbilityId))
+        end
+    end
+    return iconlist
+end
+
+function POC_Ult.Descriptions()
+    local desclist = {}
+    for i, v in ipairs(POC_IdSort(bynames, 'Id')) do
+        if v.GroupAbilityId ~= 'MIA' then
+            table.insert(desclist, v.GroupDescription)
+        end
+    end
+    return desclist
+end
+
+-- CreateUlts Creates Ults array
 --
-function POC_UltGrpHandler.CreateUltGrps()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_UltGrpHandler.CreateUltGrps") end
+function POC_Ult.CreateUlts()
+    if (LOG_ACTIVE) then _logger:logTrace("POC_Ult.CreateUlts") end
 
     local class = GetUnitClass("player")
     local ults = {
@@ -292,34 +312,53 @@ function POC_UltGrpHandler.CreateUltGrps()
     for _, x in pairs(ults) do
         for name, group in pairs(x) do
             group.GroupName = name
-            POC_UltGrpHandler.UltGrpByIds[group.GroupAbilityId] = group
-            POC_UltGrpHandler.UltGrpByPings[group.GroupAbilityPing] = group
+            byids[group.GroupAbilityId] = group
+            bypings[group.GroupAbilityPing] = group
         end
     end
     local i = 0
-    i = insert_group_table(POC_UltGrpHandler.UltGrpByNames, ults, class, i)
+    i = insert_group_table(bynames, ults, class, i)
     if POC_Settings.SavedVariables.MyUltId[ultix] == nil then
-        for _, v in ipairs(POC_IdSort(POC_UltGrpHandler.UltGrpByNames, 'Id')) do
+        for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
             POC_Settings.SetStaticUltimateIDSettings(v.GroupAbilityId)
             break
         end
     end
-    i = insert_group_table(POC_UltGrpHandler.UltGrpByNames, ults, "WEAPON", i)
-    i = insert_group_table(POC_UltGrpHandler.UltGrpByNames, ults, "GUILD", i)
-    i = insert_group_table(POC_UltGrpHandler.UltGrpByNames, ults, "WORLD", i)
+    i = insert_group_table(bynames, ults, "WEAPON", i)
+    i = insert_group_table(bynames, ults, "GUILD", i)
+    i = insert_group_table(bynames, ults, "WORLD", i)
     for notmyclass, _ in pairs(ults) do
-        i = insert_group_table(POC_UltGrpHandler.UltGrpByNames, ults, notmyclass, i)
+        i = insert_group_table(bynames, ults, notmyclass, i)
     end
 end
 
--- Initialize POC_UltGrpHandler
+function POC_Ult.GetSaved()
+    if POC_Settings.SavedVariables.MyUltId[ultix] == nil then
+        -- should never happen
+    else
+        return GetAbilityIcon(POC_Settings.SavedVariables.MyUltId[ultix])
+    end
+end
+
+function POC_Ult.SetSaved(icon)
+    for id, _ in pairs(byids) do
+        if id ~= 'MIA' and GetAbilityIcon(id) == icon then
+
+            POC_Settings.SavedVariables.MyUltId[ultix] = id
+            return
+        end
+    end
+    d("POC_Ult.SetSaved: unknown icon " .. tostring(icon))
+end
+
+-- Initialize POC_Ult
 --
-function POC_UltGrpHandler.Initialize(logger)
+function POC_Ult.Initialize(logger)
     if LOG_ACTIVE then
-        logger:logTrace("POC_UltGrpHandler.Initialize")
+        logger:logTrace("POC_Ult.Initialize")
     end
 
     _logger = logger
 
-    POC_UltGrpHandler.CreateUltGrps()
+    POC_Ult.CreateUlts()
 end

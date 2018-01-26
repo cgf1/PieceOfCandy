@@ -123,7 +123,7 @@ function POC_Lane:CheckGroup()
             local player = {}
             player.PlayerName = unitname
             player.Lane = self
-            player.UltGrp = {GroupAbilityId = 'MIA'}
+            player.Ult = {GroupAbilityId = 'MIA'}
             player.PingTag = unitid
             player.UltPct = 100
             POC_Player.new(player)
@@ -370,15 +370,15 @@ function POC_Player.new(inplayer)
     if inplayer.Lane ~= nil then
         skip_refresh = true
     else
-        inplayer.Lane = _this.Lanes[inplayer.UltGrp.GroupAbilityId]
+        inplayer.Lane = _this.Lanes[inplayer.Ult.GroupAbilityId]
         if inplayer.Lane == nil then
-            inplayer.Lane = 'MIA'
+            inplayer.Lane = _this.Lanes['MIA']
         end
     end
 
     -- Don't need these
     inplayer.PlayerName = nil
-    inplayer.UltGrp = nil
+    inplayer.Ult = nil
     for n,v in pairs(inplayer) do
         if self[n] == nil or self[n] ~= v then
             -- xxx(tostring(n) .. "=" .. tostring(v))
@@ -515,7 +515,6 @@ function _this.SetControlActive()
     local isHidden = not isVisible or CurrentHudHiddenState()
     _this.SetControlHidden(isHidden)
     POC_UltNumber.Hide(isHidden)
-    POC_UltimateSelectorControl:SetHidden(isHidden)
 
     if (isVisible) then
         if (registered) then
@@ -544,21 +543,21 @@ function _this.SetControlActive()
     end
 end
 
--- OnSetUltGrp called on header clicked
+-- OnSetUlt called on header clicked
 --
-function _this.OnSetUltGrp(ult, id)
+function _this.OnSetUlt(ult, id)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_Swimlanes.OnSetUltGrp")
+        _logger:logTrace("POC_Swimlanes.OnSetUlt")
         _logger:logDebug("group.GroupName, swimlaneId", group.GroupName, swimlaneId)
     end
 
-    CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, _this.OnSetUltGrp)
+    CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, _this.OnSetUlt)
 
 
     if ult ~= nil and id ~= nil then
-        POC_Settings.SetSwimlaneUltGrpIdSettings(id, ult)
+        POC_Settings.SetSwimlaneUltIdSettings(id, ult)
     else
-        _logger:logError("POC_Swimlanes.OnSetUltGrp: error ult " .. tostring(ult) .. " id " .. tostring(id))
+        _logger:logError("POC_Swimlanes.OnSetUlt: error ult " .. tostring(ult) .. " id " .. tostring(id))
     end
 end
 
@@ -592,7 +591,7 @@ function POC_Lane:Click()
     end
 
     if (self.Button ~= nil) then
-        CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, _this.OnSetUltGrp)
+        CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, _this.OnSetUlt)
         CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id)
     else
         _logger:logError("POC_Lane:Click, button nil")
@@ -606,8 +605,8 @@ function POC_Lane.new(lanes, i)
 
     self.Id = i
 
-    local gid = POC_Settings.SavedVariables.SwimlaneUltGrpIds[i]
-    local ult = POC_UltGrpHandler.GetUltGrpByAbilityId(gid)
+    local gid = POC_Settings.SavedVariables.SwimlaneUltIds[i]
+    local ult = POC_Ult.GetUltByAbilityId(gid)
 
     self.Control = widget:GetNamedChild("Swimlane" .. i)
 
