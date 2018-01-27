@@ -85,5 +85,16 @@ local function OnAddOnLoaded(eventCode, addOnName)
 	end
 end
 
+function POC.xxx(...)
+    local args = {...}
+    local accum = ''
+    local space = ''
+    for _,n in ipairs(args) do
+        accum = accum .. space .. tostring(n)
+        space = ' '
+    end
+    d(accum)
+end
+
 -- Register Loaded Callback
 EVENT_MANAGER:RegisterForEvent(POC.Name, EVENT_ADD_ON_LOADED, OnAddOnLoaded);
