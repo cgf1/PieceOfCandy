@@ -12,13 +12,14 @@ POC_STATIC_ULTIMATE_ID_CHANGED = "POC-StaticUltimateIDChanged"
 POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltIdChanged"
 POC_SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 POC_SET_ULTIMATE_GROUP = "POC-SetUlt"
+POC_SWIMLANE_COLMAX_CHANGED = "POC-Swimlane-ColMax"
 
 --[[
 	Local variables
 ]]--
 local MAJOR = "2"
-local MINOR = "0"
-local PATCH = "2"
+local MINOR = "1"
+local PATCH = "0"
 
 local ISMOCKED = false
 
