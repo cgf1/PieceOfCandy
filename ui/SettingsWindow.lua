@@ -75,12 +75,12 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
         getFunc = POC_Ult.GetSaved,
         setFunc = POC_Ult.SetSaved,
         maxColumns = 7,
-        visibleRows = 10,
+        visibleRows = 6,
         iconSize = 40
     }
     o[#o + 1] = {
         type = "divider",
-        reference = "DividerWeStand"
+        name = "DividerWeStand"
     }
     o[#o + 1] = {
         type = "dropdown",

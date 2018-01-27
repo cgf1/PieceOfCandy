@@ -89,7 +89,7 @@ function POC_Settings.SetSwimlaneUltIdSettings(swimlane, ultimateGroup)
         _logger:logDebug("ultimateGroup", ultimateGroup)
     end
 
-    POC_Settings.SavedVariables.SwimlaneUltIds[swimlane] = ultimateGroup.GroupAbilityId
+    POC_Settings.SavedVariables.SwimlaneUltIds[swimlane] = ultimateGroup.Gid
 
     CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, ultimateGroup)
 end
@@ -150,7 +150,6 @@ end
 ]]--
 function POC_Settings.POC_SetUltNumberShow(show)
     POC_Settings.SavedVariables.UltNumberShow = show
-    POC_UltNumber.Hide(not show)
 end
 
 --[[

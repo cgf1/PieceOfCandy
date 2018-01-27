@@ -33,13 +33,10 @@ local CATCH_LUA_ERRORS = false
 --[[
 	Table POC
 ]]--
-POC = {}
+POC = {
+    Name = "POC"
+}
 POC.__index = POC
-
---[[
-	Table Members
-]]--
-POC.Name = "POC"
 
 --[[
 	POC:initialize initializes addon

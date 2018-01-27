@@ -15,7 +15,7 @@ local bypings = {}
 	GetUltByAbilityPing gets the ultimate group from given ability ping
 ]]--
 function POC_Ult.GetUltByAbilityPing(pid)
-    if (LOG_ACTIVE) then 
+    if (LOG_ACTIVE) then
         _logger:logTrace("POC_Ult.GetUltByAbilityPing")
         _logger:logDebug("pid", pid)
     end
@@ -34,7 +34,7 @@ end
 	GetUltByAbilityId gets the ultimate group from given ability ID
 ]]--
 function POC_Ult.GetUltByAbilityId(aid)
-    if (LOG_ACTIVE) then 
+    if (LOG_ACTIVE) then
         _logger:logTrace("POC_Ult.GetUltByAbilityId")
         _logger:logDebug("aid", aid)
     end
@@ -53,7 +53,7 @@ end
 	GetUltByName gets the ultimate group from given group name
 ]]--
 function POC_Ult.GetUltByName(gname)
-    if (LOG_ACTIVE) then 
+    if (LOG_ACTIVE) then
         _logger:logTrace("POC_Ult.GetUltByName")
         _logger:logDebug("groupName", groupName)
     end
@@ -78,8 +78,28 @@ function POC_Ult.GetUlts()
     return POC_IdSort(bynames, "Id")
 end
 
+function POC_Ult.Icons()
+    local iconlist = {}
+    for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
+        if v.Gid ~= 'MIA' then
+            table.insert(iconlist, GetAbilityIcon(v.Gid))
+        end
+    end
+    return iconlist
+end
+
+function POC_Ult.Descriptions()
+    local desclist = {}
+    for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
+        if v.Gid ~= 'MIA' then
+            table.insert(desclist, v.GroupDescription)
+        end
+    end
+    return desclist
+end
+
 local function insert_group_table(to_table, from_table, from_key, i)
-    for k, v in pairs(from_table[from_key]) do
+    for _, v in ipairs(POC_IdSort(from_table[from_key], 'Gid', 1)) do
         i = i + 1
         v.Id = i
         _, _, name, class = string.find(v.GroupDescription, "^(.*) ultimates from (.+)")
@@ -90,30 +110,10 @@ local function insert_group_table(to_table, from_table, from_key, i)
             class = string.gsub(class, "Assoult", "Assault")
             v.GroupDescription = name .. " (" .. class .. ")"
         end
-        to_table[k] = v
+        to_table[v.GroupName] = v
     end
     from_table[from_key] = nil
     return i
-end
-
-function POC_Ult.Icons()
-    local iconlist = {}
-    for i, v in ipairs(POC_IdSort(bynames, 'Id')) do
-        if v.GroupAbilityId ~= 'MIA' then
-            table.insert(iconlist, GetAbilityIcon(v.GroupAbilityId))
-        end
-    end
-    return iconlist
-end
-
-function POC_Ult.Descriptions()
-    local desclist = {}
-    for i, v in ipairs(POC_IdSort(bynames, 'Id')) do
-        if v.GroupAbilityId ~= 'MIA' then
-            table.insert(desclist, v.GroupDescription)
-        end
-    end
-    return desclist
 end
 
 -- CreateUlts Creates Ults array
@@ -122,74 +122,82 @@ function POC_Ult.CreateUlts()
     if (LOG_ACTIVE) then _logger:logTrace("POC_Ult.CreateUlts") end
 
     local class = GetUnitClass("player")
+    local classes = {
+        [1] = "Sorceror",
+        [2] = "Templar",
+        [3] = "Dragonknight",
+        [4] = "Nightblade",
+        [5] = "Warden"
+    }
+
     local ults = {
         ["Sorceror"] = {
             ["NEGATE"] = {
                 GroupDescription = GetString(POC_DESCRIPTIONS_NEGATE),
                 GroupAbilityPing = 1,
-                GroupAbilityId = 29861
+                Gid = 29861
             },
 
 	    ["ATRO"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_ATRO),
 		GroupAbilityPing = 2,
-		GroupAbilityId = 30553
+		Gid = 30553
 	    },
 	    ["OVER"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_OVER),
 		GroupAbilityPing = 3,
-		GroupAbilityId = 30366
+		Gid = 30366
 	    },
         },
         ["Templar"] = {
 	    ["SWEEP"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_SWEEP),
 		GroupAbilityPing = 4,
-		GroupAbilityId = 23788
-	    },    
+		Gid = 23788
+	    },
 	    ["NOVA"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_NOVA),
 		GroupAbilityPing = 5,
-		GroupAbilityId = 24301
+		Gid = 24301
 	    },
 	    ["TPHEAL"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_TPHEAL),
 		GroupAbilityPing = 6,
-		GroupAbilityId = 27413
+		Gid = 27413
 	    },
         },
         ["Dragonknight"] = {
 	    ["STAND"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_STAND),
 		GroupAbilityPing = 7,
-		GroupAbilityId = 34021
+		Gid = 34021
 	    },
 	    ["LEAP"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_LEAP),
 		GroupAbilityPing = 8,
-		GroupAbilityId = 33668
+		Gid = 33668
 	    },
 	    ["MAGMA"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_MAGMA),
 		GroupAbilityPing = 9,
-		GroupAbilityId = 33841
+		Gid = 33841
 	    },
         },
         ["Nightblade"] = {
 	    ["STROKE"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_STROKE),
 		GroupAbilityPing = 10,
-		GroupAbilityId = 37545
+		Gid = 37545
 	    },
 	    ["VEIL"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_VEIL),
 		GroupAbilityPing = 11,
-		GroupAbilityId = 37713
+		Gid = 37713
 	    },
 	    ["NBSOUL"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_NBSOUL),
 		GroupAbilityPing = 12,
-		GroupAbilityId = 36207
+		Gid = 36207
 	    },
         },
         ["Warden"] = {
@@ -197,12 +205,12 @@ function POC_Ult.CreateUlts()
 	    ["FREEZE"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_FREEZE),
 		GroupAbilityPing = 13,
-		GroupAbilityId = 86112
+		Gid = 86112
 	    },
 	    ["WDHEAL"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_WDHEAL),
 		GroupAbilityPing = 14,
-		GroupAbilityId = 93971
+		Gid = 93971
 	    },
         },
         ["WEAPON"] = {
@@ -210,47 +218,47 @@ function POC_Ult.CreateUlts()
 	    ["ICE"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_ICE),
 		GroupAbilityPing = 15,
-		GroupAbilityId = 86542
+		Gid = 86542
 	    },
 	    ["FIRE"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_FIRE),
 		GroupAbilityPing = 16,
-		GroupAbilityId = 86536
+		Gid = 86536
 	    },
 	    ["LIGHT"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_LIGHT),
 		GroupAbilityPing = 17,
-		GroupAbilityId = 86550
+		Gid = 86550
 	    },
             -- Resto
 	    ["STHEAL"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_STHEAL),
 		GroupAbilityPing = 18,
-		GroupAbilityId = 86454
+		Gid = 86454
 	    },
             -- 2H
 	    ["BERSERK"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_BERSERK),
 		GroupAbilityPing = 19,
-		GroupAbilityId = 86284
+		Gid = 86284
 	    },
             -- SB
 	    ["SHIELD"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_SHIELD),
 		GroupAbilityPing = 20,
-		GroupAbilityId = 83292
+		Gid = 83292
 	    },
             -- DW
 	    ["DUAL"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_DUAL),
 		GroupAbilityPing = 21,
-		GroupAbilityId = 86410
+		Gid = 86410
 	    },
             -- BOW
 	    ["BOW"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_BOW),
 		GroupAbilityPing = 22,
-		GroupAbilityId = 86620
+		Gid = 86620
 	    },
         },
         ["WORLD"] = {
@@ -258,19 +266,19 @@ function POC_Ult.CreateUlts()
 	    ["SOUL"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_SOUL),
 		GroupAbilityPing = 23,
-		GroupAbilityId = 43109
+		Gid = 43109
 	    },
             -- Werewolf
 	    ["WERE"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_WERE),
 		GroupAbilityPing = 24,
-		GroupAbilityId = 42379
+		Gid = 42379
 	    },
             -- Vamp
 	    ["VAMP"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_VAMP),
 		GroupAbilityPing = 25,
-		GroupAbilityId = 41937
+		Gid = 41937
 	    },
         },
         ["GUILD"] = {
@@ -278,32 +286,32 @@ function POC_Ult.CreateUlts()
 	    ["METEOR"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_METEOR),
 		GroupAbilityPing = 26,
-		GroupAbilityId = 42492
+		Gid = 42492
 	    },
             -- Fighterguild
 	    ["DAWN"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_DAWN),
 		GroupAbilityPing = 27,
-		GroupAbilityId = 42598
+		Gid = 42598
 	    },
             -- Support
 	    ["BARRIER"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_BARRIER),
 		GroupAbilityPing = 28,
-		GroupAbilityId = 46622
+		Gid = 46622
 	    },
             -- Assault
 	    ["HORN"] = {
 		GroupDescription = GetString(POC_DESCRIPTIONS_HORN),
 		GroupAbilityPing = 29,
-		GroupAbilityId = 46537
+		Gid = 46537
 	    }
         },
         ["POC"] = {
             ['MIA'] = {
                 GroupDescription = "Incommunicado players",
                 GroupAbilityPing = 30,  -- a contradiction?
-                GroupAbilityId = 'MIA' 
+                Gid = 'MIA'
             }
         }
 
@@ -312,7 +320,7 @@ function POC_Ult.CreateUlts()
     for _, x in pairs(ults) do
         for name, group in pairs(x) do
             group.GroupName = name
-            byids[group.GroupAbilityId] = group
+            byids[group.Gid] = group
             bypings[group.GroupAbilityPing] = group
         end
     end
@@ -320,15 +328,17 @@ function POC_Ult.CreateUlts()
     i = insert_group_table(bynames, ults, class, i)
     if POC_Settings.SavedVariables.MyUltId[ultix] == nil then
         for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-            POC_Settings.SetStaticUltimateIDSettings(v.GroupAbilityId)
+            POC_Settings.SetStaticUltimateIDSettings(v.Gid)
             break
         end
     end
     i = insert_group_table(bynames, ults, "WEAPON", i)
     i = insert_group_table(bynames, ults, "GUILD", i)
     i = insert_group_table(bynames, ults, "WORLD", i)
-    for notmyclass, _ in pairs(ults) do
-        i = insert_group_table(bynames, ults, notmyclass, i)
+    for _, class in pairs(classes) do
+        if ults[class] ~= null then
+            i = insert_group_table(bynames, ults, class, i)
+        end
     end
 end
 

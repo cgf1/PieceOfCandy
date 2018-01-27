@@ -44,7 +44,7 @@ function POC_CommandsHandler.SetUltimateIdCommand(groupName)
         local ultimateGroup = POC_Ult.GetUltByName(groupName)
 
         if (ultimateGroup ~= nil) then
-            POC_Settings.SetStaticUltimateIDSettings(ultimateGroup.GroupAbilityId)
+            POC_Settings.SetStaticUltimateIDSettings(ultimateGroup.Gid)
         else
             d("Invalid group name: " .. tostring(groupName))
         end

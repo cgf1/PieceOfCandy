@@ -97,7 +97,7 @@ end
 function POC_Communicator.SendData(abilityGroup)
     if (abilityGroup ~= nil) then
         local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
-        local abilityCost = math.max(1, GetAbilityCost(abilityGroup.GroupAbilityId))
+        local abilityCost = math.max(1, GetAbilityCost(abilityGroup.Gid))
 
         -- Mocked
         if (POC_Communicator.IsMocked) then

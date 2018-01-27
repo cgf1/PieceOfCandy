@@ -19,7 +19,7 @@
         <Label
             name="SwimlaneListLabel"
             width="90"
-            height="20"
+            height="16"
             font="SwimlaneListFont"
             inheritAlpha="true"
             color="FFFFFF"
@@ -50,7 +50,7 @@
 
     <Label 	name="UltLabel"
 				    width="200"
-				    height="20"
+				    height="16"
 				    font="UltFont"
 				    inheritAlpha="true"
 				    color="FFFFFF"
@@ -59,20 +59,10 @@
 				    text="Label"
 				    virtual="true"/>
 
-    <Label 	name="UltShortLabel"
-				    width="100"
-				    height="20"
-				    font="UltFont"
-				    inheritAlpha="true"
-				    color="FFFFFF"
-				    verticalAlignment="TEXT_ALIGN_TOP"
-				    horizontalAlignment="TEXT_ALIGN_LEFT"
-				    text="Label"
-				    virtual="true"/>
     
     <Label 	name="CompactSwimlaneListLabel"
 				    width="90"
-				    height="20"
+				    height="16"
 				    font="CompactSwimlaneListFont"
 				    inheritAlpha="true"
 				    color="FFFFFF"
@@ -134,7 +124,7 @@
             </Texture>
           </Controls>
         </Control>
-        <Label name="$(parent)UltimateLabel" inherits="SwimlaneListHeaderLabel" text="NEGATE">
+        <Label name="$(parent)UltLabel" inherits="SwimlaneListHeaderLabel" text="NEGATE">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="28" offsetY="3"/>
 				</Label>
       </Controls>
@@ -146,21 +136,6 @@
         <Control name="$(parent)Header" inherits="UltSwimlaneHeader">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
         </Control>
-      </Controls>
-    </Control>
-
-    <Control name="UltSimpleListRow" virtual="true">
-      <Dimensions y="20" />
-      <Controls>
-        <Label name="$(parent)SenderNameValueLabel" inherits="UltLabel" text="-">
-          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0"/>
-        </Label>
-        <Label name="$(parent)UltimateValueLabel" inherits="UltLabel" text="-">
-          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="200"/>
-        </Label>
-        <Label name="$(parent)ReadyValueLabel" inherits="UltShortLabel" text="0">
-          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="400"/>
-        </Label>
       </Controls>
     </Control>
 

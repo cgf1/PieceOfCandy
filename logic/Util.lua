@@ -1,17 +1,24 @@
-function POC_IdSort(hash, key)
-    local ret = {}
-    local last
-    -- Assumes one and only one non-numeric, i.e. "MIA"
-    for n, v in pairs(hash) do
-        local x = tonumber(v[key])
-        if x == nil then
-            last = v
-        else
-            ret[x] = v
+function POC_IdSort(hash, key, debug)
+    local function compare(a, b)
+        print(tostring(a))
+        local na = tonumber(a[key])
+        local nb = tonumber(b[key])
+        if na == nil and nb == nil then
+            return a < b
         end
+        if na == nil then
+            return false
+        end
+        if nb == nil then
+            return true
+        end
+        return  a[key] < b[key]
     end
-    if last ~= nil then
-        table.insert(ret, last)
+    local ret = {}
+    for _,v in pairs(hash) do
+        table.insert(ret, v)
     end
+
+    table.sort(ret, compare)
     return ret
 end

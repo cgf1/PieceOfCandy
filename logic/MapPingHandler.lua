@@ -19,6 +19,7 @@ POC_MapPingHandler.Name = "POC-MapPingHandler"
 POC_MapPingHandler.IsMocked = false
 
 local ultix = GetUnitName("player")
+local notify_when_not_grouped = false
 
 --[[
 	Called on new data from LibGroupSocket
@@ -45,8 +46,8 @@ function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
         player.PlayerName = playerName
         player.IsPlayerDead = isPlayerDead
         player.Ult = ultimateGroup
-        player.UltimateName = GetAbilityName(ultimateGroup.GroupAbilityId)
-        player.UltimateIcon = GetAbilityIcon(ultimateGroup.GroupAbilityId)
+        player.UltimateName = GetAbilityName(ultimateGroup.Gid)
+        player.UltimateIcon = GetAbilityIcon(ultimateGroup.Gid)
         player.UltPct = ultpct
         -- d(playerName .. " " .. tostring(ultpct))
 
@@ -64,15 +65,21 @@ function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
     end
 end
 
---[[
-	Called on refresh of timer
-]]--
+-- Called on refresh of timer
+--
 function POC_MapPingHandler.OnTimedUpdate(eventCode)
     if (LOG_ACTIVE) then _logger:logTrace("POC_MapPingHandler.OnTimedUpdate") end
 
     if (not IsUnitGrouped("player") and not POC_MapPingHandler.IsMocked) then
+        if notify_when_not_grouped then
+            notify_when_not_grouped = false
+            CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_GROUP_CHANGED, "left")
+        end
         return
-    end -- only if player is in group and system is not mocked
+    end
+
+    -- only if player is in group and system is not mocked
+    notify_when_not_grouped = true
 
     local abilityGroup = POC_Ult.GetUltByAbilityId(POC_Settings.SavedVariables.MyUltId[ultix])
 
