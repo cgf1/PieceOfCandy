@@ -46,6 +46,7 @@ function POC:initialize()
     local logger = POCDebugLogger(LOG_NAME, LOG_COMMAND, TRACE_ACTIVE, DEBUG_ACTIVE, ERROR_ACTIVE, DIRECT_PRINT, CATCH_LUA_ERRORS)
     logger:logTrace("POC:initialize")
     d("Piece of Candy!")
+    SLASH_COMMANDS["/rrr"] = function () ReloadUI() end
 
     -- Initialize settings
     POC_Settings.Initialize(logger)
