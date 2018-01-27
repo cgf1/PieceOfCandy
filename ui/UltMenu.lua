@@ -10,8 +10,8 @@ POC_UltMenu.__index = POC_UltMenu
 --
 function POC_UltMenu.SetUlt(group, arg)
     if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_UltMenu.SetultimateGroup")
-        _logger:logDebug("group.GroupName, arg", group.GroupName, arg)
+        _logger:logTrace("POC_UltMenu.Setult")
+        _logger:logDebug("group.Name, arg", group.Name, arg)
     end
 
     CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, group, arg)
@@ -28,10 +28,10 @@ function POC_UltMenu.ShowUltMenu(control, arg)
     if (control ~= nil) then
         ClearMenu()
 
-        local ultimateGroups = POC_Ult.GetUlts()
+        local ults = POC_Ult.GetUlts()
 
-        for i, group in ipairs(ultimateGroups) do
-            AddMenuItem(group.GroupDescription, function() POC_UltMenu.SetUlt(group, arg) end)
+        for i, group in ipairs(ults) do
+            AddMenuItem(group.Desc, function() POC_UltMenu.SetUlt(group, arg) end)
         end
 
         ShowMenu(control)

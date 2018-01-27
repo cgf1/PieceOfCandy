@@ -105,6 +105,15 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
         default = 24,
     }
     o[#o + 1] = {
+        type = "slider",
+        name = "Max number of swimlanes to display",
+        min = 1, max = 6, step = 1,
+        getFunc = function() return POC_Settings.SavedVariables.SwimlaneMaxCols end,
+        width = "full",
+        setFunc = function(value) POC_Settings.POC_SetSwimlaneMaxCols(value) end,
+        default = 6,
+    }
+    o[#o + 1] = {
         type = "checkbox",
         name = GetString(POC_OPTIONS_ULTIMATE_NUMBER),
         tooltip = GetString(POC_OPTIONS_ULTIMATE_NUMBER_TOOLTIP),

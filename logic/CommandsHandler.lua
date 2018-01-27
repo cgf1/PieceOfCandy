@@ -41,10 +41,10 @@ function POC_CommandsHandler.SetUltimateIdCommand(groupName)
     end
 
     if (groupName ~= nil and groupName ~= "") then
-        local ultimateGroup = POC_Ult.GetUltByName(groupName)
+        local ult = POC_Ult.ByName(groupName)
 
-        if (ultimateGroup ~= nil) then
-            POC_Settings.SetStaticUltimateIDSettings(ultimateGroup.Gid)
+        if (ult ~= nil) then
+            POC_Settings.SetStaticUltimateIDSettings(ult.Gid)
         else
             d("Invalid group name: " .. tostring(groupName))
         end
@@ -76,10 +76,10 @@ function POC_CommandsHandler.SetSwimlaneIdCommand(option)
     if (arrayLength == 2) then
         local swimlane = tonumber(options[1])
         local swimlaneGroup = options[2]
-        local ultimateGroup = POC_Ult.GetUltByName(swimlaneGroup)
+        local ult = POC_Ult.ByName(swimlaneGroup)
 
-        if (swimlane ~= nil and ultimateGroup ~= nil and swimlane >= 1 and swimlane <= 6) then
-            POC_Settings.SetSwimlaneUltIdSettings(swimlane, ultimateGroup)
+        if (swimlane ~= nil and ult ~= nil and swimlane >= 1 and swimlane <= 6) then
+            POC_Settings.SetSwimlaneUltId(swimlane, ult)
         else
             d("Invalid options: " .. tostring(option))
         end
@@ -99,7 +99,7 @@ function POC_CommandsHandler.GetUltsCommand()
     d("Ultimate Groups:")
 
     for i, group in ipairs(ultimate) do
-        d(group.GroupName .. " - " .. group.GroupDescription)
+        d(group.Name .. " - " .. group.Desc)
     end
 end
 

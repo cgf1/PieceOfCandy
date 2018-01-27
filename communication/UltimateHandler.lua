@@ -20,7 +20,7 @@ local resources = handler.resources
 local sendFullUpdate = true
 local needFullUpdate = true
 local ultimateCost = 0
-local ultimateGroupId = 0
+local ultId = 0
 local lastSendTime = 0
 local defaultData = {
     version = 1,
@@ -54,7 +54,7 @@ function handler:SetUltimateCost(cost)
 end
 
 function handler:SetUltId(groupId)
-    ultimateGroupId = groupId
+    ultId = groupId
 end
 
 local function OnData(unitTag, data, isSelf)
@@ -118,7 +118,7 @@ function handler:Send()
     local ultimate, ultimateCurrent, ultimateMaximum = GetPowerValues(unitResources, POWERTYPE_ULTIMATE)
 	ultimateCurrent = zo_min(ultimateCurrent, ultimateMaximum)
 
-    sendFullUpdate = sendFullUpdate or ultimate.cost ~= ultimateCost or ultimate.groupId ~= ultimateGroupId
+    sendFullUpdate = sendFullUpdate or ultimate.cost ~= ultimateCost or ultimate.groupId ~= ultId
     if(ultimate.current ~= ultimateCurrent or sendFullUpdate) then
 
         local data = {}
@@ -129,7 +129,7 @@ function handler:Send()
         index = LGS:WriteUint8(data, index, ultimateCurrent)
 		if sendFullUpdate then
 			index = LGS:WriteUint8(data, index, ultimateCost)
-            index = LGS:WriteUint8(data, index, ultimateGroupId)
+            index = LGS:WriteUint8(data, index, ultId)
 		end
 
 		--	Log("Send %d byte: is full: %s, needs full: %s, ultimate: %s, cost: %s", #data, tostring(sendFullUpdate), tostring(needFullUpdate), tostring(ultimateCurrent), tostring(ultimateCost))
@@ -139,7 +139,7 @@ function handler:Send()
             ultimate.current = ultimateCurrent
 			if sendFullUpdate then
 				ultimate.cost = ultimateCost
-                ultimate.groupId = ultimateGroupId
+                ultimate.groupId = ultId
 			end
             sendFullUpdate = false
             needFullUpdate = false

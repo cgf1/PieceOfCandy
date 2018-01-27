@@ -12,11 +12,11 @@ local byids = {}
 local bypings = {}
 
 --[[
-	GetUltByAbilityPing gets the ultimate group from given ability ping
+	ByPing gets the ultimate group from given ability ping
 ]]--
-function POC_Ult.GetUltByAbilityPing(pid)
+function POC_Ult.ByPing(pid)
     if (LOG_ACTIVE) then
-        _logger:logTrace("POC_Ult.GetUltByAbilityPing")
+        _logger:logTrace("POC_Ult.ByPing")
         _logger:logDebug("pid", pid)
     end
 
@@ -31,11 +31,11 @@ function POC_Ult.GetUltByAbilityPing(pid)
 end
 
 --[[
-	GetUltByAbilityId gets the ultimate group from given ability ID
+	ById gets the ultimate group from given ability ID
 ]]--
-function POC_Ult.GetUltByAbilityId(aid)
+function POC_Ult.ById(aid)
     if (LOG_ACTIVE) then
-        _logger:logTrace("POC_Ult.GetUltByAbilityId")
+        _logger:logTrace("POC_Ult.ById")
         _logger:logDebug("aid", aid)
     end
 
@@ -50,11 +50,11 @@ function POC_Ult.GetUltByAbilityId(aid)
 end
 
 --[[
-	GetUltByName gets the ultimate group from given group name
+	ByName gets the ultimate group from given group name
 ]]--
-function POC_Ult.GetUltByName(gname)
+function POC_Ult.ByName(gname)
     if (LOG_ACTIVE) then
-        _logger:logTrace("POC_Ult.GetUltByName")
+        _logger:logTrace("POC_Ult.ByName")
         _logger:logDebug("groupName", groupName)
     end
 
@@ -63,7 +63,7 @@ function POC_Ult.GetUltByName(gname)
     end
 
     -- not found
-    _logger:logError("GroupName not found " .. tostring(gname))
+    _logger:logError("Name not found " .. tostring(gname))
 
     return nil
 end
@@ -92,7 +92,7 @@ function POC_Ult.Descriptions()
     local desclist = {}
     for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
         if v.Gid ~= 'MIA' then
-            table.insert(desclist, v.GroupDescription)
+            table.insert(desclist, v.Desc)
         end
     end
     return desclist
@@ -102,23 +102,23 @@ local function insert_group_table(to_table, from_table, from_key, i)
     for _, v in ipairs(POC_IdSort(from_table[from_key], 'Gid', 1)) do
         i = i + 1
         v.Id = i
-        _, _, name, class = string.find(v.GroupDescription, "^(.*) ultimates from (.+)")
+        _, _, name, class = string.find(v.Desc, "^(.*) ultimates from (.+)")
         if name ~= nil then
             class = string.gsub(class, " class$", "")
             class = string.gsub(class, " weapons?$", "")
             class = string.gsub(class, " lines?", "s")
             class = string.gsub(class, "Assoult", "Assault")
-            v.GroupDescription = name .. " (" .. class .. ")"
+            v.Desc = name .. " (" .. class .. ")"
         end
-        to_table[v.GroupName] = v
+        to_table[v.Name] = v
     end
     from_table[from_key] = nil
     return i
 end
 
--- CreateUlts Creates Ults array
+-- Create Ults array
 --
-function POC_Ult.CreateUlts()
+local function create_ults()
     if (LOG_ACTIVE) then _logger:logTrace("POC_Ult.CreateUlts") end
 
     local class = GetUnitClass("player")
@@ -133,184 +133,184 @@ function POC_Ult.CreateUlts()
     local ults = {
         ["Sorceror"] = {
             ["NEGATE"] = {
-                GroupDescription = GetString(POC_DESCRIPTIONS_NEGATE),
-                GroupAbilityPing = 1,
+                Desc = GetString(POC_DESCRIPTIONS_NEGATE),
+                Ping = 1,
                 Gid = 29861
             },
 
 	    ["ATRO"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_ATRO),
-		GroupAbilityPing = 2,
+		Desc = GetString(POC_DESCRIPTIONS_ATRO),
+		Ping = 2,
 		Gid = 30553
 	    },
 	    ["OVER"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_OVER),
-		GroupAbilityPing = 3,
+		Desc = GetString(POC_DESCRIPTIONS_OVER),
+		Ping = 3,
 		Gid = 30366
 	    },
         },
         ["Templar"] = {
 	    ["SWEEP"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_SWEEP),
-		GroupAbilityPing = 4,
+		Desc = GetString(POC_DESCRIPTIONS_SWEEP),
+		Ping = 4,
 		Gid = 23788
 	    },
 	    ["NOVA"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_NOVA),
-		GroupAbilityPing = 5,
+		Desc = GetString(POC_DESCRIPTIONS_NOVA),
+		Ping = 5,
 		Gid = 24301
 	    },
 	    ["TPHEAL"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_TPHEAL),
-		GroupAbilityPing = 6,
+		Desc = GetString(POC_DESCRIPTIONS_TPHEAL),
+		Ping = 6,
 		Gid = 27413
 	    },
         },
         ["Dragonknight"] = {
 	    ["STAND"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_STAND),
-		GroupAbilityPing = 7,
+		Desc = GetString(POC_DESCRIPTIONS_STAND),
+		Ping = 7,
 		Gid = 34021
 	    },
 	    ["LEAP"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_LEAP),
-		GroupAbilityPing = 8,
+		Desc = GetString(POC_DESCRIPTIONS_LEAP),
+		Ping = 8,
 		Gid = 33668
 	    },
 	    ["MAGMA"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_MAGMA),
-		GroupAbilityPing = 9,
+		Desc = GetString(POC_DESCRIPTIONS_MAGMA),
+		Ping = 9,
 		Gid = 33841
 	    },
         },
         ["Nightblade"] = {
 	    ["STROKE"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_STROKE),
-		GroupAbilityPing = 10,
+		Desc = GetString(POC_DESCRIPTIONS_STROKE),
+		Ping = 10,
 		Gid = 37545
 	    },
 	    ["VEIL"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_VEIL),
-		GroupAbilityPing = 11,
+		Desc = GetString(POC_DESCRIPTIONS_VEIL),
+		Ping = 11,
 		Gid = 37713
 	    },
 	    ["NBSOUL"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_NBSOUL),
-		GroupAbilityPing = 12,
+		Desc = GetString(POC_DESCRIPTIONS_NBSOUL),
+		Ping = 12,
 		Gid = 36207
 	    },
         },
         ["Warden"] = {
             -- BEAR not useful, its always up
 	    ["FREEZE"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_FREEZE),
-		GroupAbilityPing = 13,
+		Desc = GetString(POC_DESCRIPTIONS_FREEZE),
+		Ping = 13,
 		Gid = 86112
 	    },
 	    ["WDHEAL"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_WDHEAL),
-		GroupAbilityPing = 14,
+		Desc = GetString(POC_DESCRIPTIONS_WDHEAL),
+		Ping = 14,
 		Gid = 93971
 	    },
         },
         ["WEAPON"] = {
             -- Destro
 	    ["ICE"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_ICE),
-		GroupAbilityPing = 15,
+		Desc = GetString(POC_DESCRIPTIONS_ICE),
+		Ping = 15,
 		Gid = 86542
 	    },
 	    ["FIRE"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_FIRE),
-		GroupAbilityPing = 16,
+		Desc = GetString(POC_DESCRIPTIONS_FIRE),
+		Ping = 16,
 		Gid = 86536
 	    },
 	    ["LIGHT"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_LIGHT),
-		GroupAbilityPing = 17,
+		Desc = GetString(POC_DESCRIPTIONS_LIGHT),
+		Ping = 17,
 		Gid = 86550
 	    },
             -- Resto
 	    ["STHEAL"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_STHEAL),
-		GroupAbilityPing = 18,
+		Desc = GetString(POC_DESCRIPTIONS_STHEAL),
+		Ping = 18,
 		Gid = 86454
 	    },
             -- 2H
 	    ["BERSERK"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_BERSERK),
-		GroupAbilityPing = 19,
+		Desc = GetString(POC_DESCRIPTIONS_BERSERK),
+		Ping = 19,
 		Gid = 86284
 	    },
             -- SB
 	    ["SHIELD"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_SHIELD),
-		GroupAbilityPing = 20,
+		Desc = GetString(POC_DESCRIPTIONS_SHIELD),
+		Ping = 20,
 		Gid = 83292
 	    },
             -- DW
 	    ["DUAL"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_DUAL),
-		GroupAbilityPing = 21,
+		Desc = GetString(POC_DESCRIPTIONS_DUAL),
+		Ping = 21,
 		Gid = 86410
 	    },
             -- BOW
 	    ["BOW"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_BOW),
-		GroupAbilityPing = 22,
+		Desc = GetString(POC_DESCRIPTIONS_BOW),
+		Ping = 22,
 		Gid = 86620
 	    },
         },
         ["WORLD"] = {
             -- Soul
 	    ["SOUL"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_SOUL),
-		GroupAbilityPing = 23,
+		Desc = GetString(POC_DESCRIPTIONS_SOUL),
+		Ping = 23,
 		Gid = 43109
 	    },
             -- Werewolf
 	    ["WERE"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_WERE),
-		GroupAbilityPing = 24,
+		Desc = GetString(POC_DESCRIPTIONS_WERE),
+		Ping = 24,
 		Gid = 42379
 	    },
             -- Vamp
 	    ["VAMP"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_VAMP),
-		GroupAbilityPing = 25,
+		Desc = GetString(POC_DESCRIPTIONS_VAMP),
+		Ping = 25,
 		Gid = 41937
 	    },
         },
         ["GUILD"] = {
             -- Mageguild
 	    ["METEOR"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_METEOR),
-		GroupAbilityPing = 26,
+		Desc = GetString(POC_DESCRIPTIONS_METEOR),
+		Ping = 26,
 		Gid = 42492
 	    },
             -- Fighterguild
 	    ["DAWN"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_DAWN),
-		GroupAbilityPing = 27,
+		Desc = GetString(POC_DESCRIPTIONS_DAWN),
+		Ping = 27,
 		Gid = 42598
 	    },
             -- Support
 	    ["BARRIER"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_BARRIER),
-		GroupAbilityPing = 28,
+		Desc = GetString(POC_DESCRIPTIONS_BARRIER),
+		Ping = 28,
 		Gid = 46622
 	    },
             -- Assault
 	    ["HORN"] = {
-		GroupDescription = GetString(POC_DESCRIPTIONS_HORN),
-		GroupAbilityPing = 29,
+		Desc = GetString(POC_DESCRIPTIONS_HORN),
+		Ping = 29,
 		Gid = 46537
 	    }
         },
         ["POC"] = {
             ['MIA'] = {
-                GroupDescription = "Incommunicado players",
-                GroupAbilityPing = 30,  -- a contradiction?
+                Desc = "Incommunicado players",
+                Ping = 30,  -- a contradiction?
                 Gid = 'MIA'
             }
         }
@@ -319,9 +319,9 @@ function POC_Ult.CreateUlts()
     -- Add groups
     for _, x in pairs(ults) do
         for name, group in pairs(x) do
-            group.GroupName = name
+            group.Name = name
             byids[group.Gid] = group
-            bypings[group.GroupAbilityPing] = group
+            bypings[group.Ping] = group
         end
     end
     local i = 0
@@ -370,5 +370,5 @@ function POC_Ult.Initialize(logger)
 
     _logger = logger
 
-    POC_Ult.CreateUlts()
+    create_ults()
 end

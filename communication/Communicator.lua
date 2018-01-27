@@ -25,10 +25,10 @@ __index = POC_Communicator
 
 -- Called on data from LGS
 --
-function POC_Communicator.OnUltimateReceived(unitTag, ultimateCurrent, ultimateCost, ultimateGroupId, isSelf)
+function POC_Communicator.OnUltimateReceived(unitTag, ultimateCurrent, ultimateCost, ultId, isSelf)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_Communicator.OnUltimateReceived")
-        _logger:logDebug("unitTag; ultimateCurrent; ultimateCost; ultimateGroupId", unitTag, ultimateCurrent, ultimateCost, ultimateGroupId)
+        _logger:logDebug("unitTag; ultimateCurrent; ultimateCost; ultId", unitTag, ultimateCurrent, ultimateCost, ultId)
     end
 
     local ultpct = math.floor((ultimateCurrent / ultimateCost) * 100)
@@ -37,7 +37,7 @@ function POC_Communicator.OnUltimateReceived(unitTag, ultimateCurrent, ultimateC
         ultpct = 124
     end
 
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, unitTag, ultimateGroupId, ultpct)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, unitTag, ultId, ultpct)
 end
 
 --[[
@@ -106,7 +106,7 @@ function POC_Communicator.SendData(abilityGroup)
         elseif (POC_Communicator.IsLgsActive) then
             if (_ultimateHandler ~= nil) then
                 _ultimateHandler:SetUltimateCost(abilityCost)
-                _ultimateHandler:SetUltId(abilityGroup.GroupAbilityPing)
+                _ultimateHandler:SetUltId(abilityGroup.Ping)
 				_ultimateHandler:Refresh()
             else
                 _logger:logError("POC_Communicator.SendData, _ultimateHandler is nil")
@@ -124,7 +124,7 @@ function POC_Communicator.SendData(abilityGroup)
                 ultpct = 100
             end
 
-            local abilityPing = abilityGroup.GroupAbilityPing / ABILITY_COEFFICIENT
+            local abilityPing = abilityGroup.Ping / ABILITY_COEFFICIENT
 
             if (ultpct > 0) then
                 ultimatePing = ultpct / ULTIMATE_COEFFICIENT
@@ -133,7 +133,7 @@ function POC_Communicator.SendData(abilityGroup)
             end
 
             if (LOG_ACTIVE) then 
-		        --_logger:logDebug("abilityGroup.GroupName", abilityGroup.GroupName)
+		        --_logger:logDebug("abilityGroup.Name", abilityGroup.Name)
                 --_logger:logDebug("ultpct", ultpct)
                 --_logger:logDebug("abilityPing", abilityPing)
                 --_logger:logDebug("ultimatePing", ultimatePing)
@@ -218,33 +218,33 @@ end
 function POC_Communicator.SendFakePings()
     if (LOG_ACTIVE) then  _logger:logTrace("POC_Communicator.SendFakePings") end
 
-    local ultimateGroups = POC_Ult.GetUlts()
+    local ults = POC_Ult.GetUlts()
 
     -- Directly send to test only UI
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group1", ultimateGroups[1].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group2", ultimateGroups[1].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group3", ultimateGroups[1].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group4", ultimateGroups[1].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group5", ultimateGroups[1].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group6", ultimateGroups[6].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group7", ultimateGroups[6].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group8", ultimateGroups[6].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group9", ultimateGroups[6].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group10", ultimateGroups[6].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group11", ultimateGroups[1].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group12", ultimateGroups[6].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group13", ultimateGroups[16].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group14", ultimateGroups[16].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group15", ultimateGroups[16].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group16", ultimateGroups[16].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group17", ultimateGroups[16].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group18", ultimateGroups[16].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group19", ultimateGroups[13].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group20", ultimateGroups[13].GroupAbilityPing, 100)
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group21", ultimateGroups[13].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group22", ultimateGroups[13].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group23", ultimateGroups[13].GroupAbilityPing, math.random(90, 100))
-    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group24", ultimateGroups[13].GroupAbilityPing, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group1", ults[1].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group2", ults[1].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group3", ults[1].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group4", ults[1].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group5", ults[1].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group6", ults[6].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group7", ults[6].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group8", ults[6].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group9", ults[6].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group10", ults[6].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group11", ults[1].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group12", ults[6].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group13", ults[16].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group14", ults[16].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group15", ults[16].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group16", ults[16].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group17", ults[16].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group18", ults[16].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group19", ults[13].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group20", ults[13].Ping, 100)
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group21", ults[13].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group22", ults[13].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group23", ults[13].Ping, math.random(90, 100))
+    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, "group24", ults[13].Ping, math.random(90, 100))
 end
 
 --[[
