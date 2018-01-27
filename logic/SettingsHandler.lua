@@ -28,6 +28,7 @@ POC_Settings.Default =
     ["IsLgsActive"] = false,
     ["IsSortingActive"] = true,
     ["SwimlaneMax"] = 24,
+    ["SwimlaneMaxCols"] = 6,
     ["UltNumberShow"] = true,
     ["UltNumberPos"] = nil,
     ["WereNumberOne"] = true,
@@ -42,7 +43,7 @@ POC_Settings.Default =
         [4] = 86112,
         [5] = 46537,
         [6] = 46622,
-        ['MIA'] = 'MIA',
+        [7] = 'MIA',
     },
 }
 
@@ -82,16 +83,16 @@ end
 --[[
 	Sets MovableSettings and fires POC-MovableChanged callbacks
 ]]--
-function POC_Settings.SetSwimlaneUltIdSettings(swimlane, ultimateGroup)
+function POC_Settings.SetSwimlaneUltId(swimlane, ult)
     if (LOG_ACTIVE) then 
         _logger:logTrace("POC_Settings.StaticUltimateIDSettings")
         _logger:logDebug("swimlane", swimlane)
-        _logger:logDebug("ultimateGroup", ultimateGroup)
+        _logger:logDebug("ult", ult)
     end
 
-    POC_Settings.SavedVariables.SwimlaneUltIds[swimlane] = ultimateGroup.Gid
+    POC_Settings.SavedVariables.SwimlaneUltIds[swimlane] = ult.Gid
 
-    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, ultimateGroup)
+    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, ult)
 end
 
 --[[
@@ -134,15 +135,17 @@ function POC_Settings.SetIsLgsActiveSettings(isLgsActive)
     POC_Settings.SavedVariables.IsLgsActive = isLgsActive
 end
 
---[[
-        Sets Swimlane max value
-]]--
+-- Sets maximum number of cells in a swimlane
+--
 function POC_Settings.POC_SetSwimlaneMax(max)
-    if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_Settings.POC_SetSwimlaneMax")
-        _logger:logDebug("SwimlaneMax", max)
-    end
     POC_Settings.SavedVariables.SwimlaneMax = max
+end
+
+-- Sets maximum number of swimlanes
+--
+function POC_Settings.POC_SetSwimlaneMaxCols(max)
+    POC_Settings.SavedVariables.SwimlaneMaxCols = max
+    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_COLMAX_CHANGED)
 end
 
 --[[
@@ -220,8 +223,8 @@ function POC_Settings.Initialize(logger)
     POC_Settings.SavedVariables = ZO_SavedVars:NewAccountWide(POC_Settings.SettingsName, SETTINGS_VERSION, nil, POC_Settings.Default)
     POC_Settings.SavedVariables.SwimlaneUltimateGroupIds = nil
     POC_Settings.SavedVariables.StaticUltimateID = nil
-    POC_Settings.SavedVariables.SwimlaneUltIds.MIA = 'MIA'
     POC_Settings.SavedVariables.SwimlaneUltGrpIds = nil
+    POC_Settings.SavedVariables.SwimlaneUltIds[7] = 'MIA'
 
     -- Register
     EVENT_MANAGER:RegisterForEvent(POC_Settings.Name, EVENT_PLAYER_ACTIVATED, POC_Settings.OnPlayerActivated)
