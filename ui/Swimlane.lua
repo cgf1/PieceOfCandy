@@ -68,10 +68,12 @@ local msg = d
 
 -- Sets visibility of labels
 --
-function POC_Lanes:Update()
+function POC_Lanes:Update(x)
     local refresh
+    local displayed = false
     if (POC_GroupHandler.IsGrouped()) then
         refresh = true
+        displayed = not _this.WasActive
     elseif (not _this.WasActive) then
         refresh = false
     else
@@ -83,10 +85,9 @@ function POC_Lanes:Update()
 
     if refresh then
         -- Check all swimlanes
-        local displayed = false
         last_update = GetTimeStamp()
-        for _,lane in ipairs(POC_IdSort(self, "Id")) do
-            if lane:Update(_) then
+        for i,lane in ipairs(POC_IdSort(self, "Id")) do
+            if lane:Update(i) then
                 displayed = true
             else
                 -- xxx("Didn't refresh " .. tostring(gid))
@@ -685,11 +686,10 @@ function _this.Initialize(logger, isMocked)
     POC_UltNumber.Hide(false)
 
     _this.StyleChanged()
-    local x= getmetatable(_this.Lanes)
-    _this.Lanes:Update()
+    _this.Lanes:Update("first time")
 
     CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, _this.StyleChanged)
-    CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, function () _this.Lanes:Update() end)
+    CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, function (x) _this.Lanes:Update(x) end)
     CALLBACK_MANAGER:RegisterCallback(POC_IS_ZONE_CHANGED, _this.SetControlActive)
     CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, _this.SetControlActive)
     SLASH_COMMANDS["/pocpct"] = function(pct)

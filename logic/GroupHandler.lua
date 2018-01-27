@@ -56,7 +56,7 @@ end
 function POC_GroupHandler.OnUnitFrameUpdate()
 	if (LOG_ACTIVE) then _logger:logTrace("POC_GroupHandler.OnUnitFrameUpdate") end
 	
-    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED, "frame update")
 end
 
 -- Initialize POC_GroupHandler
