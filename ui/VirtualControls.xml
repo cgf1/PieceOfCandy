@@ -90,13 +90,13 @@
             <Dimensions x="100" y="30" />
             <Controls>
                 <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
-                    <Dimensions x="26" y="30" />
+                    <Dimensions x="100" y="28" />
                     <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
                     <Edge edgeSize="1" />
                 </Backdrop>
                 <StatusBar name="$(parent)UltPctStatusBar" alpha="0.7" textureFile="/POC/textures/grainy.dds">
-                    <Dimensions x="98" y="26" />
-                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="1"/>
+                    <Dimensions x="98" y="28" />
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="0"/>
                     <Limits min="0" max="100" />
                 </StatusBar>
                 <Label name="$(parent)SenderNameValueLabel" inherits="SwimlaneListLabel">

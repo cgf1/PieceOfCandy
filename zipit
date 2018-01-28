@@ -1,5 +1,5 @@
 #!/bin/sh
 cd ..
-files="POC/POC.txt "$(sed -nr -e '/^( *$|#|;)/d' -e 's%^%POC/%p' POC/POC.txt)
+files=$({ echo POC/POC.txt; sed -nr -e '/^( *$|#|;)/d' -e 's%^%POC/%p' POC/POC.txt; } | sort)
 rm -f POC.zip
 exec zip -r POC.zip $files
