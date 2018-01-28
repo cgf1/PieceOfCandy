@@ -1,0 +1,5 @@
+#!/bin/sh
+cd ..
+files="POC/POC.txt "$(sed -nr -e '/^( *$|#|;)/d' -e 's%^%POC/%p' POC/POC.txt)
+rm -f POC.zip
+exec zip -r POC.zip $files
