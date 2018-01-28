@@ -123,9 +123,8 @@ function POC_Lane:Update(force)
     end
     local players = self.Players
 
-    self:Hide()
-
     local n = 1
+    local displayed = false
     if (laneid <= MIAlane) then
         function sortval(player)
             local a
@@ -161,7 +160,6 @@ function POC_Lane:Update(force)
         table.sort(keys, compare)
 
         -- Update sorted swimlane
-        local displayed = false
         for _, playername in ipairs(keys) do
             local player = players[playername]
             local player_grouped =  IsUnitGrouped(player.PingTag)
@@ -238,6 +236,8 @@ function POC_Lane:Update(force)
         local row = self.Control:GetNamedChild("Row" .. i)
         row:SetHidden(true)
     end
+
+    self:Hide(displayed)
 
     return displayed
 end
@@ -540,13 +540,7 @@ end
 -- OnSetUlt called on header clicked
 --
 function _this.OnSetUlt(ult, id)
-    if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_Swimlanes.OnSetUlt")
-        _logger:logDebug("group.Name, swimlaneId", group.Name, swimlaneId)
-    end
-
     CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, _this.OnSetUlt)
-
 
     if ult ~= nil and id ~= nil then
         POC_Settings.SetSwimlaneUltId(id, ult)
@@ -626,13 +620,13 @@ function POC_Lane:Header()
         self.Label:SetText(ult.Name)
     end
 
-    self:Hide()
+    self:Hide(true)
 
     return gid
 end
 
-function POC_Lane:Hide()
-    local hide = self.Id > MIAlane
+function POC_Lane:Hide(displayed)
+    local hide = self.Id > MIAlane or (self.Id == MIAlane and not displayed)
     self.Button:SetHidden(hide)
     self.Icon:SetHidden(hide)
     self.Label:SetHidden(hide)
@@ -651,9 +645,7 @@ function POC_Lanes:Redo()
     local lane = self[saved.SwimlaneUltIds[mialane.Id]]
     if lane == nil then
         lane = POC_Lane.new(self, mialane.Id)
-xxx("NEW LANE")
     else
-xxx("SETTING HEADER")
         lane.Id = mialane.Id
         lane:Header()
     end
@@ -687,7 +679,7 @@ function POC_Lane.new(lanes, i)
 
         if (i == 1) then
             row:SetAnchor(TOPLEFT, last_row, TOPLEFT, 0, topleft)
-        elseif (i == 5) then -- Fix pixelbug, Why the hell ZOS?!
+        elseif false and i == 5 then -- Fix pixelbug, Why the hell ZOS?!
             row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, 0)
         else
             row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, -2)
