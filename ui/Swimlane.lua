@@ -690,7 +690,7 @@ function POC_Lane.new(lanes, i)
         elseif (i == 5) then -- Fix pixelbug, Why the hell ZOS?!
             row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, 0)
         else
-            row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, -1)
+            row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, -2)
         end
         last_row = row
     end

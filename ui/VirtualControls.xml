@@ -1,10 +1,10 @@
 <GuiXml>
-  <Font name="MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin"/>
-  <Font name="SwimlaneListFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
-  <Font name="SwimlaneListHeaderFont" font="$(BOLD_FONT)|21|soft-shadow-thin"/>
-  <Font name="UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
-  <Font name="UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
-  <Font name="CompactSwimlaneListFont" font="$(MEDIUM_FONT)|14|soft-shadow-thin"/>
+    <Font name="MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin"/>
+    <Font name="SwimlaneListFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
+    <Font name="SwimlaneListHeaderFont" font="$(BOLD_FONT)|21|soft-shadow-thin"/>
+    <Font name="UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
+    <Font name="UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
+    <Font name="CompactSwimlaneListFont" font="$(MEDIUM_FONT)|14|soft-shadow-thin"/>
   
     <Controls>
         <Label
@@ -27,17 +27,19 @@
             horizontalAlignment="LEFT"
             virtual="true"/>
     
-    <Label 	name="SwimlaneListHeaderLabel" 
-				    width="75" 
-				    height="25" 
-				    font="UltHeaderFont" 
-				    inheritAlpha="true" 
-				    color="FFFFFF"
-				    verticalAlignment="TEXT_ALIGN_TOP" 
-				    horizontalAlignment="TEXT_ALIGN_LEFT" 
-				    virtual="true"/>
+        <Label
+            name="SwimlaneListHeaderLabel" 
+            width="75" 
+            height="25" 
+            font="UltHeaderFont" 
+            inheritAlpha="true" 
+            color="FFFFFF"
+            verticalAlignment="TEXT_ALIGN_TOP" 
+            horizontalAlignment="TEXT_ALIGN_LEFT" 
+            virtual="true"/>
 
-    <Label 	name="UltHeaderLabel"
+        <Label
+            name="UltHeaderLabel"
             width="200"
             height="20"
             font="UltHeaderFont"
@@ -48,96 +50,93 @@
             text="Header"
             virtual="true"/>
 
-    <Label 	name="UltLabel"
-				    width="200"
-				    height="16"
-				    font="UltFont"
-				    inheritAlpha="true"
-				    color="FFFFFF"
-				    verticalAlignment="TEXT_ALIGN_TOP"
-				    horizontalAlignment="TEXT_ALIGN_LEFT"
-				    text="Label"
-				    virtual="true"/>
+        <Label
+            name="UltLabel"
+            width="200"
+            height="16"
+            font="UltFont"
+            inheritAlpha="true"
+            color="FFFFFF"
+            verticalAlignment="TEXT_ALIGN_TOP"
+            horizontalAlignment="TEXT_ALIGN_LEFT"
+            text="Label"
+            virtual="true"/>
 
     
-    <Label 	name="CompactSwimlaneListLabel"
-				    width="90"
-				    height="16"
-				    font="CompactSwimlaneListFont"
-				    inheritAlpha="true"
-				    color="FFFFFF"
-				    verticalAlignment="CENTER"
-				    horizontalAlignment="LEFT"
-				    virtual="true"/>
+        <Label
+            name="CompactSwimlaneListLabel"
+            width="90"
+            height="16"
+            font="CompactSwimlaneListFont"
+            inheritAlpha="true"
+            color="FFFFFF"
+            verticalAlignment="CENTER"
+            horizontalAlignment="LEFT"
+            virtual="true"/>
 
-    <Control name="MovableBackdropControl" virtual="true">
-      <Controls>
-        <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.4" >
-          <Anchor point="TOPLEFT"/>
-          <Anchor point="BOTTOMRIGHT" />
-          <Edge edgeSize="2" />
-        </Backdrop>
-        <Label name="$(parent)MoveActiveLabel" inherits="MoveActiveLabel" text="MOVE" tier="2">
-          <Anchor point="CENTER"/>
-        </Label>
-      </Controls>
-    </Control>
-
-    <Control name="UltSwimlaneRow" virtual="true">
-			<Dimensions x="100" y="40" />
-			<Controls>
-        <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
-          <Dimensions x="100" y="40" />
-          <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
-          <Edge edgeSize="1" />
-        </Backdrop>
-        <StatusBar name="$(parent)UltPctStatusBar" alpha="0.7" textureFile="/POC/textures/grainy.dds">
-          <Dimensions x="98" y="38" />
-          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="1"/>
-          <Limits min="0" max="100" />
-        </StatusBar>
-        <Label name="$(parent)SenderNameValueLabel" inherits="SwimlaneListLabel">
-          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="5" offsetY="10"/>
-        </Label>
-			</Controls>
-		</Control>
-
-    <Control name="UltSwimlaneHeader" virtual="true">
-      <Dimensions x="100" y="25" />
-      <Controls>
-        <Control name="$(parent)SelectorButtonControl">
-          <Dimensions x="25" y="25"/>
-          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" />
-          <Controls>
-            <Button name="$(parent)Button"
-                    ButtonState="BSTATE_NORMAL"
-                    tier="1">
-              <Dimensions x="25" y="25"/>
-              <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
-              <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
-                        pressed="/esoui/art/actionbar/abilityframe64_down.dds"
-                        mouseOver="/POC/textures/hover.dds"/>
-            </Button>
-            <Texture name="$(parent)Icon" tier="0">
-              <Dimensions x="24" y="24"/>
-              <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER"/>
-            </Texture>
-          </Controls>
+        <Control name="MovableBackdropControl" virtual="true">
+            <Controls>
+                <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.4" >
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" />
+                    <Edge edgeSize="2" />
+                </Backdrop>
+                <Label name="$(parent)MoveActiveLabel" inherits="MoveActiveLabel" text="MOVE" tier="2">
+                    <Anchor point="CENTER"/>
+                </Label>
+            </Controls>
         </Control>
-        <Label name="$(parent)UltLabel" inherits="SwimlaneListHeaderLabel" text="NEGATE">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="28" offsetY="3"/>
-				</Label>
-      </Controls>
-    </Control>
-
-    <Control name="UltSwimlane" virtual="true">
-      <Dimensions x="100" y="300"/>
-      <Controls>
-        <Control name="$(parent)Header" inherits="UltSwimlaneHeader">
-          <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
+        <Control name="UltSwimlaneRow" virtual="true">
+            <Dimensions x="100" y="30" />
+            <Controls>
+                <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
+                    <Dimensions x="26" y="30" />
+                    <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+                    <Edge edgeSize="1" />
+                </Backdrop>
+                <StatusBar name="$(parent)UltPctStatusBar" alpha="0.7" textureFile="/POC/textures/grainy.dds">
+                    <Dimensions x="98" y="26" />
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="1"/>
+                    <Limits min="0" max="100" />
+                </StatusBar>
+                <Label name="$(parent)SenderNameValueLabel" inherits="SwimlaneListLabel">
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="5" offsetY="2"/>
+                </Label>
+            </Controls>
         </Control>
-      </Controls>
-    </Control>
+        <Control name="UltSwimlaneHeader" virtual="true">
+            <Dimensions x="100" y="25" />
+            <Controls>
+                <Control name="$(parent)SelectorButtonControl">
+                    <Dimensions x="25" y="25"/>
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" />
+                    <Controls>
+                        <Button name="$(parent)Button" ButtonState="BSTATE_NORMAL" tier="1">
+                            <Dimensions x="25" y="25"/>
+                            <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+                            <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
+                                      pressed="/esoui/art/actionbar/abilityframe64_down.dds"
+                                      mouseOver="/POC/textures/hover.dds"/>
+                        </Button>
+                        <Texture name="$(parent)Icon" tier="0">
+                            <Dimensions x="24" y="24"/>
+                            <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER"/>
+                        </Texture>
+                    </Controls>
+                    </Control>
+                        <Label name="$(parent)UltLabel" inherits="SwimlaneListHeaderLabel" text="NEGATE">
+                            <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="28" offsetY="3"/>
+                        </Label>
+                    </Controls>
+        </Control>
+        <Control name="UltSwimlane" virtual="true">
+            <Dimensions x="100" y="300"/>
+            <Controls>
+                <Control name="$(parent)Header" inherits="UltSwimlaneHeader">
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
+                </Control>
+            </Controls>
+        </Control>
 
     <Control name="CompactUltSwimlaneRow" virtual="true">
       <Dimensions x="50" y="25" />
