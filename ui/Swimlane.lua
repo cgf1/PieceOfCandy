@@ -23,6 +23,8 @@ local sldebug = false
 
 local group_members = {}
 
+local me
+
 local ping_refresh = false
 
 local POC_Lane = {}
@@ -113,6 +115,12 @@ function POC_Player:TimedOut()
     return (GetTimeStamp() - self.LastTimeStamp) > TIMEOUT
 end
 
+-- Return true if we need to back the heck off
+--
+function POC_Player:ShouldBackOff()
+    return self.BackOff ~= nil and GetTimeStamp() <= self.BackOff
+end
+
 -- Update swimlane
 --
 function POC_Lane:Update(force)
@@ -166,6 +174,7 @@ function POC_Lane:Update(force)
 		self.Players[playername] = nil
 		if not player_grouped then
 		    group_members[playername] = nil
+                    saved.GroupMembers[playername] = nil
 		end
 	    else
 		if n > saved.SwimlaneMax then
@@ -176,13 +185,13 @@ function POC_Lane:Update(force)
 		if not player.IsMe then
 		    self:UpdateCell(n, player, playername)
 		    -- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
-		else
+		elseif not player:ShouldBackOff() then
 		    local not100
 		    if forcepct ~= nil then
 			player.UltPct = forcepct
 			_this.UltPct = forcepct
 			not100 = player.UltPct	< 100
-		    elseif player.UltPct  < 100 or (player.Backoff ~= nil and GetTimeStamp() < player.Backoff) then
+		    elseif player.UltPct  < 100 then
 			_this.UltPct = nil
 			if player.UltPct > 100 then
 			    player.UltPct = 100
@@ -193,7 +202,7 @@ function POC_Lane:Update(force)
 		    else
 			_this.UltPct = 101 + saved.SwimlaneMax - n
 			player.UltPct = _this.UltPct
-			player.Backoff = nil
+			player.BackOff = nil
 		    end
 		    -- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
 		    self:UpdateCell(n, player, playername)
@@ -287,23 +296,18 @@ function POC_Lane:UpdateCell(i, player, playername)
 
     if (player.IsPlayerDead) then
 -- xxx(playername, rowi, "dead color", deadalpha)
-	-- Dead Color
 	row:GetNamedChild("SenderNameValueLabel"):SetColor(0.5, 0.5, 0.5, .8)
 	row:GetNamedChild("UltPctStatusBar"):SetColor(0.8, 0.03, 0.03, deadalpha)
     elseif player:TimedOut(player) then
 -- xxx(playername, rowi, "timedout color")
-	row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 1)
-	row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.7, 0.03, alivealpha)
-	--[[row:GetNamedChild("SenderNameValueLabel"):SetColor(0.8, 0.8, 0.8, 0.7)
-	row:GetNamedChild("UltPctStatusBar"):SetColor(0.8, 0.8, 0.8, 0.7) ]]--
+	row:GetNamedChild("SenderNameValueLabel"):SetColor(0.8, 0.8, 0.8, 0.7)
+	row:GetNamedChild("UltPctStatusBar"):SetColor(0.8, 0.8, 0.8, alivealpha)
     elseif (player.UltPct >= 100) then
-	-- Ready Color
 -- xxx(playername, rowi, "ready color", alivealpha)
 	row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 1)
 	row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.7, 0.03, alivealpha)
     else
 -- xxx(playername, rowi, "inprogress color")
-	-- In-progress Color
 	row:GetNamedChild("SenderNameValueLabel"):SetColor(1, 1, 1, 0.8)
 	row:GetNamedChild("UltPctStatusBar"):SetColor(0.03, 0.03, 0.7, inprogressalpha)
     end
@@ -324,10 +328,17 @@ function POC_Player.Update(inplayer)
 	end
 	local player = group_members[unitname]
 	if player == nil then
-	    player = {}
+            savedplayer = saved.GroupMembers[unitname]
+            if savedplayer == nil then
+                player = {}
+                player.UltPct = 100		-- not really
+            else
+                saved.GroupMembers[unitname] = nil
+                player = savedplayer
+                savedplayer = nil
+            end
 	    player.Lane = _this.Lanes['MIA']
 	    player.PingTag = unitid
-	    player.UltPct = 100		-- not really
 	elseif player.PingTag == inplayer.PingTag then
 	    player = inplayer
 	else
@@ -355,11 +366,19 @@ function POC_Player.new(inplayer, pingtag)
     end
     local name = inplayer.PlayerName
     local self = group_members[name]
+    local saved_self = saved.GroupMembers[name]
     if self == nil then
 	self = setmetatable({}, POC_Player)
 	group_members[name] = self
-	self.IsMe = name == GetUnitName("player")
+        saved_self = setmetatable({Ult = {}}, POC_Player)
+        saved.GroupMembers[name] = saved_self
+        if name == GetUnitName("player") then
+            self.IsMe = true
+            saved_self.IsMe = true
+            me = self
+        end
 	self.LastTimeStamp = 0	-- we weren't pinged
+	saved_self.LastTimeStamp = 0	-- we weren't pinged
     end
 
     local orig_swimlane = self.Lane
@@ -374,8 +393,10 @@ function POC_Player.new(inplayer, pingtag)
 	    gid = 'MIA'
 	end
 	self.LastTimeStamp = GetTimeStamp()
+        saved_self.LastTimeStamp = self.LastTimeStamp
     end
 
+    saved_self.Ult.Gid = gid
     -- Don't need these
     if inplayer.Ult ~= nil then
 	inplayer.Ult = nil
@@ -394,13 +415,18 @@ function POC_Player.new(inplayer, pingtag)
 	    -- xxx(name .. " " .. tostring(n) .. "=" .. tostring(v))
 	    changed = true
 	    self[n] = v
+            if n ~= 'Lane' then
+                saved_self[n] = v
+            end
 	end
     end
 
     if not self.IsMe or not self:TimedOut() then
-	self.Backoff = 0
+	self.BackOff = 0
+        saved_self.BackOff = 0
     else
-	self.Backoff = GetTimeStamp() + BACKOFF
+	self.BackOff = GetTimeStamp() + BACKOFF
+	saved_self.BackOff = GetTimeStamp() + BACKOFF
     end
 
     if self.Lane.Players[name] == nil then
@@ -686,6 +712,10 @@ end
 function _this.Initialize(isMocked)
     xxx = POC.xxx
     saved = POC_Settings.SavedVariables
+
+    if not POC_GroupHandler.IsGrouped() then
+        saved.GroupMembers = {}
+    end
 
     _this.IsMocked = isMocked
 

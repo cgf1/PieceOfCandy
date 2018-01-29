@@ -52,7 +52,7 @@ end
 -- Called on refresh of timer
 --
 function POC_MapPingHandler.OnTimedUpdate(eventCode)
-    if (not IsUnitGrouped("player") and not POC_MapPingHandler.IsMocked) then
+    if not IsUnitGrouped("player") and not POC_MapPingHandler.IsMocked then
         if notify_when_not_grouped then
             notify_when_not_grouped = false
             CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_GROUP_CHANGED, "left")

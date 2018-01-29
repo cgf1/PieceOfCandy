@@ -62,8 +62,7 @@ function POC_Communicator.OnMapPingFinished(pingType, pingTag, offsetX, offsetY,
 
     if (pingType == MAP_PIN_TYPE_PING and
         LMP:IsPositionOnMap(offsetX, offsetY) and
-		POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
-
+        POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
         LMP:UnsuppressPing(pingType, pingTag)
     end
 end
@@ -151,7 +150,7 @@ function POC_Communicator.GetUltPct(offset)
     if (offset >= 0) then
         local ultpct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
 
-        if (ultpct >= 0 and ultpct <= 124) then
+        if (ultpct >= 0 and ultpct <= 125) then
             return ultpct
         else
             POC_Error("ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
@@ -233,11 +232,4 @@ function POC_Communicator.Initialize(isLgsActive, isMocked)
 
     POC_Communicator.IsLgsActive = isLgsActive
     POC_Communicator.UpdateCommunicationType()
-    SLASH_COMMANDS["/pocyow"] = function()
-        if UseIt then
-            UseIt = false
-        else
-            UseIt = true
-        end
-    end
 end
