@@ -1,8 +1,6 @@
 --[[
 	Local variables
 ]]--
-local LOG_ACTIVE = false
-
 --[[
 	Table SettingsWindow
 ]]--
@@ -17,12 +15,7 @@ POC_SettingsWindow.MainMenuName = "POCSettingsMainMenu"
 --[[
 	Initialize creates settings window
 ]]--
-function POC_SettingsWindow.Initialize(logger, major, minor, patch)
-    if (LOG_ACTIVE) then 
-        logger:logTrace("POC_SettingsWindow.Initialize")
-        logger:logDebug("major, minor, patch", major, minor, patch)
-    end
-
+function POC_SettingsWindow.Initialize(major, minor, patch)
     local styleChoices = {
         [1] = GetString(POC_OPTIONS_STYLE_SWIM),
         [2] = GetString(POC_OPTIONS_STYLE_SHORT_SWIM)
@@ -47,7 +40,7 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
         type = "checkbox",
         name = GetString(POC_OPTIONS_DRAG_LABEL),
         tooltip = GetString(POC_OPTIONS_DRAG_TOOLTIP),
-        getFunc = function() 
+        getFunc = function()
             return POC_Settings.SavedVariables.Movable
         end,
         setFunc = function(value)
@@ -133,7 +126,7 @@ function POC_SettingsWindow.Initialize(logger, major, minor, patch)
         setFunc = function(val) POC_Settings.POC_SetWereNumberOne(val) end,
         default = POC_Settings.Default.WereNumberOne
     }
-    
+
     local LAM = LibStub("LibAddonMenu-2.0")
     LAM:RegisterAddonPanel(POC_SettingsWindow.MainMenuName, panelData)
     LAM:RegisterOptionControls(POC_SettingsWindow.MainMenuName, optionsData)

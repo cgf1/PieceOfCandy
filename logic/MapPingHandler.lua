@@ -1,9 +1,3 @@
---[[
-	Local variables
-]]--
-local LOG_ACTIVE = false
-local _logger = nil
-
 local REFRESHRATE = 2000 -- ms; RegisterForUpdate is in miliseconds
 
 --[[
@@ -25,8 +19,6 @@ local notify_when_not_grouped = false
 	Called on new data from LibGroupSocket
 ]]--
 function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
-    if (LOG_ACTIVE) then _logger:logTrace("POC_MapPingHandler.OnData") end
-
     local ult = POC_Ult.ByPing(abilityPing)
 
     if (ult ~= nil and ultpct ~= -1) then
@@ -51,25 +43,15 @@ function POC_MapPingHandler.OnData(pingTag, abilityPing, ultpct)
         player.UltPct = ultpct
         -- d(playerName .. " " .. tostring(ultpct))
 
-        if (LOG_ACTIVE) then 
-            _logger:logDebug("player.PingTag", player.PingTag)
-            _logger:logDebug("player.PlayerName", player.PlayerName)
-            _logger:logDebug("player.IsPlayerDead", player.IsPlayerDead)
-            _logger:logDebug("player.Ult.Name", player.Ult.Name)
-            _logger:logDebug("player.UltPct", player.UltPct)
-        end
-
         CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)
     else
-        _logger:logError("POC_MapPingHandler.OnMapPing, Ping invalid ult: " .. tostring(ult) .. "; ultpct: " .. tostring(ultpct))
+        POC_Error("POC_MapPingHandler.OnMapPing, Ping invalid ult: " .. tostring(ult) .. "; ultpct: " .. tostring(ultpct))
     end
 end
 
 -- Called on refresh of timer
 --
 function POC_MapPingHandler.OnTimedUpdate(eventCode)
-    if (LOG_ACTIVE) then _logger:logTrace("POC_MapPingHandler.OnTimedUpdate") end
-
     if (not IsUnitGrouped("player") and not POC_MapPingHandler.IsMocked) then
         if notify_when_not_grouped then
             notify_when_not_grouped = false
@@ -86,21 +68,14 @@ function POC_MapPingHandler.OnTimedUpdate(eventCode)
     if (abilityGroup ~= nil) then
         POC_Communicator.SendData(abilityGroup)
     else
-        _logger:logError("POC_MapPingHandler.OnTimedUpdate, abilityGroup is nil, change ultimate. StaticID: " .. tostring(abilityGroup))
+        POC_Error("POC_MapPingHandler.OnTimedUpdate, abilityGroup is nil, change ultimate. StaticID: " .. tostring(abilityGroup))
     end
 end
 
 --[[
 	Initialize initializes POC_MapPingHandler
 ]]--
-function POC_MapPingHandler.Initialize(logger, isMocked)
-    if (LOG_ACTIVE) then 
-        logger:logTrace("POC_MapPingHandler.Initialize")
-        logger:logDebug("isMocked", isMocked)
-    end
-
-    _logger = logger
-
+function POC_MapPingHandler.Initialize(isMocked)
     POC_MapPingHandler.IsMocked = isMocked
 
     -- Register callbacks

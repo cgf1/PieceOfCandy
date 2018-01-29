@@ -15,6 +15,10 @@
 
 libs/LibStub/LibStub.lua
 
+icons/lollipop.dds
+textures/grainy.dds
+textures/hover.dds
+
 libs/LibAddonMenu-2.0/LibAddonMenu-2.0.lua
 libs/LibAddonMenu-2.0/controls/panel.lua
 libs/LibAddonMenu-2.0/controls/header.lua
@@ -29,7 +33,6 @@ libs/LibGroupSocket/LibGroupSocket.lua
 
 i18n/en.lua
 
-util/DebugLogger.lua
 util/UiHelper.lua
 
 communication/Communicator.lua

@@ -59,7 +59,7 @@ end
 
 local function OnData(unitTag, data, isSelf)
     if (handler.callbacks == 0) then return end --dont do anything if nobody is using this handler
-	
+
     local index, bitIndex = 1, 1
     local isFullUpdate, index, bitIndex = LGS:ReadBit(data, index, bitIndex)
     local requestsFullUpdate, index, bitIndex = LGS:ReadBit(data, index, bitIndex)

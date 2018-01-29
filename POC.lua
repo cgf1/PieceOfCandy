@@ -44,31 +44,27 @@ POC.__index = POC
 ]]--
 function POC:initialize()
     -- Initialize logging
-    local logger = POCDebugLogger(LOG_NAME, LOG_COMMAND, TRACE_ACTIVE, DEBUG_ACTIVE, ERROR_ACTIVE, DIRECT_PRINT, CATCH_LUA_ERRORS)
-    logger:logTrace("POC:initialize")
     d("Piece of Candy!")
     SLASH_COMMANDS["/rrr"] = function () ReloadUI() end
 
     -- Initialize settings
-    POC_Settings.Initialize(logger)
+    POC_Settings.Initialize()
 
     -- Initialize communication
-    POC_Communicator.Initialize(logger, POC_Settings.SavedVariables.IsLgsActive, ISMOCKED)
+    POC_Communicator.Initialize(POC_Settings.SavedVariables.IsLgsActive, ISMOCKED)
 
     -- Initialize logic
-    POC_GroupHandler.Initialize(logger, ISMOCKED)
-    POC_MapPingHandler.Initialize(logger, ISMOCKED)
-    POC_Ult.Initialize(logger)
-    POC_CommandsHandler.Initialize(logger)
+    POC_GroupHandler.Initialize(ISMOCKED)
+    POC_MapPingHandler.Initialize(ISMOCKED)
+    POC_Ult.Initialize()
+    POC_CommandsHandler.Initialize()
 
     -- Initialize ui
-    POC_SettingsWindow.Initialize(logger, MAJOR, MINOR, PATCH)
+    POC_SettingsWindow.Initialize(MAJOR, MINOR, PATCH)
 
-    POC_UltMenu.Initialize(logger)
+    POC_UltMenu.Initialize()
 
-    POC_Swimlanes.Initialize(logger, ISMOCKED)
-
-    logger:logTrace("POC:initialized")
+    POC_Swimlanes.Initialize()
 end
 
 --[[

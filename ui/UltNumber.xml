@@ -6,7 +6,7 @@
         <OnMoveStop>
             POC_Swimlanes.savePosNumber(self)
         </OnMoveStop>
- 
+
       <Controls>
         <Label name="$(parent)Label" width="200" height="25" font="ZoFontWinH1" inheritAlpha="true" color="FF0000"
             wrapMode="TRUNCATE" verticalAlignment="TOP" horizontalAlignment="CENTER" text="">

@@ -1,6 +1,3 @@
-local LOG_ACTIVE = false
-local _logger = nil
-
 POC_Ult = {
     Name = "POC-Ult",
 }
@@ -15,17 +12,12 @@ local bypings = {}
 	ByPing gets the ultimate group from given ability ping
 ]]--
 function POC_Ult.ByPing(pid)
-    if (LOG_ACTIVE) then
-        _logger:logTrace("POC_Ult.ByPing")
-        _logger:logDebug("pid", pid)
-    end
-
     if bypings[pid] ~= nil then
         return bypings[pid]
     end
 
     -- not found
-    _logger:logError("AbilityId not found " .. tostring(pid))
+    POC_Error("AbilityId not found " .. tostring(pid))
 
     return nil
 end
@@ -34,17 +26,12 @@ end
 	ById gets the ultimate group from given ability ID
 ]]--
 function POC_Ult.ById(aid)
-    if (LOG_ACTIVE) then
-        _logger:logTrace("POC_Ult.ById")
-        _logger:logDebug("aid", aid)
-    end
-
     if byids[aid] ~= nil then
         return byids[aid]
     end
 
     -- not found
-    _logger:logError("AbilityId not found " .. tostring(aid))
+    POC_Error("AbilityId not found " .. tostring(aid))
 
     return nil
 end
@@ -53,17 +40,12 @@ end
 	ByName gets the ultimate group from given group name
 ]]--
 function POC_Ult.ByName(gname)
-    if (LOG_ACTIVE) then
-        _logger:logTrace("POC_Ult.ByName")
-        _logger:logDebug("groupName", groupName)
-    end
-
     if bynames[gname] ~= nil then
         return bynames[gname]
     end
 
     -- not found
-    _logger:logError("Name not found " .. tostring(gname))
+    POC_Error("Name not found " .. tostring(gname))
 
     return nil
 end
@@ -71,10 +53,6 @@ end
 -- GetUlts gets all ultimate groups
 --
 function POC_Ult.GetUlts()
-    if LOG_ACTIVE then
-        _logger:logTrace("POC_Ult.GetUlts")
-    end
-
     return POC_IdSort(bynames, "Id")
 end
 
@@ -119,8 +97,6 @@ end
 -- Create Ults array
 --
 local function create_ults()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_Ult.CreateUlts") end
-
     local class = GetUnitClass("player")
     local classes = {
         [1] = "Sorceror",
@@ -363,12 +339,6 @@ end
 
 -- Initialize POC_Ult
 --
-function POC_Ult.Initialize(logger)
-    if LOG_ACTIVE then
-        logger:logTrace("POC_Ult.Initialize")
-    end
-
-    _logger = logger
-
+function POC_Ult.Initialize()
     create_ults()
 end

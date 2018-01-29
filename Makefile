@@ -1,5 +1,7 @@
 .PHONY: all ctags install clean install-gotham install-norton tags
 modified := $(shell git status | awk '/modified: .*\.lua/{print $$2}')
+allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort)
+# allfiles := $(shell ( echo POC.txt ; egrep -v '^[ 	]*[;#]|$$' POC.txt; } | sort )
 all: ${modified}
 
 .PHONY: FORCE
@@ -14,11 +16,13 @@ tags ctags:
 
 install: install-gotham install-norton
 
-install-gotham: all clean
-	/usr/bin/rsync -a --delete --force /usr/src/POC/ /smb/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
+install-gotham: ${allfiles} | all clean
+	@rm -rf /smb/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC/*
+	/usr/bin/rsync -aR --delete --force $^ /smb/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
 	
-install-norton: all clean
-	/usr/bin/rsync -a --delete --force /usr/src/POC/ /smb1/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
+install-norton: ${allfiles} | all clean
+	@rm -rf /smb1/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC/*
+	/usr/bin/rsync -aR --delete --force $^ /smb1/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
 
 clean:
 	@/share/bin/devoclean

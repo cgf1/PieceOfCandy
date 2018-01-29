@@ -1,29 +1,16 @@
 --[[
-	Local variables
-]]--
-local LOG_ACTIVE = false
-local _logger = nil
-
---[[
 	Table POC_CommandsHandler
 ]]--
-POC_CommandsHandler = {}
+POC_CommandsHandler = {
+    Name = "POC-CommandsHandler"
+}
 POC_CommandsHandler.__index = POC_CommandsHandler
 
---[[
-	Table Members
-]]--
-POC_CommandsHandler.Name = "POC-CommandsHandler"
 
 --[[
 	Called on /setgroupultimatestyle command
 ]]--
 function POC_CommandsHandler.SetUltStyleCommand(style)
-	if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_CommandsHandler.SetUltStyleCommand")
-        _logger:logDebug("style", style)
-    end
-
     if (style ~= nil and style ~= "") then
         POC_Settings.SetStyleSettings(style)
     else
@@ -35,11 +22,6 @@ end
 	Called on /setultimateid command
 ]]--
 function POC_CommandsHandler.SetUltimateIdCommand(groupName)
-	if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_CommandsHandler.SetUltimateId")
-        _logger:logDebug("groupName", groupName)
-    end
-
     if (groupName ~= nil and groupName ~= "") then
         local ult = POC_Ult.ByName(groupName)
 
@@ -57,11 +39,6 @@ end
 -- FIXME: Probably broken
 --
 function POC_CommandsHandler.SetSwimlaneIdCommand(option)
-    if (LOG_ACTIVE) then 
-        _logger:logTrace("POC_CommandsHandler.SetSwimlaneId")
-        _logger:logDebug("option", option)
-    end
-
     -- Parse options
     local options = {}
     local arrayLength = 0
@@ -92,8 +69,6 @@ end
 	Called on /getultimategroups command
 ]]--
 function POC_CommandsHandler.GetUltsCommand()
-    if (LOG_ACTIVE) then _logger:logTrace("POC_CommandsHandler.GetUltsCommand") end
-
     local ultimates = POC_Ult.GetUlts()
 
     d("Ultimate Groups:")
@@ -106,18 +81,7 @@ end
 --[[
 	Initialize initializes POC_CommandsHandler
 ]]--
-function POC_CommandsHandler.Initialize(logger)
-    if (LOG_ACTIVE) then 
-        logger:logTrace("POC_CommandsHandler.Initialize")
-        logger:logDebug("Commands active:")
-        logger:logDebug("/setgroupultimatestyle <STYLEID> - Sets the style (0 = SimpleList, 1 = SwimlaneList).")
-        logger:logDebug("/setultimateid <GROUPNAME> - Sets the static ultimate group; See /getultimategroups to get group names.")
-        logger:logDebug("/setswimlaneid <SWIMLANE> <GROUPNAME> - Sets the ultimate group of swimlane (1-6); See /getultimategroups to get group name.")
-        logger:logDebug("/getultimategroups - Gets all ultimate group names")
-    end
-
-    _logger = logger
-
+function POC_CommandsHandler.Initialize()
     -- Define commands
     SLASH_COMMANDS["/setgroupultimatestyle"] = POC_CommandsHandler.SetUltStyleCommand
     SLASH_COMMANDS["/setultimateid"] = POC_CommandsHandler.SetUltimateIdCommand

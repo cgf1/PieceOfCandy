@@ -33,7 +33,7 @@ if (POCUiHelper == nil) then
     ]]--
     local function UpdateHiddenState()
 		local isHidden = internalHudSceneState and internalHudUiSceneState
-		
+
         if (isHidden ~= internalHudHiddenState) then
             internalHudHiddenState = isHidden
             CALLBACK_MANAGER:FireCallbacks(POC_HUD_HIDDEN_STATE_CHANGED, isHidden)
@@ -77,5 +77,5 @@ if (POCUiHelper == nil) then
     SCENE_MANAGER:GetScene("hud"):RegisterCallback("StateChange", HudSceneOnStateChange)
      -- Mouse Scene
     SCENE_MANAGER:GetScene("hudui"):RegisterCallback("StateChange", HudUiSceneOnStateChange)
-    
+
 end

@@ -22,3 +22,7 @@ function POC_IdSort(hash, key, debug)
     table.sort(ret, compare)
     return ret
 end
+
+function POC_Error(x)
+    d("POC error: " .. x)
+end
