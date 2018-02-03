@@ -1,7 +1,7 @@
 --[[
 	Class definition (Static class)
 ]]--
--- A table in hole lua workspace must be unique
+-- A table in whole lua workspace must be unique
 -- The ui helper is global util table, used in several of my addons
 -- The table is created as "static" class without constructor and static helper methods
 if (POCUiHelper == nil) then
@@ -22,56 +22,56 @@ if (POCUiHelper == nil) then
     local internalHudHiddenState = true
 
     --[[
-        CurrentHudHiddenState Gets the hidden state of hud/hudui
+	POC_CurrentHudHiddenState Gets the hidden state of hud/hudui
     ]]--
-    function CurrentHudHiddenState()
-        return internalHudHiddenState
+    function POC_CurrentHudHiddenState()
+	return internalHudHiddenState
     end
 
     --[[
-        UpdateHiddenState updates the hidden state on base of hud/hudui state
+	UpdateHiddenState updates the hidden state on base of hud/hudui state
     ]]--
     local function UpdateHiddenState()
 		local isHidden = internalHudSceneState and internalHudUiSceneState
 
-        if (isHidden ~= internalHudHiddenState) then
-            internalHudHiddenState = isHidden
-            CALLBACK_MANAGER:FireCallbacks(POC_HUD_HIDDEN_STATE_CHANGED, isHidden)
-        end
+	if (isHidden ~= internalHudHiddenState) then
+	    internalHudHiddenState = isHidden
+	    CALLBACK_MANAGER:FireCallbacks(POC_HUD_HIDDEN_STATE_CHANGED, isHidden)
+	end
     end
 
     --[[
-        HudSceneOnStateChange callback of hud OnStateChange
+	HudSceneOnStateChange callback of hud OnStateChange
     ]]--
     local function HudSceneOnStateChange(oldState, newState)
-        if (newState == SCENE_HIDING) then
-            internalHudSceneState = true
+	if (newState == SCENE_HIDING) then
+	    internalHudSceneState = true
 			-- make call async to catch both state changes before changing visibility
 			zo_callLater(UpdateHiddenState, 1)
-        elseif (newState == SCENE_SHOWING) then
-            internalHudSceneState = false
+	elseif (newState == SCENE_SHOWING) then
+	    internalHudSceneState = false
 			-- make call async to catch both state changes before changing visibility
 			zo_callLater(UpdateHiddenState, 1)
-        end
+	end
     end
 
     --[[
-        HudUiSceneOnStateChange callback of hudui OnStateChange
+	HudUiSceneOnStateChange callback of hudui OnStateChange
     ]]--
     local function HudUiSceneOnStateChange(oldState, newState)
 		if (newState == SCENE_HIDING) then
-            internalHudUiSceneState = true
+	    internalHudUiSceneState = true
 			-- make call async to catch both state changes before changing visibility
 			zo_callLater(UpdateHiddenState, 1)
-        elseif (newState == SCENE_SHOWING) then
-            internalHudUiSceneState = false
+	elseif (newState == SCENE_SHOWING) then
+	    internalHudUiSceneState = false
 			-- make call async to catch both state changes before changing visibility
 			zo_callLater(UpdateHiddenState, 1)
-        end
+	end
     end
 
     --[[
-        Register callbacks to scenes
+	Register callbacks to scenes
     ]]--
      -- Reticle Scene
     SCENE_MANAGER:GetScene("hud"):RegisterCallback("StateChange", HudSceneOnStateChange)

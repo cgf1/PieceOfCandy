@@ -4,7 +4,7 @@
 			     mouseEnabled="true" movable="true" clampedToScreen="true">
 	    <Anchor point="TOPLEFT" relativeTo="GuiRoot" relativePoint="TOPLEFT"/>
 	    <Dimensions x="712" y="265" />
-	    <OnMoveStop>POC_Swimlanes:OnSwimlaneListMoveStop()</OnMoveStop>
+	    <OnMoveStop>POC_Swimlanes:OnMoveStop()</OnMoveStop>
 	    <Controls>
 		<Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">
 		    <Anchor point="TOPLEFT"/>

@@ -13,7 +13,7 @@ local bypings = {}
 ]]--
 function POC_Ult.ByPing(pid)
     if bypings[pid] ~= nil then
-        return bypings[pid]
+	return bypings[pid]
     end
 
     -- not found
@@ -27,7 +27,7 @@ end
 ]]--
 function POC_Ult.ById(aid)
     if byids[aid] ~= nil then
-        return byids[aid]
+	return byids[aid]
     end
 
     -- not found
@@ -41,7 +41,7 @@ end
 ]]--
 function POC_Ult.ByName(gname)
     if bynames[gname] ~= nil then
-        return bynames[gname]
+	return bynames[gname]
     end
 
     -- not found
@@ -59,9 +59,9 @@ end
 function POC_Ult.Icons()
     local iconlist = {}
     for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-        if v.Gid ~= 'MIA' then
-            table.insert(iconlist, GetAbilityIcon(v.Gid))
-        end
+	if v.Gid ~= 'MIA' then
+	    table.insert(iconlist, GetAbilityIcon(v.Gid))
+	end
     end
     return iconlist
 end
@@ -69,26 +69,26 @@ end
 function POC_Ult.Descriptions()
     local desclist = {}
     for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-        if v.Gid ~= 'MIA' then
-            table.insert(desclist, v.Desc)
-        end
+	if v.Gid ~= 'MIA' then
+	    table.insert(desclist, v.Desc)
+	end
     end
     return desclist
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
     for _, v in ipairs(POC_IdSort(from_table[from_key], 'Gid', 1)) do
-        i = i + 1
-        v.Id = i
-        _, _, name, class = string.find(v.Desc, "^(.*) ultimates from (.+)")
-        if name ~= nil then
-            class = string.gsub(class, " class$", "")
-            class = string.gsub(class, " weapons?$", "")
-            class = string.gsub(class, " lines?", "s")
-            class = string.gsub(class, "Assoult", "Assault")
-            v.Desc = name .. " (" .. class .. ")"
-        end
-        to_table[v.Name] = v
+	i = i + 1
+	v.Id = i
+	_, _, name, class = string.find(v.Desc, "^(.*) ultimates from (.+)")
+	if name ~= nil then
+	    class = string.gsub(class, " class$", "")
+	    class = string.gsub(class, " weapons?$", "")
+	    class = string.gsub(class, " lines?", "s")
+	    class = string.gsub(class, "Assoult", "Assault")
+	    v.Desc = name .. " (" .. class .. ")"
+	end
+	to_table[v.Name] = v
     end
     from_table[from_key] = nil
     return i
@@ -99,20 +99,20 @@ end
 local function create_ults()
     local class = GetUnitClass("player")
     local classes = {
-        [1] = "Sorceror",
-        [2] = "Templar",
-        [3] = "Dragonknight",
-        [4] = "Nightblade",
-        [5] = "Warden"
+	[1] = "Sorcerer",
+	[2] = "Templar",
+	[3] = "Dragonknight",
+	[4] = "Nightblade",
+	[5] = "Warden"
     }
 
     local ults = {
-        ["Sorceror"] = {
-            ["NEGATE"] = {
-                Desc = GetString(POC_DESCRIPTIONS_NEGATE),
-                Ping = 1,
-                Gid = 29861
-            },
+	["Sorcerer"] = {
+	    ["NEGATE"] = {
+		Desc = GetString(POC_DESCRIPTIONS_NEGATE),
+		Ping = 1,
+		Gid = 29861
+	    },
 
 	    ["ATRO"] = {
 		Desc = GetString(POC_DESCRIPTIONS_ATRO),
@@ -124,8 +124,8 @@ local function create_ults()
 		Ping = 3,
 		Gid = 30366
 	    },
-        },
-        ["Templar"] = {
+	},
+	["Templar"] = {
 	    ["SWEEP"] = {
 		Desc = GetString(POC_DESCRIPTIONS_SWEEP),
 		Ping = 4,
@@ -141,8 +141,8 @@ local function create_ults()
 		Ping = 6,
 		Gid = 27413
 	    },
-        },
-        ["Dragonknight"] = {
+	},
+	["Dragonknight"] = {
 	    ["STAND"] = {
 		Desc = GetString(POC_DESCRIPTIONS_STAND),
 		Ping = 7,
@@ -158,8 +158,8 @@ local function create_ults()
 		Ping = 9,
 		Gid = 33841
 	    },
-        },
-        ["Nightblade"] = {
+	},
+	["Nightblade"] = {
 	    ["STROKE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_STROKE),
 		Ping = 10,
@@ -175,9 +175,9 @@ local function create_ults()
 		Ping = 12,
 		Gid = 36207
 	    },
-        },
-        ["Warden"] = {
-            -- BEAR not useful, its always up
+	},
+	["Warden"] = {
+	    -- BEAR not useful, its always up
 	    ["FREEZE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_FREEZE),
 		Ping = 13,
@@ -188,9 +188,9 @@ local function create_ults()
 		Ping = 14,
 		Gid = 93971
 	    },
-        },
-        ["WEAPON"] = {
-            -- Destro
+	},
+	["WEAPON"] = {
+	    -- Destro
 	    ["ICE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_ICE),
 		Ping = 15,
@@ -206,133 +206,133 @@ local function create_ults()
 		Ping = 17,
 		Gid = 86550
 	    },
-            -- Resto
+	    -- Resto
 	    ["STHEAL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_STHEAL),
 		Ping = 18,
 		Gid = 86454
 	    },
-            -- 2H
+	    -- 2H
 	    ["BERSERK"] = {
 		Desc = GetString(POC_DESCRIPTIONS_BERSERK),
 		Ping = 19,
 		Gid = 86284
 	    },
-            -- SB
+	    -- SB
 	    ["SHIELD"] = {
 		Desc = GetString(POC_DESCRIPTIONS_SHIELD),
 		Ping = 20,
 		Gid = 83292
 	    },
-            -- DW
+	    -- DW
 	    ["DUAL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_DUAL),
 		Ping = 21,
 		Gid = 86410
 	    },
-            -- BOW
+	    -- BOW
 	    ["BOW"] = {
 		Desc = GetString(POC_DESCRIPTIONS_BOW),
 		Ping = 22,
 		Gid = 86620
 	    },
-        },
-        ["WORLD"] = {
-            -- Soul
+	},
+	["WORLD"] = {
+	    -- Soul
 	    ["SOUL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_SOUL),
 		Ping = 23,
 		Gid = 43109
 	    },
-            -- Werewolf
+	    -- Werewolf
 	    ["WERE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_WERE),
 		Ping = 24,
 		Gid = 42379
 	    },
-            -- Vamp
+	    -- Vamp
 	    ["VAMP"] = {
 		Desc = GetString(POC_DESCRIPTIONS_VAMP),
 		Ping = 25,
 		Gid = 41937
 	    },
-        },
-        ["GUILD"] = {
-            -- Mageguild
+	},
+	["GUILD"] = {
+	    -- Mageguild
 	    ["METEOR"] = {
 		Desc = GetString(POC_DESCRIPTIONS_METEOR),
 		Ping = 26,
 		Gid = 42492
 	    },
-            -- Fighterguild
+	    -- Fighterguild
 	    ["DAWN"] = {
 		Desc = GetString(POC_DESCRIPTIONS_DAWN),
 		Ping = 27,
 		Gid = 42598
 	    },
-            -- Support
+	    -- Support
 	    ["BARRIER"] = {
 		Desc = GetString(POC_DESCRIPTIONS_BARRIER),
 		Ping = 28,
 		Gid = 46622
 	    },
-            -- Assault
+	    -- Assault
 	    ["HORN"] = {
 		Desc = GetString(POC_DESCRIPTIONS_HORN),
 		Ping = 29,
 		Gid = 46537
 	    }
-        },
-        ["POC"] = {
-            ['MIA'] = {
-                Desc = "Incommunicado players",
-                Ping = 30,  -- a contradiction?
-                Gid = 'MIA'
-            }
-        }
+	},
+	["POC"] = {
+	    ['MIA'] = {
+		Desc = "Incommunicado players",
+		Ping = 30,  -- a contradiction?
+		Gid = 'MIA'
+	    }
+	}
 
     }
     -- Add groups
     for _, x in pairs(ults) do
-        for name, group in pairs(x) do
-            group.Name = name
-            byids[group.Gid] = group
-            bypings[group.Ping] = group
-        end
+	for name, group in pairs(x) do
+	    group.Name = name
+	    byids[group.Gid] = group
+	    bypings[group.Ping] = group
+	end
     end
     local i = 0
     i = insert_group_table(bynames, ults, class, i)
     if POC_Settings.SavedVariables.MyUltId[ultix] == nil then
-        for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-            POC_Settings.SetStaticUltimateIDSettings(v.Gid)
-            break
-        end
+	for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
+	    POC_Settings.SetStaticUltimateIDSettings(v.Gid)
+	    break
+	end
     end
     i = insert_group_table(bynames, ults, "WEAPON", i)
     i = insert_group_table(bynames, ults, "GUILD", i)
     i = insert_group_table(bynames, ults, "WORLD", i)
     for _, class in pairs(classes) do
-        if ults[class] ~= null then
-            i = insert_group_table(bynames, ults, class, i)
-        end
+	if ults[class] ~= null then
+	    i = insert_group_table(bynames, ults, class, i)
+	end
     end
 end
 
 function POC_Ult.GetSaved()
     if POC_Settings.SavedVariables.MyUltId[ultix] == nil then
-        -- should never happen
+	-- should never happen
     else
-        return GetAbilityIcon(POC_Settings.SavedVariables.MyUltId[ultix])
+	return GetAbilityIcon(POC_Settings.SavedVariables.MyUltId[ultix])
     end
 end
 
 function POC_Ult.SetSaved(icon)
     for id, _ in pairs(byids) do
-        if id ~= 'MIA' and GetAbilityIcon(id) == icon then
+	if id ~= 'MIA' and GetAbilityIcon(id) == icon then
 
-            POC_Settings.SavedVariables.MyUltId[ultix] = id
-            return
-        end
+	    POC_Settings.SavedVariables.MyUltId[ultix] = id
+	    return
+	end
     end
     d("POC_Ult.SetSaved: unknown icon " .. tostring(icon))
 end

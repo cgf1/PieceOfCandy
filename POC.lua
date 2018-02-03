@@ -1,5 +1,3 @@
--- Global variables
---
 -- Callbacks
 POC_GROUP_CHANGED = "POC-GroupChanged"
 POC_UNIT_GROUPED_CHANGED = "POC-UnitGroupedChanged"
@@ -14,9 +12,6 @@ POC_SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 POC_SET_ULTIMATE_GROUP = "POC-SetUlt"
 POC_SWIMLANE_COLMAX_CHANGED = "POC-Swimlane-ColMax"
 
---[[
-	Local variables
-]]--
 local MAJOR = "2"
 local MINOR = "1"
 local PATCH = "0"
@@ -25,26 +20,17 @@ local ISMOCKED = false
 
 local LOG_NAME = "POC-DebugLogger"
 local LOG_COMMAND = "/poclogs"
-local TRACE_ACTIVE = false
-local DEBUG_ACTIVE = false
-local ERROR_ACTIVE = true
-local DIRECT_PRINT = true
-local CATCH_LUA_ERRORS = false
 
---[[
-	Table POC
-]]--
 POC = {
     Name = "POC"
 }
 POC.__index = POC
 
---[[
-	POC:initialize initializes addon
-]]--
+-- POC:initialize initializes addon
+--
 function POC:initialize()
     -- Initialize logging
-    d("Piece of Candy!")
+    d("Piece of Candy! (v" .. MAJOR .. "." .. MINOR .. "." .. PATCH .. ")")
     SLASH_COMMANDS["/rrr"] = function () ReloadUI() end
 
     -- Initialize settings
@@ -67,16 +53,15 @@ function POC:initialize()
     POC_Swimlanes.Initialize()
 end
 
---[[
-	OnAddOnLoaded if POC is loaded, initialize
-]]--
+-- OnAddOnLoaded if POC is loaded, initialize
+--
 local function OnAddOnLoaded(eventCode, addOnName)
 	if addOnName == POC.Name then
 
-        -- Unregister Loaded Callback
-        EVENT_MANAGER:UnregisterForEvent(POC.Name, EVENT_ADD_ON_LOADED)
+	-- Unregister Loaded Callback
+	EVENT_MANAGER:UnregisterForEvent(POC.Name, EVENT_ADD_ON_LOADED)
 
-        -- Initialize
+	-- Initialize
 		POC:initialize()
 	end
 end
@@ -86,8 +71,8 @@ function POC.xxx(...)
     local accum = ''
     local space = ''
     for _,n in ipairs(args) do
-        accum = accum .. space .. tostring(n)
-        space = ' '
+	accum = accum .. space .. tostring(n)
+	space = ' '
     end
     d(accum)
 end

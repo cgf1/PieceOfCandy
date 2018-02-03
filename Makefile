@@ -8,8 +8,8 @@ all: ${modified}
 FORCE:
 
 %.lua.ok: %.lua
-	@echo /usr/bin/lua $@
-	@cat eso.lua $? | /usr/bin/lua /dev/stdin
+	unexpand -I $?
+	esolua $?
 	@touch $@
 
 tags ctags:

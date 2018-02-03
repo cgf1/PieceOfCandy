@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use vars qw'$DB::inhibit_exit';
+$DB::inhibit_exit = 0;
+
+use strict;
+
+use File::Slurp qw{read_file};
+my $infile = shift;
+my @eso = read_file('eso.lua');
+open my $fd, '-|' or do {
+    open STDERR, '>&', \*STDOUT;
+    open my $fd, '|-', '/usr/bin/lua', '/dev/stdin';
+    print $fd @eso, read_file($infile);
+    close $fd; 
+};
+# /usr/bin/lua: /dev/stdin:696: '(' expected near ':'
+while (<$fd>) {
+    if (m{^(/usr/bin/lua: )/dev/stdin:(\d+)(.*\n)}o) {
+        $_ = $1 . $infile . ':' . ($2 - @eso) . $3;
+    }
+    print;
+}
+close $fd;
+exit ! !$?;

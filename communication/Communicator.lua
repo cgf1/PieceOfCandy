@@ -8,7 +8,7 @@ if not LMP then
     error("Cannot load without LibMapPing")
 end
 
-local _ultimateHandler = nil
+local _ultHandler = nil
 
 local ABILITY_COEFFICIENT = 100
 local ULTIMATE_COEFFICIENT = 1000
@@ -18,39 +18,38 @@ local ULTIMATE_COEFFICIENT = 1000
 POC_Communicator = {
   IsLgsActive = false,
   IsMocked = false,
-  Name = "POC-Communicator",
-__index = POC_Communicator
+  Name = "POC-Communicator"
 }
+POC_Communicator.__index = POC_Communicator
 
 -- Called on data from LGS
 --
-function POC_Communicator.OnUltimateReceived(unitTag, ultimateCurrent, ultimateCost, ultId, isSelf)
-    local ultpct = math.floor((ultimateCurrent / ultimateCost) * 100)
+function POC_Communicator.OnUltRcv(unitTag, ultCurrent, ultCost, ultId, isSelf)
+    local ultpct = math.floor((ultCurrent / ultCost) * 100)
 
     if (ultpct > 124) then
-        ultpct = 124
+	ultpct = 124
     end
 
     CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, unitTag, ultId, ultpct)
 end
 
---[[
-	Called on map ping from LibMapPing
-]]--
+-- Called on map ping from LibMapPing
+--
 function POC_Communicator.OnMapPing(pingType, pingTag, offsetX, offsetY, isLocalPlayerOwner)
     if (pingType == MAP_PIN_TYPE_PING and LMP:IsPositionOnMap(offsetX, offsetY) and
-        POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
+	POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
 
-        LMP:SuppressPing(pingType, pingTag)
+	LMP:SuppressPing(pingType, pingTag)
 
-        local abilityPing = POC_Communicator.GetAbilityPing(offsetX)
-        local ultpct = POC_Communicator.GetUltPct(offsetY)
+	local abilityPing = POC_Communicator.GetAbilityPing(offsetX)
+	local ultpct = POC_Communicator.GetUltPct(offsetY)
 
-        if (abilityPing ~= -1 and ultpct ~= -1) then
-            CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingTag, abilityPing, ultpct)
-        else
-            POC_Error("POC_Communicator.OnMapPing, Ping invalid abilityPing: " .. tostring(abilityPing) .. "; ultpct: " .. tostring(ultpct))
-        end
+	if (abilityPing ~= -1 and ultpct ~= -1) then
+	    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingTag, abilityPing, ultpct)
+	else
+	    POC_Error("POC_Communicator.OnMapPing, Ping invalid abilityPing: " .. tostring(abilityPing) .. "; ultpct: " .. tostring(ultpct))
+	end
     end
 end
 
@@ -60,10 +59,10 @@ end
 function POC_Communicator.OnMapPingFinished(pingType, pingTag, offsetX, offsetY, isLocalPlayerOwner)
     offsetX, offsetY = LMP:GetMapPing(pingType, pingTag) -- load from LMP, because offsetX, offsetY from PING_EVENT_REMOVED are 0,0
 
-    if (pingType == MAP_PIN_TYPE_PING and
-        LMP:IsPositionOnMap(offsetX, offsetY) and
-        POC_Communicator.IsPossiblePing(offsetX, offsetY)) then
-        LMP:UnsuppressPing(pingType, pingTag)
+    if pingType == MAP_PIN_TYPE_PING and
+       LMP:IsPositionOnMap(offsetX, offsetY) and
+       POC_Communicator.IsPossiblePing(offsetX, offsetY) then
+	LMP:UnsuppressPing(pingType, pingTag)
     end
 end
 
@@ -72,46 +71,46 @@ end
 ]]--
 function POC_Communicator.SendData(abilityGroup)
     if (abilityGroup ~= nil) then
-        local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
-        local abilityCost = math.max(1, GetAbilityCost(abilityGroup.Gid))
+	local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
+	local abilityCost = math.max(1, GetAbilityCost(abilityGroup.Gid))
 
-        -- Mocked
-        if (POC_Communicator.IsMocked) then
-            POC_Communicator.SendFakePings()
-        -- LGS communication
-        elseif (POC_Communicator.IsLgsActive) then
-            if (_ultimateHandler ~= nil) then
-                _ultimateHandler:SetUltimateCost(abilityCost)
-                _ultimateHandler:SetUltId(abilityGroup.Ping)
-				_ultimateHandler:Refresh()
-            else
-                POC_Error("POC_Communicator.SendData, _ultimateHandler is nil")
-            end
-        -- Standard communication
-        else
-            local ultpct = math.floor((current / abilityCost) * 100)
+	-- Mocked
+	if POC_Communicator.IsMocked then
+	    POC_Communicator.SendFakePings()
+	-- LGS communication
+	elseif (POC_Communicator.IsLgsActive) then
+	    if (_ultHandler ~= nil) then
+		_ultHandler:SetUltCost(abilityCost)
+		_ultHandler:SetUltId(abilityGroup.Ping)
+				_ultHandler:Refresh()
+	    else
+		POC_Error("POC_Communicator.SendData, _ultHandler is nil")
+	    end
+	-- Standard communication
+	else
+	    local ultpct = math.floor((current / abilityCost) * 100)
 
-            -- d("UltPct " .. tostring(POC_Swimlanes.UltPct))
-            if (ultpct < 100) then
-                -- nothing to do
-            elseif (POC_Swimlanes.UltPct ~= nil) then
-                ultpct = POC_Swimlanes.UltPct
-            else
-                ultpct = 100
-            end
+	    -- d("UltPct " .. tostring(POC_Swimlanes.UltPct))
+	    if (ultpct < 100) then
+		-- nothing to do
+	    elseif (POC_Swimlanes.UltPct ~= nil) then
+		ultpct = POC_Swimlanes.UltPct
+	    else
+		ultpct = 100
+	    end
 
-            local abilityPing = abilityGroup.Ping / ABILITY_COEFFICIENT
+	    local abilityPing = abilityGroup.Ping / ABILITY_COEFFICIENT
 
-            if (ultpct > 0) then
-                ultimatePing = ultpct / ULTIMATE_COEFFICIENT
-            else
-                ultimatePing = 0.0001 -- Zero, if you send "0", the map ping will be invalid
-            end
+	    if (ultpct > 0) then
+		ultPing = ultpct / ULTIMATE_COEFFICIENT
+	    else
+		ultPing = 0.0001 -- Zero, if you send "0", the map ping will be invalid
+	    end
 
-            LMP:SetMapPing(MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, abilityPing, ultimatePing)
-        end
+	    LMP:SetMapPing(MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, abilityPing, ultPing)
+	end
     else
-        POC_Error("POC_Communicator.SendData, abilityGroup is nil.")
+	POC_Error("POC_Communicator.SendData, abilityGroup is nil.")
     end
 end
 
@@ -131,16 +130,16 @@ end
 ]]--
 function POC_Communicator.GetAbilityPing(offset)
     if (offset > 0) then
-        local abilityPing = math.floor((offset * ABILITY_COEFFICIENT) + 0.5)
-        if (abilityPing >= 1 and abilityPing <= 29) then
-            return abilityPing
-        else
-            POC_Error("offset is incorrect: " .. tostring(abilityPing) .. "; offset: " .. tostring(offset))
-            return -1
-        end
+	local abilityPing = math.floor((offset * ABILITY_COEFFICIENT) + 0.5)
+	if (abilityPing >= 1 and abilityPing <= 29) then
+	    return abilityPing
+	else
+	    POC_Error("offset is incorrect: " .. tostring(abilityPing) .. "; offset: " .. tostring(offset))
+	    return -1
+	end
     else
-        POC_Error("offset is incorrect: " .. tostring(offset))
-        return -1
+	POC_Error("offset is incorrect: " .. tostring(offset))
+	return -1
     end
 end
 
@@ -148,17 +147,17 @@ end
 --
 function POC_Communicator.GetUltPct(offset)
     if (offset >= 0) then
-        local ultpct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
+	local ultpct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
 
-        if (ultpct >= 0 and ultpct <= 125) then
-            return ultpct
-        else
-            POC_Error("ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
-            return -1
-        end
+	if (ultpct >= 0 and ultpct <= 125) then
+	    return ultpct
+	else
+	    POC_Error("ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
+	    return -1
+	end
     else
-        POC_Error("offset is incorrect: " .. tostring(offset))
-        return -1
+	POC_Error("offset is incorrect: " .. tostring(offset))
+	return -1
     end
 end
 
@@ -204,23 +203,23 @@ function POC_Communicator.UpdateCommunicationType()
     LMP:UnregisterCallback("AfterPingRemoved", POC_Communicator.OnMapPingFinished)
 
     if (POC_Communicator.IsLgsActive) then
-        local LGS = LibStub:GetLibrary("LibGroupSocket")
+	local LGS = LibStub:GetLibrary("LibGroupSocket")
 
-        if (LGS ~= nil) then
-            if (_ultimateHandler == nil) then
-                _ultimateHandler = LGS:GetHandler(LGS.MESSAGE_TYPE_ULTIMATE)
-            end
+	if (LGS ~= nil) then
+	    if (_ultHandler == nil) then
+		_ultHandler = LGS:GetHandler(LGS.MESSAGE_TYPE_ULTIMATE)
+	    end
 
-            _ultimateHandler:RegisterForUltimateChanges(POC_Communicator.OnUltimateReceived)
-            _ultimateHandler:Refresh()
-        else
-            POC_Error("LGS not found. Please install LibGroupSocket. Activate default communication as fallback.")
-            POC_Communicator.SetIsLgsActive(false)
-        end
+	    _ultHandler:RegisterForUltChanges(POC_Communicator.OnUltRcv)
+	    _ultHandler:Refresh()
+	else
+	    POC_Error("LGS not found. Please install LibGroupSocket. Activate default communication as fallback.")
+	    POC_Communicator.SetIsLgsActive(false)
+	end
     else
-        -- Register events
-        LMP:RegisterCallback("BeforePingAdded", POC_Communicator.OnMapPing)
-        LMP:RegisterCallback("AfterPingRemoved", POC_Communicator.OnMapPingFinished)
+	-- Register events
+	LMP:RegisterCallback("BeforePingAdded", POC_Communicator.OnMapPing)
+	LMP:RegisterCallback("AfterPingRemoved", POC_Communicator.OnMapPingFinished)
     end
 end
 

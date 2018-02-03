@@ -36,7 +36,7 @@ i18n/en.lua
 util/UiHelper.lua
 
 communication/Communicator.lua
-communication/UltimateHandler.lua
+communication/Ult.lua
 
 logic/SettingsHandler.lua
 logic/GroupHandler.lua
@@ -48,9 +48,9 @@ logic/Util.lua
 ui/VirtualControls.xml
 ui/SettingsWindow.lua
 ui/Swimlane.xml
+ui/CompactSwimlane.xml
 ui/UltNumber.xml
 ui/Swimlane.lua
-ui/CompactSwimlane.xml
 ui/UltMenu.lua
 
 POC.lua
