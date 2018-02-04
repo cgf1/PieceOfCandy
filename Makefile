@@ -1,6 +1,8 @@
 .PHONY: all ctags install clean install-gotham install-norton tags
 modified := $(shell git status | awk '/modified: .*\.lua/{print $$2 ".ok"}')
 allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort)
+FORCE := false
+
 # allfiles := $(shell ( echo POC.txt ; egrep -v '^[ 	]*[;#]|$$' POC.txt; } | sort )
 all: ${modified}
 
@@ -9,7 +11,7 @@ FORCE:
 
 %.lua.ok: %.lua
 	@unexpand -I $?
-	esolua $?
+	esolua $? || ${FORCE}
 	@touch $@
 
 tags ctags:

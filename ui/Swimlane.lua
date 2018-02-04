@@ -1,8 +1,3 @@
---[[
-	Local variables
-]]--
-local LOG_ACTIVE = false
-
 local SWIMLANES = 6
 local REFRESHRATE = 1000	-- ms; RegisterForUpdate is in miliseconds
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
