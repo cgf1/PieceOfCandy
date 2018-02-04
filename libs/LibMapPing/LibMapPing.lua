@@ -1,5 +1,5 @@
 local LIB_IDENTIFIER = "LibMapPing"
-local lib = LibStub:NewLibrary(LIB_IDENTIFIER, 5)
+local lib = LibStub:NewLibrary(LIB_IDENTIFIER, 6)
 
 if not lib then
     return -- already loaded and no upgrade necessary
@@ -54,38 +54,46 @@ end
 -- TODO keep an eye on worldmap.lua for changes
 local function HandleMapPing(eventCode, pingEventType, pingType, pingTag, x, y, isPingOwner)
     local key = GetKey(pingType, pingTag)
-    lib.pendingPing[key] = nil
+    local data = lib.pendingPing[key]
+    if data and data[1] == pingEventType then
+	lib.pendingPing[key] = nil
+    end
     if(pingEventType == PING_EVENT_ADDED) then
-        lib.cm:FireCallbacks("BeforePingAdded", pingType, pingTag, x, y, isPingOwner)
-        lib.pingState[key] = lib.MAP_PING_SET
-        g_mapPinManager:RemovePins(PING_CATEGORY, pingType, pingTag)
-        if(not lib:IsPingSuppressed(pingType, pingTag)) then
-            g_mapPinManager:CreatePin(pingType, pingTag, x, y)
-            if(isPingOwner and not lib:IsPingMuted(pingType, pingTag)) then
-                PlaySound(SOUNDS.MAP_PING)
-            end
-        end
-        lib.cm:FireCallbacks("AfterPingAdded", pingType, pingTag, x, y, isPingOwner)
+	lib.cm:FireCallbacks("BeforePingAdded", pingType, pingTag, x, y, isPingOwner)
+	lib.pingState[key] = lib.MAP_PING_SET
+	g_mapPinManager:RemovePins(PING_CATEGORY, pingType, pingTag)
+	if(not lib:IsPingSuppressed(pingType, pingTag)) then
+	    g_mapPinManager:CreatePin(pingType, pingTag, x, y)
+	    if(isPingOwner and not lib:IsPingMuted(pingType, pingTag)) then
+		PlaySound(SOUNDS.MAP_PING)
+	    end
+	end
+	lib.cm:FireCallbacks("AfterPingAdded", pingType, pingTag, x, y, isPingOwner)
     elseif(pingEventType == PING_EVENT_REMOVED) then
-        lib.cm:FireCallbacks("BeforePingRemoved", pingType, pingTag, x, y, isPingOwner)
-        lib.pingState[key] = lib.MAP_PING_NOT_SET
-        g_mapPinManager:RemovePins(PING_CATEGORY, pingType, pingTag)
-        if (isPingOwner and not lib:IsPingSuppressed(pingType, pingTag) and not lib:IsPingMuted(pingType, pingTag)) then
-            PlaySound(SOUNDS.MAP_PING_REMOVE)
-        end
-        lib.cm:FireCallbacks("AfterPingRemoved", pingType, pingTag, x, y, isPingOwner)
+	lib.cm:FireCallbacks("BeforePingRemoved", pingType, pingTag, x, y, isPingOwner)
+	lib.pingState[key] = lib.MAP_PING_NOT_SET
+	g_mapPinManager:RemovePins(PING_CATEGORY, pingType, pingTag)
+	if (isPingOwner and not lib:IsPingSuppressed(pingType, pingTag) and not lib:IsPingMuted(pingType, pingTag)) then
+	    PlaySound(SOUNDS.MAP_PING_REMOVE)
+	end
+	lib.cm:FireCallbacks("AfterPingRemoved", pingType, pingTag, x, y, isPingOwner)
     end
 end
 
 local function HandleMapPingEventNotFired()
     EVENT_MANAGER:UnregisterForUpdate(LIB_IDENTIFIER)
     for key, data in pairs(lib.pendingPing) do
-        local pingEventType, pingType, x, y = unpack(data)
-        local pingTag = GetPingTagFromType(pingType)
-        HandleMapPing(0, pingEventType, pingType, pingTag, x, y, true)
-        lib.pendingPing[key] = nil
-        lib.mutePing[key] = 0
-        lib.suppressPing[key] = 0
+	local pingEventType, pingType, x, y, zoneIndex = unpack(data)
+	local pingTag = GetPingTagFromType(pingType)
+	-- The event is delayed and thus may not match the current map anymore.
+	if GetCurrentMapZoneIndex() ~= zoneIndex then
+	    -- The coords do not match the current map. Do not draw a pin.
+	    lib:SuppressPing(pingType, pingTag) -- Will be set to zero afterwards, see below.
+	end
+	HandleMapPing(0, pingEventType, pingType, pingTag, x, y, true)
+	lib.pendingPing[key] = nil
+	lib.mutePing[key] = 0
+	lib.suppressPing[key] = 0
     end
 end
 
@@ -99,27 +107,27 @@ local function CustomPingMap(pingType, mapType, x, y)
     if(pingType == MAP_PIN_TYPE_PING and not IsUnitGrouped("player")) then return end
     local key = GetKey(pingType)
     lib.pingState[key] = lib.MAP_PING_SET_PENDING
-    ResetEventWatchdog(key, PING_EVENT_ADDED, pingType, x, y)
-    originalPingMap(pingType, mapType, x, y)
+    ResetEventWatchdog(key, PING_EVENT_ADDED, pingType, x, y, GetCurrentMapZoneIndex())
+    return originalPingMap(pingType, mapType, x, y)
 end
 
 local function CustomGetMapPlayerWaypoint()
     if(lib:IsPingSuppressed(MAP_PIN_TYPE_PLAYER_WAYPOINT, MAP_PIN_TAG_PLAYER_WAYPOINT)) then
-        return 0, 0
+	return 0, 0
     end
     return GET_MAP_PING_FUNCTION[MAP_PIN_TYPE_PLAYER_WAYPOINT]()
 end
 
 local function CustomGetMapPing(pingTag)
     if(lib:IsPingSuppressed(MAP_PIN_TYPE_PING, pingTag)) then
-        return 0, 0
+	return 0, 0
     end
     return GET_MAP_PING_FUNCTION[MAP_PIN_TYPE_PING](pingTag)
 end
 
 local function CustomGetMapRallyPoint()
     if(lib:IsPingSuppressed(MAP_PIN_TYPE_RALLY_POINT, MAP_PIN_TAG_RALLY_POINT)) then
-        return 0, 0
+	return 0, 0
     end
     return GET_MAP_PING_FUNCTION[MAP_PIN_TYPE_RALLY_POINT]()
 end
@@ -127,8 +135,8 @@ end
 local function CustomRemovePlayerWaypoint()
     local key = GetKey(MAP_PIN_TYPE_PLAYER_WAYPOINT, MAP_PIN_TAG_PLAYER_WAYPOINT)
     lib.pingState[key] = lib.MAP_PING_NOT_SET_PENDING
-    ResetEventWatchdog(key, PING_EVENT_REMOVED, MAP_PIN_TYPE_PLAYER_WAYPOINT, 0, 0)
-    originalRemovePlayerWaypoint()
+    ResetEventWatchdog(key, PING_EVENT_REMOVED, MAP_PIN_TYPE_PLAYER_WAYPOINT, 0, 0, GetCurrentMapZoneIndex())
+    return originalRemovePlayerWaypoint()
 end
 
 local function CustomRemoveMapPing()
@@ -156,7 +164,7 @@ end
 --- For group pings it just sets the position to 0, 0 as there is no function to clear them
 function lib:RemoveMapPing(pingType)
     if(REMOVE_MAP_PING_FUNCTION[pingType]) then
-        REMOVE_MAP_PING_FUNCTION[pingType]()
+	REMOVE_MAP_PING_FUNCTION[pingType]()
     end
 end
 
@@ -167,7 +175,7 @@ end
 function lib:GetMapPing(pingType, pingTag)
     local x, y = 0, 0
     if(GET_MAP_PING_FUNCTION[pingType]) then
-        x, y = GET_MAP_PING_FUNCTION[pingType](pingTag or GetPingTagFromType(pingType))
+	x, y = GET_MAP_PING_FUNCTION[pingType](pingTag or GetPingTagFromType(pingType))
     end
     return x, y
 end
@@ -177,9 +185,9 @@ function lib:GetMapPingState(pingType, pingTag)
     local key = GetKey(pingType, pingTag)
     local state = lib.pingState[key]
     if state == nil then
-        local x, y = lib:GetMapPing(pingType, pingTag)
-        state = (x ~= 0 or y ~= 0) and lib.MAP_PING_SET or lib.MAP_PING_NOT_SET
-        lib.pingState[key] = state
+	local x, y = lib:GetMapPing(pingType, pingTag)
+	state = (x ~= 0 or y ~= 0) and lib.MAP_PING_SET or lib.MAP_PING_NOT_SET
+	lib.pingState[key] = state
     end
     return lib.pingState[key]
 end
@@ -193,9 +201,9 @@ end
 --- Returns true if the pin has been refreshed.
 function lib:RefreshMapPin(pingType, pingTag)
     if(not g_mapPinManager) then
-        Log("PinManager not available. Using ZO_WorldMap_UpdateMap instead.")
-        ZO_WorldMap_UpdateMap()
-        return true
+	Log("PinManager not available. Using ZO_WorldMap_UpdateMap instead.")
+	ZO_WorldMap_UpdateMap()
+	return true
     end
 
     pingTag = pingTag or GetPingTagFromType(pingType)
@@ -203,8 +211,8 @@ function lib:RefreshMapPin(pingType, pingTag)
 
     local x, y = lib:GetMapPing(pingType, pingTag)
     if(lib:IsPositionOnMap(x, y)) then
-        g_mapPinManager:CreatePin(pingType, pingTag, x, y)
-        return true
+	g_mapPinManager:CreatePin(pingType, pingTag, x, y)
+	return true
     end
     return false
 end
@@ -267,8 +275,8 @@ local function InterceptMapPinManager()
     if (g_mapPinManager) then return end
     local orgRefreshCustomPins = ZO_WorldMapPins.RefreshCustomPins
     function ZO_WorldMapPins:RefreshCustomPins()
-        g_mapPinManager = self
-        lib.mapPinManager = self
+	g_mapPinManager = self
+	lib.mapPinManager = self
     end
     ZO_WorldMap_RefreshCustomPinsOfType()
     ZO_WorldMapPins.RefreshCustomPins = orgRefreshCustomPins
@@ -321,12 +329,12 @@ local function Load()
     REMOVE_MAP_PING_FUNCTION[MAP_PIN_TYPE_RALLY_POINT] = CustomRemoveRallyPoint
 
     EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_ADD_ON_LOADED, function(_, addonName)
-        if(addonName == "ZO_Ingame") then
-            EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_ADD_ON_LOADED)
-            -- don't let worldmap do anything as we manage it instead
-            EVENT_MANAGER:UnregisterForEvent("ZO_WorldMap", EVENT_MAP_PING)
-            EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_MAP_PING, HandleMapPing)
-        end
+	if(addonName == "ZO_Ingame") then
+	    EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_ADD_ON_LOADED)
+	    -- don't let worldmap do anything as we manage it instead
+	    EVENT_MANAGER:UnregisterForEvent("ZO_WorldMap", EVENT_MAP_PING)
+	    EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_MAP_PING, HandleMapPing)
+	end
     end)
 
     lib.Unload = Unload

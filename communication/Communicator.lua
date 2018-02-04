@@ -102,10 +102,7 @@ function POC_Communicator.SendData(abilityGroup)
 		ultPing = 0.0001 -- Zero, if you send "0", the map ping will be invalid
 	    end
 
-	    -- local mapindex = GetCurrentMapZoneIndex()
-	    -- SetMapToMapListIndex(23)    -- Cold Harbour
 	    LMP:SetMapPing(MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, abilityPing, ultPing)
-	    -- SetMapToMapListIndex(mapindex)
 	end
     else
 	POC_Error("POC_Communicator.SendData, abilityGroup is nil.")
