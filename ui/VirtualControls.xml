@@ -94,12 +94,12 @@
                     <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
                     <Edge edgeSize="1" />
                 </Backdrop>
-                <StatusBar name="$(parent)UltPctStatusBar" alpha="0.7" textureFile="/POC/textures/grainy.dds">
+                <StatusBar name="$(parent)UltPct" alpha="0.7" textureFile="/POC/textures/grainy.dds">
                     <Dimensions x="100" y="28" />
                     <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="0"/>
                     <Limits min="0" max="100" />
                 </StatusBar>
-                <Label name="$(parent)SenderNameValueLabel" inherits="SwimlaneListLabel">
+                <Label name="$(parent)PlayerName" inherits="SwimlaneListLabel">
                     <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="2" offsetY="2"/>
                 </Label>
             </Controls>
@@ -146,12 +146,12 @@
           <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
           <Edge edgeSize="1" />
         </Backdrop>
-        <StatusBar name="$(parent)UltPctStatusBar" alpha="0.7" textureFile="/POC/textures/grainy.dds">
+        <StatusBar name="$(parent)UltPct" alpha="0.7" textureFile="/POC/textures/grainy.dds">
           <Dimensions x="48" y="23" />
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="1"/>
           <Limits min="0" max="100" />
         </StatusBar>
-        <Label name="$(parent)SenderNameValueLabel" inherits="CompactSwimlaneListLabel">
+        <Label name="$(parent)PlayerName" inherits="CompactSwimlaneListLabel">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="3" offsetY="2"/>
         </Label>
       </Controls>

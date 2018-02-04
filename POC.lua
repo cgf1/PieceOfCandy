@@ -41,7 +41,7 @@ function POC:initialize()
 
     -- Initialize logic
     POC_GroupHandler.Initialize(ISMOCKED)
-    POC_MapPingHandler.Initialize(ISMOCKED)
+    POC_MapPing.Initialize(ISMOCKED)
     POC_Ult.Initialize()
     POC_CommandsHandler.Initialize()
 

@@ -40,7 +40,7 @@ communication/Ult.lua
 
 logic/SettingsHandler.lua
 logic/GroupHandler.lua
-logic/MapPingHandler.lua
+logic/MapPing.lua
 logic/Ult.lua
 logic/CommandsHandler.lua
 logic/Util.lua
