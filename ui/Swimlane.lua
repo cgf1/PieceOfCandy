@@ -197,7 +197,13 @@ function POC_Lane:Update(force)
 
     local n = 1
     local displayed = false
-    if (laneid <= MIAlane) then
+    local lastlane
+    if saved.MIA then
+	lastlane = MIAlane
+    else
+	lastlane = MIAlane - 1
+    end
+    if (laneid <= lastlane) then
 	function sortval(player)
 	    local a
 	    if player:TimedOut() or player.IsRemote then
