@@ -351,9 +351,9 @@ function POC_Lane:UpdateCell(i, player, playername)
     local deadalpha
     local inprogressalpha
     if not player.InRange then
-	alivealpha = .5
-	deadalpha = .4
-	inprogressalpha = .4
+	alivealpha = .4
+	deadalpha = .3
+	inprogressalpha = .3
 -- xxx(playername, "~inrange alpha")
     else
 	alivealpha = 1
@@ -378,7 +378,8 @@ function POC_Lane:UpdateCell(i, player, playername)
 	elseif (player.UltPct >= 100) then
 -- xxx(playername, rowi, "ready color", alivealpha)
 	    row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 1)
-	    row:GetNamedChild("UltPct"):SetColor(0.03, 0.7, 0.03, alivealpha)
+	    -- row:GetNamedChild("UltPct"):SetColor(0.03, 0.7, 0.03, alivealpha)
+	    row:GetNamedChild("UltPct"):SetColor(0.01, 0.69, 0.02, alivealpha)
 	else
 -- xxx(playername, rowi, "inprogress color")
 	    row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 0.8)
@@ -434,7 +435,8 @@ function POC_Player.Update(inplayer)
 		end
 		player = player1
 	    end
-	    player.PlayerName = unitname
+	    player.Name = unitname
+	    player.PingTag = unitid
 	    local changed, player1 = POC_Player.new(player, unitid)
 	    if changed then
 		need_to_fire = true
@@ -468,7 +470,7 @@ function POC_Player.new(inplayer, pingtag)
     if _this.Lanes == nil then
 	return
     end
-    local name = inplayer.PlayerName
+    local name = inplayer.Name
     local self = group_members[name]
     if self == nil then
 	self = setmetatable({}, POC_Player)
@@ -494,7 +496,7 @@ function POC_Player.new(inplayer, pingtag)
     end
 
     -- Don't need this
-    inplayer.PlayerName = nil
+    inplayer.Name = nil
 
     inplayer.PingTag = pingtag
     inplayer.IsLeader = IsUnitGroupLeader(pingtag)

@@ -16,19 +16,11 @@ function POC_MapPing.OnData(pingTag, abilityPing, ultpct)
     local ult = POC_Ult.ByPing(abilityPing)
 
     if (ult ~= nil and ultpct ~= -1) then
-	local player = {}
-	local playerName = ""
-
-	if (POC_MapPing.IsMocked == false) then
-	    playerName = GetUnitName(pingTag)
-	else
-	    playerName = pingTag
-	end
-
-	player.PingTag = pingTag
-	player.PlayerName = playerName
-	player.UltGid = ult.Gid
-	player.UltPct = ultpct
+	local player = {
+	    PingTag = pingTag,
+	    UltGid = ult.Gid,
+	    UltPct = ultpct
+	}
 	-- d(playerName .. " " .. tostring(ultpct))
 
 	CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)
