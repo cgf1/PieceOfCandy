@@ -12,7 +12,6 @@ POC_Settings = {
     SavedVariables = nil,
     Default = {
 	GroupMembers = {},
-	IsLgsActive = false,
 	MIA = true,
 	Movable = true,
 	MyUltId = {},
@@ -92,13 +91,6 @@ function POC_Settings.SetOnlyAvaSettings(onlyAva)
     CALLBACK_MANAGER:FireCallbacks(POC_IS_ZONE_CHANGED)
 end
 
---[[
-	Sets IsLgsActive settings
-]]--
-function POC_Settings.SetIsLgsActiveSettings(isLgsActive)
-    POC_Settings.SavedVariables.IsLgsActive = isLgsActive
-end
-
 -- Sets maximum number of cells in a swimlane
 --
 function POC_Settings.SetSwimlaneMax(max)
@@ -169,9 +161,14 @@ end
 ]]--
 function POC_Settings.Initialize()
     POC_Settings.SavedVariables = ZO_SavedVars:NewAccountWide(POC_Settings.SettingsName, SETTINGS_VERSION, nil, POC_Settings.Default)
+
+    --  Obsolete variables
     POC_Settings.SavedVariables.SwimlaneUltimateGroupIds = nil
     POC_Settings.SavedVariables.StaticUltimateID = nil
     POC_Settings.SavedVariables.SwimlaneUltGrpIds = nil
+    POC_Settings.SavedVariables.IsLgsActive = nil
+
+    -- The last one is always MIA
     POC_Settings.SavedVariables.SwimlaneUltIds[7] = 'MIA'
 
     -- Register

@@ -36,7 +36,6 @@ i18n/en.lua
 util/UiHelper.lua
 
 communication/Communicator.lua
-communication/Ult.lua
 
 logic/SettingsHandler.lua
 logic/GroupHandler.lua

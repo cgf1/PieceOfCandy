@@ -12,6 +12,8 @@ POC_SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 POC_SET_ULTIMATE_GROUP = "POC-SetUlt"
 POC_SWIMLANE_COLMAX_CHANGED = "POC-Swimlane-ColMax"
 
+POC_API_VERSION = 1
+
 local MAJOR = "2"
 local MINOR = "1"
 local PATCH = "0"
@@ -37,7 +39,7 @@ function POC:initialize()
     POC_Settings.Initialize()
 
     -- Initialize communication
-    POC_Communicator.Initialize(POC_Settings.SavedVariables.IsLgsActive, ISMOCKED)
+    POC_Communicator.Initialize(ISMOCKED)
 
     -- Initialize logic
     POC_GroupHandler.Initialize(ISMOCKED)

@@ -11,7 +11,6 @@ local ULTIMATE_COEFFICIENT = 1000
 -- POC_Communicator table
 --
 POC_Communicator = {
-  IsLgsActive = false,
   IsMocked = false,
   Name = "POC-Communicator"
 }
@@ -72,17 +71,7 @@ function POC_Communicator.SendData(abilityGroup)
 	-- Mocked
 	if POC_Communicator.IsMocked then
 	    POC_Communicator.SendFakePings()
-	-- LGS communication
-	elseif (POC_Communicator.IsLgsActive) then
-	    if _ultHandler ~= nil then
-		_ultHandler:SetUltCost(abilityCost)
-		_ultHandler:SetUltId(abilityGroup.Ping)
-				_ultHandler:Refresh()
-	    else
-		POC_Error("POC_Communicator.SendData, _ultHandler is nil")
-	    end
-	-- Standard communication
-	else
+	else -- Standard communication
 	    local ultpct = math.floor((current / abilityCost) * 100)
 
 	    -- d("UltPct " .. tostring(POC_Swimlanes.UltPct))
@@ -197,33 +186,16 @@ function POC_Communicator.UpdateCommunicationType()
     LMP:UnregisterCallback("BeforePingAdded", POC_Communicator.OnMapPing)
     LMP:UnregisterCallback("AfterPingRemoved", POC_Communicator.OnMapPingFinished)
 
-    if (POC_Communicator.IsLgsActive) then
-	local LGS = LibStub:GetLibrary("LibGroupSocket")
-
-	if (LGS ~= nil) then
-	    if (_ultHandler == nil) then
-		_ultHandler = LGS:GetHandler(LGS.MESSAGE_TYPE_ULTIMATE)
-	    end
-
-	    _ultHandler:RegisterForUltChanges(POC_Communicator.OnUltRcv)
-	    _ultHandler:Refresh()
-	else
-	    POC_Error("LGS not found. Please install LibGroupSocket. Activate default communication as fallback.")
-	    POC_Communicator.SetIsLgsActive(false)
-	end
-    else
-	-- Register events
-	LMP:RegisterCallback("BeforePingAdded", POC_Communicator.OnMapPing)
-	LMP:RegisterCallback("AfterPingRemoved", POC_Communicator.OnMapPingFinished)
-    end
+    -- Register events
+    LMP:RegisterCallback("BeforePingAdded", POC_Communicator.OnMapPing)
+    LMP:RegisterCallback("AfterPingRemoved", POC_Communicator.OnMapPingFinished)
 end
 
 --[[
 	Initialize initializes POC_Communicator
 ]]--
-function POC_Communicator.Initialize(isLgsActive, isMocked)
+function POC_Communicator.Initialize(isMocked)
     POC_Communicator.IsMocked = isMocked
 
-    POC_Communicator.IsLgsActive = isLgsActive
     POC_Communicator.UpdateCommunicationType()
 end
