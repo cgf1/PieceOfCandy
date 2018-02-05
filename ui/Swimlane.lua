@@ -1,8 +1,9 @@
 local SWIMLANES = 6
 local REFRESHRATE = 1000	-- ms; RegisterForUpdate is in miliseconds
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
-local INRANGETIME = 10		-- Reset ultpct if inrange for at least this long
+local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
+local MAXPLAYSOUNDTIME = 30
 
 local widget = nil
 local curstyle = ""
@@ -18,7 +19,6 @@ local sldebug = false
 
 local group_members = {}
 
-local me
 local save_me
 
 local ping_refresh = false
@@ -177,8 +177,8 @@ end
 
 -- Return true if we need to back the heck off
 --
-function POC_Player:HasNotBeenInRange()
-    return (GetTimeStamp() - self.InRangeTime) >= INRANGETIME
+function POC_Player:HasBeenInRange()
+    return (GetTimeStamp() - self.InRangeTime) < INRANGETIME
 end
 
 -- Update swimlane
@@ -190,7 +190,6 @@ function POC_Lane:Update(force)
     end
     local players = self.Players
 
-    local n = 1
     local displayed = false
     local lastlane
     if saved.MIA then
@@ -198,6 +197,7 @@ function POC_Lane:Update(force)
     else
 	lastlane = MIAlane - 1
     end
+    local n = 1
     if (laneid <= lastlane) then
 	function sortval(player)
 	    local a
@@ -212,10 +212,10 @@ function POC_Lane:Update(force)
 	end
 
 	function compare(key1, key2)
-	    player1 = players[key1]
-	    player2 = players[key2]
-	    a = sortval(player1)
-	    b = sortval(player2)
+	    local player1 = players[key1]
+	    local player2 = players[key2]
+	    local a = sortval(player1)
+	    local b = sortval(player2)
 	    -- xxx("A " .. a)
 	    -- xxx("B " .. b)
 	    if (a == b) then
@@ -226,8 +226,8 @@ function POC_Lane:Update(force)
 	end
 
 	local keys = {}
-	for n in pairs(players) do
-	    table.insert(keys, n)
+	for name in pairs(players) do
+	    table.insert(keys, name)
 	end
 
 	table.sort(keys, compare)
@@ -254,50 +254,34 @@ function POC_Lane:Update(force)
 		    if player.UltPct > 100 then
 			gt100 = player.UltPct
 		    end
-		    -- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
 		else
-		    local not100
+		    local noshow
 		    if forcepct ~= nil then
 			player.UltPct = forcepct
-			_this.UltPct = forcepct
-			not100 = player.UltPct	< 100
-		    elseif player.UltPct  < 100 then
+		    end
+		    if player.UltPct  < 100 then
 			_this.UltPct = nil
-			not100 = true
-		    elseif player.IsDead or player:HasNotBeenInRange() then
+			save_me.PlaySound = true
+			noshow = true
+		    elseif not player.IsDead and player:HasBeenInRange() then
+			_this.UltPct = gt100 - 1
+			player.UltPct = _this.UltPct
+		    else
+			-- reset order since we can't contribute
 			_this.UltPct = 100
 			player.UltPct = _this.UltPct
 			save_me.PlaySound = true
-		    else
-			_this.UltPct = gt100 - 1
-			player.UltPct = _this.UltPct
+			noshow = true
 		    end
 		    -- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
 		    self:UpdateCell(n, player, playername)
-		    if (not not100 or player.UltPct == 100 or
-			    saved.UltNumberShow or
-			    laneid == MIAlane or
-			    POC_CurrentHudHiddenState() or
-			    player.IsDead or
-			    not POC_GroupHandler.IsGrouped() or
-			    not POC_Settings.IsSwimlaneListVisible()) then
+		    if (noshow or not saved.UltNumberShow or laneid == MIAlane or
+			POC_CurrentHudHiddenState() or player.IsDead or
+			not POC_GroupHandler.IsGrouped() or
+			not POC_Settings.IsSwimlaneListVisible()) then
 			POC_UltNumber.Hide(true)
-			if not100 then
-			    save_me.PlaySound = true
-			end
 		    else
-			local color
-			if n == 1 then
-			    color = "00ff00"
-			else
-			    color = "ff0000"
-			end
-			POC_UltNumberLabel:SetText("|c" .. color .. " #" .. n .. "|r")
-			POC_UltNumber.Hide(false)
-			if n == 1 and save_me.PlaySound and saved.WereNumberOne then
-			    PlaySound(SOUNDS.DUEL_START)
-			    save_me.PlaySound = false
-			end
+			POC_UltNumber.Show(n)
 		    end
 		end
 		n = n + 1
@@ -393,7 +377,7 @@ function POC_Player.Update(inplayer)
     local nmembers = 0
     local inrange = 0
     local timenow = GetTimeStamp()
-    if me ~= nil and me:TimedOut() then
+    if POC_Me ~= nil and POC_Me:TimedOut() then
 	need_to_fire = true
     end
     for i = 1, 24 do
@@ -403,7 +387,7 @@ function POC_Player.Update(inplayer)
 	    nmembers = nmembers + 1
 	    local player = group_members[unitname]
 	    if player == nil then
-		savedplayer = saved.GroupMembers[unitname]
+		local savedplayer = saved.GroupMembers[unitname]
 		if savedplayer == nil then
 		    player = {}
 		    player.UltGid = 'MIA'	-- not really
@@ -424,7 +408,7 @@ function POC_Player.Update(inplayer)
 		player = inplayer
 		player.TimeStamp = timenow
 	    else
-		player1 = {}
+		local player1 = {}
 		for k,v in pairs(player) do
 		    player1[k] = v
 		end
@@ -436,7 +420,9 @@ function POC_Player.Update(inplayer)
 	    if changed then
 		need_to_fire = true
 	    end
-	    if player1.InRange then
+	    if player1:TimedOut() then
+		nmembers = nmembers - 1
+	    elseif player1.InRange then
 		inrange = inrange + 1
 	    elseif player1.IsLeader then
 		inrange = inrange - 1
@@ -444,14 +430,14 @@ function POC_Player.Update(inplayer)
 	end
     end
 
-    if me.IsLeader then
-	inrange = inrange + 1
+    if POC_Me.IsLeader then
+	inrange = inrange + 2
     end
     if (inrange / nmembers) >= 0.5 then
-	me.InRangeTime = timenow
+	POC_Me.InRangeTime = timenow
 	save_me.InRangeTime = timenow
-    elseif me.InRangeTime == nil then
-	me.InRangeTime = 0
+    elseif POC_Me.InRangeTime == nil then
+	POC_Me.InRangeTime = 0
 	save_me.InRangeTime = 0
     end
 
@@ -473,7 +459,7 @@ function POC_Player.new(inplayer, pingtag)
 	if name ~= GetUnitName("player") then
 	    inplayer.IsMe = false
 	else
-	    me = self
+	    POC_Me = self
 	    inplayer.IsMe = true
 	end
 	self.TimeStamp = 0
@@ -584,7 +570,6 @@ end
 --
 function POC_Lanes:SetUlt(id, newult)
     local newgid = newult.Gid
-xxx("Info", id, newgid)
     for gid, lane in pairs(self) do
 	if lane.Id == id then
 	    self[newgid] = lane -- New row
@@ -651,7 +636,9 @@ function POC_Lane:Hide(displayed)
     local hide = self.Id > MIAlane or (self.Id == MIAlane and not displayed)
     self.Button:SetHidden(hide)
     self.Icon:SetHidden(hide)
-    self.Label:SetHidden(hide)
+    if self.Label then
+	self.Label:SetHidden(hide)
+    end
 end
 
 function POC_Lanes:Redo()
@@ -730,6 +717,25 @@ function POC_UltNumber.Hide(x)
     if saved.UltNumberShow then
 	POC_UltNumber:SetHidden(x)
     end
+end
+
+function POC_UltNumber.Show(n)
+    local color
+    if n == 1 then
+	color = "00ff00"
+    else
+	color = "ff0000"
+    end
+    POC_UltNumberLabel:SetText("|c" .. color .. " #" .. n .. "|r")
+    POC_UltNumber.Hide(false)
+    local timenow = GetTimeStamp()
+    if n ~= 1 or not save_me.PlaySound or not saved.WereNumberOne or
+       (save_me.LastPlayed ~= nil and (save_me.LastPlayed - GetTimeStamp()) < MAXPLAYSOUNDTIME) then
+	return
+    end
+    PlaySound(SOUNDS.DUEL_START)
+    save_me.LastPlayed = GetTimeStamp()
+    save_me.PlaySound = false
 end
 
 -- Initialize initializes _this
