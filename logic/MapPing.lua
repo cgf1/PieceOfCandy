@@ -12,15 +12,24 @@ local notify_when_not_grouped = false
 
 -- Called on new data from LibGroupSocket
 --
-function POC_MapPing.OnData(pingTag, abilityPing, ultpct)
-    local ult = POC_Ult.ByPing(abilityPing)
+function POC_MapPing.OnData(pingTag, ultid, ultpct, apiver)
+    local ult = POC_Ult.ByPing(ultid)
 
     if (ult ~= nil and ultpct ~= -1) then
 	local player = {
 	    PingTag = pingTag,
-	    UltGid = ult.Gid,
-	    UltPct = ultpct
+	    UltPct = ultpct,
+	    ApiVer = apiver
 	}
+
+	if apiver == POC_API_VERSION then
+	    player.UltGid = ult.Gid
+	    player.InvalidClient = false
+	else
+	    player.UltGid = POC_Ult.MaxPing
+	    player.InvalidClient = true
+	end
+
 	-- d(playerName .. " " .. tostring(ultpct))
 
 	CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)

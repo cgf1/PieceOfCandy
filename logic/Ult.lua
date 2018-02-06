@@ -1,5 +1,6 @@
 POC_Ult = {
     Name = "POC-Ult",
+    MaxPing = 0
 }
 POC_Ult.__index = POC_Ult
 
@@ -298,6 +299,9 @@ local function create_ults()
 	    group.Name = name
 	    byids[group.Gid] = group
 	    bypings[group.Ping] = group
+	    if group.Ping > POC_Ult.MaxPing then
+		POC_Ult.MaxPing = group.Ping
+	    end
 	end
     end
     local i = 0

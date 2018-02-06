@@ -260,7 +260,7 @@ function POC_Lane:Update(force)
 			player.UltPct = forcepct
 		    end
 		    if player.UltPct  < 100 then
-			_this.UltPct = nil
+			_this.UltPct = player.UltPct
 			save_me.PlaySound = true
 			noshow = true
 		    elseif not player.IsDead and player:HasBeenInRange() then
@@ -343,7 +343,11 @@ function POC_Lane:UpdateCell(i, player, playername)
     row:SetHidden(true)
     row:GetNamedChild("PlayerName"):SetText(playername)
     row:GetNamedChild("UltPct"):SetValue(ultpct)
-    if player:TimedOut() then
+    if player.InvalidClient then
+	row:GetNamedChild("Backdrop"):SetCenterColor(0.85, 0.73, 0.15)
+	row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 1)
+	row:GetNamedChild("UltPct"):SetColor(1, 0.80, 0.00, 1)
+    elseif player:TimedOut() then
 	-- YELLOW row:GetNamedChild("Backdrop"):SetCenterColor(0.95, 0.83, 0.25)
 	row:GetNamedChild("Backdrop"):SetCenterColor(0.15, 0.15, 0.15)
 	row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 1)
