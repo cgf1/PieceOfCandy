@@ -260,7 +260,7 @@ function POC_Lane:Update(force)
 			player.UltPct = forcepct
 		    end
 		    if player.UltPct  < 100 then
-			_this.UltPct = player.UltPct
+			_this.UltPct = nil
 			save_me.PlaySound = true
 			noshow = true
 		    elseif not player.IsDead and player:HasBeenInRange() then
