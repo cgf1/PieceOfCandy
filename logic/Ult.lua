@@ -86,7 +86,6 @@ local function insert_group_table(to_table, from_table, from_key, i)
 	    class = string.gsub(class, " class$", "")
 	    class = string.gsub(class, " weapons?$", "")
 	    class = string.gsub(class, " lines?", "s")
-	    class = string.gsub(class, "Assoult", "Assault")
 	    v.Desc = name .. " (" .. class .. ")"
 	end
 	to_table[v.Name] = v

@@ -49,7 +49,7 @@ local strings = {
     POC_DESCRIPTIONS_METEOR =            "Meteor ultimates from Mages guild",
     POC_DESCRIPTIONS_DAWN =              "Dawnbreaker ultimates from Fighters guild",
     POC_DESCRIPTIONS_BARRIER =           "Barrier ultimates from Support alliance skill line",
-    POC_DESCRIPTIONS_HORN =              "Horn ultimates from Assoult alliance skill line"
+    POC_DESCRIPTIONS_HORN =              "Horn ultimates from Assault alliance skill line"
 }
 
 for stringId, stringValue in pairs(strings) do

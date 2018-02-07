@@ -11,3 +11,11 @@ function LGS:RegisterHandler(x, y)
     return {}
 end
 POC = {} POC.__index = POC
+
+function ZO_CreateStringId(x)
+    return
+end
+
+function SafeAddVersion(x, y)
+    return
+end
