@@ -7,7 +7,7 @@
 ## APIVersion: 100021
 ## Description: PVP Helper
 ## Title: Piece of Candy
-## Version: 2.1.1
+## Version: 2.1.2
 ## Author: |ca0a0a0TProg|r Taonnor & Valandil
 ## SavedVariables: POCSettings
 ## OptionalDependsOn: LibAddonMenu-2.0

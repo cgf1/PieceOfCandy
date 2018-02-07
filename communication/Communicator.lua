@@ -3,6 +3,8 @@ if not LMP then
     error("Cannot load without LibMapPing")
 end
 
+local LGS = LibStub("LibGPS2")
+
 local _ultHandler = nil
 
 local ABILITY_COEFFICIENT = 100
@@ -17,12 +19,14 @@ POC_Communicator = {
 POC_Communicator.__index = POC_Communicator
 
 local xxx
+local comerr = function() end
+local show_errors = false
 
 -- Gets ult ID
 --
 local function get_ult_ping(offset)
     if (offset <= 0) then
-	POC_Error("offset is incorrect: " .. tostring(offset))
+	comerr("offset is incorrect: " .. tostring(offset))
 	return -1
     end
 
@@ -32,7 +36,7 @@ local function get_ult_ping(offset)
     if (ping >= 1 and ping < POC_Ult.MaxPing) then
 	return ping, apiver
     else
-	POC_Error("get_ult_ping: offset is incorrect: " .. tostring(ping) .. "; offset: " .. tostring(offset))
+	comerr("get_ult_ping: offset is incorrect: " .. tostring(ping) .. "; offset: " .. tostring(offset))
 	return -1
     end
 end
@@ -41,7 +45,7 @@ end
 --
 local function get_ult_pct(offset)
     if (offset < 0) then
-	POC_Error("get_ult_pct: offset is incorrect: " .. tostring(offset))
+	comerr("get_ult_pct: offset is incorrect: " .. tostring(offset))
 	return
     end
     local ultpct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
@@ -49,7 +53,7 @@ local function get_ult_pct(offset)
     if (ultpct >= 0 and ultpct <= 125) then
 	return ultpct
     else
-	POC_Error("get_ult_pct: ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
+	comerr("get_ult_pct: ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
 	return -1
     end
 end
@@ -68,8 +72,8 @@ function POC_Communicator.OnMapPing(pingType, pingtag, offsetX, offsetY, isLocal
 	if (ult_type_ping ~= -1 and ultpct ~= -1) then
 	    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingtag, ult_type_ping, ultpct, api)
 	else
-	    POC_Error("OnMapPing: Ping invalid ult_type_ping=" .. tostring(ult_type_ping) .. "; ultpct=" .. tostring(ultpct) .. "; api=" .. tostring(api))
-	    POC_Error("OnMapPing: offsets " .. tostring(offsetX) .. "," .. tostring(offsetY))
+	    comerr("OnMapPing: Ping invalid ult_type_ping=" .. tostring(ult_type_ping) .. "; ultpct=" .. tostring(ultpct) .. "; api=" .. tostring(api))
+	    comerr("OnMapPing: offsets " .. tostring(offsetX) .. "," .. tostring(offsetY))
 	end
     end
 end
@@ -90,8 +94,8 @@ end
 --
 function POC_Communicator.SendData(ult)
     if (ult == nil) then
-	POC_Error("POC_Communicator.SendData, ult is nil.")
-        return
+	comerr("POC_Communicator.SendData, ult is nil.")
+	return
     end
     local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
     local ultCost = math.max(1, GetAbilityCost(ult.Gid))
@@ -189,4 +193,13 @@ function POC_Communicator.Initialize(isMocked)
     POC_Communicator.IsMocked = isMocked
 
     POC_Communicator.UpdateCommunicationType()
+    SLASH_COMMANDS["/poccomerr"] = function()
+	show_errors = not show_errors
+	if show_errors then
+	    comerr = POC_Error
+	else
+	    comerr = function() return end
+	end
+	d("show_errors " .. tostring(show_errors))
+    end
 end
