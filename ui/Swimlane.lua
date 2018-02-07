@@ -570,16 +570,17 @@ local function on_set_ult(ult, id)
     end
 end
 
--- SetSwimlaneUltimate sets the swimlane header icon in base of gid
+-- Set the swimlane header icon in base of gid
 --
 function POC_Lanes:SetUlt(id, newult)
     local newgid = newult.Gid
     for gid, lane in pairs(self) do
 	if lane.Id == id then
 	    self[newgid] = lane -- New row
-	    local icon
 	    lane.Icon:SetTexture(GetAbilityIcon(newgid))
-	    lane.Label:SetText(newult.Name)
+	    if lane.Label ~= nil then
+		lane.Label:SetText(newult.Name)
+	    end
 	    self[gid] = nil	-- Delete old row
 	    break
 	end
