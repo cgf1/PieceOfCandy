@@ -1,0 +1,13 @@
+#!/bin/bash
+from=$1 to=$2
+[ -z "$from" -o -z "$to" ] && { echo "nope" 1>&2; exit 1; }
+
+for f in $(fgrep -lr "$from" | fgrep -v .git | fgrep -v .swp | fgrep -v '~' | fgrep -v .orig); do
+    fns="$fns "$f
+done
+cmd="sed -i -e 's/$from/$to/g'"$fns
+cmd=$cmd
+echo "$cmd"
+echo "<ctrl-c> if wrong, enter otherwise"
+read a
+eval "set -x; $cmd"

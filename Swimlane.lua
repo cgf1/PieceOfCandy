@@ -772,7 +772,7 @@ function POC_Swimlanes.Initialize(isMocked)
     CALLBACK_MANAGER:RegisterCallback(POC_SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
     CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, style_changed)
     CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, function (x) _this.Lanes:Update(x) end)
-    CALLBACK_MANAGER:RegisterCallback(POC_IS_ZONE_CHANGED, set_control_active)
+    CALLBACK_MANAGER:RegisterCallback(POC_ZONE_CHANGED, set_control_active)
     CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, set_control_active)
     SLASH_COMMANDS["/pocpct"] = function(pct)
 	if string.len(pct) == 0 then

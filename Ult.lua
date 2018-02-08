@@ -1,6 +1,7 @@
 POC_Ult = {
     Name = "POC-Ult",
-    MaxPing = 0
+    MaxPing = 0,
+    Me = 0
 }
 POC_Ult.__index = POC_Ult
 
@@ -334,6 +335,7 @@ function POC_Ult.SetSaved(icon)
 	if id ~= 'MIA' and GetAbilityIcon(id) == icon then
 
 	    POC_Settings.SavedVariables.MyUltId[ultix] = id
+	    POC_Ult.Id = id
 	    return
 	end
     end
@@ -344,4 +346,5 @@ end
 --
 function POC_Ult.Initialize()
     create_ults()
+    POC_Ult.Me = POC_Ult.ById(POC_Settings.SavedVariables.MyUltId[ultix])
 end

@@ -88,7 +88,7 @@ end
 function POC_Settings.SetOnlyAvaSettings(onlyAva)
     POC_Settings.SavedVariables.OnlyAva = onlyAva
 
-    CALLBACK_MANAGER:FireCallbacks(POC_IS_ZONE_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 end
 
 -- Sets maximum number of cells in a swimlane
@@ -137,23 +137,20 @@ end
 	Gets CompactSwimlaneList visible in connection with selected style
 ]]--
 function POC_Settings.IsControlsVisible()
-    if (POC_Settings.SavedVariables ~= nil) then
-	if (POC_Settings.SavedVariables.OnlyAva) then
-	    return IsPlayerInAvAWorld()
-	else
-	    return true
-	end
-    else
-	POC_Error("POC_Settings.SavedVariables is nil")
+    if not POC_Comm.active then
 	return false
+    elseif POC_Settings.SavedVariables.OnlyAva then
+	return IsPlayerInAvAWorld()
+    else
+	return true
     end
 end
 
 --[[
-	OnPlayerActivated sends IsZoneChanged event
+	OnPlayerActivated sends ZoneChanged event
 ]]--
 function POC_Settings.OnPlayerActivated(eventCode)
-    CALLBACK_MANAGER:FireCallbacks(POC_IS_ZONE_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 end
 
 --[[

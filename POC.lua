@@ -5,7 +5,7 @@ POC_MAP_PING_CHANGED = "POC-MapPingChanged"
 POC_PLAYER_DATA_CHANGED = "POC-PlayerDataChanged"
 POC_STYLE_CHANGED = "POC-StyleChanged"
 POC_MOVABLE_CHANGED = "POC-MovableChanged"
-POC_IS_ZONE_CHANGED = "POC-IsZoneChanged"
+POC_ZONE_CHANGED = "POC-ZoneChanged"
 POC_STATIC_ULTIMATE_ID_CHANGED = "POC-StaticUltimateIDChanged"
 POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltIdChanged"
 POC_SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
@@ -16,8 +16,8 @@ POC_REAL_API_VERSION = 1
 POC_API_VERSION = POC_REAL_API_VERSION
 
 local MAJOR = "2"
-local MINOR = "1"
-local PATCH = "3"
+local MINOR = "2"
+local PATCH = "0"
 
 local ISMOCKED = false
 
@@ -33,7 +33,7 @@ POC.__index = POC
 --
 function POC:initialize()
     -- Initialize logging
-    d("Piece of Candy! (v" .. MAJOR .. "." .. MINOR .. "." .. PATCH .. ")")
+    df("Piece of Candy! (v%d.%d.%d)", MAJOR, MINOR, PATCH)
     SLASH_COMMANDS["/rrr"] = function () ReloadUI() end
     SLASH_COMMANDS["/pocapi"] = function(n)
 	n = n:gsub("^%s*(.-)%s*$", "%1")
@@ -48,14 +48,9 @@ function POC:initialize()
     -- Initialize settings
     POC_Settings.Initialize()
 
-    -- Initialize communication
-    POC_Communicator.Initialize(ISMOCKED)
-
     -- Initialize logic
     POC_GroupHandler.Initialize(ISMOCKED)
-    POC_MapPing.Initialize(ISMOCKED)
     POC_Ult.Initialize()
-    POC_CommandsHandler.Initialize()
 
     -- Initialize ui
     POC_SettingsWindow.Initialize(MAJOR, MINOR, PATCH)
@@ -63,6 +58,9 @@ function POC:initialize()
     POC_UltMenu.Initialize()
 
     POC_Swimlanes.Initialize()
+
+    -- Start talking, see?
+    POC_Comm.Initialize()
 end
 
 -- OnAddOnLoaded if POC is loaded, initialize

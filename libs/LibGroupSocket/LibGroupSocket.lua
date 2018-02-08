@@ -614,33 +614,33 @@ local function Load()
 
     -- saved variables only become available when EVENT_ADD_ON_LOADED is fired for the library
     EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_ADD_ON_LOADED, function(_ ,addonName)
-        if(addonName == LIB_IDENTIFIER) then
-            LibGroupSocket_Data = LibGroupSocket_Data or {}
-            saveData = LibGroupSocket_Data[GetDisplayName()] or ZO_DeepTableCopy(defaultData)
-            LibGroupSocket_Data[GetDisplayName()] = saveData
+	if(addonName == LIB_IDENTIFIER) then
+	    LibGroupSocket_Data = LibGroupSocket_Data or {}
+	    saveData = LibGroupSocket_Data[GetDisplayName()] or ZO_DeepTableCopy(defaultData)
+	    LibGroupSocket_Data[GetDisplayName()] = saveData
 
-            --if(saveData.version == 1) then
-            --  saveData.setting = defaultData.setting
-            --  saveData.version = 2
-            --end
+	    --if(saveData.version == 1) then
+	    --  saveData.setting = defaultData.setting
+	    --  saveData.version = 2
+	    --end
 
-            for messageType in pairs(handlers) do
-                saveData.handlers[messageType] = saveData.handlers[messageType] or {}
-            end
+	    for messageType in pairs(handlers) do
+		saveData.handlers[messageType] = saveData.handlers[messageType] or {}
+	    end
 
-            lib.cm:FireCallbacks("savedata-ready", saveData)
-        end
+	    lib.cm:FireCallbacks("savedata-ready", saveData)
+	end
     end)
 
     -- don't initialize the settings menu before we can be sure that it is the newest version of the lib
     EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_PLAYER_ACTIVATED, function(_, initial)
-        EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_PLAYER_ACTIVATED)
-        if(saveData.autoDisableOnSessionStart and initial) then
-            saveData.enabled = false -- don't need to refresh the settings or group menu here, because they are not initialized yet
-        end
+	EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_PLAYER_ACTIVATED)
+	if(saveData.autoDisableOnSessionStart and initial) then
+	    saveData.enabled = false -- don't need to refresh the settings or group menu here, because they are not initialized yet
+	end
 
-        InitializeSettingsPanel()
-        InitializeGroupMenu()
+	InitializeSettingsPanel()
+	InitializeGroupMenu()
     end)
 
 	SLASH_COMMANDS["/lgs"] = function(value)
