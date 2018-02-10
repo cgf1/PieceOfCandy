@@ -1,4 +1,4 @@
-local LIB_IDENTIFIER = "LibGroupSocket"
+local LIB_IDENTIFIER = "POC_LibGroupSocket"
 local lib = LibStub:NewLibrary(LIB_IDENTIFIER, 2)
 
 if not lib then
@@ -440,6 +440,7 @@ local function DoSend(isFirst)
 	local packet = lib.outgoing[1]
 	if(not packet) then Log("Tried to send when no data in queue") return end
 	lib.isSending = true
+	lib.SawPing = 0
 
 	local x, y = packet:GetNextCoordinates()
 	SetMapPingOnCommonMap(x, y)
@@ -506,7 +507,11 @@ local function HandleDataPing(pingType, pingTag, x, y, isPingOwner)
 			return false
 		end
 	end
-	if(isPingOwner) then
+	if(not isPingOwner and lib.SawPing < 5) then
+		lib.SawPing = lib.SawPing + 1
+	else
+if lib.SawPing >0 then d("SawPing " .. tostring(lib.SawPing)) end
+		lib.SawPing = 0
 		if(lib.hasMore) then
 			DoSend()
 		else
@@ -652,6 +657,7 @@ local function Load()
 	end
 
 	lib.Unload = Unload
+	lib.SawPing = 0
 end
 
 if(lib.Unload) then lib.Unload() end

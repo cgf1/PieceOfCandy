@@ -99,16 +99,16 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	default = 6,
     }
     o[#o + 1] = {
-        type = "checkbox",
-        name = "Show @names in swimlanes",
-        tooltip = "Show a character's login name rather than current character name",
-        getfunc = function()
-            return saved.AtNames
-        end,
-        setfunc = function(x)
-            saved.AtNames = x
-        end,
-        default = default.AtNames
+	type = "checkbox",
+	name = "Show login names in swimlanes",
+	tooltip = "Show login name rather than current character name",
+	getFunc = function()
+	    return saved.AtNames
+	end,
+	setFunc = function(x)
+	    saved.AtNames = x
+	end,
+	default = default.AtNames
     }
     o[#o + 1] = {
 	type = "checkbox",

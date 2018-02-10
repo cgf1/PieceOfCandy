@@ -6,19 +6,19 @@ POC_Comm.__index = POC_Comm
 local lgs_type = 21 -- aka, the code for 'u'
 
 local lgs_on = false
-local show_errors = true
+local lgs_handler
 
 POC_Comm = {
-    active = false
+    Name = "POC_Comm",
+    active = false,
 }
 POC_Comm.__index = POC_Comm
-local comerr = function() end
 local ultix = GetUnitName("player")
+local comm = {}
 
-local default_data = {
-    version = 1,
-    enabled = true
-}
+local sender
+
+local saved
 
 local function rcv(unitid, data, is_self)
     local index, pct, ultver
@@ -49,7 +49,11 @@ function brute_force(x)
     SLASH_COMMANDS["/lgs"](tostring(x))
 end
 
-local function send()
+function POC_Comm.IsActive()
+    return comm.active
+end
+
+function POC_Comm.Send()
     if not IsUnitGrouped("player") then
 	return
     end
@@ -83,38 +87,67 @@ local function send()
 end
 
 local function on_update()
-    if POC_Comm.active and IsUnitGrouped("player") then
-	send()
+    if comm.active and IsUnitGrouped("player") then
+	comm.Send()
     end
 end
 
-local function Load()
-
-function POC_Comm.Initialize()
-    LGS = LibStub("LibGroupSocket")
-    local version = 3
-    LGS.MESSAGE_TYPE_ULTIMATE = lgs_type
-    local handler, _ = LGS:RegisterHandler(lgs_type, version)
-    if not handler then
-	POC_Error("couldn't register with with LibGroupSocket")
+function POC_Comm.Load()
+    if LGS == nil then
+	LGS = LibStub("POC_LibGroupSocket")
+	local version = 3
+	LGS.MESSAGE_TYPE_ULTIMATE = lgs_type
+	lgs_handler, _ = LGS:RegisterHandler(lgs_type, version)
+	if not lgs_handler then
+	    POC_Error("couldn't register with with LibGroupSocket")
+	end
+	lgs_handler.resources = {}
+	lgs_handler.data = {}
+	lgs_handler.dataHandler = rcv
+	lgs_handler.Load = POC_Comm.Load
+	lgs_handler.Unload = POC_Comm.Unload
     end
-    handler.resources = {}
-    handler.data = {}
-    handler.dataHandler = rcv
+    LGS:RegisterCallback(lgs_type, lgs_handler.dataHandler)
+    POC_Comm.active = true
+end
 
-    handler:Load = function()
-	LGS.cm:RegisterCallback(lgs_type, self.dataHandler)
-	EVENT_MANAGER:RegisterForUpdate('POC_UltPing', 1000, on_update)
-    end
-    handler:Unload = function()
-	d("POC_Comm: Unloading")
-	LGS:UnregisterCallback(lgs_type, self.dataHandler)
-	EVENT_MANAGER:UnregisterForUpdate('POC_UltPing')
+function POC_Comm.Unload()
+    if POC_Comm.active then
+	LGS:UnregisterCallback(lgs_type, lgs_handler.dataHandler)
 	POC_Comm.active = false
     end
-    handler.Load()
+end
 
-    POC_Comm.active = true
+local function toggle(verbose)
+    comm.active = not comm.active
+    if verbose then
+	msg = d
+    else
+	msg = function() end
+    end
+    if comm.active then
+	msg("POC: on")
+	comm.Load()
+	EVENT_MANAGER:RegisterForUpdate('POC_UltPing', 1000, on_update)
+    else
+	msg("POC: off")
+	comm.Unload()
+	EVENT_MANAGER:UnregisterForUpdate('POC_UltPing')
+    end
+    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+end
+
+function POC_Comm.Initialize()
+    saved = POC_Settings.SavedVariables
+    if not saved.MapPing then
+	comm = POC_Comm
+    else
+	comm = POC_MapPing
+    end
+    if not comm.active then
+	toggle(false)
+    end
+
     SLASH_COMMANDS["/poccomerr"] = function()
 	show_errors = not show_errors
 	if show_errors then
@@ -132,15 +165,17 @@ function POC_Comm.Initialize()
 	    brute_force(0)
 	end
     end
-    SLASH_COMMANDS["/poctoggle"] = function()
-	POC_Comm.active = not POC_Comm.active
-	if POC_Comm.active then
-	    d("POC is on")
-	    handler:Load()
+    SLASH_COMMANDS["/poctoggle"] = function () toggle(true) end
+    SLASH_COMMANDS["/pocsock"] = function(x)
+	saved.MapPing = not saved.MapPing
+	if saved.MapPing then
+	    d("POC: Using MapPing")
+	    POC_Comm.Unload()
+	    POC_MapPing.Load()
 	else
-	    d("POC is off")
-	    handler:Unload()
+	    d("POC: Using LibGroupSocket")
+	    POC_MapPing.Unload()
+	    POC_Comm.Load()
 	end
-	CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
     end
 end

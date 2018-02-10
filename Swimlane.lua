@@ -304,11 +304,10 @@ end
 function POC_Lane:UpdateCell(i, player, playername)
     local rowi = "Row" .. i
     local row = self.Control:GetNamedChild("Row" .. i)
-    local nameLength = string.len(playername)
-
     if saved.AtNames then
-        playername = player.AtName
+	playername = string.sub(player.AtName, 2)
     end
+    local nameLength = string.len(playername)
 
     if (nameLength > namelen) then
 	playername = string.sub(playername, 0, namelen) .. '..'
@@ -318,7 +317,7 @@ function POC_Lane:UpdateCell(i, player, playername)
 	playername = "|cff0000" .. playername .. "|r"
     end
 
-    if (sldebug) then
+    if sldebug then
 	playername = playername .. "   " .. player.UltPct .. "%"
     end
 
@@ -493,8 +492,8 @@ function POC_Player.new(inplayer, pingtag)
     inplayer.Online = IsUnitOnline(pingtag)
     inplayer.InRange = IsUnitInGroupSupportRange(pingtag)
     inplayer.IsDead = IsUnitDead(pingtag)
-    if saved.AtNames and player.AtName == nil then
-        inplayer.AtName = GetUnitDisplayName(pingtag)
+    if saved.AtNames and self.AtName == nil then
+	inplayer.AtName = GetUnitDisplayName(pingtag)
     end
 
     local changed = false
@@ -511,7 +510,7 @@ function POC_Player.new(inplayer, pingtag)
 
     if save_me == nil and saved_self.IsMe then
 	save_me = saved_self
-        save_me.LastPlayed = 0
+	save_me.LastPlayed = 0
     end
 
     if self.Lane.Players[name] == nil then

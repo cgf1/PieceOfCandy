@@ -11,7 +11,7 @@ FORCE:
 
 %.lua.ok: %.lua
 	@unexpand -I $?
-	esolua $? || ${FORCE}
+	esolua $?
 	@touch $@
 
 tags ctags:

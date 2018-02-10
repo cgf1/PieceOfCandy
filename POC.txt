@@ -35,6 +35,7 @@ i18n/en.lua
 
 UiHelper.lua
 
+MapPing.lua
 Comm.lua
 
 SettingsHandler.lua

@@ -2,3 +2,10 @@
 *~
 tags
 *.ok
+.*.swp
+cimsg
+libs/LibAddonMenu-2.0/0.lua
+libs/LibAddonMenu-2.0/LibAddonMenu-2
+libs/LibAddonMenu-2/
+obsolete
+

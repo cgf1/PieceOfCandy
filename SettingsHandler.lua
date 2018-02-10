@@ -11,7 +11,7 @@ POC_Settings = {
     SettingsName = "POCSettings",
     SavedVariables = nil,
     Default = {
-        AtNames = false,
+	AtNames = false,
 	GroupMembers = {},
 	MIA = true,
 	Movable = true,
@@ -19,6 +19,7 @@ POC_Settings = {
 	OnlyAva = false,
 	PosX = 0,
 	PosY = 0,
+	MapPing = false,
 	Style = "Standard",
 	SwimlaneMax = 24,
 	SwimlaneMaxCols = 6,
@@ -138,7 +139,7 @@ end
 	Gets CompactSwimlaneList visible in connection with selected style
 ]]--
 function POC_Settings.IsControlsVisible()
-    if not POC_Comm.active then
+    if not POC_Comm.IsActive() then
 	return false
     elseif POC_Settings.SavedVariables.OnlyAva then
 	return IsPlayerInAvAWorld()
