@@ -1,21 +1,13 @@
---[[
-	Local variables
-]]--
---[[
-	Table SettingsWindow
-]]--
 POC_SettingsWindow = {}
 POC_SettingsWindow.__index = POC_SettingsWindow
 
---[[
-	Table Members
-]]--
 POC_SettingsWindow.MainMenuName = "POCSettingsMainMenu"
 
---[[
-	Initialize creates settings window
-]]--
+-- Initialize/create settings window
+--
 function POC_SettingsWindow.Initialize(major, minor, patch)
+    local saved = POC_Settings.SavedVariables
+    local default = POC_Settings.Default
     local styleChoices = {
 	[1] = GetString(POC_OPTIONS_STYLE_SWIM),
 	[2] = GetString(POC_OPTIONS_STYLE_SHORT_SWIM)
@@ -41,24 +33,24 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	name = GetString(POC_OPTIONS_DRAG_LABEL),
 	tooltip = GetString(POC_OPTIONS_DRAG_TOOLTIP),
 	getFunc = function()
-	    return POC_Settings.SavedVariables.Movable
+	    return saved.Movable
 	end,
 	setFunc = function(value)
 	    POC_Settings.SetMovableSettings(value)
 	end,
-	default = POC_Settings.Default.Movable
+	default = default.Movable
     }
     o[#o + 1] = {
 	type = "checkbox",
 	name = GetString(POC_OPTIONS_ONLY_AVA_LABEL),
 	tooltip = GetString(POC_OPTIONS_ONLY_AVA_TOOLTIP),
 	getFunc = function()
-	    return POC_Settings.SavedVariables.OnlyAva
+	    return saved.OnlyAva
 	end,
 	setFunc = function(value)
 	    POC_Settings.SetOnlyAvaSettings(value)
 	end,
-	default = POC_Settings.Default.OnlyAva
+	default = default.OnlyAva
     }
     o[#o + 1] = {
 	type = "iconpicker",
@@ -81,18 +73,18 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	tooltip = GetString(POC_OPTIONS_STYLE_TOOLTIP),
 	choices = styleChoices,
 	getFunc = function()
-	    return POC_Settings.SavedVariables.Style
+	    return saved.Style
 	end,
 	setFunc = function(value)
 	    POC_Settings.SetStyleSettings(value)
 	end,
-	default = POC_Settings.Default.Style
+	default = default.Style
     }
     o[#o + 1] = {
 	type = "slider",
 	name = GetString(POC_OPTIONS_SWIMLANE_MAX_LABEL),
 	min = 1, max = 24, step = 1,
-	getFunc = function() return POC_Settings.SavedVariables.SwimlaneMax end,
+	getFunc = function() return saved.SwimlaneMax end,
 	width = "full",
 	setFunc = function(value) POC_Settings.SetSwimlaneMax(value) end,
 	default = 24,
@@ -101,40 +93,52 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	type = "slider",
 	name = "Max number of swimlanes to display",
 	min = 1, max = 6, step = 1,
-	getFunc = function() return POC_Settings.SavedVariables.SwimlaneMaxCols end,
+	getFunc = function() return saved.SwimlaneMaxCols end,
 	width = "full",
 	setFunc = function(value) POC_Settings.SetSwimlaneMaxCols(value) end,
 	default = 6,
+    }
+    o[#o + 1] = {
+        type = "checkbox",
+        name = "Show @names in swimlanes",
+        tooltip = "Show a character's login name rather than current character name",
+        getfunc = function()
+            return saved.AtNames
+        end,
+        setfunc = function(x)
+            saved.AtNames = x
+        end,
+        default = default.AtNames
     }
     o[#o + 1] = {
 	type = "checkbox",
 	name = GetString(POC_OPTIONS_ULTIMATE_NUMBER),
 	tooltip = GetString(POC_OPTIONS_ULTIMATE_NUMBER_TOOLTIP),
 	getFunc = function()
-	    return POC_Settings.SavedVariables.UltNumberShow
+	    return saved.UltNumberShow
 	end,
 	setFunc = function(val) POC_Settings.SetUltNumberShow(val) end,
-	default = POC_Settings.Default.UltNumberShow
+	default = default.UltNumberShow
     }
     o[#o + 1] = {
 	type = "checkbox",
 	name = GetString(POC_OPTIONS_WERE_NUMBER_ONE),
 	tooltip = GetString(POC_OPTIONS_WERE_NUMBER_ONE_TOOLTIP),
 	getFunc = function()
-	    return POC_Settings.SavedVariables.WereNumberOne
+	    return saved.WereNumberOne
 	end,
 	setFunc = function(val) POC_Settings.SetWereNumberOne(val) end,
-	default = POC_Settings.Default.WereNumberOne
+	default = default.WereNumberOne
     }
     o[#o + 1] = {
 	type = "checkbox",
 	name = "Show MIA swimlane",
 	tooltip = "Show/hide swimlane containing players who are not in zone or not displayed on any other swimlane",
 	getFunc = function()
-	    return POC_Settings.SavedVariables.MIA
+	    return saved.MIA
 	end,
 	setFunc = function(val) POC_Settings.SetMIA(val) end,
-	default = POC_Settings.Default.MIA
+	default = default.MIA
     }
 
     local LAM = LibStub("LibAddonMenu-2.0")

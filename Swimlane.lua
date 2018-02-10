@@ -104,7 +104,7 @@ local function set_control_active()
     set_control_hidden(isHidden)
 
     if (isVisible) then
-	if (registered) then
+	if registered then
 	    return
 	end
 	registered = true
@@ -255,23 +255,22 @@ function POC_Lane:Update(force)
 			gt100 = player.UltPct
 		    end
 		else
-		    local noshow
+		    local noshow = true
 		    if forcepct ~= nil then
 			player.UltPct = forcepct
 		    end
 		    if player.UltPct  < 100 then
 			_this.UltPct = nil
 			save_me.PlaySound = true
-			noshow = true
 		    elseif not player.IsDead and player:HasBeenInRange() then
 			_this.UltPct = gt100 - 1
 			player.UltPct = _this.UltPct
+			noshow = false
 		    else
 			-- reset order since we can't contribute
 			_this.UltPct = 100
 			player.UltPct = _this.UltPct
 			save_me.PlaySound = true
-			noshow = true
 		    end
 		    -- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
 		    self:UpdateCell(n, player, playername)
@@ -306,6 +305,10 @@ function POC_Lane:UpdateCell(i, player, playername)
     local rowi = "Row" .. i
     local row = self.Control:GetNamedChild("Row" .. i)
     local nameLength = string.len(playername)
+
+    if saved.AtNames then
+        playername = player.AtName
+    end
 
     if (nameLength > namelen) then
 	playername = string.sub(playername, 0, namelen) .. '..'
@@ -384,6 +387,7 @@ function POC_Player.Update(inplayer)
     if POC_Me ~= nil and POC_Me:TimedOut() then
 	need_to_fire = true
     end
+    local inname = GetUnitName(inplayer.PingTag)
     for i = 1, 24 do
 	local unitid = "group" .. tostring(i)
 	local unitname = GetUnitName(unitid)
@@ -408,7 +412,7 @@ function POC_Player.Update(inplayer)
 		    player.TimeStamp = 0
 		end
 		player.PingTag = unitid
-	    elseif player.PingTag == inplayer.PingTag then
+	    elseif inname == unitname then
 		player = inplayer
 		player.TimeStamp = timenow
 	    else
@@ -489,6 +493,9 @@ function POC_Player.new(inplayer, pingtag)
     inplayer.Online = IsUnitOnline(pingtag)
     inplayer.InRange = IsUnitInGroupSupportRange(pingtag)
     inplayer.IsDead = IsUnitDead(pingtag)
+    if saved.AtNames and player.AtName == nil then
+        inplayer.AtName = GetUnitDisplayName(pingtag)
+    end
 
     local changed = false
     for n,v in pairs(inplayer) do
@@ -504,6 +511,7 @@ function POC_Player.new(inplayer, pingtag)
 
     if save_me == nil and saved_self.IsMe then
 	save_me = saved_self
+        save_me.LastPlayed = 0
     end
 
     if self.Lane.Players[name] == nil then
@@ -526,15 +534,15 @@ end
 --
 local function style_changed()
     local style = saved.Style
-    if (style ~= curstyle) then
+    if style ~= curstyle then
 	if curstyle ~= "" then
 	    set_control_hidden(true)
 	end
 	curstyle = style
-	if (widget ~= nil) then
+	if widget ~= nil then
 	    widget:SetHidden(true)
 	end
-	if (style == "Compact") then
+	if style == "Compact" then
 	    widget = POC_CompactSwimlaneControl
 	    swimlanerow = "CompactUltSwimlaneRow"
 	    namelen = 6
@@ -720,6 +728,9 @@ end
 
 function POC_UltNumber.Hide(x)
     if saved.UltNumberShow then
+	if POC_Me == nil or POC_Me.IsDead or POC_Me.UltPct < 100 then
+	    x = false
+	end
 	POC_UltNumber:SetHidden(x)
     end
 end
@@ -735,7 +746,7 @@ function POC_UltNumber.Show(n)
     POC_UltNumber.Hide(false)
     local timenow = GetTimeStamp()
     if n ~= 1 or not save_me.PlaySound or not saved.WereNumberOne or
-       (save_me.LastPlayed ~= nil and (save_me.LastPlayed - GetTimeStamp()) < MAXPLAYSOUNDTIME) then
+       ((GetTimeStamp() - save_me.LastPlayed) < MAXPLAYSOUNDTIME) then
 	return
     end
     PlaySound(SOUNDS.DUEL_START)

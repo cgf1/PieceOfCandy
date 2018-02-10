@@ -11,6 +11,7 @@ POC_Settings = {
     SettingsName = "POCSettings",
     SavedVariables = nil,
     Default = {
+        AtNames = false,
 	GroupMembers = {},
 	MIA = true,
 	Movable = true,

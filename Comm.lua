@@ -5,7 +5,8 @@ POC_Comm.__index = POC_Comm
 
 local lgs_type = 21 -- aka, the code for 'u'
 
-lgs_on = false
+local lgs_on = false
+local show_errors = true
 
 POC_Comm = {
     active = false
@@ -23,9 +24,8 @@ local function rcv(unitid, data, is_self)
     local index, pct, ultver
     pct, index = LGS:ReadUint8(data, 1)
     ultver, index = LGS:ReadUint8(data, index)
-    local res = {}
-    ultid = ultver % POC_Ult.MaxPing
-    apiver = math.floor(ultver / POC_Ult.MaxPing)
+    local ultid = ultver % POC_Ult.MaxPing
+    local apiver = math.floor(ultver / POC_Ult.MaxPing)
 
     local player = {
 	PingTag = unitid,
@@ -66,13 +66,12 @@ local function send()
     else
 	pct = 100
     end
-
     -- Ultimate type + our API #
     local ultver = myult.Ping + POC_Ult.MaxPing * POC_API_VERSION
 
     local data = {}
     local index = 1
-    local index = LGS:WriteUint8(data, index, pct)
+    index = LGS:WriteUint8(data, index, pct)
     LGS:WriteUint8(data, index, ultver)
     for i=1, 5 do
 	if LGS:Send(lgs_type, data) then
@@ -89,6 +88,8 @@ local function on_update()
     end
 end
 
+local function Load()
+
 function POC_Comm.Initialize()
     LGS = LibStub("LibGroupSocket")
     local version = 3
@@ -99,17 +100,19 @@ function POC_Comm.Initialize()
     end
     handler.resources = {}
     handler.data = {}
-
     handler.dataHandler = rcv
-    LGS.cm:RegisterCallback(lgs_type, rcv)
-    handler.Unload = function()
+
+    handler:Load = function()
+	LGS.cm:RegisterCallback(lgs_type, self.dataHandler)
+	EVENT_MANAGER:RegisterForUpdate('POC_UltPing', 1000, on_update)
+    end
+    handler:Unload = function()
 	d("POC_Comm: Unloading")
-	LGS:UnregisterCallback(lgs_type, handler.dataHandler)
+	LGS:UnregisterCallback(lgs_type, self.dataHandler)
 	EVENT_MANAGER:UnregisterForUpdate('POC_UltPing')
 	POC_Comm.active = false
     end
-
-    EVENT_MANAGER:RegisterForUpdate('POC_UltPing', 1000, on_update)
+    handler.Load()
 
     POC_Comm.active = true
     SLASH_COMMANDS["/poccomerr"] = function()
@@ -133,8 +136,10 @@ function POC_Comm.Initialize()
 	POC_Comm.active = not POC_Comm.active
 	if POC_Comm.active then
 	    d("POC is on")
+	    handler:Load()
 	else
 	    d("POC is off")
+	    handler:Unload()
 	end
 	CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
     end
