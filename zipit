@@ -4,4 +4,4 @@ files=$({ echo POC/POC.txt; sed -nr -e '/^( *$|#|;)/d' -e 's%^%POC/%p' POC/POC.t
 ver=$(awk '/^## *Version:/{print $3}' POC/POC.txt)
 rm -f POC-$ver.zip
 echo creating $(pwd)/POC-$ver.zip
-exec zip -r POC-$ver.zip $files
+exec zip /tmp/POC-$ver.zip POC $files
