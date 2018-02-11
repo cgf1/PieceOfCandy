@@ -68,6 +68,8 @@ local xxx
 local msg = d
 local d = nil
 
+local LAM = LibStub("LibAddonMenu-2.0")
+
 -- set_control_movable sets the Movable and MouseEnabled flag in UI elements
 --
 local function set_control_movable(ismovable)
@@ -586,31 +588,28 @@ end
 
 -- on_set_ult called on header clicked
 --
-local function on_set_ult(ult, id)
+local function on_set_ult(gid, id)
     CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
 
-    if ult ~= nil and id ~= nil then
-	POC_Settings.SetSwimlaneUltId(id, ult)
-    else
-	POC_Error("POC_Swimlanes.on_set_ult: error ult " .. tostring(ult) .. " id " .. tostring(id))
-    end
+    POC_Settings.SetSwimlaneUltId(id, gid)
 end
 
 -- Set the swimlane header icon in base of gid
 --
-function POC_Lanes:SetUlt(id, newult)
-    local newgid = newult.Gid
+function POC_Lanes:SetUlt(id, newgid)
     for gid, lane in pairs(self) do
 	if lane.Id == id then
 	    self[newgid] = lane -- New row
+	    lane.Gid = newgid
 	    lane.Icon:SetTexture(GetAbilityIcon(newgid))
 	    if lane.Label ~= nil then
-		lane.Label:SetText(newult.Name)
+		lane.Label:SetText(POC_Ult.ById(newgid).Name)
 	    end
 	    self[gid] = nil	-- Delete old row
 	    break
 	end
     end
+    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 end
 
 -- POC_Lane:Click called on header clicked
@@ -618,7 +617,7 @@ end
 function POC_Lane:Click()
     if (self.Button ~= nil) then
 	CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
-	CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id)
+	CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Gid)
     else
 	POC_Error("POC_Lane:Click, button nil")
     end
@@ -727,6 +726,7 @@ function POC_Lane.new(lanes, i)
 	last_row = row
     end
     self.Players = {}
+    self.Gid = gid
     return self
 end
 
@@ -839,4 +839,4 @@ function POC_Swimlanes.Initialize(isMocked)
 	    msg("refresh off")
 	end
     end
- end
+end

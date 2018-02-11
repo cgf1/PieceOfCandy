@@ -27,9 +27,9 @@ end
 --[[
 	ById gets the ultimate group from given ability ID
 ]]--
-function POC_Ult.ById(aid)
-    if byids[aid] ~= nil then
-	return byids[aid]
+function POC_Ult.ById(gid)
+    if byids[gid] ~= nil then
+	return byids[gid]
     end
 
     -- not found
@@ -330,14 +330,25 @@ function POC_Ult.GetSaved()
     end
 end
 
-function POC_Ult.SetSaved(icon)
+function POC_Ult.UltFromIcon(icon)
     for id, _ in pairs(byids) do
 	if id ~= 'MIA' and GetAbilityIcon(id) == icon then
-
-	    POC_Settings.SavedVariables.MyUltId[ultix] = id
-	    POC_Ult.Id = id
-	    return
+	    return id
 	end
+    end
+    return nil
+end
+
+function POC_Ult.SetSavedId(id)
+    POC_Ult.Id = id
+    POC_Settings.SavedVariables.MyUltId[ultix] = id
+end
+
+function POC_Ult.SetSaved(icon)
+    local id = POC_Ult.UltFromIcon(icon)
+    if id ~= nil then
+	POC_Ult.SetSavedId(id)
+	return
     end
     d("POC_Ult.SetSaved: unknown icon " .. tostring(icon))
 end

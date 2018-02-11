@@ -12,7 +12,6 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	[1] = GetString(POC_OPTIONS_STYLE_SWIM),
 	[2] = GetString(POC_OPTIONS_STYLE_SHORT_SWIM)
     }
-
     local panelData = {
 	    type = "panel",
 	    name = "Piece Of Candy",
@@ -22,8 +21,7 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	    registerForDefaults = true
     }
 
-    local optionsData = {}
-    local o = optionsData
+    local o = {}
     o[#o + 1] = {
 	type = "header",
 	name = GetString(POC_OPTIONS_HEADER),
@@ -61,7 +59,7 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	setFunc = POC_Ult.SetSaved,
 	maxColumns = 7,
 	visibleRows = 6,
-	iconSize = 40
+	iconSize = 64
     }
     o[#o + 1] = {
 	type = "divider",
@@ -144,5 +142,15 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 
     local LAM = LibStub("LibAddonMenu-2.0")
     LAM:RegisterAddonPanel(POC_SettingsWindow.MainMenuName, panelData)
-    LAM:RegisterOptionControls(POC_SettingsWindow.MainMenuName, optionsData)
+    LAM:RegisterOptionControls(POC_SettingsWindow.MainMenuName, o)
+
+    local panelData = {
+	    type = "panel",
+	    name = "Piece Of Candy",
+	    author = "TProg Taonnor & Valandil",
+	    version = major .. "." .. minor .. "." .. patch,
+	    slashCommand = "/poc",
+	    registerForDefaults = true
+    }
+
 end
