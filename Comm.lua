@@ -93,7 +93,9 @@ local function on_update()
 end
 
 function POC_Comm.Load()
-    if LGS == nil then
+    if LGS ~= nil then
+	LGS.Load()
+    else
 	LGS = LibStub("POC_LibGroupSocket")
 	local version = 3
 	LGS.MESSAGE_TYPE_ULTIMATE = lgs_type
@@ -113,8 +115,9 @@ end
 
 function POC_Comm.Unload()
     if POC_Comm.active then
-	LGS:UnregisterCallback(lgs_type, lgs_handler.dataHandler)
 	POC_Comm.active = false
+	LGS:UnregisterCallback(lgs_type, lgs_handler.dataHandler)
+	LGS.Unload()
     end
 end
 
@@ -166,16 +169,28 @@ function POC_Comm.Initialize()
 	end
     end
     SLASH_COMMANDS["/poctoggle"] = function () toggle(true) end
-    SLASH_COMMANDS["/pocsock"] = function(x)
-	saved.MapPing = not saved.MapPing
+    SLASH_COMMANDS["/pocping"] = function(x)
+	if string.len(x) ~= 0 then
+	    local istrue = x == '1' or x == 'true' or x == 'yes'
+	    if istrue == saved.MapPing then
+		return
+	    end
+	    saved.MapPing = istrue
+	    if istrue then
+		POC_Comm.Unload()
+		POC_MapPing.Load()
+		comm = POC_MapPing
+	    else
+		POC_MapPing.Unload()
+		POC_Comm.Load()
+		comm = POC_Comm
+	    end
+	    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+	end
 	if saved.MapPing then
 	    d("POC: Using MapPing")
-	    POC_Comm.Unload()
-	    POC_MapPing.Load()
 	else
 	    d("POC: Using LibGroupSocket")
-	    POC_MapPing.Unload()
-	    POC_Comm.Load()
 	end
     end
 end

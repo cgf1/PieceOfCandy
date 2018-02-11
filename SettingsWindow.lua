@@ -107,6 +107,7 @@ function POC_SettingsWindow.Initialize(major, minor, patch)
 	end,
 	setFunc = function(x)
 	    saved.AtNames = x
+	    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 	end,
 	default = default.AtNames
     }

@@ -16,14 +16,14 @@ local ping = {
 ping.__index = ping
 
 local xxx
-local comerr = function() end
+local pingerr = function() end
 local show_errors = false
 
 -- Gets ult ID
 --
 local function get_ult_ping(offset)
     if (offset <= 0) then
-	comerr("offset is incorrect: " .. tostring(offset))
+	pingerr("offset is incorrect: " .. tostring(offset))
 	return -1
     end
 
@@ -33,7 +33,7 @@ local function get_ult_ping(offset)
     if (ping >= 1 and ping < POC_Ult.MaxPing) then
 	return ping, apiver
     else
-	comerr("get_ult_ping: offset is incorrect: " .. tostring(ping) .. "; offset: " .. tostring(offset))
+	pingerr("get_ult_ping: offset is incorrect: " .. tostring(ping) .. "; offset: " .. tostring(offset))
 	return -1
     end
 end
@@ -42,7 +42,7 @@ end
 --
 local function get_ult_pct(offset)
     if (offset < 0) then
-	comerr("get_ult_pct: offset is incorrect: " .. tostring(offset))
+	pingerr("get_ult_pct: offset is incorrect: " .. tostring(offset))
 	return
     end
     local ultpct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
@@ -50,7 +50,7 @@ local function get_ult_pct(offset)
     if (ultpct >= 0 and ultpct <= 125) then
 	return ultpct
     else
-	comerr("get_ult_pct: ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
+	pingerr("get_ult_pct: ultpct is incorrect: " .. tostring(ultpct) .. "; offset: " .. tostring(offset))
 	return -1
     end
 end
@@ -69,8 +69,8 @@ function ping.OnMapPing(pingType, pingtag, offsetX, offsetY, isLocalPlayerOwner)
 	if (type_ping ~= -1 and ultpct ~= -1) then
 	    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingtag, type_ping, ultpct, api)
 	else
-	    comerr("OnMapPing: Ping invalid type_ping=" .. tostring(type_ping) .. "; ultpct=" .. tostring(ultpct) .. "; api=" .. tostring(api))
-	    comerr("OnMapPing: offsets " .. tostring(offsetX) .. "," .. tostring(offsetY))
+	    pingerr("OnMapPing: Ping invalid type_ping=" .. tostring(type_ping) .. "; ultpct=" .. tostring(ultpct) .. "; api=" .. tostring(api))
+	    pingerr("OnMapPing: offsets " .. tostring(offsetX) .. "," .. tostring(offsetY))
 	end
     end
 end
@@ -91,7 +91,7 @@ end
 --
 function ping.SendData(ult)
     if (ult == nil) then
-	comerr("ping.SendData, ult is nil.")
+	pingerr("ping.SendData, ult is nil.")
 	return
     end
     local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
@@ -195,6 +195,7 @@ end
 -- Unload MapPing handling
 --
 function POC_MapPing.Unload()
+    POC_MapPing.active = false
     CALLBACK_MANAGER:UnregisterCallback(POC_MAP_PING_CHANGED, rcv)
     LMP:UnregisterCallback("BeforePingAdded", ping.OnMapPing)
     LMP:UnregisterCallback("AfterPingRemoved", ping.OnMapPingFinished)
@@ -211,12 +212,12 @@ function POC_MapPing.Load()
     xxx = POC.xxx
 end
 
-SLASH_COMMANDS["/poccomerr"] = function()
+SLASH_COMMANDS["/pocpingerr"] = function()
     show_errors = not show_errors
     if show_errors then
-	comerr = POC_Error
+	pingerr = POC_Error
     else
-	comerr = function() return end
+	pingerr = function() return end
     end
     d("show_errors " .. tostring(show_errors))
 end

@@ -307,11 +307,11 @@ function POC_Lane:UpdateCell(i, player, playername)
     if saved.AtNames then
 	playername = string.sub(player.AtName, 2)
     end
-    local nameLength = string.len(playername)
+    local namecell = row:GetNamedChild("PlayerName")
+    local bgcell = row:GetNamedChild("Backdrop")
+    local ultcell = row:GetNamedChild("UltPct")
 
-    if (nameLength > namelen) then
-	playername = string.sub(playername, 0, namelen) .. '..'
-    end
+    row:SetHidden(true)
 
     if not player.IsDead and player.InCombat then
 	playername = "|cff0000" .. playername .. "|r"
@@ -335,46 +335,54 @@ function POC_Lane:UpdateCell(i, player, playername)
 	alivealpha = .4
 	deadalpha = .3
 	inprogressalpha = .3
--- xxx(playername, "~inrange alpha")
     else
 	alivealpha = 1
 	deadalpha = .8
 	inprogressalpha = .8
     end
 
-    row:SetHidden(true)
-    row:GetNamedChild("PlayerName"):SetText(playername)
-    row:GetNamedChild("UltPct"):SetValue(ultpct)
+    local bdlength, _ = bgcell:GetWidth()
+    local lensub = -2
+    local i = 1
+    namecell:SetText(playername)
+    while namecell:GetWidth() > bdlength do
+	playername = string.sub(playername, 1, lensub) .. '..'
+	namecell:SetText(playername)
+	lensub = -4
+	i = i + 1
+	if i > 26 then
+	    break
+	end
+    end
+    ultcell:SetValue(ultpct)
     if player.InvalidClient then
-	row:GetNamedChild("Backdrop"):SetCenterColor(0.85, 0.73, 0.15)
-	row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 1)
-	row:GetNamedChild("UltPct"):SetColor(1, 0.80, 0.00, 1)
+	bgcell:SetCenterColor(0.85, 0.73, 0.15)
+	namecell:SetColor(1, 1, 1, 1)
+	ultcell:SetColor(1, 0.80, 0.00, 1)
     elseif player:TimedOut() then
 	-- YELLOW row:GetNamedChild("Backdrop"):SetCenterColor(0.95, 0.83, 0.25)
-	row:GetNamedChild("Backdrop"):SetCenterColor(0.15, 0.15, 0.15)
-	row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 1)
-	row:GetNamedChild("UltPct"):SetColor(0.80, 0.80, 0.80, 1)
+	bgcell:SetCenterColor(0.15, 0.15, 0.15)
+	namecell:SetColor(1, 1, 1, 1)
+	ultcell:SetColor(0.80, 0.80, 0.80, 1)
     else
 	row:GetNamedChild("Backdrop"):SetCenterColor(0.51, 0.41, 0.65)
 	if (player.IsDead) then
 -- xxx(playername, rowi, "dead color", deadalpha)
-	    row:GetNamedChild("PlayerName"):SetColor(0.5, 0.5, 0.5, 0.8)
-	    row:GetNamedChild("UltPct"):SetColor(0.8, 0.03, 0.03, deadalpha)
+	    namecell:SetColor(0.5, 0.5, 0.5, 0.8)
+	    ultcell:SetColor(0.8, 0.03, 0.03, deadalpha)
 	elseif (player.UltPct >= 100) then
 -- xxx(playername, rowi, "ready color", alivealpha)
-	    row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 1)
+	    namecell:SetColor(1, 1, 1, 1)
 	    -- row:GetNamedChild("UltPct"):SetColor(0.03, 0.7, 0.03, alivealpha)
-	    row:GetNamedChild("UltPct"):SetColor(0.01, 0.69, 0.02, alivealpha)
+	    ultcell:SetColor(0.01, 0.69, 0.02, alivealpha)
 	else
 -- xxx(playername, rowi, "inprogress color")
-	    row:GetNamedChild("PlayerName"):SetColor(1, 1, 1, 0.8)
-	    row:GetNamedChild("UltPct"):SetColor(0.03, 0.03, 0.7, inprogressalpha)
+	    namecell:SetColor(1, 1, 1, 0.8)
+	    ultcell:SetColor(0.03, 0.03, 0.7, inprogressalpha)
 	end
     end
 
-    if (row:IsHidden()) then
-	row:SetHidden(false)
-    end
+    row:SetHidden(false)
 end
 
 -- Updates player (potentially) in the swimlane
@@ -499,9 +507,11 @@ function POC_Player.new(inplayer, pingtag)
     local changed = false
     for n,v in pairs(inplayer) do
 	if self[n] == nil or self[n] ~= v then
-	    -- xxx(name .. " " .. tostring(n) .. "=" .. tostring(v))
 	    self[n] = v
-	    changed = true
+	    if n ~= "TimeStamp" then
+		-- xxx(name .. " " .. tostring(n) .. "=" .. tostring(v))
+		changed = true
+	    end
 	end
 	if n ~= 'Lane' then
 	    saved_self[n] = self[n]
@@ -782,7 +792,7 @@ function POC_Swimlanes.Initialize(isMocked)
     CALLBACK_MANAGER:RegisterCallback(POC_SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
     CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, style_changed)
     CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, function (x) _this.Lanes:Update(x) end)
-    CALLBACK_MANAGER:RegisterCallback(POC_ZONE_CHANGED, set_control_active)
+    CALLBACK_MANAGER:RegisterCallback(POC_ZONE_CHANGED, function() set_control_active() need_to_fire = true end)
     CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, set_control_active)
     SLASH_COMMANDS["/pocpct"] = function(pct)
 	if string.len(pct) == 0 then
