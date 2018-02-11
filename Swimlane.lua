@@ -279,6 +279,7 @@ function POC_Lane:Update(force)
 			not POC_GroupHandler.IsGrouped() or
 			not POC_Settings.IsSwimlaneListVisible()) then
 			POC_UltNumber.Hide(true)
+			POC_UltNumberLabel:SetText("")
 		    else
 			POC_UltNumber.Show(n)
 		    end
@@ -341,17 +342,25 @@ function POC_Lane:UpdateCell(i, player, playername)
 	inprogressalpha = .8
     end
 
-    local bdlength, _ = bgcell:GetWidth() - 2
-    local lensub = -2
-    local i = 1
-    namecell:SetText(playername)
-    while namecell:GetWidth() > bdlength do
-	playername = string.sub(playername, 1, lensub) .. '..'
+    local bdlength, _ = bgcell:GetWidth() - 4
+    if bdlength == 0 then
+	-- Not sure why this happens
+	if string.len(playername) > 10 then
+	    playername = string.sub(playername, 1, 10) .. '..'
+	end
 	namecell:SetText(playername)
-	lensub = -4
-	i = i + 1
-	if i > 100 then
-	    break
+    else
+	local lensub = -2
+	local i = 1
+	namecell:SetText(playername)
+	while namecell:GetWidth() > bdlength do
+	    playername = string.sub(playername, 1, lensub) .. '..'
+	    namecell:SetText(playername)
+	    lensub = -4
+	    i = i + 1
+	    if i > 100 then
+		break
+	    end
 	end
     end
     ultcell:SetValue(ultpct)
@@ -738,7 +747,7 @@ end
 function POC_UltNumber.Hide(x)
     if saved.UltNumberShow then
 	if POC_Me == nil or POC_Me.IsDead or POC_Me.UltPct < 100 then
-	    x = false
+	    x = true
 	end
 	POC_UltNumber:SetHidden(x)
     end
