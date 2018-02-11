@@ -341,7 +341,7 @@ function POC_Lane:UpdateCell(i, player, playername)
 	inprogressalpha = .8
     end
 
-    local bdlength, _ = bgcell:GetWidth()
+    local bdlength, _ = bgcell:GetWidth() - 2
     local lensub = -2
     local i = 1
     namecell:SetText(playername)
@@ -350,7 +350,7 @@ function POC_Lane:UpdateCell(i, player, playername)
 	namecell:SetText(playername)
 	lensub = -4
 	i = i + 1
-	if i > 26 then
+	if i > 100 then
 	    break
 	end
     end
