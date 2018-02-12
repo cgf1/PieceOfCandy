@@ -67,8 +67,6 @@ function POC_UltMenu.ShowUltMenu(parent, id, gid)
 	    iconSize = 48,
 	})
 	container = lam.container
-	lam.RealSetHidden = lam.SetHidden
-	lam.SetHidden = function () d("HERE") lam:RealSetHidden(true) end
 	dropdown = lam.dropdown
 	showicons = dropdown:GetHandler("OnMouseUp")
     end

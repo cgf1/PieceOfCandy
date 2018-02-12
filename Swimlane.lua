@@ -26,9 +26,9 @@ local ping_refresh = false
 local POC_Lane = {}
 POC_Lane.__index = POC_Lane
 
+local play_sound = false
 local POC_Player = {
     IsMe = false,
-    PlaySound = false,
     UltGid = 0,
     UltPct = 0
 }
@@ -263,7 +263,8 @@ function POC_Lane:Update(force)
 		    end
 		    if player.UltPct  < 100 then
 			_this.UltPct = nil
-			save_me.PlaySound = true
+			play_sound = true
+			save_me.Because = "ultpct < 100"
 		    elseif not player.IsDead and player:HasBeenInRange() then
 			_this.UltPct = gt100 - 1
 			player.UltPct = _this.UltPct
@@ -272,7 +273,8 @@ function POC_Lane:Update(force)
 			-- reset order since we can't contribute
 			_this.UltPct = 100
 			player.UltPct = _this.UltPct
-			save_me.PlaySound = true
+			play_sound = true
+			save_me.Because = "out of range or dead"
 		    end
 		    -- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
 		    self:UpdateCell(n, player, playername)
@@ -763,13 +765,15 @@ function POC_UltNumber.Show(n)
     POC_UltNumberLabel:SetText("|c" .. color .. " #" .. n .. "|r")
     POC_UltNumber.Hide(false)
     local timenow = GetTimeStamp()
-    if n ~= 1 or not save_me.PlaySound or not saved.WereNumberOne or
+    if n ~= 1 or not play_sound or not saved.WereNumberOne or
        ((GetTimeStamp() - save_me.LastPlayed) < MAXPLAYSOUNDTIME) then
 	return
     end
     PlaySound(SOUNDS.DUEL_START)
     save_me.LastPlayed = GetTimeStamp()
-    save_me.PlaySound = false
+    play_sound = false
+    -- xxx("sound", play_sound)
+    save_me.Because = "false because we played the sound"
 end
 
 -- Initialize initializes _this

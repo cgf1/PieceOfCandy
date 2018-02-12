@@ -510,7 +510,7 @@ local function HandleDataPing(pingType, pingTag, x, y, isPingOwner)
 	if(not isPingOwner and lib.SawPing < 5) then
 		lib.SawPing = lib.SawPing + 1
 	else
-if lib.SawPing > 1 then d("SawPing " .. tostring(lib.SawPing)) end
+if lib.SawPing > 1 then d("SawPing " .. tostring(lib.SawPing) .. ' ' .. pingTag) end
 		lib.SawPing = 0
 		if(lib.hasMore) then
 			DoSend()

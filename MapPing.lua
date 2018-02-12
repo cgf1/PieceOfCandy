@@ -153,7 +153,7 @@ local function rcv(pingTag, ultid, ultpct, apiver)
 	    ApiVer = apiver
 	}
 
-	if apiver == POC_API_VERSION then
+	if true or apiver == POC_API_VERSION then
 	    player.UltGid = ult.Gid
 	    player.InvalidClient = false
 	else

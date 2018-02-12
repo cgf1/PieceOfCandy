@@ -96,7 +96,6 @@ function POC_Comm.Load()
     if LGS ~= nil then
 	LGS.Load()
     else
-	LGS = LibStub("POC_LibGroupSocket")
 	local version = 3
 	LGS.MESSAGE_TYPE_ULTIMATE = lgs_type
 	lgs_handler, _ = LGS:RegisterHandler(lgs_type, version)
@@ -142,10 +141,12 @@ end
 
 function POC_Comm.Initialize()
     saved = POC_Settings.SavedVariables
+    LGS = LibStub("POC_LibGroupSocket")
     if not saved.MapPing then
 	comm = POC_Comm
     else
 	comm = POC_MapPing
+	LGS.Unload()
     end
     if not comm.active then
 	toggle(false)
