@@ -82,6 +82,7 @@ local function insert_group_table(to_table, from_table, from_key, i)
     for _, v in ipairs(POC_IdSort(from_table[from_key], 'Gid', 1)) do
 	i = i + 1
 	v.Id = i
+	local name, class
 	_, _, name, class = string.find(v.Desc, "^(.*) ultimates from (.+)")
 	if name ~= nil then
 	    class = string.gsub(class, " class$", "")

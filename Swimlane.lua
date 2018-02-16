@@ -1,5 +1,4 @@
 local SWIMLANES = 6
-local REFRESHRATE = 1000	-- ms; RegisterForUpdate is in miliseconds
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
@@ -112,8 +111,6 @@ local function set_control_active()
 	registered = true
 	set_control_movable(saved.Movable)
 	restore_position(saved.PosX, saved.PosY)
-
-	-- EVENT_MANAGER:RegisterForUpdate(_this.Name, REFRESHRATE, _this.UpdateAll)
 
 	CALLBACK_MANAGER:RegisterCallback(POC_PLAYER_DATA_CHANGED, POC_Player.Update)
 	CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, set_control_movable)
