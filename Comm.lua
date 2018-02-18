@@ -32,7 +32,7 @@ local function on_update()
 
     local myult = POC_Ult.Me
     local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
-    local cost = math.max(1, GetAbilityCost(myult.Gid))
+    local cost = math.max(1, GetAbilityCost(myult.Aid))
     local pct = math.floor((current / cost) * 100)
 
     -- d("UltPct " .. tostring(POC_Swimlanes.UltPct))

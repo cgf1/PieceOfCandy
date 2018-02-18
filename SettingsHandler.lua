@@ -62,10 +62,10 @@ end
 
 -- Set the ultimate to use for a specific swimlane
 --
-function POC_Settings.SetSwimlaneUltId(swimlane, gid)
-    POC_Settings.SavedVariables.SwimlaneUltIds[swimlane] = gid
+function POC_Settings.SetSwimlaneUltId(swimlane, aid)
+    POC_Settings.SavedVariables.SwimlaneUltIds[swimlane] = aid
 
-    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, gid)
+    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, aid)
 end
 
 -- Control whether or not to show MIA lane

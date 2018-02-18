@@ -28,7 +28,7 @@ POC_Lane.__index = POC_Lane
 local play_sound = false
 local POC_Player = {
     IsMe = false,
-    UltGid = 0,
+    UltAid = 0,
     UltPct = 0
 }
 POC_Player.__index = POC_Player
@@ -153,7 +153,7 @@ function POC_Lanes:Update(x)
 	    if lane:Update(false) then
 		displayed = true
 	    else
-		-- xxx("Didn't refresh " .. tostring(gid))
+		-- xxx("Didn't refresh " .. tostring(aid))
 	    end
 	end
     end
@@ -415,7 +415,7 @@ function POC_Player.Update(inplayer)
 		local savedplayer = saved.GroupMembers[unitname]
 		if savedplayer == nil then
 		    player = {}
-		    player.UltGid = 'MIA'	-- not really
+		    player.UltAid = 'MIA'	-- not really
 		else
 		    saved.GroupMembers[unitname] = nil
 		    player = savedplayer
@@ -496,7 +496,7 @@ function POC_Player.new(inplayer, pingtag)
 	saved.GroupMembers[name] = saved_self
     end
 
-    inplayer.Lane = _this.Lanes[inplayer.UltGid]
+    inplayer.Lane = _this.Lanes[inplayer.UltAid]
     if inplayer.Lane == nil then
 	inplayer.Lane = _this.Lanes['MIA']
     end
@@ -587,27 +587,27 @@ end
 
 -- on_set_ult called on header clicked
 --
-local function on_set_ult(gid, id)
+local function on_set_ult(aid, id)
     CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
 
-    POC_Settings.SetSwimlaneUltId(id, gid)
+    POC_Settings.SetSwimlaneUltId(id, aid)
 end
 
--- Set the swimlane header icon in base of gid
+-- Set the swimlane header icon in base of aid
 --
-function POC_Lanes:SetUlt(id, newgid)
-    if self[newgid] ~= nil then
+function POC_Lanes:SetUlt(id, newaid)
+    if self[newaid] ~= nil then
 	return  -- already displaying this ultimate
     end
-    for gid, lane in pairs(self) do
+    for aid, lane in pairs(self) do
 	if lane.Id == id then
-	    self[newgid] = lane -- New row
-	    lane.Gid = newgid
-	    lane.Icon:SetTexture(GetAbilityIcon(newgid))
+	    self[newaid] = lane -- New row
+	    lane.Aid = newaid
+	    lane.Icon:SetTexture(GetAbilityIcon(newaid))
 	    if lane.Label ~= nil then
-		lane.Label:SetText(POC_Ult.ById(newgid).Name)
+		lane.Label:SetText(POC_Ult.ById(newaid).Name)
 	    end
-	    self[gid] = nil	-- Delete old row
+	    self[aid] = nil	-- Delete old row
 	    break
 	end
     end
@@ -619,7 +619,7 @@ end
 function POC_Lane:Click()
     if (self.Button ~= nil) then
 	CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
-	CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Gid)
+	CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Aid)
     else
 	POC_Error("POC_Lane:Click, button nil")
     end
@@ -636,22 +636,22 @@ function POC_Lane:Header()
 	self.Button:SetHandler("OnClicked", function() self:Click() end)
     end
 
-    local gid
+    local aid
     if self.Id == MIAlane then
-	gid = 'MIA'
+	aid = 'MIA'
     else
-	gid = saved.SwimlaneUltIds[self.Id]
+	aid = saved.SwimlaneUltIds[self.Id]
     end
-    local ult = POC_Ult.ById(gid)
+    local ult = POC_Ult.ById(aid)
     if (ult == nil) then
-	gid = 'MIA'
-	ult = POC_Ult.ById(gid)
+	aid = 'MIA'
+	ult = POC_Ult.ById(aid)
     end
     local icon
     if ult.Name == 'MIA' then
 	icon = "/POC/icons/lollipop.dds"
     else
-	icon = GetAbilityIcon(gid)
+	icon = GetAbilityIcon(aid)
     end
     self.Icon:SetTexture(icon)
 
@@ -661,7 +661,7 @@ function POC_Lane:Header()
 
     self:Hide(true)
 
-    return gid
+    return aid
 end
 
 function POC_Lane:Hide(displayed)
@@ -703,11 +703,11 @@ end
 function POC_Lane.new(lanes, i)
     local self = setmetatable({Id = i}, POC_Lane)
 
-    gid = self:Header()
+    aid = self:Header()
 -- xxx("new", i, self.Control)
 
-    if lanes[gid] == nil then
-	lanes[gid] = self
+    if lanes[aid] == nil then
+	lanes[aid] = self
     end
 
     local last_row = self.Control
@@ -728,7 +728,7 @@ function POC_Lane.new(lanes, i)
 	last_row = row
     end
     self.Players = {}
-    self.Gid = gid
+    self.Aid = aid
     return self
 end
 

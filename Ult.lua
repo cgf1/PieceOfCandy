@@ -27,9 +27,9 @@ end
 --[[
 	ById gets the ultimate group from given ability ID
 ]]--
-function POC_Ult.ById(gid)
-    if byids[gid] ~= nil then
-	return byids[gid]
+function POC_Ult.ById(aid)
+    if byids[aid] ~= nil then
+	return byids[aid]
     end
 
     -- not found
@@ -61,8 +61,8 @@ end
 function POC_Ult.Icons()
     local iconlist = {}
     for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-	if v.Gid ~= 'MIA' then
-	    table.insert(iconlist, GetAbilityIcon(v.Gid))
+	if v.Aid ~= 'MIA' then
+	    table.insert(iconlist, GetAbilityIcon(v.Aid))
 	end
     end
     return iconlist
@@ -71,7 +71,7 @@ end
 function POC_Ult.Descriptions()
     local desclist = {}
     for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-	if v.Gid ~= 'MIA' then
+	if v.Aid ~= 'MIA' then
 	    table.insert(desclist, v.Desc)
 	end
     end
@@ -79,7 +79,7 @@ function POC_Ult.Descriptions()
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
-    for _, v in ipairs(POC_IdSort(from_table[from_key], 'Gid', 1)) do
+    for _, v in ipairs(POC_IdSort(from_table[from_key], 'Aid', 1)) do
 	i = i + 1
 	v.Id = i
 	local name, class
@@ -113,69 +113,69 @@ local function create_ults()
 	    ["NEGATE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_NEGATE),
 		Ping = 1,
-		Gid = 29861
+		Aid = 29861
 	    },
 
 	    ["ATRO"] = {
 		Desc = GetString(POC_DESCRIPTIONS_ATRO),
 		Ping = 2,
-		Gid = 30553
+		Aid = 30553
 	    },
 	    ["OVER"] = {
 		Desc = GetString(POC_DESCRIPTIONS_OVER),
 		Ping = 3,
-		Gid = 30366
+		Aid = 30366
 	    },
 	},
 	["Templar"] = {
 	    ["SWEEP"] = {
 		Desc = GetString(POC_DESCRIPTIONS_SWEEP),
 		Ping = 4,
-		Gid = 23788
+		Aid = 23788
 	    },
 	    ["NOVA"] = {
 		Desc = GetString(POC_DESCRIPTIONS_NOVA),
 		Ping = 5,
-		Gid = 24301
+		Aid = 24301
 	    },
 	    ["TPHEAL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_TPHEAL),
 		Ping = 6,
-		Gid = 27413
+		Aid = 27413
 	    },
 	},
 	["Dragonknight"] = {
 	    ["STAND"] = {
 		Desc = GetString(POC_DESCRIPTIONS_STAND),
 		Ping = 7,
-		Gid = 34021
+		Aid = 34021
 	    },
 	    ["LEAP"] = {
 		Desc = GetString(POC_DESCRIPTIONS_LEAP),
 		Ping = 8,
-		Gid = 33668
+		Aid = 33668
 	    },
 	    ["MAGMA"] = {
 		Desc = GetString(POC_DESCRIPTIONS_MAGMA),
 		Ping = 9,
-		Gid = 33841
+		Aid = 33841
 	    },
 	},
 	["Nightblade"] = {
 	    ["STROKE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_STROKE),
 		Ping = 10,
-		Gid = 37545
+		Aid = 37545
 	    },
 	    ["VEIL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_VEIL),
 		Ping = 11,
-		Gid = 37713
+		Aid = 37713
 	    },
 	    ["NBSOUL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_NBSOUL),
 		Ping = 12,
-		Gid = 36207
+		Aid = 36207
 	    },
 	},
 	["Warden"] = {
@@ -183,12 +183,12 @@ local function create_ults()
 	    ["FREEZE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_FREEZE),
 		Ping = 13,
-		Gid = 86112
+		Aid = 86112
 	    },
 	    ["WDHEAL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_WDHEAL),
 		Ping = 14,
-		Gid = 93971
+		Aid = 93971
 	    },
 	},
 	["WEAPON"] = {
@@ -196,47 +196,47 @@ local function create_ults()
 	    ["ICE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_ICE),
 		Ping = 15,
-		Gid = 86542
+		Aid = 86542
 	    },
 	    ["FIRE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_FIRE),
 		Ping = 16,
-		Gid = 86536
+		Aid = 86536
 	    },
 	    ["LIGHT"] = {
 		Desc = GetString(POC_DESCRIPTIONS_LIGHT),
 		Ping = 17,
-		Gid = 86550
+		Aid = 86550
 	    },
 	    -- Resto
 	    ["STHEAL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_STHEAL),
 		Ping = 18,
-		Gid = 86454
+		Aid = 86454
 	    },
 	    -- 2H
 	    ["BERSERK"] = {
 		Desc = GetString(POC_DESCRIPTIONS_BERSERK),
 		Ping = 19,
-		Gid = 86284
+		Aid = 86284
 	    },
 	    -- SB
 	    ["SHIELD"] = {
 		Desc = GetString(POC_DESCRIPTIONS_SHIELD),
 		Ping = 20,
-		Gid = 83292
+		Aid = 83292
 	    },
 	    -- DW
 	    ["DUAL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_DUAL),
 		Ping = 21,
-		Gid = 86410
+		Aid = 86410
 	    },
 	    -- BOW
 	    ["BOW"] = {
 		Desc = GetString(POC_DESCRIPTIONS_BOW),
 		Ping = 22,
-		Gid = 86620
+		Aid = 86620
 	    },
 	},
 	["WORLD"] = {
@@ -244,19 +244,19 @@ local function create_ults()
 	    ["SOUL"] = {
 		Desc = GetString(POC_DESCRIPTIONS_SOUL),
 		Ping = 23,
-		Gid = 43109
+		Aid = 43109
 	    },
 	    -- Werewolf
 	    ["WERE"] = {
 		Desc = GetString(POC_DESCRIPTIONS_WERE),
 		Ping = 24,
-		Gid = 42379
+		Aid = 42379
 	    },
 	    -- Vamp
 	    ["VAMP"] = {
 		Desc = GetString(POC_DESCRIPTIONS_VAMP),
 		Ping = 25,
-		Gid = 41937
+		Aid = 41937
 	    },
 	},
 	["GUILD"] = {
@@ -264,32 +264,32 @@ local function create_ults()
 	    ["METEOR"] = {
 		Desc = GetString(POC_DESCRIPTIONS_METEOR),
 		Ping = 26,
-		Gid = 42492
+		Aid = 42492
 	    },
 	    -- Fighterguild
 	    ["DAWN"] = {
 		Desc = GetString(POC_DESCRIPTIONS_DAWN),
 		Ping = 27,
-		Gid = 42598
+		Aid = 42598
 	    },
 	    -- Support
 	    ["BARRIER"] = {
 		Desc = GetString(POC_DESCRIPTIONS_BARRIER),
 		Ping = 28,
-		Gid = 46622
+		Aid = 46622
 	    },
 	    -- Assault
 	    ["HORN"] = {
 		Desc = GetString(POC_DESCRIPTIONS_HORN),
 		Ping = 29,
-		Gid = 46537
+		Aid = 46537
 	    }
 	},
 	["POC"] = {
 	    ['MIA'] = {
 		Desc = "Incommunicado players",
 		Ping = 30,  -- a contradiction?
-		Gid = 'MIA'
+		Aid = 'MIA'
 	    }
 	}
 
@@ -298,7 +298,7 @@ local function create_ults()
     for _, x in pairs(ults) do
 	for name, group in pairs(x) do
 	    group.Name = name
-	    byids[group.Gid] = group
+	    byids[group.Aid] = group
 	    bypings[group.Ping] = group
 	    if group.Ping > POC_Ult.MaxPing then
 		POC_Ult.MaxPing = group.Ping
@@ -309,7 +309,7 @@ local function create_ults()
     i = insert_group_table(bynames, ults, class, i)
     if POC_Settings.SavedVariables.MyUltId[ultix] == nil then
 	for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-	    POC_Settings.SetStaticUltimateIDSettings(v.Gid)
+	    POC_Settings.SetStaticUltimateIDSettings(v.Aid)
 	    break
 	end
     end

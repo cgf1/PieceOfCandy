@@ -8,7 +8,7 @@ local okimg = '/POC/icons/ok.dds'
 local lam
 local container
 local dropdown
-local curgid
+local curaid
 local curid
 local showicons
 
@@ -17,17 +17,17 @@ local showicons
 local function set_ult(iconstr)
     dropdown:SetHidden(true)
     if iconstr == okimg then
-	POC_Ult.SetSavedId(curgid)
+	POC_Ult.SetSavedId(curaid)
     else
-	gid = POC_Ult.UltFromIcon(iconstr)
-	if gid ~= curgid then
-	    CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, gid, curid)
+	aid = POC_Ult.UltFromIcon(iconstr)
+	if aid ~= curaid then
+	    CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, aid, curid)
 	end
     end
 end
 
 local function get_ult()
-    return GetAbilityIcon(curgid)
+    return GetAbilityIcon(curaid)
 end
 
 -- Show ultimate group menu
@@ -40,9 +40,9 @@ end
 --        visibleRows = 6,
 --        iconSize = 40
 
-function POC_UltMenu.ShowUltMenu(parent, id, gid)
+function POC_UltMenu.ShowUltMenu(parent, id, aid)
     curid = id
-    curgid = gid
+    curaid = aid
     if parent.data == nil then
 	parent.data = {}
     end
