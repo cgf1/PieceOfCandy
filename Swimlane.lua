@@ -43,7 +43,6 @@ local saved
 -- Table POC_Swimlanes
 --
 POC_Swimlanes = {
-    IsMocked = false,
     Name = "POC-Swimlanes",
     Lanes = nil,
     SavedLanes = {},
@@ -778,15 +777,13 @@ end
 
 -- Initialize initializes _this
 --
-function POC_Swimlanes.Initialize(isMocked)
+function POC_Swimlanes.Initialize()
     xxx = POC.xxx
     saved = POC_Settings.SavedVariables
 
     if not POC_GroupHandler.IsGrouped() then
 	saved.GroupMembers = {}
     end
-
-    _this.IsMocked = isMocked
 
     POC_UltNumber:ClearAnchors()
     if (saved.UltNumberPos == nil) then

@@ -8,7 +8,6 @@ POC_GroupHandler.__index = POC_GroupHandler
 	Table Members
 ]]--
 POC_GroupHandler.Name = "POC-GroupHandler"
-POC_GroupHandler.IsMocked = false
 
 -- Called when group member joined group
 --
@@ -30,7 +29,7 @@ function POC_GroupHandler.OnGroupUpdate(x, hmm)
 end
 
 function POC_GroupHandler.IsGrouped()
-    return POC_GroupHandler.IsMocked or IsUnitGrouped("player")
+    return IsUnitGrouped("player")
 end
 
 -- Called on ???
@@ -41,9 +40,7 @@ end
 
 -- Initialize POC_GroupHandler
 --
-function POC_GroupHandler.Initialize(isMocked)
-    POC_GroupHandler.IsMocked = isMocked
-
+function POC_GroupHandler.Initialize()
     -- Initial call
     POC_GroupHandler:OnGroupUpdate()
 
