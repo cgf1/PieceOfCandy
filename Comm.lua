@@ -17,6 +17,8 @@ local ultix = GetUnitName("player")
 local comm
 local notify_when_not_grouped = false
 
+local xxx
+
 local function on_update()
     if not comm.active then
 	return
@@ -78,6 +80,8 @@ local function commtype(s)
 	toset = POC_MapPing
     elseif s == 'lgs' or s == 'libgroupsocket' or s == 'POC_LGS' then
 	toset = POC_LGS
+    elseif s == 'pipe' or s == 'pingpipe' or s == 'POC_PingPipe' then
+	toset = POC_PingPipe
     else
 	return nil
     end
@@ -86,6 +90,7 @@ local function commtype(s)
 end
 
 function POC_Comm.Initialize()
+    xxx = POC.xxx
     saved = POC_Settings.SavedVariables
     saved.MapPing = nil
     if saved.Comm == nil then
@@ -109,6 +114,6 @@ function POC_Comm.Initialize()
 		CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 	    end
 	end
-	d("Communication method: " .. comm.Name:sub(4))
+	d("Communication method: " .. comm.Name:sub(5))
     end
 end

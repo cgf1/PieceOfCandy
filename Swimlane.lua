@@ -514,7 +514,7 @@ function POC_Player.new(inplayer, pingtag)
 	inplayer.AtName = GetUnitDisplayName(pingtag)
     end
 
-    local changed = false
+    local changed = inplayer.TimeStamp ~= nil and self.TimeStamp ~= nil and self:TimedOut()
     for n,v in pairs(inplayer) do
 	if self[n] == nil or self[n] ~= v then
 	    self[n] = v

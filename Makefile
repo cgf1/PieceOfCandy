@@ -1,5 +1,5 @@
 .PHONY: all ctags install clean install-gotham install-norton tags
-modified := $(shell git status | awk '/modified: .*\.lua/{print $$2 ".ok"}')
+modified := $(shell git status | awk '/(new file|modified): .*\.lua/{print $$NF ".ok"}' | sort)
 allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort)
 FORCE := false
 
