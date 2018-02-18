@@ -589,7 +589,6 @@ end
 --
 local function on_set_ult(gid, id)
     CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
-xxx("HERE on_set_ult")
 
     POC_Settings.SetSwimlaneUltId(id, gid)
 end
@@ -597,6 +596,9 @@ end
 -- Set the swimlane header icon in base of gid
 --
 function POC_Lanes:SetUlt(id, newgid)
+    if self[newgid] ~= nil then
+	return  -- already displaying this ultimate
+    end
     for gid, lane in pairs(self) do
 	if lane.Id == id then
 	    self[newgid] = lane -- New row
