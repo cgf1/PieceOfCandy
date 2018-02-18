@@ -2,6 +2,7 @@ local LMP = LibStub("LibMapPing")
 if not LMP then
     error("Cannot load without LibMapPing")
 end
+local LGPS = LibStub("LibGPS2", true)
 
 local ABILITY_COEFFICIENT = 100
 local ULTIMATE_COEFFICIENT = 1000
@@ -17,6 +18,7 @@ POC_MapPing = {
     active = false
 }
 POC_MapPing.__index = POC_MapPing
+local WROTHGAR = 27
 
 -- Gets ult ID
 --
@@ -56,44 +58,43 @@ end
 
 -- Check if map ping is in possible range
 --
-local function valid_ping(offsetX, offsetY)
-    local isValidPing = (offsetX ~= 0 or offsetY ~= 0)
-    local isCorrectOffsetX = (offsetX >= 0.009 and offsetX <= 2.69)
-    local isCorrectOffsetY = (offsetY >= 0.000 and offsetY <= 0.60)
+local function valid_ping(x, y)
+    local isValidPing = (x ~= 0 or y ~= 0)
+    local isCorrectOffsetX = (x >= 0.009 and x <= 2.69)
+    local isCorrectOffsetY = (y >= 0.000 and y <= 0.60)
 
     return isValidPing and (isCorrectOffsetX and isCorrectOffsetY)
 end
 
 -- Called on map ping from LibMapPing
 --
-local function on_map_ping(pingType, pingtag, offsetX, offsetY, isLocalPlayerOwner)
-    if (pingType == MAP_PIN_TYPE_PING and LMP:IsPositionOnMap(offsetX, offsetY) and
-	valid_ping(offsetX, offsetY)) then
+local function on_map_ping(pingtype, pingtag, x, y, isLocalPlayerOwner)
+local prex, prey = x, y
+    LGPS:PushCurrentMap()
+    SetMapToMapListIndex(WROTHGAR)
+    x, y = LMP:GetMapPing(pingtype, pingtag)
+    local onmap = LMP:IsPositionOnMap(x, y)
+    LGPS:PopCurrentMap()
+    if pingtype ~= MAP_PIN_TYPE_PING or not onmap or not valid_ping(x, y) then
+	return
+    end
+    LMP:SuppressPing(pingtype, pingtag)
 
-	LMP:SuppressPing(pingType, pingtag)
+    local apid, api = get_ult_ping(x)
+    local pct = get_ult_pct(y)
 
-	local type_ping, api = get_ult_ping(offsetX)
-	local pct = get_ult_pct(offsetY)
-
-	if (type_ping ~= -1 and pct ~= -1) then
-	    CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingtag, type_ping, pct, api)
-	else
-	    pingerr("on_map_ping: Ping invalid type_ping=" .. tostring(type_ping) .. "; pct=" .. tostring(pct) .. "; api=" .. tostring(api))
-	    pingerr("on_map_ping: offsets " .. tostring(offsetX) .. "," .. tostring(offsetY))
-	end
+    if (apid ~= -1 and pct ~= -1) then
+	CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingtag, apid, pct, api)
+    else
+	pingerr("on_map_ping: Ping invalid apid=" .. tostring(apid) .. "; pct=" .. tostring(pct) .. "; api=" .. tostring(api))
+	pingerr("on_map_ping: offsets " .. tostring(x) .. "," .. tostring(y))
     end
 end
 
 -- Called on map ping from LibMapPing
 --
-local function map_ping_finished(pingType, pingtag, offsetX, offsetY, isLocalPlayerOwner)
-    offsetX, offsetY = LMP:GetMapPing(pingType, pingtag) -- load from LMP, because offsetX, offsetY from PING_EVENT_REMOVED are 0,0
-
-    if pingType == MAP_PIN_TYPE_PING and
-	LMP:IsPositionOnMap(offsetX, offsetY) and
-	valid_ping(offsetX, offsetY) then
-	LMP:UnsuppressPing(pingType, pingtag)
-    end
+local function map_ping_finished(pingtype, pingtag, x, y, isLocalPlayerOwner)
+    LMP:UnsuppressPing(pingtype, pingtag)
 end
 
 -- Called on new data from LibGroupSocket
@@ -136,7 +137,10 @@ function POC_MapPing.Send(ultver, pct)
 	pct_ping = 0.0001 -- Zero, if you send "0", the map ping will be invalid
     end
 
+    LGPS:PushCurrentMap()
+    SetMapToMapListIndex(WROTHGAR)
     LMP:SetMapPing(MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, type_ping, pct_ping)
+    LGPS:PopCurrentMap()
 end
 
 -- Unload MapPing

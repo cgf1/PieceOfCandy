@@ -542,20 +542,6 @@ local function UnsuppressPing(pingType, pingTag)
 	end
 end
 
-LMP:RegisterCallback("BeforePingAdded", function(pingType, pingTag, x, y, isPingOwner)
-	if(pingType == MAP_PIN_TYPE_PING or (lib.debug and not IsUnitGrouped("player") and pingType == MAP_PIN_TYPE_PLAYER_WAYPOINT)) then
-		if(HandleDataPing(pingType, pingTag, x, y, isPingOwner)) then -- it is a valid data ping
-			SuppressPing(pingType, pingTag)
-		else -- ping is set by player
-			UnsuppressPing(pingType, pingTag)
-		end
-	end
-end)
-
-LMP:RegisterCallback("AfterPingRemoved", function(pingType, pingTag, x, y, isPingOwner)
-	UnsuppressPing(pingType, pingTag)
-end)
-
 ---------------------------------------------------- Data Handlers ----------------------------------------------------
 
 lib.MESSAGE_TYPE_RESERVED = 0 --- reserved in case we ever have more than 31 message types. can also be used for local tests
@@ -600,14 +586,34 @@ end
 
 ---------------------------------------------------- Initialization ---------------------------------------------------
 
+
+local function beforePing(pingType, pingTag, x, y, isPingOwner)
+	if(pingType == MAP_PIN_TYPE_PING or (lib.debug and not IsUnitGrouped("player") and pingType == MAP_PIN_TYPE_PLAYER_WAYPOINT)) then
+		if(HandleDataPing(pingType, pingTag, x, y, isPingOwner)) then -- it is a valid data ping
+			SuppressPing(pingType, pingTag)
+		else -- ping is set by player
+			UnsuppressPing(pingType, pingTag)
+		end
+	end
+end
+
+local function afterPing(pingType, pingTag, x, y, isPingOwner)
+	UnsuppressPing(pingType, pingTag)
+end
+
 local function Unload()
-	EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_PLAYER_ACTIVATED)
+    EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_PLAYER_ACTIVATED)
     EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_UNIT_DESTROYED)
     EVENT_MANAGER:UnregisterForEvent(LIB_IDENTIFIER, EVENT_ADD_ON_LOADED)
+    LMP:UnregisterCallback("BeforePingAdded", beforePing)
+    LMP:UnregisterCallback("AfterPingRemoved", afterPing)
+    LMP:UnregisterCallback("BeforePingAdded")
 	SLASH_COMMANDS["/lgs"] = nil
 end
 
 function lib.Load()
+	LMP:RegisterCallback("BeforePingAdded", beforePing)
+	LMP:RegisterCallback("AfterPingRemoved", afterPing)
 	EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_UNIT_DESTROYED, function()
 		if(saveData.autoDisableOnGroupLeft and not IsUnitGrouped("player")) then
 			saveData.enabled = false

@@ -16,7 +16,7 @@ POC_REAL_API_VERSION = 0
 POC_API_VERSION = POC_REAL_API_VERSION
 
 local MAJOR = "2"
-local MINOR = "2"
+local MINOR = "3"
 local PATCH = "0"
 
 local ISMOCKED = false
