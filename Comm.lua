@@ -1,4 +1,4 @@
-local LGS
+local Comm
 
 POC_Comm = {}
 POC_Comm.__index = POC_Comm
@@ -14,49 +14,22 @@ POC_Comm = {
 }
 POC_Comm.__index = POC_Comm
 local ultix = GetUnitName("player")
-local comm = {}
+local comm
+local notify_when_not_grouped = false
 
-local sender
-
-local saved
-
-local function rcv(unitid, data, is_self)
-    local index, pct, ultver
-    pct, index = LGS:ReadUint8(data, 1)
-    ultver, index = LGS:ReadUint8(data, index)
-    local ultid = ultver % POC_Ult.MaxPing
-    local apiver = math.floor(ultver / POC_Ult.MaxPing)
-
-    local player = {
-	PingTag = unitid,
-	UltPct = pct,
-	ApiVer = apiver
-    }
-
-    local ult = POC_Ult.ByPing(ultid)
-    if apiver == POC_API_VERSION then
-	player.UltGid = ult.Gid
-	player.InvalidClient = false
-    else
-	player.UltGid = POC_Ult.MaxPing
-	player.InvalidClient = true
-    end
-
-    CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)
-end
-
-function brute_force(x)
-    SLASH_COMMANDS["/lgs"](tostring(x))
-end
-
-function POC_Comm.IsActive()
-    return comm.active
-end
-
-function POC_Comm.Send()
-    if not IsUnitGrouped("player") then
+local function on_update()
+    if not comm.active then
 	return
     end
+    if not IsUnitGrouped("player") then
+	if notify_when_not_grouped then
+	    notify_when_not_grouped = false
+	    CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_GROUP_CHANGED, "left")
+	end
+	return
+    end
+    local notify_when_not_grouped = true
+
     local myult = POC_Ult.Me
     local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
     local cost = math.max(1, GetAbilityCost(myult.Gid))
@@ -73,51 +46,7 @@ function POC_Comm.Send()
     -- Ultimate type + our API #
     local ultver = myult.Ping + POC_Ult.MaxPing * POC_API_VERSION
 
-    local data = {}
-    local index = 1
-    index = LGS:WriteUint8(data, index, pct)
-    LGS:WriteUint8(data, index, ultver)
-    for i=1, 5 do
-	if LGS:Send(lgs_type, data) then
-	    return
-	end
-	brute_force(1)
-    end
-    POC_Error("LGS:Send failed")
-end
-
-local function on_update()
-    if comm.active and IsUnitGrouped("player") then
-	comm.Send()
-    end
-end
-
-function POC_Comm.Load()
-    if LGS ~= nil then
-	LGS.Load()
-    else
-	local version = 3
-	LGS.MESSAGE_TYPE_ULTIMATE = lgs_type
-	lgs_handler, _ = LGS:RegisterHandler(lgs_type, version)
-	if not lgs_handler then
-	    POC_Error("couldn't register with with LibGroupSocket")
-	end
-	lgs_handler.resources = {}
-	lgs_handler.data = {}
-	lgs_handler.dataHandler = rcv
-	lgs_handler.Load = POC_Comm.Load
-	lgs_handler.Unload = POC_Comm.Unload
-    end
-    LGS:RegisterCallback(lgs_type, lgs_handler.dataHandler)
-    POC_Comm.active = true
-end
-
-function POC_Comm.Unload()
-    if POC_Comm.active then
-	POC_Comm.active = false
-	LGS:UnregisterCallback(lgs_type, lgs_handler.dataHandler)
-	LGS.Unload()
-    end
+    comm.Send(ultver, pct)
 end
 
 local function toggle(verbose)
@@ -139,59 +68,47 @@ local function toggle(verbose)
     CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 end
 
+function POC_Comm.IsActive()
+    return comm ~= nil and comm.active
+end
+
+local function commtype(s)
+    local toset
+    if s == 'ping' or s == 'mapping' or s == 'POC_MapPing' then
+	toset = POC_MapPing
+    elseif s == 'lgs' or s == 'libgroupsocket' or s == 'POC_LGS' then
+	toset = POC_LGS
+    else
+	return nil
+    end
+    saved.Comm = toset.Name
+    return toset
+end
+
 function POC_Comm.Initialize()
     saved = POC_Settings.SavedVariables
-    LGS = LibStub("POC_LibGroupSocket")
-    if not saved.MapPing then
-	comm = POC_Comm
-    else
-	comm = POC_MapPing
-	LGS.Unload()
+    saved.MapPing = nil
+    if saved.Comm == nil then
+	saved.Comm = 'POC_MapPing'
+    end
+    comm = commtype(saved.Comm)
+    if comm == nil then
+	POC_Error("Unknown communication type: " .. saved.Comm)
     end
     if not comm.active then
 	toggle(false)
     end
-
-    SLASH_COMMANDS["/poccomerr"] = function()
-	show_errors = not show_errors
-	if show_errors then
-	    comerr = POC_Error
-	else
-	    comerr = function() return end
-	end
-	d("show_errors " .. tostring(show_errors))
-    end
-    SLASH_COMMANDS["/poclgs"] = function()
-	lgs_on = not lgs_on
-	if lgs_on then
-	    brute_force(1)
-	else
-	    brute_force(0)
-	end
-    end
     SLASH_COMMANDS["/poctoggle"] = function () toggle(true) end
-    SLASH_COMMANDS["/pocping"] = function(x)
+    SLASH_COMMANDS["/poccomm"] = function(x)
 	if string.len(x) ~= 0 then
-	    local istrue = x == '1' or x == 'true' or x == 'yes'
-	    if istrue == saved.MapPing then
-		return
+	    local toset = commtype(x)
+	    if toset ~= comm then
+		comm.Unload()
+		comm = toset
+		comm.Load()
+		CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 	    end
-	    saved.MapPing = istrue
-	    if istrue then
-		POC_Comm.Unload()
-		POC_MapPing.Load()
-		comm = POC_MapPing
-	    else
-		POC_MapPing.Unload()
-		POC_Comm.Load()
-		comm = POC_Comm
-	    end
-	    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
 	end
-	if saved.MapPing then
-	    d("POC: Using MapPing")
-	else
-	    d("POC: Using LibGroupSocket")
-	end
+	d("Communication method: " .. comm.Name:sub(4))
     end
 end

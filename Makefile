@@ -21,11 +21,13 @@ install: install-gotham install-norton
 
 install-gotham: | all clean
 	@rm -rf /smb/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC/*
-	/usr/bin/rsync -aR --delete --force ${allfiles} /smb/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
+	@echo Rsyncing to gotham...
+	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
 	
 install-norton: | all clean
 	@rm -rf /smb1/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC/*
-	/usr/bin/rsync -aR --delete --force ${allfiles} /smb1/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
+	@echo Rsyncing to norton...
+	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb1/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
 
 clean:
 	@/share/bin/devoclean

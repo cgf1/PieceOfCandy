@@ -87,3 +87,5 @@ ZO_Object = {} ZO_Object.__index = ZO_Object
 function ZO_Object:Subclass()
     return {}
 end
+
+function d(...) end

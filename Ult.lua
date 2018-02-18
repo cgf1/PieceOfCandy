@@ -1,5 +1,5 @@
 POC_Ult = {
-    Name = "POC-Ult",
+    Name = "POC_Ult",
     MaxPing = 0,
     Me = 0
 }
@@ -341,8 +341,8 @@ function POC_Ult.UltFromIcon(icon)
 end
 
 function POC_Ult.SetSavedId(id)
-    POC_Ult.Id = id
     POC_Settings.SavedVariables.MyUltId[ultix] = id
+    POC_Ult.Me = POC_Ult.ById(id)
 end
 
 function POC_Ult.SetSaved(icon)

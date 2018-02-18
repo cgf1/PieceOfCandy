@@ -19,7 +19,6 @@ POC_Settings = {
 	OnlyAva = false,
 	PosX = 0,
 	PosY = 0,
-	MapPing = true,
 	Style = "Standard",
 	SwimlaneMax = 24,
 	SwimlaneMaxCols = 6,

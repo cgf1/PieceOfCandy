@@ -589,6 +589,7 @@ end
 --
 local function on_set_ult(gid, id)
     CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
+xxx("HERE on_set_ult")
 
     POC_Settings.SetSwimlaneUltId(id, gid)
 end

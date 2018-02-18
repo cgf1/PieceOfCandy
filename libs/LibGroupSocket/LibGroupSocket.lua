@@ -607,7 +607,7 @@ local function Unload()
 	SLASH_COMMANDS["/lgs"] = nil
 end
 
-local function lib:Load()
+function lib.Load()
 	EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_UNIT_DESTROYED, function()
 		if(saveData.autoDisableOnGroupLeft and not IsUnitGrouped("player")) then
 			saveData.enabled = false
