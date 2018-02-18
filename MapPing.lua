@@ -23,7 +23,7 @@ local WROTHGAR = 27
 -- Gets ult ID
 --
 local function get_ult_ping(offset)
-    if (offset <= 0) then
+    if offset <= 0 then
 	pingerr("offset is incorrect: " .. tostring(offset))
 	return -1
     end
@@ -31,7 +31,7 @@ local function get_ult_ping(offset)
     local ping = math.floor((offset * ABILITY_COEFFICIENT) + 0.5)
     local apiver = math.floor(ping / POC_Ult.MaxPing)
     ping = ping % POC_Ult.MaxPing
-    if (ping >= 1 and ping < POC_Ult.MaxPing) then
+    if ping >= 1 and ping < POC_Ult.MaxPing then
 	return ping, apiver
     else
 	pingerr("get_ult_ping: offset is incorrect: " .. tostring(ping) .. "; offset: " .. tostring(offset))
@@ -46,6 +46,7 @@ local function get_ult_pct(offset)
 	pingerr("get_ult_pct: offset is incorrect: " .. tostring(offset))
 	return
     end
+
     local pct = math.floor((offset * ULTIMATE_COEFFICIENT) + 0.5)
 
     if (pct >= 0 and pct <= 125) then
@@ -59,55 +60,41 @@ end
 -- Check if map ping is in possible range
 --
 local function valid_ping(x, y)
-    local isValidPing = (x ~= 0 or y ~= 0)
-    local isCorrectOffsetX = (x >= 0.009 and x <= 2.69)
-    local isCorrectOffsetY = (y >= 0.000 and y <= 0.60)
+    local ok_x = (x >= 0.009 and x <= 2.69)
+    local ok_y = (y >= 0.000 and y <= 0.60)
 
-    return isValidPing and (isCorrectOffsetX and isCorrectOffsetY)
+    return ok_x and ok_y
 end
 
 -- Called on map ping from LibMapPing
 --
-local function on_map_ping(pingtype, pingtag, x, y, isLocalPlayerOwner)
-local prex, prey = x, y
+local unsuppress = false
+local function on_map_ping(pingtype, pingtag, x, y, _)
     LGPS:PushCurrentMap()
     SetMapToMapListIndex(WROTHGAR)
     x, y = LMP:GetMapPing(pingtype, pingtag)
     local onmap = LMP:IsPositionOnMap(x, y)
     LGPS:PopCurrentMap()
     if pingtype ~= MAP_PIN_TYPE_PING or not onmap or not valid_ping(x, y) then
+	unsuppress = false
 	return
     end
+
+    unsuppress = true
+
     LMP:SuppressPing(pingtype, pingtag)
 
     local apid, api = get_ult_ping(x)
     local pct = get_ult_pct(y)
-
-    if (apid ~= -1 and pct ~= -1) then
-	CALLBACK_MANAGER:FireCallbacks(POC_MAP_PING_CHANGED, pingtag, apid, pct, api)
-    else
-	pingerr("on_map_ping: Ping invalid apid=" .. tostring(apid) .. "; pct=" .. tostring(pct) .. "; api=" .. tostring(api))
-	pingerr("on_map_ping: offsets " .. tostring(x) .. "," .. tostring(y))
-    end
-end
-
--- Called on map ping from LibMapPing
---
-local function map_ping_finished(pingtype, pingtag, x, y, isLocalPlayerOwner)
-    LMP:UnsuppressPing(pingtype, pingtag)
-end
-
--- Called on new data from LibGroupSocket
---
-local function rcv(pingTag, ultid, pct, apiver)
-    local ult = POC_Ult.ByPing(ultid)
+    local ult = POC_Ult.ByPing(apid)
 
     if (ult == nil or pct == -1) then
-	POC_Error("rcv: invalid ult: " .. tostring(ult) .. "; pct: " .. tostring(pct))
+	POC_Error("on_map_ping: invalid ult: " .. tostring(ult) .. "; pct: " .. tostring(pct))
+	return
     end
 
     local player = {
-	PingTag = pingTag,
+	PingTag = pingtag,
 	UltPct = pct,
 	ApiVer = apiver
     }
@@ -120,9 +107,16 @@ local function rcv(pingTag, ultid, pct, apiver)
 	player.InvalidClient = true
     end
 
-    -- d(playerName .. " " .. tostring(pct))
-
     CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)
+end
+
+-- Called on map ping from LibMapPing
+--
+local function map_ping_finished(pingtype, pingtag, x, y, isLocalPlayerOwner)
+    if unsuppress then
+	LMP:UnsuppressPing(pingtype, pingtag)
+    end
+    unsuppress = false
 end
 
 -- Called on refresh of timer
