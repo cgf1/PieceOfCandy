@@ -79,10 +79,10 @@ end
 
 -- Set hidden on control
 --
-local function set_control_hidden(isHidden)
+local function set_control_hidden(ishidden)
     if (POC_GroupHandler.IsGrouped()) then
-	widget:SetHidden(isHidden)
-	POC_UltNumber.Hide(isHidden)
+	widget:SetHidden(ishidden)
+	POC_UltNumber.Hide(ishidden)
     else
 	widget:SetHidden(true)
 	POC_UltNumber.Hide(true)
@@ -91,19 +91,19 @@ end
 
 -- restore_position sets widget position
 --
-local function restore_position(posX, posY)
+local function restore_position(x, y)
     widget:ClearAnchors()
-    widget:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, posX, posY)
+    widget:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, x, y)
 end
 
 -- set_control_active sets hidden on control
 --
 local function set_control_active()
-    local isVisible = POC_Settings.IsSwimlaneListVisible() and POC_GroupHandler.IsGrouped()
-    local isHidden = not isVisible or POC_CurrentHudHiddenState()
-    set_control_hidden(isHidden)
+    local isvisible = POC_Settings.IsSwimlaneListVisible() and POC_GroupHandler.IsGrouped()
+    local ishidden = not isvisible or POC_CurrentHudHiddenState()
+    set_control_hidden(ishidden)
 
-    if (isVisible) then
+    if (isvisible) then
 	if registered then
 	    return
 	end
@@ -409,34 +409,34 @@ function POC_Player.Update(inplayer)
 	local unitname = GetUnitName(unitid)
 	if unitname ~= nil and unitname:len() ~= 0 then
 	    nmembers = nmembers + 1
-	    local player = group_members[unitname]
-	    if player == nil then
-		local savedplayer = saved.GroupMembers[unitname]
-		if savedplayer == nil then
-		    player = {}
-		    player.UltAid = 'MIA'	-- not really
-		else
-		    saved.GroupMembers[unitname] = nil
-		    player = savedplayer
-		    savedplayer = nil
-		    -- Remove any left over cruft from an older version
-		    for n, _ in pairs(player) do
-			if POC_Player[n] == nil then
-			    player[n] = nil
-			end
-		    end
-		    player.TimeStamp = 0
-		end
-		player.PingTag = unitid
-	    elseif inname == unitname then
+	    local player
+	    if inname == unitname then
 		player = inplayer
 		player.TimeStamp = timenow
 	    else
-		local player1 = {}
-		for k,v in pairs(player) do
-		    player1[k] = v
+		local gplayer = group_members[unitname]
+		if gplayer ~= nil then
+		    player = ZO_ShallowTableCopy(gplayer)
+		else
+		    local savedplayer = saved.GroupMembers[unitname]
+		    if savedplayer == nil then
+			player = {}
+			player.UltAid = 'MIA'	-- not really
+			player.TimeStamp = 0
+		    else
+			-- This should only happen when coming back from, e.g., /reloadui
+			-- So, let new() repopulate.
+			saved.GroupMembers[unitname] = nil
+			player = savedplayer
+			-- Remove any left over cruft from an older version
+			for n, _ in pairs(player) do
+			    if POC_Player[n] == nil then
+				player[n] = nil
+			    end
+			end
+			player.TimeStamp = 0
+		    end
 		end
-		player = player1
 	    end
 	    player.Name = unitname
 	    player.PingTag = unitid
@@ -780,10 +780,6 @@ end
 function POC_Swimlanes.Initialize()
     xxx = POC.xxx
     saved = POC_Settings.SavedVariables
-
-    if not POC_GroupHandler.IsGrouped() then
-	saved.GroupMembers = {}
-    end
 
     POC_UltNumber:ClearAnchors()
     if (saved.UltNumberPos == nil) then

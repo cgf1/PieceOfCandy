@@ -41,13 +41,12 @@ MapPing.lua
 PingPipe.lua
 Comm.lua
 
-SettingsHandler.lua
+Settings.lua
 GroupHandler.lua
 Ult.lua
 Util.lua
 
 VirtualControls.xml
-SettingsWindow.lua
 Swimlane.xml
 CompactSwimlane.xml
 UltNumber.xml

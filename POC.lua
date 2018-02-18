@@ -48,7 +48,7 @@ function POC:initialize()
     POC_Ult.Initialize()
 
     -- Initialize ui
-    POC_SettingsWindow.Initialize(MAJOR, MINOR, PATCH)
+    POC_Settings.InitializeWindow(MAJOR, MINOR, PATCH)
 
     POC_UltMenu.Initialize()
 

@@ -1,13 +1,7 @@
---[[
-	Table POC_GroupHandler
-]]--
-POC_GroupHandler = {}
+POC_GroupHandler = {
+    Name = "POC_GroupHandler"
+}
 POC_GroupHandler.__index = POC_GroupHandler
-
---[[
-	Table Members
-]]--
-POC_GroupHandler.Name = "POC-GroupHandler"
 
 -- Called when group member joined group
 --
