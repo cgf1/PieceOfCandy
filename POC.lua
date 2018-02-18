@@ -19,11 +19,6 @@ local MAJOR = "2"
 local MINOR = "3"
 local PATCH = "0"
 
-local ISMOCKED = false
-
-local LOG_NAME = "POC-DebugLogger"
-local LOG_COMMAND = "/poclogs"
-
 POC = {
     Name = "POC"
 }
@@ -49,7 +44,7 @@ function POC:initialize()
     POC_Settings.Initialize()
 
     -- Initialize logic
-    POC_GroupHandler.Initialize(ISMOCKED)
+    POC_GroupHandler.Initialize()
     POC_Ult.Initialize()
 
     -- Initialize ui
