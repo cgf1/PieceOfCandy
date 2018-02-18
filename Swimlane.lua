@@ -26,6 +26,7 @@ local POC_Lane = {}
 POC_Lane.__index = POC_Lane
 
 local play_sound = false
+local last_played = 0
 local POC_Player = {
     IsMe = false,
     UltAid = 0,
@@ -529,7 +530,7 @@ function POC_Player.new(inplayer, pingtag)
 
     if save_me == nil and saved_self.IsMe then
 	save_me = saved_self
-	save_me.LastPlayed = 0
+	last_played = 0
     end
 
     if self.Lane.Players[name] == nil then
@@ -765,16 +766,73 @@ function POC_UltNumber.Show(n)
     POC_UltNumber.Hide(false)
     local timenow = GetTimeStamp()
     if n ~= 1 or not play_sound or not saved.WereNumberOne or
-       ((GetTimeStamp() - save_me.LastPlayed) < MAXPLAYSOUNDTIME) then
+       ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
 	return
     end
     PlaySound(SOUNDS.DUEL_START)
-    save_me.LastPlayed = GetTimeStamp()
+    last_played = GetTimeStamp()
     play_sound = false
     -- xxx("sound", play_sound)
     save_me.Because = "false because we played the sound"
 end
 
+local function dump(name)
+    local found = false
+    local function time(t)
+	local p
+	if (t == 0) then
+	    p = 'never'
+	else
+	    local duration = GetTimeStamp() - t
+	    p = FormatTimeSeconds(duration, TIME_FORMAT_STYLE_DURATION , TIME_FORMAT_PRECISION_SECONDS, TIME_FORMAT_DIRECTION_NONE)
+	end
+	return p
+    end
+    for n, v in pairs(saved.GroupMembers) do
+	if string.find(n, name, 1) then
+	    msg("== " .. n .. " ==")
+	    local a = {}
+	    for n in pairs(v) do
+		table.insert(a, n)
+	    end
+	    table.sort(a)
+	    for _, x in ipairs(a) do
+		local t = v[x]
+		local p
+		if x == 'UltAid' then
+		    local u = POC_Ult.ById(t)
+		    local name
+		    if u == nil then
+			name = 'unknown'
+		    else
+			name = u.Desc
+		    end
+		    p = name .. ' [' .. tostring(t) .. ']'
+		    x = 'Ultimate Type'
+		elseif x == 'InRangeTime' then
+		    p = time(t)
+		elseif x == 'TimeStamp' then
+		    p = time(t)
+		elseif x == 'UltPct' then
+		    x = 'Ultimate Percent'
+		    if t <= 100 then
+			p = tostring(t) .. '%'
+		    else
+			local row = 1 + t - (100 + saved.SwimlaneMax)
+			p = "100% (row " .. row .. ")"
+		    end
+		else
+		    p = tostring(t)
+		end
+		msg(x .. ':  ' .. p)
+	    end
+	    found = true
+	end
+    end
+    if not found then
+	msg("nil")
+    end
+end
 -- Initialize initializes _this
 --
 function POC_Swimlanes.Initialize()
@@ -815,19 +873,7 @@ function POC_Swimlanes.Initialize()
 	sldebug = not sldebug
 	msg(sldebug)
     end
-    SLASH_COMMANDS["/pocdump"] = function(playername)
-	local found = false
-	for n, v in pairs(saved.GroupMembers) do
-	    if string.find(n, playername, 1) then
-		msg(n .. ":")
-		msg(v)
-		found = true
-	    end
-	end
-	if not found then
-	    msg("nil")
-	end
-    end
+    SLASH_COMMANDS["/pocdump"] = dump
     SLASH_COMMANDS["/pocrefresh"] = function(pct)
 	ping_refresh = not ping_refresh
 	if ping_refresh then
