@@ -18,7 +18,8 @@ POC_MapPing = {
     active = false
 }
 POC_MapPing.__index = POC_MapPing
-local WROTHGAR = 27
+
+local saved
 
 -- Gets ult ID
 --
@@ -71,7 +72,7 @@ end
 local unsuppress = false
 local function on_map_ping(pingtype, pingtag, x, y, _)
     LGPS:PushCurrentMap()
-    SetMapToMapListIndex(WROTHGAR)
+    SetMapToMapListIndex(saved.MapIndex)
     x, y = LMP:GetMapPing(pingtype, pingtag)
     local onmap = LMP:IsPositionOnMap(x, y)
     LGPS:PopCurrentMap()
@@ -132,7 +133,7 @@ function POC_MapPing.Send(ultver, pct)
     end
 
     LGPS:PushCurrentMap()
-    SetMapToMapListIndex(WROTHGAR)
+    SetMapToMapListIndex(saved.MapIndex)
     LMP:SetMapPing(MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, type_ping, pct_ping)
     LGPS:PopCurrentMap()
 end
@@ -155,6 +156,7 @@ function POC_MapPing.Load()
     LMP:RegisterCallback("AfterPingRemoved", map_ping_finished)
 
     xxx = POC.xxx
+    saved = POC_Settings.SavedVariables
 
     SLASH_COMMANDS["/pocpingerr"] = function()
 	show_errors = not show_errors

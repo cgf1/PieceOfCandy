@@ -14,6 +14,7 @@ POC_Settings = {
 	AtNames = false,
 	GroupMembers = {},
 	MIA = true,
+	MapIndex = 14,
 	Movable = true,
 	MyUltId = {},
 	OnlyAva = false,
@@ -290,6 +291,22 @@ function POC_Settings.InitializeWindow(major, minor, patch)
     LAM:RegisterOptionControls("POCSettingsMainMenu", o)
 end
 
+local function getmapindex(name)
+    if name:len() == 0 then
+	d("Reference map is " ..  GetMapNameByIndex(saved.MapIndex) .. " (" .. tostring(saved.MapIndex) .. ")")
+	return
+    end
+    local lname = name:lower()
+    for i = 1, GetNumMaps() do
+	if GetMapNameByIndex(i):lower() == lname then
+	    saved.MapIndex = i
+	    d("Setting reference map to " .. GetMapNameByIndex(i) .. " (" .. tostring(i) .. ")")
+	    return
+	end
+    end
+    POC_Error("unknown map - " .. name)
+end
+
 -- Load SavedVariables
 --
 function POC_Settings.Initialize()
@@ -316,4 +333,5 @@ function POC_Settings.Initialize()
 	    POC_Settings.SetStyleSettings(style)
 	end
     end
+    SLASH_COMMANDS["/pocmap"] = getmapindex
 end

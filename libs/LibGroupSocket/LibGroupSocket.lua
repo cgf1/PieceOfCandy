@@ -20,7 +20,7 @@ local function Log(message, ...)
 end
 lib.Log = Log
 
---/script PingMap(89, 1, 1 / 2^16, 1 / 2^16) StartChatInput(table.concat({GetMapPlayerWaypoint()}, ","))
+--/script PingMap(152, 1, 1 / 2^16, 1 / 2^16) StartChatInput(table.concat({GetMapPlayerWaypoint()}, ","))
 -- smallest step is around 1.428571431461e-005 for Wrothgar, so there should be 70000 steps
 -- Coldharbour has a similar step size, meaning we can send 4 bytes of data per ping on both
 local WROTHGAR_MAP_INDEX = 27
