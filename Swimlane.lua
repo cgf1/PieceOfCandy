@@ -305,7 +305,7 @@ end
 --
 function POC_Lane:UpdateCell(i, player, playername)
     local rowi = "Row" .. i
-    local row = self.Control:GetNamedChild("Row" .. i)
+    local row = self.Control:GetNamedChild(rowi)
     if saved.AtNames then
 	playername = string.sub(player.AtName, 2)
     end

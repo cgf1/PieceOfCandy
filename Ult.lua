@@ -19,7 +19,7 @@ function POC_Ult.ByPing(pid)
     end
 
     -- not found
-    POC_Error("AbilityId not found " .. tostring(pid))
+    -- POC_Error("AbilityId not found " .. tostring(pid))
 
     return nil
 end

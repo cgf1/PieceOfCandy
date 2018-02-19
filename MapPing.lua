@@ -36,7 +36,7 @@ local function get_ult_ping(offset)
 	return ping, apiver
     else
 	pingerr("get_ult_ping: offset is incorrect: " .. tostring(ping) .. "; offset: " .. tostring(offset))
-	return -1
+	return -1, -1
     end
 end
 
@@ -86,11 +86,14 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
     LMP:SuppressPing(pingtype, pingtag)
 
     local apid, api = get_ult_ping(x)
+    if apid < 0 then
+	return
+    end
     local pct = get_ult_pct(y)
     local ult = POC_Ult.ByPing(apid)
 
     if (ult == nil or pct == -1) then
-	POC_Error("on_map_ping: invalid ult: " .. tostring(ult) .. "; pct: " .. tostring(pct))
+	pingerr("on_map_ping: invalid ult: " .. tostring(ult) .. "; pct: " .. tostring(pct), " y: " .. y)
 	return
     end
 
