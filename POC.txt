@@ -30,7 +30,7 @@ libs/LibAddonMenu-2.0/controls/dropdown.lua
 
 libs/LibMapPing/LibMapPing.lua
 libs/LibGPS/LibGPS.lua
-libs/LibGroupSocket/LibGroupSocket.lua
+; libs/LibGroupSocket/LibGroupSocket.lua
 
 i18n/en.lua
 

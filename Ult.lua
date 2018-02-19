@@ -287,7 +287,7 @@ local function create_ults()
 	},
 	["POC"] = {
 	    ['MIA'] = {
-		Desc = "Incommunicado players",
+		Desc = "Incommunicado player",
 		Ping = 30,  -- a contradiction?
 		Aid = 'MIA'
 	    }
