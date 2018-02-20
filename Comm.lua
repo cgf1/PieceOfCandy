@@ -3,6 +3,11 @@ local Comm
 POC_Comm = {}
 POC_Comm.__index = POC_Comm
 
+POC_COMM_MAGIC          = 0x0c
+POC_COMM_TYPE_PCTULT    = 0x01 + (POC_COMM_MAGIC * 16)
+POC_COMM_TYPE_COUNTDOWN = 0x02 + (POC_COMM_MAGIC * 16)
+POC_COMM_TYPE_MAX       = 0x02
+
 local lgs_type = 21 -- aka, the code for 'u'
 
 local lgs_on = false
@@ -18,6 +23,10 @@ local comm
 local notify_when_not_grouped = false
 
 local xxx
+
+function POC_Comm.Send(...)
+    comm.Send(...)
+end
 
 local function on_update()
     if not comm.active then
@@ -45,10 +54,8 @@ local function on_update()
     else
 	pct = 100
     end
-    -- Ultimate type + our API #
-    local ultver = myult.Ping + POC_Ult.MaxPing * POC_API_VERSION
 
-    comm.Send(ultver, pct)
+    comm.Send(POC_COMM_TYPE_PCTULT, myult.Ping,  pct)
 end
 
 local function toggle(verbose)
@@ -94,7 +101,8 @@ function POC_Comm.Initialize()
     saved = POC_Settings.SavedVariables
     saved.MapPing = nil
     if saved.Comm == nil then
-	saved.Comm = 'POC_MapPing'
+	-- saved.Comm = 'POC_MapPing'
+	saved.Comm = 'POC_PingPipe'
     end
     comm = commtype(saved.Comm)
     if comm == nil then

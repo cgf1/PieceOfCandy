@@ -125,7 +125,7 @@ end
 
 -- Called on refresh of timer
 --
-function POC_MapPing.Send(ultver, pct)
+function POC_MapPing.Send(_, ultver, pct)
     local type_ping = ultver / ABILITY_COEFFICIENT
 
     local pct_ping

@@ -1,0 +1,10 @@
+<Bindings>
+    <Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
+	<Category name="Piece of Candy">
+	    <Action name="POC_COUNTDOWN_KEY">
+		<Down>POC_Comm.Send(POC_COMM_TYPE_COUNTDOWN, 3)</Down>
+	    </Action>
+	</Category>
+    </Layer>
+</Bindings>
+

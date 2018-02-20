@@ -53,4 +53,8 @@ UltNumber.xml
 Swimlane.lua
 UltMenu.lua
 
+Bindings.xml
+Countdown.lua
+Countdown.xml
+
 POC.lua
