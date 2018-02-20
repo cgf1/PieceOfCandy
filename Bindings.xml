@@ -2,7 +2,11 @@
     <Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
 	<Category name="Piece of Candy">
 	    <Action name="POC_COUNTDOWN_KEY">
-		<Down>POC_Comm.Send(POC_COMM_TYPE_COUNTDOWN, 3)</Down>
+		<Down>
+		    if POC_Me ~= nil and POC_Me.IsLeader then
+			POC_Comm.Send(POC_COMM_TYPE_COUNTDOWN, 3)
+		    end
+		</Down>
 	    </Action>
 	</Category>
     </Layer>
