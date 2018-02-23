@@ -1,4 +1,4 @@
--- POC french localization file
+-- POC english localization file
 
 -- Options
 local strings = {
@@ -13,10 +13,14 @@ local strings = {
     POC_OPTIONS_USE_SORTING_LABEL =      "Sort lists by ultimate progress",
     POC_OPTIONS_USE_SORTING_TOOLTIP =    "If activated, all lists will be sorted by ultimate progress (Maximum on top).",
     POC_OPTIONS_STYLE_LABEL =            "Choose style",
-    POC_OPTIONS_STYLE_TOOLTIP =          "Choose your style. Simple-List, Swimlane-List or Compact Swimlane-List",
-    POC_OPTIONS_STYLE_SIMPLE =           "Simple-List",
-    POC_OPTIONS_STYLE_SWIM =             "Swimlane-List",
-    POC_OPTIONS_STYLE_SHORT_SWIM =       "Compact Swimlane-List",
+    POC_OPTIONS_STYLE_TOOLTIP =          "Choose your style: Standard or Compact",
+    POC_OPTIONS_STYLE_SWIM =             "Standard",
+    POC_OPTIONS_STYLE_SHORT_SWIM =       "Compact",
+    POC_OPTIONS_SWIMLANE_MAX_LABEL =     "Max number of ultimates to display in a swimlane",
+    POC_OPTIONS_ULTIMATE_NUMBER =        "Show your Ultimate number",
+    POC_OPTIONS_ULTIMATE_NUMBER_TOOLTIP ="Display your position in the list for your selected Ultimate",
+    POC_OPTIONS_WERE_NUMBER_ONE =        "Play a sound when you hit #1",
+    POC_OPTIONS_WERE_NUMBER_ONE_TOOLTIP ="Play a sound when you hit #1 position in the list for your selected Ultimate",
     POC_DESCRIPTIONS_NEGATE =            "Negate ultimates from Sorcerer class",
     POC_DESCRIPTIONS_ATRO =              "Atronach ultimates from Sorcerer class",
     POC_DESCRIPTIONS_OVER =              "Overload ultimates from Sorcerer class",
@@ -35,17 +39,17 @@ local strings = {
     POC_DESCRIPTIONS_FIRE =              "Fire ultimates from Destruction Staff weapon",
     POC_DESCRIPTIONS_LIGHT =             "Lightning ultimates from Destruction Staff weapon",
     POC_DESCRIPTIONS_STHEAL =            "Heal ultimates from Healing Staff weapon",
-    POC_DESCRIPTIONS_BERSERK =           "2H ultimates from 2H line",
-    POC_DESCRIPTIONS_SHIELD =            "Shield ultimates from shield line",
-    POC_DESCRIPTIONS_DUAL =              "Dual wield ultimates from dual wield line",
-    POC_DESCRIPTIONS_BOW =               "Bow ultimates from bow line",
-    POC_DESCRIPTIONS_SOUL =              "Soul magic ultimates from soul line",
-    POC_DESCRIPTIONS_WERE =              "Werewolf ultimates from werewolf line",
-    POC_DESCRIPTIONS_VAMP =              "Vamp ultimates from vamp line",
+    POC_DESCRIPTIONS_BERSERK =           "Berserker ultimates from Twohand weapon",
+    POC_DESCRIPTIONS_SHIELD =            "Shield ultimates from One hand and Shield weapon",
+    POC_DESCRIPTIONS_DUAL =              "Dual wield ultimates from Dual Wield weapons",
+    POC_DESCRIPTIONS_BOW =               "Bow ultimates from Bow weapon",
+    POC_DESCRIPTIONS_SOUL =              "Soul ultimates from Soul Magic skill line",
+    POC_DESCRIPTIONS_WERE =              "Werewolf ultimates from Werewolf skill line",
+    POC_DESCRIPTIONS_VAMP =              "Vamp ultimates from Vampire skill line",
     POC_DESCRIPTIONS_METEOR =            "Meteor ultimates from Mages guild",
     POC_DESCRIPTIONS_DAWN =              "Dawnbreaker ultimates from Fighters guild",
     POC_DESCRIPTIONS_BARRIER =           "Barrier ultimates from Support alliance skill line",
-    POC_DESCRIPTIONS_HORN =              "Horn ultimates from Assoult alliance skill line"
+    POC_DESCRIPTIONS_HORN =              "Horn ultimates from Assault alliance skill line"
 }
 
 for stringId, stringValue in pairs(strings) do

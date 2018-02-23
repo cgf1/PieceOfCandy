@@ -7,7 +7,7 @@
 ## APIVersion: 100021 100022 100023
 ## Description: PVP Helper
 ## Title: Piece of Candy
-## Version: 2.3.1
+## Version: 2.3.2
 ## Author: |ca0a0a0|Valandil (adapted from TaosGroupUltimate by TProg r Taonnor)
 ## SavedVariables: POCSettings
 ## OptionalDependsOn: LibAddonMenu-2.0
@@ -33,6 +33,8 @@ libs/LibGPS/LibGPS.lua
 ; libs/LibGroupSocket/LibGroupSocket.lua
 
 i18n/en.lua
+i18n/fr.lua
+i18n/de.lua
 
 UiHelper.lua
 
