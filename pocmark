@@ -7,92 +7,137 @@ use File::Slurp qw{read_file};
 use IO::Handle;
 use LWP::Simple;
 use LWP::UserAgent ();
+use Tk;
 
-STDOUT->autoflush(1);
+sub getans($$);
+sub inst($);
+sub p(@);
+sub rmtree($);
 
-my $ua = LWP::UserAgent->new;
-$ua->timeout(10);
-$ua->env_proxy;
-$ua->agent('Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0');
-my $response = $ua->get('http://www.esoui.com/downloads/info1896-PieceofCandy.html');
+my ($ua, $aopath);
+my $mw = MainWindow->new(-background=>'white');
+$mw->geometry("600x400");
+$mw->title("Piece Of Candy Updater");
 
-my $v;
-if (!$response->is_success) {
-    warn "Couldn't get current POC version.  esoui.com said: " . $response->status_line . "\n";
-} else {
-    $v = ($response->decoded_content =~ m{<div id="version">Version:\s*([\d.]+)\s*</div>}so)[0];
-    if (!$v) {
-        warn "Couldn't find current POC version at esoui.com\n";
+$mw->after(10, \&rest);
+$mw->MainLoop;
+
+sub rest {
+    STDOUT->autoflush(1);
+
+    $ua = LWP::UserAgent->new;
+    $ua->timeout(10);
+    $ua->env_proxy;
+    $ua->agent('Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0');
+    my $response = $ua->get('http://www.esoui.com/downloads/info1896-PieceofCandy.html');
+
+    my $v;
+    if (!$response->is_success) {
+        p "!Couldn't get current POC version.  esoui.com said:", $response->status_line;
     } else {
-        print "Current version of POC at esoui.com: $v\n";
+        $v = ($response->decoded_content =~ m{<div id="version">Version:\s*([\d.]+)\s*</div>}so)[0];
+        if (!$v) {
+            p "!Couldn't find current POC version at esoui.com";
+        } else {
+            p "Current version of POC at esoui.com: $v\n";
+        }
     }
-}
 
-my $aopath = $ENV{USERPROFILE} . '\Documents\Elder Scrolls Online\live\AddOns';
-my @found = ();
-find(sub {push @found, $File::Find::dir if $_ eq 'POC.txt'}, $aopath);
-## Version: 2.3.2
+    p '';
+    p "Searching AddOns directory for POC...";
+    $aopath = $ENV{USERPROFILE} . '\Documents\Elder Scrolls Online\live\AddOns';
+    my @found = ();
+    find(sub {push @found, $File::Find::dir if $_ eq 'POC.txt'}, $aopath);
+    p "...done\n";
+    p '';
 
-my $doit = 0;
-my $uptodate = 0;
-for my $d (sort @found) {
-    $d =~ s{/}{\\}g;
-    $_ = (read_file("$d\\POC.txt") =~ /^##\s+Version:\s+(\S+)/mo)[0];
-    if (!$_) {
-        print "Found POC.txt in $d but no version???\n";
-    } else {
-        print "Directory: $d is version $_\n";
-        if ($d ne "$aopath\\POC") {
-            print "  !!! POC should not be installed here.\n";
-            if (getans("    Should I delete this directory?")) {
-                rmtree($d);
+    my $doit = 0;
+    my $uptodate = 0;
+    for my $d (sort @found) {
+        $d =~ s{/}{\\}g;
+        $_ = (read_file("$d\\POC.txt") =~ /^##\s+Version:\s+(\S+)/mo)[0];
+        if (!$_) {
+            p "Found POC.txt in $d but no version???\n";
+        } else {
+            p "Directory: $d is version $_\n";
+            if ($d ne "$aopath\\POC") {
+                p "!POC should not be installed here.\n";
+                getans("Should I delete this directory?", sub {rmtree $d});
+            } elsif ($_ eq $v) {
+                p "You are up-to-date.\n";
+                $uptodate = 1;
+            } else {
+                p "!!! You are not up-to-date!\n";
+                p "";
+                $uptodate = 0;
+                getans("Install version $v?", sub {inst($v)});
             }
-        } elsif ($_ eq $v) {
-            print "  You are up-to-date.\n";
-            $uptodate = 1;
-        } else {
-            print "  !!! You are not up-to-date!\n";
-            $uptodate = 0;
-            $doit = getans("    Install version $v? ");
         }
+    }
+
+    $mw->Button(-text => "Close", -command =>sub{exit})->pack(-side=>'bottom');
+    $mw->update;
+}
+
+sub inst($) {
+    my $v = shift;
+    my $zip = $ENV{TEMP} . "/POC-$v.zip";
+    open my $fd, '>', $zip;
+    binmode $fd;
+    my $response = $ua->get("http://www.esoui.com/downloads/dl1896/POC-$v.zip");
+    if (!$response->is_success) {
+        p "Couldn't get retriever POC-$v.zip esoui.com said: ", $response->status_line, "\n";
+    } else {
+        print $fd $response->decoded_content;
+        close $fd;
+        rmtree("$aopath\\POC");
+        p "Extracting from: $zip...";
+        my $ae = Archive::Extract->new(archive => $zip);
+        $ae->extract(to=>$aopath);
+        p "done\n";
     }
 }
 
-exit 0 unless $doit;
-
-my $zip = $ENV{TEMP} . "/POC-$v.zip";
-open my $fd, '>', $zip;
-binmode $fd;
-$response = $ua->get("http://www.esoui.com/downloads/dl1896/POC-$v.zip");
-if (!$response->is_success) {
-    warn "Couldn't get retriever POC-$v.zip esoui.com said: " . $response->status_line . "\n";
-} else {
-    print $fd $response->decoded_content;
-    close $fd;
-    print "Cleaning: $aopath\\POC\n";
-    rmtree("$aopath\\POC");
-    print "Extracting from: $zip\n";
-    my $ae = Archive::Extract->new(archive => $zip);
-    $ae->extract(to=>$aopath);
-    print "Done\n";
-}
-
-sub getans {
-    while (1) {
-        print $_[0];
-        my $ans = <STDIN>;
-        if ($ans =~ /^\s*y/oi) {
-            return 1;
-        } elsif ($ans =~ /^\s*n/oi) {
-            return 0;
-        } else {
-            print "Huh?\n";
-        }
+my @saved = ();
+sub p(@) {
+    my $txt = "@saved@_";
+    my $nl = chomp $txt;
+    my $color;
+    if (substr($txt, 0, 1) ne '!') {
+        $color = 'black';
+    } else {
+        substr($txt, 0, 1) = '';
+        $color = 'red';
+    }
+    $txt = "\n" unless length $txt;
+    my $x = $mw->Label(-text=>$txt, -background=>'white', -foreground=>$color);
+    $x->pack;
+    $mw->update;
+    if ($nl) {
+        @saved = ();
+    } else {
+        @saved = $txt;
+        $x->packForget;
     }
 }
 
-sub rmtree {
+sub getans($$) {
+    my $txt = shift;
+    my $sub = shift;
+    my $label = $mw->Label(-text=>$txt, -background=>'white', -foreground=>'blue');
+    my $yes = $mw->Button(-text=>'Do It!', -command=>$sub);
+    $mw->MainLoop;
+    $label->pack();
+    $yes->pack();
+    p '';
+    # $label->destroy();
+    # $yes->destroy();
+    # $no->destroy();
+}
+
+sub rmtree($) {
     my $dir = shift;
-    print "Cleaning $dir\n";
+    p "Cleaning $dir...";
     remove_tree($dir);
+    p "done\n";
 }
