@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+use strict;
+use Archive::Extract;
+use File::Find;
+use File::Path qw{remove_tree};
+use File::Slurp qw{read_file};
+use IO::Handle;
+use LWP::Simple;
+use LWP::UserAgent ();
+
+STDOUT->autoflush(1);
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout(10);
+$ua->env_proxy;
+$ua->agent('Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0');
+my $response = $ua->get('http://www.esoui.com/downloads/info1896-PieceofCandy.html');
+
+my $v;
+if (!$response->is_success) {
+    warn "Couldn't get current POC version.  esoui.com said: " . $response->status_line . "\n";
+} else {
+    $v = ($response->decoded_content =~ m{<div id="version">Version:\s*([\d.]+)\s*</div>}so)[0];
+    if (!$v) {
+        warn "Couldn't find current POC version at esoui.com\n";
+    } else {
+        print "Current version of POC at esoui.com: $v\n";
+    }
+}
+
+my $aopath = $ENV{USERPROFILE} . '\Documents\Elder Scrolls Online\live\AddOns';
+my @found = ();
+find(sub {push @found, $File::Find::dir if $_ eq 'POC.txt'}, $aopath);
+## Version: 2.3.2
+
+my $doit = 0;
+my $uptodate = 0;
+for my $d (sort @found) {
+    $d =~ s{/}{\\}g;
+    $_ = (read_file("$d\\POC.txt") =~ /^##\s+Version:\s+(\S+)/mo)[0];
+    if (!$_) {
+        print "Found POC.txt in $d but no version???\n";
+    } else {
+        print "Directory: $d is version $_\n";
+        if ($d ne "$aopath\\POC") {
+            print "  !!! POC should not be installed here.\n";
+            if (getans("    Should I delete this directory?")) {
+                rmtree($d);
+            }
+        } elsif ($_ eq $v) {
+            print "  You are up-to-date.\n";
+            $uptodate = 1;
+        } else {
+            print "  !!! You are not up-to-date!\n";
+            $uptodate = 0;
+            $doit = getans("    Install version $v? ");
+        }
+    }
+}
+
+exit 0 unless $doit;
+
+my $zip = $ENV{TEMP} . "/POC-$v.zip";
+open my $fd, '>', $zip;
+binmode $fd;
+$response = $ua->get("http://www.esoui.com/downloads/dl1896/POC-$v.zip");
+if (!$response->is_success) {
+    warn "Couldn't get retriever POC-$v.zip esoui.com said: " . $response->status_line . "\n";
+} else {
+    print $fd $response->decoded_content;
+    close $fd;
+    print "Cleaning: $aopath\\POC\n";
+    rmtree("$aopath\\POC");
+    print "Extracting from: $zip\n";
+    my $ae = Archive::Extract->new(archive => $zip);
+    $ae->extract(to=>$aopath);
+    print "Done\n";
+}
+
+sub getans {
+    while (1) {
+        print $_[0];
+        my $ans = <STDIN>;
+        if ($ans =~ /^\s*y/oi) {
+            return 1;
+        } elsif ($ans =~ /^\s*n/oi) {
+            return 0;
+        } else {
+            print "Huh?\n";
+        }
+    }
+}
+
+sub rmtree {
+    my $dir = shift;
+    print "Cleaning $dir\n";
+    remove_tree($dir);
+}
