@@ -69,11 +69,10 @@ sub rest {
             } else {
                 p "!!! You are not up-to-date!\n";
                 p "";
-                $uptodate = 0;
-                getans("Install version $v?", sub {inst($v)});
             }
         }
     }
+    getans("Install version $v?", sub {inst($v)}) unless $uptodate;
 
     $mw->Button(-text => "Close", -command =>sub{exit})->pack(-side=>'bottom');
     $mw->update;
