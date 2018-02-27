@@ -5,10 +5,11 @@ POC_UltMenu.__index = POC_UltMenu
 
 local xxx
 local okimg = '/POC/icons/ok.dds'
+local ok1img = '/POC/icons/ok1.dds'
 local lam
 local container
 local dropdown
-local curaid
+local curapid
 local curid
 local showicons
 
@@ -17,17 +18,20 @@ local showicons
 local function set_ult(iconstr)
     dropdown:SetHidden(true)
     if iconstr == okimg then
-	POC_Ult.SetSavedId(curaid)
+	POC_Ult.SetSavedId(curapid, 1)
+    elseif iconstr == ok1img then
+d(curapid)
+	POC_Ult.SetSavedId(curapid, 2)
     else
-	aid = POC_Ult.UltFromIcon(iconstr)
-	if aid ~= curaid then
-	    CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, aid, curid)
+	local apid = POC_Ult.UltApidFromIcon(iconstr)
+	if apid ~= curapid then
+	    CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, apid, curid)
 	end
     end
 end
 
 local function get_ult()
-    return GetAbilityIcon(curaid)
+    return GetAbilityIcon(curapid)
 end
 
 -- Show ultimate group menu
@@ -40,18 +44,21 @@ end
 --        visibleRows = 6,
 --        iconSize = 40
 
-function POC_UltMenu.ShowUltMenu(parent, id, aid)
+function POC_UltMenu.ShowUltMenu(parent, id, apid)
     curid = id
-    curaid = aid
+    curapid = apid
     if parent.data == nil then
 	parent.data = {}
     end
     if dropdown == nil then
-	local icons = {[1] = okimg}
+	local icons = {[1] = okimg, [2] = ok1img}
 	for i, x in ipairs(POC_Ult.Icons()) do
 	    icons[#icons + 1] = x
 	end
-	local tooltips = {[1] = 'Make this your selected ultimate'}
+	local tooltips = {
+	    [1] = 'Make this your primary ultimate',
+	    [2] = 'Make this your secondary ultimate'
+	}
 	for i, x in ipairs(POC_Ult.Descriptions()) do
 	    tooltips[#tooltips + 1] = x
 	end

@@ -4,9 +4,10 @@ POC_Comm = {}
 POC_Comm.__index = POC_Comm
 
 POC_COMM_MAGIC          = 0x0c
-POC_COMM_TYPE_PCTULT    = 0x01 + (POC_COMM_MAGIC * 16)
+POC_COMM_TYPE_PCTULTOLD = 0x01 + (POC_COMM_MAGIC * 16)
 POC_COMM_TYPE_COUNTDOWN = 0x02 + (POC_COMM_MAGIC * 16)
-POC_COMM_TYPE_MAX       = 0x02
+POC_COMM_TYPE_PCTULT    = 0x03 + (POC_COMM_MAGIC * 16)
+POC_COMM_TYPE_MAX       = 0x03
 
 local lgs_type = 21 -- aka, the code for 'u'
 
@@ -14,13 +15,16 @@ local lgs_on = false
 local lgs_handler
 
 POC_Comm = {
-    Name = "POC_Comm",
     active = false,
+    Name = "POC_Comm",
+    SawPCTULTOLD = true
 }
 POC_Comm.__index = POC_Comm
 local ultix = GetUnitName("player")
 local comm
 local notify_when_not_grouped = false
+
+local myults
 
 local xxx
 
@@ -28,6 +32,32 @@ function POC_Comm.Send(...)
     comm.Send(...)
 end
 
+function POC_Comm.ToBytes(n)
+    local bytes = {}
+    for i = 1, 4 do
+	bytes[i] = n % 256
+	n = math.floor(n / 256)
+    end
+    return bytes
+end
+
+local function ultpct(apid, i)
+    local pct
+    if apid ~= nil and apid ~= 0 then
+	local curpct = POC_Me.Ults[apid]
+	local ult = POC_Ult.ByPing(apid)
+	local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
+	local cost = math.max(1, GetAbilityCost(ult.Aid))
+	pct = math.min(100, math.floor((current / cost) * 100))
+	if i == 1 and pct >= 100 and curpct and curpct >= 100 then
+	    pct = curpct
+	end
+    end
+    return pct
+end
+
+local OLDCOUNT = 5
+local counter = 0
 local function on_update()
     if not comm.active then
 	return
@@ -41,21 +71,24 @@ local function on_update()
     end
     local notify_when_not_grouped = true
 
-    local myult = POC_Ult.Me
-    local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
-    local cost = math.max(1, GetAbilityCost(myult.Aid))
-    local pct = math.floor((current / cost) * 100)
+    local mainult = myults[1]
+    local pct = ultpct(myults[1])
 
-    -- d("UltPct " .. tostring(POC_Swimlanes.UltPct))
-    if (pct < 100) then
-	-- nothing to do
-    elseif (POC_Swimlanes.UltPct ~= nil) then
-	pct = POC_Swimlanes.UltPct
+    counter = counter + 1
+    if counter == OLDCOUNT and POC_Comm.SawPCTULTOLD then
+	comm.Send(POC_COMM_TYPE_PCTULTOLD, mainult,  pct)
+	counter = 0
     else
-	pct = 100
+	local send = 0
+	for i, aid in ipairs(myults) do
+	    local p = ultpct(aid, i)
+	    send = (send * 30) + (aid - 1)
+	    send = (send * 124) + p
+	end
+	local bytes = POC_Comm.ToBytes(send)
+-- d("Sending " .. tostring(send))
+	comm.Send(POC_COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
     end
-
-    comm.Send(POC_COMM_TYPE_PCTULT, myult.Ping,  pct)
 end
 
 local function toggle(verbose)
@@ -100,6 +133,7 @@ function POC_Comm.Initialize()
     xxx = POC.xxx
     saved = POC_Settings.SavedVariables
     saved.MapPing = nil
+    myults = saved.MyUltId[ultix]
     if saved.Comm == nil then
 	-- saved.Comm = 'POC_MapPing'
 	saved.Comm = 'POC_PingPipe'

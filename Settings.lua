@@ -23,7 +23,7 @@ POC_Settings = {
 	Style = "Standard",
 	SwimlaneMax = 24,
 	SwimlaneMaxCols = 6,
-	SwimlaneUltIds = {
+	LaneIds = {
 	    [1] = 29861,
 	    [2] = 27413,
 	    [3] = 86536,
@@ -64,7 +64,7 @@ end
 -- Set the ultimate to use for a specific swimlane
 --
 function POC_Settings.SetSwimlaneUltId(swimlane, aid)
-    saved.SwimlaneUltIds[swimlane] = aid
+    saved.LaneIds[swimlane] = aid
 
     CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, aid)
 end
@@ -190,13 +190,32 @@ function POC_Settings.InitializeWindow(major, minor, patch)
     }
     o[#o + 1] = {
 	type = "iconpicker",
-	name = "Choose your ultimate",
+	name = "Choose your primary ultimate",
 	choices = POC_Ult.Icons(),
 	choicesTooltips = POC_Ult.Descriptions(),
-	getFunc = POC_Ult.GetSaved,
-	setFunc = POC_Ult.SetSaved,
+	getFunc = function()
+	    return POC_Ult.GetSaved(1)
+	end,
+	setFunc = function(icon)
+	    POC_Ult.SetSavedFromIcon(icon, 1)
+	end,
 	maxColumns = 7,
-	visibleRows = 6,
+	visibleRows = 5,
+	iconSize = 64
+    }
+    o[#o + 1] = {
+	type = "iconpicker",
+	name = "Choose your secondary ultimate",
+	choices = POC_Ult.Icons(),
+	choicesTooltips = POC_Ult.Descriptions(),
+	getFunc = function()
+	    return POC_Ult.GetSaved(2)
+	end,
+	setFunc = function(icon)
+	    POC_Ult.SetSavedFromIcon(icon, 2)
+	end,
+	maxColumns = 7,
+	visibleRows = 5,
 	iconSize = 64
     }
     o[#o + 1] = {
@@ -319,9 +338,6 @@ function POC_Settings.Initialize()
     saved.SwimlaneUltGrpIds = nil
     saved.IsLgsActive = nil
 
-    -- The last one is always MIA
-    saved.SwimlaneUltIds[7] = 'MIA'
-
     -- Register
     EVENT_MANAGER:RegisterForEvent(POC_Settings.Name, EVENT_PLAYER_ACTIVATED, POC_Settings.OnPlayerActivated)
 
@@ -334,4 +350,13 @@ function POC_Settings.Initialize()
 	end
     end
     SLASH_COMMANDS["/pocmap"] = getmapindex
+
+    for n, v in pairs(saved.MyUltId) do
+	if type(v) ~= 'table' then
+	    if v > POC_Ult.MaxPing then
+		v = POC_Ult.ByAid(v).Ping
+	    end
+	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
+	end
+    end
 end

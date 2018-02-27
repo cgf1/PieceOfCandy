@@ -20,29 +20,15 @@ POC_PingPipe = {
 POC_PingPipe.__index = POC_PingPipe
 
 local saved
-local function handle_pctult(pingtag, apid, pct)
-    local ult = POC_Ult.ByPing(apid)
 
-    if (ult == nil or pct == -1) then
-	pingerr("handle_pctult: error: ult: " .. tostring(ult) .. "; pct: " .. tostring(pct))
-	return
-    end
-
-    local player = {
-	PingTag = pingtag,
-	UltPct = pct,
-	ApiVer = apiver
-    }
-
-    if true or apiver == POC_API_VERSION then
-	player.UltAid = ult.Aid
-	player.InvalidClient = false
-    else
-	player.UltAid = POC_Ult.MaxPing
-	player.InvalidClient = true
-    end
-
-    CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)
+local function unpack_ultpct(x)
+    pct2 = x % 124
+    x = math.floor(x / 124)
+    apid2 = (x % POC_Ult.MaxPing) + 1
+    x = math.floor(x /POC_Ult.MaxPing)
+    pct1 = x % 124
+    apid1 = math.floor(x / 124) + 1
+    return apid1, pct1, apid2, pct2
 end
 
 -- Called on map ping from LibMapPing
@@ -66,16 +52,17 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
     local input = math.floor((x + ROUND) * TWOBYTES) +
 		  (TWOBYTES * math.floor((y + ROUND) * TWOBYTES))
 
-    local bytes = {}
-    for i = 1, 4 do
-	bytes[i] = input % 256
-	input = math.floor(input / 256)
-    end
+    local bytes = POC_Comm.ToBytes(input)
     local ctype = bytes[1]
-    if ctype == POC_COMM_TYPE_PCTULT then
-	handle_pctult(pingtag, bytes[2], bytes[3])
+    if ctype == POC_COMM_TYPE_PCTULTOLD then
+	POC_Player.Update(pingtag, bytes[2], bytes[3])
     elseif ctype == POC_COMM_TYPE_COUNTDOWN then
 	POC_Countdown.Start(bytes[2])
+    elseif ctype == POC_COMM_TYPE_PCTULT then
+	input = math.floor(input / 256)
+	local apid1, pct1, apid2, pct2 = unpack_ultpct(input)
+-- if GetUnitName(pingtag) == GetUnitName("player") then POC.xxx("Receiving ", input, apid1, pct1, apid2, pct2) end
+	POC_Player.Update(pingtag, apid1, pct1, apid2, pct2)
     end
 end
 
@@ -84,21 +71,11 @@ end
 local function map_ping_finished(pingtype, pingtag, x, y, isLocalPlayerOwner)
     if unsuppress then
 	LMP:UnsuppressPing(pingtype, pingtag)
+	unsuppress = false
     end
-    unsuppress = false
 end
 
--- Called on refresh of timer
---
-function POC_PingPipe.Send(...)
-    local bytes = {...}
-    local word = 0
-    local mul = 1
-    for i, v in ipairs(bytes) do
-	word = word + (mul * v)
-	mul = mul * 256
-    end
-
+function POC_PingPipe.SendWord(word)
     local x = (word % TWOBYTES) / TWOBYTES
     local y = math.floor(word / TWOBYTES) / TWOBYTES
     if y == 0 then
@@ -109,6 +86,17 @@ function POC_PingPipe.Send(...)
     SetMapToMapListIndex(saved.MapIndex)
     LMP:SetMapPing(MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
     LGPS:PopCurrentMap()
+end
+
+function POC_PingPipe.Send(...)
+    local bytes = {...}
+    local word = 0
+    local mul = 1
+    for i, v in ipairs(bytes) do
+	word = word + (mul * v)
+	mul = mul * 256
+    end
+    POC_PingPipe.SendWord(word)
 end
 
 -- Unload PingPipe
