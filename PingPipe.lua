@@ -100,7 +100,7 @@ function POC_PingPipe.Send(...)
     end
 
     local x = (word % TWOBYTES) / TWOBYTES
-    local y = (word / TWOBYTES) / TWOBYTES
+    local y = math.floor(word / TWOBYTES) / TWOBYTES
     if y == 0 then
 	y = .1 / TWOBYTES
     end

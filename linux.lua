@@ -89,3 +89,8 @@ function ZO_Object:Subclass()
 end
 
 function d(...) end
+
+SCENE_MANAGER = {}
+SCENE_MANAGER.__index = SCENE_MANAGER
+
+function SCENE_MANAGER:GetScene() return base end

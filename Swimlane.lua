@@ -266,6 +266,7 @@ function POC_Lane:Update(force)
 			_this.UltPct = gt100 - 1
 			player.UltPct = _this.UltPct
 			noshow = false
+			save_me.Because = "ultpct == 100"
 		    else
 			-- reset order since we can't contribute
 			_this.UltPct = 100
@@ -815,7 +816,7 @@ local function dump(name)
 		    p = time(t)
 		elseif x == 'UltPct' then
 		    x = 'Ultimate Percent'
-		    if t <= 100 then
+		    if t <= 1000 then
 			p = tostring(t) .. '%'
 		    else
 			local row = 1 + t - (100 + saved.SwimlaneMax)
