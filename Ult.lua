@@ -99,14 +99,16 @@ end
 -- Create Ults array
 --
 local function create_ults()
-    local class = GetUnitClass("player")
     local classes = {
-	[1] = "Sorcerer",
-	[2] = "Templar",
-	[3] = "Dragonknight",
-	[4] = "Nightblade",
-	[5] = "Warden"
+	[1] = "Dragonknight",
+	[2] = "Sorcerer",
+	[3] = "Nightblade",
+	[4] = "Warden",
+	[6] = "Templar"
     }
+
+    local classid = GetUnitClassId("player")
+    local class = classes[classid]
 
     local ults = {
 	["Sorcerer"] = {

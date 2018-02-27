@@ -17,7 +17,7 @@ POC_API_VERSION = POC_REAL_API_VERSION
 
 local MAJOR = "2"
 local MINOR = "3"
-local PATCH = "2"
+local PATCH = "4"
 
 POC = {
     Name = "POC"
