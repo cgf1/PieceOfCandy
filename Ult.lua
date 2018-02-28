@@ -389,4 +389,12 @@ function POC_Ult.Initialize()
 	saved.LaneIds = newultids
     end
     saved.LaneIds[7] = 'MIA'
+    for n, v in pairs(saved.MyUltId) do
+	if type(v) ~= 'table' then
+	    if v > POC_Ult.MaxPing then
+		v = POC_Ult.ByAid(v).Ping
+	    end
+	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
+	end
+    end
 end

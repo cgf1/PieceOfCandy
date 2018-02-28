@@ -43,6 +43,7 @@ local me = setmetatable({
 POC_Me = me
 
 local myname = GetUnitName("player")
+local myultix = myname
 
 local POC_Lanes = {}
 POC_Lanes.__index = POC_Lanes
@@ -247,7 +248,7 @@ function POC_Lane:Update(force)
 	table.sort(keys, compare)
 
 	-- Update sorted swimlane
-	local gt100 = 101 + saved.SwimlaneMax 
+	local gt100 = 100 + saved.SwimlaneMax
 	for _, playername in ipairs(keys) do
 	    local player = players[playername]
 	    if not IsUnitGrouped(player.PingTag) then
@@ -520,9 +521,9 @@ function POC_Player.New(inplayer, name, pingtag)
 
     local changed = inplayer.TimeStamp ~= nil and self.TimeStamp ~= nil and self:TimedOut()
     if not inplayer.NewClient and inplayer.Ults and self.NewClient then
-	for n, v in pairs(inplayer.Ults) do
-	    if self.Ults[n] ~= nil then
-		self.Ults[n] = v
+	for apid, pct in pairs(inplayer.Ults) do
+	    if self.Ults[apid] ~= nil then
+		self.Ults[apid] = pct
 	    end
 	end
 	inplayer.Ults = nil
@@ -535,19 +536,23 @@ function POC_Player.New(inplayer, name, pingtag)
 		if n ~= 'TimeStamp' then
 		    changed = true
 		end
+		self[n] = v
 	    else
-		for n1, v1 in pairs(inplayer.Ults) do
-		    if self.Ults[n1] ~= v1 then
+		for apid, pct in pairs(v) do
+		    if self.Ults[apid] ~= pct then
 			changed = true
+-- if name == "Sirech" then msg(name, apid, 'pct', pct, self.Ults[apid]) end
+			local lane = _this.Lanes[apid]
+			if _this.Lanes[apid] == nil then
+			    lane = _this.Lanes['MIA']
+			end
+			lane.Players[name] = self
 		    end
-		    local lane = _this.Lanes[n1]
-		    if _this.Lanes[n1] == nil then
-			lane = _this.Lanes['MIA']
-		    end
-		    lane.Players[name] = self
+		end
+		if changed then
+		    self[n] = v
 		end
 	    end
-	    self[n] = v
 	end
     end
 
@@ -835,8 +840,10 @@ local function dump(name)
 		    local comma = ''
 		    for n, v in pairs(t) do
 			local ult = POC_Ult.ByPing(n)
-			p = p .. comma .. ult.Desc .. '[' .. v .. ']'
-			comma = ', '
+			if ult.Name ~= 'MIA' then
+			    p = p .. comma .. ult.Desc .. '[' .. v .. ']'
+			    comma = ', '
+			end
 		    end
 		else
 		    p = tostring(t)
@@ -847,7 +854,7 @@ local function dump(name)
 	end
     end
     if not found then
-	msg("nil")
+	msg("not found")
     end
 end
 -- Initialize initializes _this
@@ -855,7 +862,7 @@ end
 function POC_Swimlanes.Initialize()
     xxx = POC.xxx
     saved = POC_Settings.SavedVariables
-    myults = saved.MyUltId
+    myults = saved.MyUltId[myultix]
     group_members = saved.GroupMembers
     for n, v in pairs(group_members) do
 	if n == myname then

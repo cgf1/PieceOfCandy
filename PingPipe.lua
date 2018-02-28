@@ -25,7 +25,7 @@ local function unpack_ultpct(x)
     pct2 = x % 124
     x = math.floor(x / 124)
     apid2 = (x % POC_Ult.MaxPing) + 1
-    x = math.floor(x /POC_Ult.MaxPing)
+    x = math.floor(x / POC_Ult.MaxPing)
     pct1 = x % 124
     apid1 = math.floor(x / 124) + 1
     return apid1, pct1, apid2, pct2

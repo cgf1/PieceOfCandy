@@ -42,18 +42,22 @@ function POC_Comm.ToBytes(n)
 end
 
 local function ultpct(apid, i)
-    local pct
+    local pct = 0
     if apid ~= nil and apid ~= 0 then
 	local curpct = POC_Me.Ults[apid]
 	local ult = POC_Ult.ByPing(apid)
-	local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
-	local cost = math.max(1, GetAbilityCost(ult.Aid))
-	pct = math.min(100, math.floor((current / cost) * 100))
-	if i == 1 and pct >= 100 and curpct and curpct >= 100 then
-	    pct = curpct
+	if ult == nil then
+	    apid = POC_Ult.MaxPing
+	else
+	    local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
+	    local cost = math.max(1, GetAbilityCost(ult.Aid))
+	    pct = math.min(100, math.floor((current / cost) * 100))
+	    if i == 1 and pct >= 100 and curpct and curpct >= 100 then
+		pct = curpct
+	    end
 	end
     end
-    return pct
+    return apid, pct
 end
 
 local OLDCOUNT = 5
@@ -72,7 +76,7 @@ local function on_update()
     local notify_when_not_grouped = true
 
     local mainult = myults[1]
-    local pct = ultpct(myults[1])
+    local _, pct = ultpct(myults[1])
 
     counter = counter + 1
     if counter == OLDCOUNT and POC_Comm.SawPCTULTOLD then
@@ -80,9 +84,9 @@ local function on_update()
 	counter = 0
     else
 	local send = 0
-	for i, aid in ipairs(myults) do
-	    local p = ultpct(aid, i)
-	    send = (send * 30) + (aid - 1)
+	for i, apid in ipairs(myults) do
+	    local apid, p = ultpct(apid, i)
+	    send = (send * 30) + (apid - 1)
 	    send = (send * 124) + p
 	end
 	local bytes = POC_Comm.ToBytes(send)

@@ -350,13 +350,4 @@ function POC_Settings.Initialize()
 	end
     end
     SLASH_COMMANDS["/pocmap"] = getmapindex
-
-    for n, v in pairs(saved.MyUltId) do
-	if type(v) ~= 'table' then
-	    if v > POC_Ult.MaxPing then
-		v = POC_Ult.ByAid(v).Ping
-	    end
-	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
-	end
-    end
 end
