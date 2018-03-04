@@ -1,18 +1,16 @@
---[[
-	Class definition (Static class)
-]]--
+setfenv(1, POC)
 -- A table in whole lua workspace must be unique
 -- The ui helper is global util table, used in several of my addons
 -- The table is created as "static" class without constructor and static helper methods
-if (POCUiHelper == nil) then
-	POCUiHelper = {}
-	POCUiHelper.__index = POCUiHelper
+if (UiHelper == nil) then
+	UiHelper = {}
+	UiHelper.__index = UiHelper
 
     -- Global Callback Variables
-    POC_HUD_HIDDEN_STATE_CHANGED = "POC-HudHiddenStateChange"
+    HUD_HIDDEN_STATE_CHANGED = "POC-HudHiddenStateChange"
 
 	-- isHidden logic for hud scenes
-    -- This logic will fire POC_HUD_HIDDEN_STATE_CHANGED if hud scenes not visible:
+    -- This logic will fire HUD_HIDDEN_STATE_CHANGED if hud scenes not visible:
     -- hud = true; hudui = true -> isHidden = true
     -- hud = true; hudui = false -> isHidden = false
     -- hud = false; hudui = true -> isHidden = false
@@ -22,9 +20,9 @@ if (POCUiHelper == nil) then
     local internalHudHiddenState = true
 
     --[[
-	POC_CurrentHudHiddenState Gets the hidden state of hud/hudui
+	CurrentHudHiddenState Gets the hidden state of hud/hudui
     ]]--
-    function POC_CurrentHudHiddenState()
+    function CurrentHudHiddenState()
 	return internalHudHiddenState
     end
 
@@ -36,7 +34,7 @@ if (POCUiHelper == nil) then
 
 	if (isHidden ~= internalHudHiddenState) then
 	    internalHudHiddenState = isHidden
-	    CALLBACK_MANAGER:FireCallbacks(POC_HUD_HIDDEN_STATE_CHANGED, isHidden)
+	    CALLBACK_MANAGER:FireCallbacks(HUD_HIDDEN_STATE_CHANGED, isHidden)
 	end
     end
 

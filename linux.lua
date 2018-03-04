@@ -1,8 +1,10 @@
+POC = {}
+setmetatable(POC, {__index = _G})
 local IsLinux = true
 LGS={} LGS.__index = LGS
 setmetatable(LGS, LGS)
 function GetUnitName(x) end 
-EVENT_MANAGER = {}
+_G.EVENT_MANAGER = {}
 function EVENT_MANAGER:RegisterForEvent() end
 function GetUnitClass(x) end
 function GetUnitName(x) end
@@ -11,7 +13,6 @@ LGS.__index = LGS
 function LGS:RegisterHandler(x, y)
     return {{}, 1}
 end
-POC = {} POC.__index = POC
 
 function ZO_CreateStringId(x)
     return
@@ -33,14 +34,14 @@ function ZO_ShallowTableCopy(x, y)
     return
 end
 
-MAP_PIN_TAG_PLAYER_WAYPOINT = 1
-MAP_PIN_TAG_RALLY_POINT = 2
-MAP_PIN_TYPE_PLAYER_WAYPOINT = 3
-MAP_PIN_TYPE_PING = 4
-MAP_PIN_TYPE_RALLY_POINT = 5
+_G.MAP_PIN_TAG_PLAYER_WAYPOINT = 1
+_G.MAP_PIN_TAG_RALLY_POINT = 2
+_G.MAP_PIN_TYPE_PLAYER_WAYPOINT = 3
+_G.MAP_PIN_TYPE_PING = 4
+_G.MAP_PIN_TYPE_RALLY_POINT = 5
 
 local base = {} base.__index = base
-ZO_CallbackObject = {} ZO_CallbackObject.__index = ZO_CallbackObject
+_G.ZO_CallbackObject = {} ZO_CallbackObject.__index = ZO_CallbackObject
 function ZO_CallbackObject:New()
     return base
 end
@@ -94,3 +95,4 @@ SCENE_MANAGER = {}
 SCENE_MANAGER.__index = SCENE_MANAGER
 
 function SCENE_MANAGER:GetScene() return base end
+UltNumber = {}

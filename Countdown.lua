@@ -1,8 +1,9 @@
-POC_Countdown = {
-    Name = "POC_Countdown"
+setfenv(1, POC)
+Countdown = {
+    Name = "Countdown"
 }
 
-POC_Countdown.__index = POC_Countdown
+Countdown.__index = Countdown
 
 local counting
 
@@ -13,10 +14,10 @@ local saved
 local xxx
 
 function init()
-    nnn = POC_CountdownNumber
-    nnnlabel = POC_CountdownNumberLabel
-    saved = POC_Settings.SavedVariables
-    xxx = POC_xxx
+    nnn = CountdownNumber
+    nnnlabel = CountdownNumberLabel
+    saved = Settings.SavedVariables
+    xxx = xxx
 
     nnn:ClearAnchors()
     if (saved.CountdownNumberPos == nil) then
@@ -36,7 +37,7 @@ local function go()
     if first then
 	init()
     end
-    EVENT_MANAGER:UnregisterForUpdate('POC_Countdown', go)
+    EVENT_MANAGER:UnregisterForUpdate('Countdown', go)
     local sound
     if counting == 0 then
 	color = "00ff00"
@@ -63,19 +64,19 @@ local function go()
 
     counting = counting - 1
 
-    EVENT_MANAGER:RegisterForUpdate('POC_Countdown', 1000, go)
+    EVENT_MANAGER:RegisterForUpdate('Countdown', 1000, go)
 end
 
-function POC_Countdown.Start(n)
+function Countdown.Start(n)
     counting = n
     go()
 end
 
-function POC_Countdown.SavePos(self)
+function Countdown.SavePos(self)
     saved.CountdownNumberPos = {self:GetLeft(),self:GetTop()}
 end
 
 SLASH_COMMANDS["/pocn"] = function(x)
-    POC_Comm.Send(POC_COMM_TYPE_COUNTDOWN, tonumber(x))
+    Comm.Send(COMM_TYPE_COUNTDOWN, tonumber(x))
 end
-ZO_CreateStringId("SI_BINDING_NAME_POC_COUNTDOWN_KEY", "Send three second countdown")
+ZO_CreateStringId("SI_BINDING_NAME_COUNTDOWN_KEY", "Send three second countdown")

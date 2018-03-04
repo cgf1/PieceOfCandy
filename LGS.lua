@@ -1,3 +1,4 @@
+setfenv(1, POC)
 local LGS
 
 POC_LGS = {}

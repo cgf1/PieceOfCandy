@@ -1,25 +1,24 @@
-local Comm
+setfenv(1, POC)
+Comm = {}
+Comm.__index = Comm
 
-POC_Comm = {}
-POC_Comm.__index = POC_Comm
-
-POC_COMM_MAGIC          = 0x0c
-POC_COMM_TYPE_PCTULTOLD = 0x01 + (POC_COMM_MAGIC * 16)
-POC_COMM_TYPE_COUNTDOWN = 0x02 + (POC_COMM_MAGIC * 16)
-POC_COMM_TYPE_PCTULT    = 0x03 + (POC_COMM_MAGIC * 16)
-POC_COMM_TYPE_MAX       = 0x03
+COMM_MAGIC          = 0x0c
+COMM_TYPE_PCTULTOLD = 0x01 + (COMM_MAGIC * 16)
+COMM_TYPE_COUNTDOWN = 0x02 + (COMM_MAGIC * 16)
+COMM_TYPE_PCTULT    = 0x03 + (COMM_MAGIC * 16)
+COMM_TYPE_MAX       = 0x03
 
 local lgs_type = 21 -- aka, the code for 'u'
 
 local lgs_on = false
 local lgs_handler
 
-POC_Comm = {
+Comm = {
     active = false,
-    Name = "POC_Comm",
+    Name = "Comm",
     SawPCTULTOLD = true
 }
-POC_Comm.__index = POC_Comm
+Comm.__index = Comm
 local ultix = GetUnitName("player")
 local comm
 local notify_when_not_grouped = false
@@ -28,11 +27,11 @@ local myults
 
 local xxx
 
-function POC_Comm.Send(...)
+function Comm.Send(...)
     comm.Send(...)
 end
 
-function POC_Comm.ToBytes(n)
+function Comm.ToBytes(n)
     local bytes = {}
     for i = 1, 4 do
 	bytes[i] = n % 256
@@ -44,10 +43,10 @@ end
 local function ultpct(apid, i)
     local pct = 0
     if apid ~= nil and apid ~= 0 then
-	local curpct = POC_Me.Ults[apid]
-	local ult = POC_Ult.ByPing(apid)
+	local curpct = Me.Ults[apid]
+	local ult = Ult.ByPing(apid)
 	if ult == nil then
-	    apid = POC_Ult.MaxPing
+	    apid = Ult.MaxPing
 	else
 	    local current, max, effective_max = GetUnitPower("player", POWERTYPE_ULTIMATE)
 	    local cost = math.max(1, GetAbilityCost(ult.Aid))
@@ -57,6 +56,7 @@ local function ultpct(apid, i)
 	    end
 	end
     end
+if apid == 13 then d("HERE", pct) end
     return apid, pct
 end
 
@@ -69,7 +69,7 @@ local function on_update()
     if not IsUnitGrouped("player") then
 	if notify_when_not_grouped then
 	    notify_when_not_grouped = false
-	    CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_GROUP_CHANGED, "left")
+	    CALLBACK_MANAGER:FireCallbacks(PLAYER_GROUP_CHANGED, "left")
 	end
 	return
     end
@@ -79,8 +79,8 @@ local function on_update()
     local _, pct = ultpct(myults[1])
 
     counter = counter + 1
-    if counter == OLDCOUNT and POC_Comm.SawPCTULTOLD then
-	comm.Send(POC_COMM_TYPE_PCTULTOLD, mainult,  pct)
+    if counter == OLDCOUNT and Comm.SawPCTULTOLD then
+	comm.Send(COMM_TYPE_PCTULTOLD, mainult,  pct)
 	counter = 0
     else
 	local send = 0
@@ -89,9 +89,9 @@ local function on_update()
 	    send = (send * 30) + (apid - 1)
 	    send = (send * 124) + p
 	end
-	local bytes = POC_Comm.ToBytes(send)
+	local bytes = Comm.ToBytes(send)
 -- d("Sending " .. tostring(send))
-	comm.Send(POC_COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
+	comm.Send(COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
     end
 end
 
@@ -105,27 +105,27 @@ local function toggle(verbose)
     if comm.active then
 	msg("POC: on")
 	comm.Load()
-	EVENT_MANAGER:RegisterForUpdate('POC_UltPing', 1000, on_update)
+	EVENT_MANAGER:RegisterForUpdate('UltPing', 1000, on_update)
     else
 	msg("POC: off")
 	comm.Unload()
-	EVENT_MANAGER:UnregisterForUpdate('POC_UltPing')
+	EVENT_MANAGER:UnregisterForUpdate('UltPing')
     end
-    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
 end
 
-function POC_Comm.IsActive()
+function Comm.IsActive()
     return comm ~= nil and comm.active
 end
 
 local function commtype(s)
     local toset
-    if s == 'ping' or s == 'mapping' or s == 'POC_MapPing' then
-	toset = POC_MapPing
-    elseif s == 'lgs' or s == 'libgroupsocket' or s == 'POC_LGS' then
-	toset = POC_LGS
-    elseif s == 'pipe' or s == 'pingpipe' or s == 'POC_PingPipe' then
-	toset = POC_PingPipe
+    if s == 'ping' or s == 'mapping' or s == 'MapPing' then
+	toset = MapPing
+    elseif s == 'lgs' or s == 'libgroupsocket' or s == 'LGS' then
+	toset = LGS
+    elseif s == 'pipe' or s == 'pingpipe' or s == 'PingPipe' or s == 'POC_PingPipe'then
+	toset = PingPipe
     else
 	return nil
     end
@@ -133,18 +133,18 @@ local function commtype(s)
     return toset
 end
 
-function POC_Comm.Initialize()
+function Comm.Initialize()
     xxx = POC.xxx
-    saved = POC_Settings.SavedVariables
+    saved = Settings.SavedVariables
     saved.MapPing = nil
     myults = saved.MyUltId[ultix]
     if saved.Comm == nil then
-	-- saved.Comm = 'POC_MapPing'
-	saved.Comm = 'POC_PingPipe'
+	-- saved.Comm = 'MapPing'
+	saved.Comm = 'PingPipe'
     end
     comm = commtype(saved.Comm)
     if comm == nil then
-	POC_Error("Unknown communication type: " .. saved.Comm)
+	Error("Unknown communication type: " .. saved.Comm)
     end
     if not comm.active then
 	toggle(false)
@@ -157,7 +157,7 @@ function POC_Comm.Initialize()
 		comm.Unload()
 		comm = toset
 		comm.Load()
-		CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+		CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
 	    end
 	end
 	d("Communication method: " .. comm.Name:sub(5))

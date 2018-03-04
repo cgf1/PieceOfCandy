@@ -1,3 +1,4 @@
+setfenv(1, POC)
 local LMP = LibStub("LibMapPing")
 if not LMP then
     error("Cannot load without LibMapPing")
@@ -13,11 +14,11 @@ local show_errors = false
 
 local REFRESHRATE = 2000 -- ms; RegisterForUpdate is in miliseconds
 
-POC_MapPing = {
-    Name = "POC_MapPing",
+MapPing = {
+    Name = "MapPing",
     active = false
 }
-POC_MapPing.__index = POC_MapPing
+MapPing.__index = MapPing
 
 local saved
 
@@ -30,9 +31,9 @@ local function get_ult_ping(offset)
     end
 
     local ping = math.floor((offset * ABILITY_COEFFICIENT) + 0.5)
-    local apiver = math.floor(ping / POC_Ult.MaxPing)
-    ping = ping % POC_Ult.MaxPing
-    if ping >= 1 and ping < POC_Ult.MaxPing then
+    local apiver = math.floor(ping / Ult.MaxPing)
+    ping = ping % Ult.MaxPing
+    if ping >= 1 and ping < Ult.MaxPing then
 	return ping, apiver
     else
 	pingerr("get_ult_ping: offset is incorrect: " .. tostring(ping) .. "; offset: " .. tostring(offset))
@@ -90,7 +91,7 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
 	return
     end
     local pct = get_ult_pct(y)
-    local ult = POC_Ult.ByPing(apid)
+    local ult = Ult.ByPing(apid)
 
     if (ult == nil or pct == -1) then
 	pingerr("on_map_ping: invalid ult: " .. tostring(ult) .. "; pct: " .. tostring(pct), " y: " .. y)
@@ -103,15 +104,15 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
 	ApiVer = apiver
     }
 
-    if true or apiver == POC_API_VERSION then
+    if true or apiver == API_VERSION then
 	player.UltAid = ult.Aid
 	player.InvalidClient = false
     else
-	player.UltAid = POC_Ult.MaxPing
+	player.UltAid = Ult.MaxPing
 	player.InvalidClient = true
     end
 
-    CALLBACK_MANAGER:FireCallbacks(POC_PLAYER_DATA_CHANGED, player)
+    CALLBACK_MANAGER:FireCallbacks(PLAYER_DATA_CHANGED, player)
 end
 
 -- Called on map ping from LibMapPing
@@ -125,7 +126,7 @@ end
 
 -- Called on refresh of timer
 --
-function POC_MapPing.Send(_, ultver, pct)
+function MapPing.Send(_, ultver, pct)
     local type_ping = ultver / ABILITY_COEFFICIENT
 
     local pct_ping
@@ -143,32 +144,32 @@ end
 
 -- Unload MapPing
 --
-function POC_MapPing.Unload()
-    CALLBACK_MANAGER:UnregisterCallback(POC_MAP_PING_CHANGED, rcv)
+function MapPing.Unload()
+    CALLBACK_MANAGER:UnregisterCallback(MAP_PING_CHANGED, rcv)
     LMP:UnregisterCallback("BeforePingAdded", on_map_ping)
     LMP:UnregisterCallback("AfterPingRemoved", map_ping_finished)
     SLASH_COMMANDS["/pocpingerr"] = nil
-    POC_MapPing.active = false
+    MapPing.active = false
 end
 
--- Initialize POC_MapPing
+-- Initialize MapPing
 --
-function POC_MapPing.Load()
-    CALLBACK_MANAGER:RegisterCallback(POC_MAP_PING_CHANGED, rcv)
+function MapPing.Load()
+    CALLBACK_MANAGER:RegisterCallback(MAP_PING_CHANGED, rcv)
     LMP:RegisterCallback("BeforePingAdded", on_map_ping)
     LMP:RegisterCallback("AfterPingRemoved", map_ping_finished)
 
     xxx = POC.xxx
-    saved = POC_Settings.SavedVariables
+    saved = Settings.SavedVariables
 
     SLASH_COMMANDS["/pocpingerr"] = function()
 	show_errors = not show_errors
 	if show_errors then
-	    pingerr = POC_Error
+	    pingerr = Error
 	else
 	    pingerr = function() return end
 	end
 	d("show_errors " .. tostring(show_errors))
     end
-    POC_MapPing.active = true
+    MapPing.active = true
 end

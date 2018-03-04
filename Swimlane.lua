@@ -1,3 +1,4 @@
+setfenv(1, POC)
 local SWIMLANES = 6
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
@@ -20,18 +21,18 @@ local group_members
 
 local ping_refresh = false
 
-local POC_Lane = {}
-POC_Lane.__index = POC_Lane
+local Lane = {}
+Lane.__index = Lane
 
 local play_sound = false
 local last_played = 0
-POC_Player = {
+Player = {
     IsMe = false,
     NewClient = true,
     TimeStamp = 0,
     Ults = {},
 }
-POC_Player.__index = POC_Player
+Player.__index = Player
 
 local me = setmetatable({
     IsDead = false,
@@ -40,37 +41,33 @@ local me = setmetatable({
     TimeStamp = 0,
     UltMain = 0,
     Ults = {}
-}, POC_Player)
-POC_Me = me
+}, Player)
+Me = me
 
 local myname = GetUnitName("player")
 local ultix = myname
 
-local POC_Lanes = {}
-POC_Lanes.__index = POC_Lanes
+local Lanes = {}
+Lanes.__index = Lanes
 
 local MIAlane = 0
 
 local saved
 
--- Table POC_Swimlanes
+-- Table Swimlanes
 --
-POC_Swimlanes = {
-    Name = "POC-Swimlanes",
+Swimlanes = {
+    Name = "Swimlanes",
     Lanes = nil,
     SavedLanes = {},
     WasActive = false,
 }
-POC_Swimlanes.__index = POC_Swimlanes
+Swimlanes.__index = Swimlanes
 
-local _this = POC_Swimlanes
+local _this = Swimlanes
 
 local last_update = 0
 local need_to_fire = false
-
-if POC_UltNumber == nil then
-    POC_UltNumber = {}	-- Just for linux
-end
 
 local function _noop() end
 
@@ -92,12 +89,12 @@ end
 -- Set hidden on control
 --
 local function set_control_hidden(ishidden)
-    if (POC_GroupHandler.IsGrouped()) then
+    if (GroupHandler.IsGrouped()) then
 	widget:SetHidden(ishidden)
-	POC_UltNumber.Hide(ishidden)
+	UltNumber.Hide(ishidden)
     else
 	widget:SetHidden(true)
-	POC_UltNumber.Hide(true)
+	UltNumber.Hide(true)
     end
 end
 
@@ -111,8 +108,8 @@ end
 -- set_control_active sets hidden on control
 --
 local function set_control_active()
-    local isvisible = POC_Settings.IsSwimlaneListVisible() and POC_GroupHandler.IsGrouped()
-    local ishidden = not isvisible or POC_CurrentHudHiddenState()
+    local isvisible = Settings.IsSwimlaneListVisible() and GroupHandler.IsGrouped()
+    local ishidden = not isvisible or CurrentHudHiddenState()
     set_control_hidden(ishidden)
 
     if (isvisible) then
@@ -123,29 +120,29 @@ local function set_control_active()
 	set_control_movable(saved.Movable)
 	restore_position(saved.PosX, saved.PosY)
 
-	CALLBACK_MANAGER:RegisterCallback(POC_PLAYER_DATA_CHANGED, POC_Player.Update)
-	CALLBACK_MANAGER:RegisterCallback(POC_MOVABLE_CHANGED, set_control_movable)
-	CALLBACK_MANAGER:RegisterCallback(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
-	CALLBACK_MANAGER:RegisterCallback(POC_HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
+	CALLBACK_MANAGER:RegisterCallback(PLAYER_DATA_CHANGED, Player.Update)
+	CALLBACK_MANAGER:RegisterCallback(MOVABLE_CHANGED, set_control_movable)
+	CALLBACK_MANAGER:RegisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
+	CALLBACK_MANAGER:RegisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     elseif (registered) then
 	registered = false
 	-- Stop timeout timer
 	-- EVENT_MANAGER:UnregisterForUpdate(_this.Name)
 
-	-- CALLBACK_MANAGER:UnregisterCallback(POC_GROUP_CHANGED, _this.UpdateAll)
-	CALLBACK_MANAGER:UnregisterCallback(POC_PLAYER_DATA_CHANGED, POC_Player.Update)
-	CALLBACK_MANAGER:UnregisterCallback(POC_MOVABLE_CHANGED, set_control_movable)
-	CALLBACK_MANAGER:UnregisterCallback(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
-	CALLBACK_MANAGER:UnregisterCallback(POC_HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
+	-- CALLBACK_MANAGER:UnregisterCallback(GROUP_CHANGED, _this.UpdateAll)
+	CALLBACK_MANAGER:UnregisterCallback(PLAYER_DATA_CHANGED, Player.Update)
+	CALLBACK_MANAGER:UnregisterCallback(MOVABLE_CHANGED, set_control_movable)
+	CALLBACK_MANAGER:UnregisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
+	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     end
 end
 
 -- Sets visibility of labels
 --
-function POC_Lanes:Update(x)
+function Lanes:Update(x)
     local refresh
     local displayed = false
-    if (POC_GroupHandler.IsGrouped()) then
+    if (GroupHandler.IsGrouped()) then
 	refresh = true
 	displayed = not _this.WasActive
     elseif (not _this.WasActive) then
@@ -163,7 +160,7 @@ function POC_Lanes:Update(x)
     if refresh then
 	-- Check all swimlanes
 	last_update = GetTimeStamp()
-	for _,lane in ipairs(POC_IdSort(self, "Id")) do
+	for _,lane in ipairs(IdSort(self, "Id")) do
 	    if lane:Update(false) then
 		displayed = true
 	    else
@@ -184,19 +181,19 @@ end
 
 -- Return true if we timed out
 --
-function POC_Player:TimedOut()
+function Player:TimedOut()
     return (GetTimeStamp() - self.TimeStamp) > TIMEOUT
 end
 
 -- Return true if we need to back the heck off
 --
-function POC_Player:HasBeenInRange()
+function Player:HasBeenInRange()
     return (GetTimeStamp() - self.InRangeTime) < INRANGETIME
 end
 
 -- Update swimlane
 --
-function POC_Lane:Update(force)
+function Lane:Update(force)
     local laneid = self.Id
     if not force and laneid > MIAlane then
 	return
@@ -276,27 +273,28 @@ function POC_Lane:Update(force)
 		end
 		if player.Ults[apid]  < 100 then
 		    play_sound = true
-		    POC_Me.Because = "ultpct < 100"
+		    Me.Because = "ultpct < 100"
 		elseif priult and not player.IsDead and player:HasBeenInRange() then
+-- if apid == 13 and playername == "Valandil Tiwel" then xxx('XXX', player == Me, Me == group_members[playername]) end
 		    player.Ults[apid] = gt100 - 1
 		    noshow = false
-		    POC_Me.Because = "ultpct == 100"
-		else
+		    Me.Because = "ultpct == 100"
+		elseif priult then
 		    -- reset order since we can't contribute
 		    player.Ults[apid] = 100
 		    play_sound = true
-		    POC_Me.Because = "out of range, dead, or not primary"
+		    Me.Because = "out of range, dead, or not primary!"
 		end
 		-- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
 		self:UpdateCell(n, player, playername, priult)
 		if (noshow or not saved.UltNumberShow or laneid == MIAlane or
-		    POC_CurrentHudHiddenState() or player.IsDead or
-		    not POC_GroupHandler.IsGrouped() or
-		    not POC_Settings.IsSwimlaneListVisible()) then
-		    POC_UltNumber.Hide(true)
-		    POC_UltNumberLabel:SetText("")
+		    CurrentHudHiddenState() or player.IsDead or
+		    not GroupHandler.IsGrouped() or
+		    not Settings.IsSwimlaneListVisible()) then
+		    UltNumber.Hide(true)
+		    UltNumberLabel:SetText("")
 		else
-		    POC_UltNumber.Show(n)
+		    UltNumber.Show(n)
 		end
 	    end
 	    n = n + 1
@@ -318,7 +316,7 @@ end
 --
 
 
-function POC_Lane:UpdateCell(i, player, playername, priult)
+function Lane:UpdateCell(i, player, playername, priult)
     local rowi = "Row" .. i
     local apid = self.Apid
     local row = self.Control:GetNamedChild(rowi)
@@ -425,7 +423,7 @@ end
 
 -- Updates player (potentially) in the swimlane
 --
-function POC_Player.Update(pingtag, apid1, pct1, apid2, pct2)
+function Player.Update(pingtag, apid1, pct1, apid2, pct2)
     local nmembers = 0
     local inrange = 0
     local timenow = GetTimeStamp()
@@ -471,7 +469,7 @@ function POC_Player.Update(pingtag, apid1, pct1, apid2, pct2)
 			    player.Ults[player.UltAid] = player.UltPct
 			end
 			for n, _ in pairs(player) do
-			    if POC_Player[n] == nil then
+			    if Player[n] == nil then
 				player[n] = nil
 			    end
 			end
@@ -483,7 +481,7 @@ function POC_Player.Update(pingtag, apid1, pct1, apid2, pct2)
 	    if not player.UltMain then
 		player.UltMain = 0
 	    end
-	    local changed, player1 = POC_Player.New(player, unitname, unitid)
+	    local changed, player1 = Player.New(player, unitname, unitid)
 	    if changed then
 		need_to_fire = true
 	    end
@@ -497,30 +495,30 @@ function POC_Player.Update(pingtag, apid1, pct1, apid2, pct2)
 	end
     end
 
-    if POC_Me.IsLeader then
+    if Me.IsLeader then
 	inrange = inrange + 2
     end
 
     if (inrange / nmembers) >= 0.5 then
-	POC_Me.InRangeTime = timenow
-    elseif POC_Me.InRangeTime == nil then
-	POC_Me.InRangeTime = 0
+	Me.InRangeTime = timenow
+    elseif Me.InRangeTime == nil then
+	Me.InRangeTime = 0
     end
 
     if sldebug or ping_refresh or (need_to_fire and ((timenow - last_update) > REFRESH_IF_CHANGED)) then
 	need_to_fire = false
-	CALLBACK_MANAGER:FireCallbacks(POC_GROUP_CHANGED, "refresh")
+	CALLBACK_MANAGER:FireCallbacks(GROUP_CHANGED, "refresh")
     end
 end
 
-function POC_Player.New(inplayer, name, pingtag)
+function Player.New(inplayer, name, pingtag)
     if _this.Lanes == nil then
 	return
     end
     local self = group_members[name]
     if self == nil then
 	if name == myname then
-	    self = POC_Me
+	    self = Me
 	else
 	    self = {
 		IsMe = false,
@@ -528,7 +526,7 @@ function POC_Player.New(inplayer, name, pingtag)
 		Ults = {}
 	    }
 	end
-	group_members[name] = setmetatable(self, POC_Player)
+	group_members[name] = setmetatable(self, Player)
     end
 
     inplayer.PingTag = pingtag
@@ -588,7 +586,7 @@ end
 
 -- Saves current widget position to settings
 --
-function POC_Swimlanes:OnMoveStop()
+function Swimlanes:OnMoveStop()
     local left = widget:GetLeft()
     local top = widget:GetTop()
 
@@ -609,12 +607,12 @@ local function style_changed()
 	    widget:SetHidden(true)
 	end
 	if style == "Compact" then
-	    widget = POC_CompactSwimlaneControl
+	    widget = CompactSwimlaneControl
 	    swimlanerow = "CompactUltSwimlaneRow"
 	    namelen = 6
 	    topleft = 50
 	else
-	    widget = POC_SwimlaneControl
+	    widget = SwimlaneControl
 	    swimlanerow = "UltSwimlaneRow"
 	    namelen = 12
 	    topleft = 25
@@ -622,7 +620,7 @@ local function style_changed()
 	if (_this.SavedLanes[style] ~= nil) then
 	    _this.Lanes = _this.SavedLanes[style]
 	else
-	    _this.SavedLanes[style] = POC_Lanes.New()
+	    _this.SavedLanes[style] = Lanes.New()
 	    _this.Lanes = _this.SavedLanes[style]
 	    set_control_movable(saved.Movable)
 	    restore_position(saved.PosX, saved.PosY)
@@ -636,14 +634,14 @@ end
 -- on_set_ult called on header clicked
 --
 local function on_set_ult(apid, id)
-    CALLBACK_MANAGER:UnregisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
+    CALLBACK_MANAGER:UnregisterCallback(SET_ULTIMATE_GROUP, on_set_ult)
 
-    POC_Settings.SetSwimlaneUltId(id, apid)
+    Settings.SetSwimlaneUltId(id, apid)
 end
 
 -- Set the swimlane header icon in base of apid
 --
-function POC_Lanes:SetUlt(id, newapid)
+function Lanes:SetUlt(id, newapid)
     if self[newapid] ~= nil then
 	return  -- already displaying this ultimate
     end
@@ -651,10 +649,10 @@ function POC_Lanes:SetUlt(id, newapid)
 	if lane.Id == id then
 	    self[newapid] = lane -- New row
 	    lane.Apid = newapid
-	    local ult = POC_Ult.ByPing(newapid)
+	    local ult = Ult.ByPing(newapid)
 	    lane.Icon:SetTexture(GetAbilityIcon(ult.Aid))
 	    if lane.Label ~= nil then
-		lane.Label:SetText(POC_Ult.ByPing(newapid).Name)
+		lane.Label:SetText(Ult.ByPing(newapid).Name)
 	    end
 	    lane.Players = {}
 	    self[apid] = nil	        -- Delete old lane
@@ -662,21 +660,21 @@ function POC_Lanes:SetUlt(id, newapid)
 	    break
 	end
     end
-    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
 end
 
--- POC_Lane:Click called on header clicked
+-- Lane:Click called on header clicked
 --
-function POC_Lane:Click()
+function Lane:Click()
     if (self.Button ~= nil) then
-	CALLBACK_MANAGER:RegisterCallback(POC_SET_ULTIMATE_GROUP, on_set_ult)
-	CALLBACK_MANAGER:FireCallbacks(POC_SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
+	CALLBACK_MANAGER:RegisterCallback(SET_ULTIMATE_GROUP, on_set_ult)
+	CALLBACK_MANAGER:FireCallbacks(SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
     else
-	POC_Error("POC_Lane:Click, button nil")
+	Error("Lane:Click, button nil")
     end
 end
 
-function POC_Lane:Header()
+function Lane:Header()
     self.Control = widget:GetNamedChild("Swimlane" .. self.Id)
     self.Button = self.Control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
     self.Icon = self.Control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
@@ -693,10 +691,10 @@ function POC_Lane:Header()
     else
 	apid = saved.LaneIds[self.Id]
     end
-    local ult = POC_Ult.ByPing(apid)
+    local ult = Ult.ByPing(apid)
     if (ult == nil) then
 	apid = 'MIA'
-	ult = POC_Ult.ByAid(apid)
+	ult = Ult.ByAid(apid)
     end
     local icon
     if ult.Name == 'MIA' then
@@ -715,7 +713,7 @@ function POC_Lane:Header()
     return apid
 end
 
-function POC_Lane:Hide(displayed)
+function Lane:Hide(displayed)
     local hide = self.Id > MIAlane or (self.Id == MIAlane and not displayed)
     self.Button:SetHidden(hide)
     self.Icon:SetHidden(hide)
@@ -724,7 +722,7 @@ function POC_Lane:Hide(displayed)
     end
 end
 
-function POC_Lanes:Redo()
+function Lanes:Redo()
     local oldMIAlane = MIAlane
     MIAlane = saved.SwimlaneMaxCols + 1
     if MIAlane == oldMIAlane then
@@ -736,7 +734,7 @@ function POC_Lanes:Redo()
     end
     local lane = self[saved.LaneIds[mialane.Id]]
     if lane == nil then
-	lane = POC_Lane.New(self, mialane.Id)
+	lane = Lane.New(self, mialane.Id)
     else
 	lane.Id = mialane.Id
 	lane:Header()
@@ -751,8 +749,8 @@ end
 
 -- Create a swimlane list headers
 --
-function POC_Lane.New(lanes, i)
-    local self = setmetatable({Id = i}, POC_Lane)
+function Lane.New(lanes, i)
+    local self = setmetatable({Id = i}, Lane)
 
     apid = self:Header()
 -- xxx("New", i, self.Control)
@@ -783,38 +781,37 @@ function POC_Lane.New(lanes, i)
     return self
 end
 
-function POC_Lanes.New()
-    local self = setmetatable({}, POC_Lanes)
+function Lanes.New()
+    local self = setmetatable({}, Lanes)
     MIAlane = saved.SwimlaneMaxCols + 1
     for i = 1, SWIMLANES + 1 do
-	POC_Lane.New(self, i)
+	Lane.New(self, i)
     end
     return self
 end
 
-function POC_Swimlanes:SaveUltNumberPos()
+function Swimlanes:SaveUltNumberPos()
     saved.UltNumberPos = {self:GetLeft(),self:GetTop()}
 end
 
-
-function POC_UltNumber.Hide(x)
+function UltNumber.Hide(x)
     if saved.UltNumberShow then
-	if POC_Me.IsDead or POC_Me.UltMain == 0 or POC_Me.Ults[POC_Me.UltMain] < 100 then
+	if Me.IsDead or Me.UltMain == 0 or Me.Ults[Me.UltMain] < 100 then
 	    x = true
 	end
-	POC_UltNumber:SetHidden(x)
+	UltNumber:SetHidden(x)
     end
 end
 
-function POC_UltNumber.Show(n)
+function UltNumber.Show(n)
     local color
     if n == 1 then
 	color = "00ff00"
     else
 	color = "ff0000"
     end
-    POC_UltNumberLabel:SetText("|c" .. color .. " #" .. n .. "|r")
-    POC_UltNumber.Hide(false)
+    UltNumberLabel:SetText("|c" .. color .. " #" .. n .. "|r")
+    UltNumber.Hide(false)
     local timenow = GetTimeStamp()
     if n ~= 1 or not play_sound or not saved.WereNumberOne or
        ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
@@ -824,7 +821,7 @@ function POC_UltNumber.Show(n)
     last_played = GetTimeStamp()
     play_sound = false
     -- xxx("sound", play_sound)
-    POC_Me.Because = "false because we played the sound"
+    Me.Because = "false because we played the sound"
 end
 
 local function dump(name)
@@ -839,7 +836,7 @@ local function dump(name)
 	end
 	return p
     end
-    for n, v in pairs(saved.GroupMembers) do
+    for n, v in pairs(group_members) do
 	if string.find(n, name, 1) then
 	    msg("== " .. n .. " ==")
 	    local a = {}
@@ -851,7 +848,7 @@ local function dump(name)
 		local t = v[x]
 		local p
 		if x == 'UltAid' then
-		    local u = POC_Ult.ByAid(t)
+		    local u = Ult.ByAid(t)
 		    local name
 		    if u == nil then
 			name = 'unknown'
@@ -869,9 +866,9 @@ local function dump(name)
 		    p = ''
 		    local comma = ''
 		    for n, v in pairs(t) do
-			local ult = POC_Ult.ByPing(n)
+			local ult = Ult.ByPing(n)
 			if ult.Name ~= 'MIA' then
-			    p = p .. comma .. ult.Desc .. '[' .. v .. ']'
+			    p = p .. comma .. ult.Desc .. '[' .. v .. '%]'
 			    comma = ', '
 			end
 		    end
@@ -889,36 +886,37 @@ local function dump(name)
 end
 -- Initialize initializes _this
 --
-function POC_Swimlanes.Initialize()
+function Swimlanes.Initialize()
     xxx = POC.xxx
-    saved = POC_Settings.SavedVariables
+    saved = Settings.SavedVariables
     group_members = saved.GroupMembers
     for n, v in pairs(group_members) do
+	setmetatable(v, Player)
 	if n == myname then
-	    v = ZO_DeepTableCopy(v, POC_Me)
+	    v =  ZO_DeepTableCopy(v, Me)
 	end
-	group_members[n] = setmetatable(v, POC_Player)
+	group_members[n] = v
     end
 
-    POC_UltNumber:ClearAnchors()
+    UltNumber:ClearAnchors()
     if (saved.UltNumberPos == nil) then
-	POC_UltNumber:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
+	UltNumber:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
     else
-	POC_UltNumber:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
+	UltNumber:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
 				saved.UltNumberPos[1],
 				saved.UltNumberPos[2])
     end
-    POC_UltNumber:SetMovable(true)
-    POC_UltNumber:SetMouseEnabled(true)
-    POC_UltNumber.Hide(false)
+    UltNumber:SetMovable(true)
+    UltNumber:SetMouseEnabled(true)
+    UltNumber.Hide(false)
 
     style_changed()
 
-    CALLBACK_MANAGER:RegisterCallback(POC_SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
-    CALLBACK_MANAGER:RegisterCallback(POC_STYLE_CHANGED, style_changed)
-    CALLBACK_MANAGER:RegisterCallback(POC_GROUP_CHANGED, function (x) _this.Lanes:Update(x) end)
-    CALLBACK_MANAGER:RegisterCallback(POC_ZONE_CHANGED, function() set_control_active() need_to_fire = true end)
-    CALLBACK_MANAGER:RegisterCallback(POC_UNIT_GROUPED_CHANGED, set_control_active)
+    CALLBACK_MANAGER:RegisterCallback(SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
+    CALLBACK_MANAGER:RegisterCallback(STYLE_CHANGED, style_changed)
+    CALLBACK_MANAGER:RegisterCallback(GROUP_CHANGED, function (x) _this.Lanes:Update(x) end)
+    CALLBACK_MANAGER:RegisterCallback(ZONE_CHANGED, function() set_control_active() need_to_fire = true end)
+    CALLBACK_MANAGER:RegisterCallback(UNIT_GROUPED_CHANGED, set_control_active)
     SLASH_COMMANDS["/pocpct"] = function(pct)
 	if string.len(pct) == 0 then
 	    forcepct = nil

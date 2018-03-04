@@ -1,9 +1,10 @@
-POC_Ult = {
-    Name = "POC_Ult",
+setfenv(1, POC)
+Ult = {
+    Name = "Ult",
     MaxPing = 0,
     Me = 0
 }
-POC_Ult.__index = POC_Ult
+Ult.__index = Ult
 
 local ultix = GetUnitName("player")
 local bynames = {}
@@ -15,52 +16,52 @@ local xxx
 
 -- ByPing gets the ultimate group from given ability ping
 --
-function POC_Ult.ByPing(pid)
+function Ult.ByPing(pid)
     if bypings[pid] ~= nil then
 	return bypings[pid]
     end
 
     -- not found
-    -- POC_Error("AbilityId not found " .. tostring(pid))
+    -- Error("AbilityId not found " .. tostring(pid))
 
     return nil
 end
 
 -- ByAid gets the ultimate group from given ability ID
 --
-function POC_Ult.ByAid(aid)
+function Ult.ByAid(aid)
     if byids[aid] ~= nil then
 	return byids[aid]
     end
 
     -- not found
-    POC_Error("AbilityId not found " .. tostring(aid))
+    Error("AbilityId not found " .. tostring(aid))
 
     return nil
 end
 
 -- ByName gets the ultimate group from given group name
 --
-function POC_Ult.ByName(gname)
+function Ult.ByName(gname)
     if bynames[gname] ~= nil then
 	return bynames[gname]
     end
 
     -- not found
-    POC_Error("Name not found " .. tostring(gname))
+    Error("Name not found " .. tostring(gname))
 
     return nil
 end
 
 -- GetUlts gets all ultimate groups
 --
-function POC_Ult.GetUlts()
-    return POC_IdSort(bynames, "Id")
+function Ult.GetUlts()
+    return IdSort(bynames, "Id")
 end
 
-function POC_Ult.Icons()
+function Ult.Icons()
     local icons = {}
-    for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
+    for _, v in ipairs(IdSort(bynames, 'Id')) do
 	if v.Aid ~= 'MIA' then
 	    table.insert(icons, GetAbilityIcon(v.Aid))
 	end
@@ -68,9 +69,9 @@ function POC_Ult.Icons()
     return icons
 end
 
-function POC_Ult.Descriptions()
+function Ult.Descriptions()
     local desclist = {}
-    for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
+    for _, v in ipairs(IdSort(bynames, 'Id')) do
 	if v.Aid ~= 'MIA' then
 	    table.insert(desclist, v.Desc)
 	end
@@ -79,7 +80,7 @@ function POC_Ult.Descriptions()
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
-    for _, v in ipairs(POC_IdSort(from_table[from_key], 'Aid', 1)) do
+    for _, v in ipairs(IdSort(from_table[from_key], 'Aid', 1)) do
 	i = i + 1
 	v.Id = i
 	to_table[v.Name] = v
@@ -286,17 +287,17 @@ local function create_ults()
 	    end
 	    byids[group.Aid] = group
 	    bypings[group.Ping] = group
-	    if group.Ping > POC_Ult.MaxPing then
-		POC_Ult.MaxPing = group.Ping
+	    if group.Ping > Ult.MaxPing then
+		Ult.MaxPing = group.Ping
 	    end
 	end
     end
     local i = 0
     i = insert_group_table(bynames, ults, class, i)
     if saved.MyUltId[ultix] == nil then
-	for _, v in ipairs(POC_IdSort(bynames, 'Id')) do
-	    POC_Ult.SetSavedId(v.Aid, 1)
-	    POC_Ult.SetSavedId('MIA', 2)
+	for _, v in ipairs(IdSort(bynames, 'Id')) do
+	    Ult.SetSavedId(v.Aid, 1)
+	    Ult.SetSavedId('MIA', 2)
 	    break
 	end
     end
@@ -319,12 +320,12 @@ local function create_ults()
     end
 end
 
-function POC_Ult.GetSaved(n)
+function Ult.GetSaved(n)
     local ret
     if saved.MyUltId[ultix][n] == nil then
 	-- should never happen
     else
-	local ult = POC_Ult.ByPing(saved.MyUltId[ultix][n])
+	local ult = Ult.ByPing(saved.MyUltId[ultix][n])
 	if ult == nil or ult.Aid == 'MIA' then
 	    ret = "/POC/icons/lollipop.dds"
 	else
@@ -334,7 +335,7 @@ function POC_Ult.GetSaved(n)
     return ret
 end
 
-function POC_Ult.UltApidFromIcon(icon)
+function Ult.UltApidFromIcon(icon)
     for id, v in pairs(byids) do
 	if id ~= 'MIA' and GetAbilityIcon(id) == icon then
 	    return v.Ping
@@ -343,7 +344,7 @@ function POC_Ult.UltApidFromIcon(icon)
     return nil
 end
 
-function POC_Ult.SetSavedId(apid, n)
+function Ult.SetSavedId(apid, n)
     if apid == nil then
 	local one = saved.MyUltId[ultix][1]
 	saved.MyUltId[ultix][1] = saved.MyUltId[ultix][2]
@@ -356,19 +357,19 @@ function POC_Ult.SetSavedId(apid, n)
     end
 end
 
-function POC_Ult.SetSavedFromIcon(icon, n)
-    local apid = POC_Ult.UltApidFromIcon(icon)
+function Ult.SetSavedFromIcon(icon, n)
+    local apid = Ult.UltApidFromIcon(icon)
     if apid ~= nil then
-	POC_Ult.SetSavedId(apid, n)
+	Ult.SetSavedId(apid, n)
 	return
     end
-    d("POC_Ult.SetSaved: unknown icon " .. tostring(icon))
+    d("Ult.SetSaved: unknown icon " .. tostring(icon))
 end
 
--- Initialize POC_Ult
+-- Initialize Ult
 --
-function POC_Ult.Initialize()
-    saved = POC_Settings.SavedVariables
+function Ult.Initialize()
+    saved = Settings.SavedVariables
     create_ults()
     xxx = POC.xxx
 
@@ -384,8 +385,8 @@ function POC_Ult.Initialize()
     ids[7] = nil
     local changed = false
     for i, v in ipairs(ids) do
-	if v > POC_Ult.MaxPing then
-	    newultids[i] = POC_Ult.ByAid(v).Ping
+	if v > Ult.MaxPing then
+	    newultids[i] = Ult.ByAid(v).Ping
 	    changed = true
 	end
     end
@@ -395,8 +396,8 @@ function POC_Ult.Initialize()
     saved.LaneIds[7] = 'MIA'
     for n, v in pairs(saved.MyUltId) do
 	if type(v) ~= 'table' then
-	    if v > POC_Ult.MaxPing then
-		v = POC_Ult.ByAid(v).Ping
+	    if v > Ult.MaxPing then
+		v = Ult.ByAid(v).Ping
 	    end
 	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
 	end

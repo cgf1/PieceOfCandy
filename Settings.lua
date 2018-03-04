@@ -1,7 +1,8 @@
+setfenv(1, POC)
 local SETTINGS_VERSION = 5
 
-POC_Settings = {
-    Name = "POC_Settings",
+Settings = {
+    Name = "Settings",
     SettingsName = "POCSettings",
     SavedVariables = nil,
     Default = {
@@ -31,97 +32,97 @@ POC_Settings = {
 	WereNumberOne = true
     }
 }
-POC_Settings.__index = POC_Settings
+Settings.__index = Settings
 
 local ultix = GetUnitName("player")
 local saved
 
 -- Sets SetStyleSettings and fires POC-StyleChanged callbacks
 --
-function POC_Settings.SetStyleSettings(style)
+function Settings.SetStyleSettings(style)
     saved.Style = style
 
-    CALLBACK_MANAGER:FireCallbacks(POC_STYLE_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(STYLE_CHANGED)
 end
 
 -- Set our ultimate
 --
-function POC_Settings.SetStaticUltimateIDSettings(ultid)
+function Settings.SetStaticUltimateIDSettings(ultid)
     if saved.MyUltId == nil then
 	saved.MyUltId = {}
     end
     saved.MyUltId[ultix] = ultid
 
-    CALLBACK_MANAGER:FireCallbacks(POC_STATIC_ULTIMATE_ID_CHANGED, ultid)
+    CALLBACK_MANAGER:FireCallbacks(STATIC_ULTIMATE_ID_CHANGED, ultid)
 end
 
 -- Set the ultimate to use for a specific swimlane
 --
-function POC_Settings.SetSwimlaneUltId(swimlane, aid)
+function Settings.SetSwimlaneUltId(swimlane, aid)
     saved.LaneIds[swimlane] = aid
 
-    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, aid)
+    CALLBACK_MANAGER:FireCallbacks(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, aid)
 end
 
 -- Control whether or not to show MIA lane
 --
-function POC_Settings.SetMIA(what)
+function Settings.SetMIA(what)
     saved.MIA = what
-    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_COLMAX_CHANGED, "Display MIA changed")
+    CALLBACK_MANAGER:FireCallbacks(SWIMLANE_COLMAX_CHANGED, "Display MIA changed")
 end
 
 -- Sets MovableSettings and fires POC-MovableChanged callbacks
 --
-function POC_Settings.SetMovableSettings(movable)
+function Settings.SetMovableSettings(movable)
     saved.Movable = movable
 
-    CALLBACK_MANAGER:FireCallbacks(POC_MOVABLE_CHANGED, movable)
+    CALLBACK_MANAGER:FireCallbacks(MOVABLE_CHANGED, movable)
 end
 
 -- Control whether to only display in PVP setting
 --
-function POC_Settings.SetOnlyAvaSettings(onlyAva)
+function Settings.SetOnlyAvaSettings(onlyAva)
     saved.OnlyAva = onlyAva
 
-    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
 end
 
 -- Sets maximum number of cells in a swimlane
 --
-function POC_Settings.SetSwimlaneMax(max)
+function Settings.SetSwimlaneMax(max)
     saved.SwimlaneMax = max
 end
 
 -- Sets maximum number of swimlanes
 --
-function POC_Settings.SetSwimlaneMaxCols(max)
+function Settings.SetSwimlaneMaxCols(max)
     saved.SwimlaneMaxCols = max
-    CALLBACK_MANAGER:FireCallbacks(POC_SWIMLANE_COLMAX_CHANGED)
+    CALLBACK_MANAGER:FireCallbacks(SWIMLANE_COLMAX_CHANGED)
 end
 
 -- Set whether to show ultimate number on screen
 --
-function POC_Settings.SetUltNumberShow(show)
+function Settings.SetUltNumberShow(show)
     saved.UltNumberShow = show
 end
 
 -- Set whether to play a sound when you hit #1 in ultimate order
 --
-function POC_Settings.SetWereNumberOne(val)
+function Settings.SetWereNumberOne(val)
     saved.WereNumberOne = val
 end
 
 -- Return Swimlane visibility
 --
-function POC_Settings.IsSwimlaneListVisible()
-    return POC_Settings.IsControlsVisible()
+function Settings.IsSwimlaneListVisible()
+    return Settings.IsControlsVisible()
 end
 
 
 -- Return control visibility
 --
-function POC_Settings.IsControlsVisible()
-    if not POC_Comm.IsActive() then
+function Settings.IsControlsVisible()
+    if not Comm.IsActive() then
 	return false
     elseif saved.OnlyAva then
 	return IsPlayerInAvAWorld()
@@ -132,17 +133,17 @@ end
 
 -- OnPlayerActivated sends ZoneChanged event
 --
-function POC_Settings.OnPlayerActivated(eventCode)
-    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+function Settings.OnPlayerActivated(eventCode)
+    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
 end
 
 -- Initialize/create settings window
 --
-function POC_Settings.InitializeWindow(major, minor, patch)
-    local default = POC_Settings.Default
+function Settings.InitializeWindow(major, minor, patch)
+    local default = Settings.Default
     local styleChoices = {
-	[1] = GetString(POC_OPTIONS_STYLE_SWIM),
-	[2] = GetString(POC_OPTIONS_STYLE_SHORT_SWIM)
+	[1] = GetString(OPTIONS_STYLE_SWIM),
+	[2] = GetString(OPTIONS_STYLE_SHORT_SWIM)
     }
     local paneldata = {
 	    type = "panel",
@@ -156,42 +157,42 @@ function POC_Settings.InitializeWindow(major, minor, patch)
     local o = {}
     o[#o + 1] = {
 	type = "header",
-	name = GetString(POC_OPTIONS_HEADER),
+	name = GetString(OPTIONS_HEADER),
      }
     o[#o + 1] = {
 	type = "checkbox",
-	name = GetString(POC_OPTIONS_DRAG_LABEL),
-	tooltip = GetString(POC_OPTIONS_DRAG_TOOLTIP),
+	name = GetString(OPTIONS_DRAG_LABEL),
+	tooltip = GetString(OPTIONS_DRAG_TOOLTIP),
 	getFunc = function()
 	    return saved.Movable
 	end,
 	setFunc = function(value)
-	    POC_Settings.SetMovableSettings(value)
+	    Settings.SetMovableSettings(value)
 	end,
 	default = default.Movable
     }
     o[#o + 1] = {
 	type = "checkbox",
-	name = GetString(POC_OPTIONS_ONLY_AVA_LABEL),
-	tooltip = GetString(POC_OPTIONS_ONLY_AVA_TOOLTIP),
+	name = GetString(OPTIONS_ONLY_AVA_LABEL),
+	tooltip = GetString(OPTIONS_ONLY_AVA_TOOLTIP),
 	getFunc = function()
 	    return saved.OnlyAva
 	end,
 	setFunc = function(value)
-	    POC_Settings.SetOnlyAvaSettings(value)
+	    Settings.SetOnlyAvaSettings(value)
 	end,
 	default = default.OnlyAva
     }
     o[#o + 1] = {
 	type = "iconpicker",
 	name = "Choose your primary ultimate",
-	choices = POC_Ult.Icons(),
-	choicesTooltips = POC_Ult.Descriptions(),
+	choices = Ult.Icons(),
+	choicesTooltips = Ult.Descriptions(),
 	getFunc = function()
-	    return POC_Ult.GetSaved(1)
+	    return Ult.GetSaved(1)
 	end,
 	setFunc = function(icon)
-	    POC_Ult.SetSavedFromIcon(icon, 1)
+	    Ult.SetSavedFromIcon(icon, 1)
 	end,
 	maxColumns = 7,
 	visibleRows = 5,
@@ -201,13 +202,13 @@ function POC_Settings.InitializeWindow(major, minor, patch)
     o[#o + 1] = {
 	type = "iconpicker",
 	name = "Choose your secondary ultimate",
-	choices = POC_Ult.Icons(),
-	choicesTooltips = POC_Ult.Descriptions(),
+	choices = Ult.Icons(),
+	choicesTooltips = Ult.Descriptions(),
 	getFunc = function()
-	    return POC_Ult.GetSaved(2)
+	    return Ult.GetSaved(2)
 	end,
 	setFunc = function(icon)
-	    POC_Ult.SetSavedFromIcon(icon, 2)
+	    Ult.SetSavedFromIcon(icon, 2)
 	end,
 	maxColumns = 7,
 	visibleRows = 5,
@@ -220,24 +221,24 @@ function POC_Settings.InitializeWindow(major, minor, patch)
     }
     o[#o + 1] = {
 	type = "dropdown",
-	name = GetString(POC_OPTIONS_STYLE_LABEL),
-	tooltip = GetString(POC_OPTIONS_STYLE_TOOLTIP),
+	name = GetString(OPTIONS_STYLE_LABEL),
+	tooltip = GetString(OPTIONS_STYLE_TOOLTIP),
 	choices = styleChoices,
 	getFunc = function()
 	    return saved.Style
 	end,
 	setFunc = function(value)
-	    POC_Settings.SetStyleSettings(value)
+	    Settings.SetStyleSettings(value)
 	end,
 	default = default.Style
     }
     o[#o + 1] = {
 	type = "slider",
-	name = GetString(POC_OPTIONS_SWIMLANE_MAX_LABEL),
+	name = GetString(OPTIONS_SWIMLANE_MAX_LABEL),
 	min = 1, max = 24, step = 1,
 	getFunc = function() return saved.SwimlaneMax end,
 	width = "full",
-	setFunc = function(value) POC_Settings.SetSwimlaneMax(value) end,
+	setFunc = function(value) Settings.SetSwimlaneMax(value) end,
 	default = 24,
     }
     o[#o + 1] = {
@@ -246,7 +247,7 @@ function POC_Settings.InitializeWindow(major, minor, patch)
 	min = 1, max = 6, step = 1,
 	getFunc = function() return saved.SwimlaneMaxCols end,
 	width = "full",
-	setFunc = function(value) POC_Settings.SetSwimlaneMaxCols(value) end,
+	setFunc = function(value) Settings.SetSwimlaneMaxCols(value) end,
 	default = 6,
     }
     o[#o + 1] = {
@@ -258,28 +259,28 @@ function POC_Settings.InitializeWindow(major, minor, patch)
 	end,
 	setFunc = function(x)
 	    saved.AtNames = x
-	    CALLBACK_MANAGER:FireCallbacks(POC_ZONE_CHANGED)
+	    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
 	end,
 	default = default.AtNames
     }
     o[#o + 1] = {
 	type = "checkbox",
-	name = GetString(POC_OPTIONS_ULTIMATE_NUMBER),
-	tooltip = GetString(POC_OPTIONS_ULTIMATE_NUMBER_TOOLTIP),
+	name = GetString(OPTIONS_ULTIMATE_NUMBER),
+	tooltip = GetString(OPTIONS_ULTIMATE_NUMBER_TOOLTIP),
 	getFunc = function()
 	    return saved.UltNumberShow
 	end,
-	setFunc = function(val) POC_Settings.SetUltNumberShow(val) end,
+	setFunc = function(val) Settings.SetUltNumberShow(val) end,
 	default = default.UltNumberShow
     }
     o[#o + 1] = {
 	type = "checkbox",
-	name = GetString(POC_OPTIONS_WERE_NUMBER_ONE),
-	tooltip = GetString(POC_OPTIONS_WERE_NUMBER_ONE_TOOLTIP),
+	name = GetString(OPTIONS_WERE_NUMBER_ONE),
+	tooltip = GetString(OPTIONS_WERE_NUMBER_ONE_TOOLTIP),
 	getFunc = function()
 	    return saved.WereNumberOne
 	end,
-	setFunc = function(val) POC_Settings.SetWereNumberOne(val) end,
+	setFunc = function(val) Settings.SetWereNumberOne(val) end,
 	default = default.WereNumberOne
     }
     o[#o + 1] = {
@@ -289,7 +290,7 @@ function POC_Settings.InitializeWindow(major, minor, patch)
 	getFunc = function()
 	    return saved.MIA
 	end,
-	setFunc = function(val) POC_Settings.SetMIA(val) end,
+	setFunc = function(val) Settings.SetMIA(val) end,
 	default = default.MIA
     }
 
@@ -319,14 +320,14 @@ local function getmapindex(name)
 	    return
 	end
     end
-    POC_Error("unknown map - " .. name)
+    Error("unknown map - " .. name)
 end
 
 -- Load SavedVariables
 --
-function POC_Settings.Initialize()
-    saved = ZO_SavedVars:NewAccountWide(POC_Settings.SettingsName, SETTINGS_VERSION, nil, POC_Settings.Default)
-    POC_Settings.SavedVariables = saved
+function Settings.Initialize()
+    saved = ZO_SavedVars:NewAccountWide(Settings.SettingsName, SETTINGS_VERSION, nil, Settings.Default)
+    Settings.SavedVariables = saved
 
     --  Obsolete variables
     saved.SwimlaneUltimateGroupIds = nil
@@ -335,14 +336,14 @@ function POC_Settings.Initialize()
     saved.IsLgsActive = nil
 
     -- Register
-    EVENT_MANAGER:RegisterForEvent(POC_Settings.Name, EVENT_PLAYER_ACTIVATED, POC_Settings.OnPlayerActivated)
+    EVENT_MANAGER:RegisterForEvent(Settings.Name, EVENT_PLAYER_ACTIVATED, Settings.OnPlayerActivated)
 
     SLASH_COMMANDS["/pocstyle"] = function(style)
 	style = string.lower(style):gsub("^%l", string.upper)
 	if (style ~= "Compact" and style ~= "Standard") then
 	    d("POC: *** unknown style: " .. style)
 	else
-	    POC_Settings.SetStyleSettings(style)
+	    Settings.SetStyleSettings(style)
 	end
     end
     SLASH_COMMANDS["/pocmap"] = getmapindex

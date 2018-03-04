@@ -4,7 +4,7 @@
         <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER" offsetY="0" />
         <Dimensions x="100" y="100" />
         <OnMoveStop>
-            POC_Countdown.SavePos(self)
+            POC.Countdown.SavePos(self)
         </OnMoveStop>
 
       <Controls>

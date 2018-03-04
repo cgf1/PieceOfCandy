@@ -1,4 +1,5 @@
-function POC_IdSort(hash, key, debug)
+setfenv(1, POC)
+function IdSort(hash, key, debug)
     local function compare(a, b)
 	print(tostring(a))
 	local na = tonumber(a[key])
@@ -23,6 +24,6 @@ function POC_IdSort(hash, key, debug)
     return ret
 end
 
-function POC_Error(x)
+function Error(x)
     d("POC error: " .. x)
 end

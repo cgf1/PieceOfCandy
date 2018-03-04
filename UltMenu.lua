@@ -1,8 +1,9 @@
+setfenv(1, POC)
 -- Local variables
 --
 local LAM = LibStub("LibAddonMenu-2.0")
-POC_UltMenu = {}
-POC_UltMenu.__index = POC_UltMenu
+UltMenu = {}
+UltMenu.__index = UltMenu
 icons = {}
 tooltips = {}
 
@@ -26,17 +27,17 @@ local ultix = GetUnitName("player")
 local function set_ult(iconstr)
     dropdown:SetHidden(true)
     if iconstr == switch then
-	POC_Ult.SetSavedId()
+	Ult.SetSavedId()
     elseif iconstr == okimg then
-	POC_Ult.SetSavedId(curapid, 1)
+	Ult.SetSavedId(curapid, 1)
     elseif iconstr == ok1img then
-	POC_Ult.SetSavedId(curapid, 2)
+	Ult.SetSavedId(curapid, 2)
     elseif iconstr == nook1img then
-	POC_Ult.SetSavedId('MIA', 2)
+	Ult.SetSavedId('MIA', 2)
     else
-	local apid = POC_Ult.UltApidFromIcon(iconstr)
+	local apid = Ult.UltApidFromIcon(iconstr)
 	if apid ~= curapid then
-	    CALLBACK_MANAGER:FireCallbacks(POC_SET_ULTIMATE_GROUP, apid, curid)
+	    CALLBACK_MANAGER:FireCallbacks(SET_ULTIMATE_GROUP, apid, curid)
 	end
     end
 end
@@ -49,7 +50,7 @@ end
 -- 1 = On non-selected: Show primary/secondary
 -- 2 = On primary: Show secondary with "switch note"
 -- 3 = On secondary: Show secondary with red circle
-function POC_UltMenu.ShowUltMenu(parent, id, apid)
+function UltMenu.ShowUltMenu(parent, id, apid)
     curid = id
     curapid = apid
     if parent.data == nil then
@@ -89,10 +90,10 @@ function POC_UltMenu.ShowUltMenu(parent, id, apid)
 	    switch = okimg
 	end
 
-	for i, x in ipairs(POC_Ult.Icons()) do
+	for i, x in ipairs(Ult.Icons()) do
 	    icons[#icons + 1] = x
 	end
-	for i, x in ipairs(POC_Ult.Descriptions()) do
+	for i, x in ipairs(Ult.Descriptions()) do
 	    tooltips[#tooltips + 1] = x
 	end
 	lam = LAMCreateControl.iconpicker(parent, {
@@ -123,10 +124,10 @@ function POC_UltMenu.ShowUltMenu(parent, id, apid)
     showicons()
 end
 
--- Initialize POC_UltMenu
+-- Initialize UltMenu
 --
-function POC_UltMenu.Initialize()
-    myults = POC_Settings.SavedVariables.MyUltId[ultix]
+function UltMenu.Initialize()
+    myults = Settings.SavedVariables.MyUltId[ultix]
     xxx = POC.xxx
-    CALLBACK_MANAGER:RegisterCallback(POC_SHOW_ULTIMATE_GROUP_MENU, POC_UltMenu.ShowUltMenu)
+    CALLBACK_MANAGER:RegisterCallback(SHOW_ULTIMATE_GROUP_MENU, UltMenu.ShowUltMenu)
 end
