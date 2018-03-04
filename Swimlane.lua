@@ -38,12 +38,13 @@ local me = setmetatable({
     IsMe = true,
     NewClient = true,
     TimeStamp = 0,
+    UltMain = 0,
     Ults = {}
 }, POC_Player)
 POC_Me = me
 
 local myname = GetUnitName("player")
-local myultix = myname
+local ultix = myname
 
 local POC_Lanes = {}
 POC_Lanes.__index = POC_Lanes
@@ -51,7 +52,6 @@ POC_Lanes.__index = POC_Lanes
 local MIAlane = 0
 
 local saved
-local myults
 
 -- Table POC_Swimlanes
 --
@@ -66,7 +66,7 @@ POC_Swimlanes.__index = POC_Swimlanes
 local _this = POC_Swimlanes
 
 local last_update = 0
-local need_to_fire = 0
+local need_to_fire = false
 
 if POC_UltNumber == nil then
     POC_UltNumber = {}	-- Just for linux
@@ -153,6 +153,9 @@ function POC_Lanes:Update(x)
     else
 	refresh = true	-- just get rid of everything
 	msg("POC: No longer grouped")
+	for n, _ in pairs(group_members) do
+	    group_members[n] = nil
+	end
 	set_control_active()
 	_this.WasActive = false
     end
@@ -237,9 +240,13 @@ function POC_Lane:Update(force)
 	end
 
 	local keys = {}
-	for name, v in pairs(players) do
-	    if v.Ults[apid] == nil then
+	for name, player in pairs(players) do
+	    local grouped = IsUnitGrouped(player.PingTag)
+	    if player.Ults[apid] == nil or not grouped then
 		self[name] = nil
+		if not grouped then
+		    group_members[name] = nil
+		end
 	    else
 		table.insert(keys, name)
 	    end
@@ -250,52 +257,49 @@ function POC_Lane:Update(force)
 	-- Update sorted swimlane
 	local gt100 = 100 + saved.SwimlaneMax
 	for _, playername in ipairs(keys) do
-	    local player = players[playername]
-	    if not IsUnitGrouped(player.PingTag) then
-		group_members[playername] = nil
-	    else
-		if n > saved.SwimlaneMax then
-		    -- log here?
-		    break
-		end
-		displayed = true
-		if not player.IsMe then
-		    self:UpdateCell(n, player, playername)
-		    if player.Ults[apid] > 100 then
-			gt100 = player.Ults[apid]
-		    end
-		else
-		    local noshow = true
-		    if forcepct ~= nil then
-			player.Ults[apid] = forcepct
-		    end
-		    if player.Ults[apid]  < 100 then
-			play_sound = true
-			POC_Me.Because = "ultpct < 100"
-		    elseif not player.IsDead and player:HasBeenInRange() then
-			player.Ults[apid] = gt100 - 1
-			noshow = false
-			POC_Me.Because = "ultpct == 100"
-		    else
-			-- reset order since we can't contribute
-			player.Ults[apid] = 100
-			play_sound = true
-			POC_Me.Because = "out of range or dead"
-		    end
-		    -- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
-		    self:UpdateCell(n, player, playername)
-		    if (noshow or not saved.UltNumberShow or laneid == MIAlane or
-			POC_CurrentHudHiddenState() or player.IsDead or
-			not POC_GroupHandler.IsGrouped() or
-			not POC_Settings.IsSwimlaneListVisible()) then
-			POC_UltNumber.Hide(true)
-			POC_UltNumberLabel:SetText("")
-		    else
-			POC_UltNumber.Show(n)
-		    end
-		end
-		n = n + 1
+	    if n > saved.SwimlaneMax then
+		-- log here?
+		break
 	    end
+	    local player = players[playername]
+	    local priult = player.UltMain == apid
+	    displayed = true
+	    if not player.IsMe then
+		self:UpdateCell(n, player, playername, priult)
+		if player.Ults[apid] > 100 then
+		    gt100 = player.Ults[apid]
+		end
+	    else
+		local noshow = true
+		if forcepct ~= nil then
+		    player.Ults[apid] = forcepct
+		end
+		if player.Ults[apid]  < 100 then
+		    play_sound = true
+		    POC_Me.Because = "ultpct < 100"
+		elseif priult and not player.IsDead and player:HasBeenInRange() then
+		    player.Ults[apid] = gt100 - 1
+		    noshow = false
+		    POC_Me.Because = "ultpct == 100"
+		else
+		    -- reset order since we can't contribute
+		    player.Ults[apid] = 100
+		    play_sound = true
+		    POC_Me.Because = "out of range, dead, or not primary"
+		end
+		-- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
+		self:UpdateCell(n, player, playername, priult)
+		if (noshow or not saved.UltNumberShow or laneid == MIAlane or
+		    POC_CurrentHudHiddenState() or player.IsDead or
+		    not POC_GroupHandler.IsGrouped() or
+		    not POC_Settings.IsSwimlaneListVisible()) then
+		    POC_UltNumber.Hide(true)
+		    POC_UltNumberLabel:SetText("")
+		else
+		    POC_UltNumber.Show(n)
+		end
+	    end
+	    n = n + 1
 	end
     end
 
@@ -312,7 +316,9 @@ end
 
 -- Update a cell
 --
-function POC_Lane:UpdateCell(i, player, playername)
+
+
+function POC_Lane:UpdateCell(i, player, playername, priult)
     local rowi = "Row" .. i
     local apid = self.Apid
     local row = self.Control:GetNamedChild(rowi)
@@ -385,8 +391,12 @@ function POC_Lane:UpdateCell(i, player, playername)
 	namecell:SetColor(1, 1, 1, 1)
 	ultcell:SetColor(0.80, 0.80, 0.80, 1)
     else
-	row:GetNamedChild("Backdrop"):SetCenterColor(0.51, 0.41, 0.65)
-	if (player.IsDead) then
+	if priult then
+	    bgcell:SetCenterColor(0.51, 0.41, 0.65)
+	else
+	    bgcell:SetCenterColor(0.51, 0.63, 0.90)
+	end
+	if player.IsDead then
 -- xxx(playername, rowi, "dead color", deadalpha)
 	    namecell:SetColor(0.5, 0.5, 0.5, 0.8)
 	    ultcell:SetColor(0.8, 0.03, 0.03, deadalpha)
@@ -394,11 +404,19 @@ function POC_Lane:UpdateCell(i, player, playername)
 -- xxx(playername, rowi, "ready color", alivealpha)
 	    namecell:SetColor(1, 1, 1, 1)
 	    -- row:GetNamedChild("UltPct"):SetColor(0.03, 0.7, 0.03, alivealpha)
-	    ultcell:SetColor(0.01, 0.69, 0.02, alivealpha)
+	    if priult then
+		ultcell:SetColor(0.01, 0.69, 0.02, alivealpha)
+	    else
+		ultcell:SetColor(0.18, 0.42, 0.96, alivealpha)
+	    end
 	else
 -- xxx(playername, rowi, "inprogress color")
 	    namecell:SetColor(1, 1, 1, 0.8)
-	    ultcell:SetColor(0.03, 0.03, 0.7, inprogressalpha)
+	    if priult then
+		ultcell:SetColor(0.03, 0.03, 0.7, inprogressalpha)
+	    else
+		ultcell:SetColor(0.18, 0.42, 0.96, alivealpha)
+	    end
 	end
     end
 
@@ -422,8 +440,9 @@ function POC_Player.Update(pingtag, apid1, pct1, apid2, pct2)
 	    if inname == unitname then
 		player = {
 		    TimeStamp = timenow,
+		    UltMain = apid1,
+		    Ults = {[apid1] = pct1}
 		}
-		player.Ults = {[apid1] = pct1}
 		if apid2 == nil then
 		    player.NewClient = false
 		else
@@ -461,6 +480,9 @@ function POC_Player.Update(pingtag, apid1, pct1, apid2, pct2)
 		end
 	    end
 	    player.PingTag = unitid
+	    if not player.UltMain then
+		player.UltMain = 0
+	    end
 	    local changed, player1 = POC_Player.New(player, unitname, unitid)
 	    if changed then
 		need_to_fire = true
@@ -539,15 +561,20 @@ function POC_Player.New(inplayer, name, pingtag)
 		self[n] = v
 	    else
 		for apid, pct in pairs(v) do
+-- if name == "Sirech" then msg(name, apid, 'pct', pct, self.Ults[apid]) end
 		    if self.Ults[apid] ~= pct then
 			changed = true
--- if name == "Sirech" then msg(name, apid, 'pct', pct, self.Ults[apid]) end
-			local lane = _this.Lanes[apid]
-			if _this.Lanes[apid] == nil then
-			    lane = _this.Lanes['MIA']
-			end
+		    end
+		    local lane
+		    if _this.Lanes[apid] ~= nil then
+			lane = _this.Lanes[apid]
+		    elseif apid == v.UltMain then
+			lane = _this.Lanes['MIA']
+		    end
+		    if lane ~= nil and lane.Players[name] == nil then
 			lane.Players[name] = self
 		    end
+
 		end
 		if changed then
 		    self[n] = v
@@ -601,6 +628,7 @@ local function style_changed()
 	    restore_position(saved.PosX, saved.PosY)
 	    -- xxx("Saved New swimlane")
 	end
+	need_to_fire = true
 	set_control_active()
     end
 end
@@ -622,13 +650,15 @@ function POC_Lanes:SetUlt(id, newapid)
     for apid, lane in pairs(self) do
 	if lane.Id == id then
 	    self[newapid] = lane -- New row
-	    lane.Apid = newpaid
+	    lane.Apid = newapid
 	    local ult = POC_Ult.ByPing(newapid)
 	    lane.Icon:SetTexture(GetAbilityIcon(ult.Aid))
 	    if lane.Label ~= nil then
 		lane.Label:SetText(POC_Ult.ByPing(newapid).Name)
 	    end
-	    self[apid] = nil	-- Delete old row
+	    lane.Players = {}
+	    self[apid] = nil	        -- Delete old lane
+	    need_to_fire = true
 	    break
 	end
     end
@@ -769,7 +799,7 @@ end
 
 function POC_UltNumber.Hide(x)
     if saved.UltNumberShow then
-	if POC_Me.IsDead or not POC_Me.Ults[myults[1]] or POC_Me.Ults[myults[1]] < 100 then
+	if POC_Me.IsDead or POC_Me.UltMain == 0 or POC_Me.Ults[POC_Me.UltMain] < 100 then
 	    x = true
 	end
 	POC_UltNumber:SetHidden(x)
@@ -862,15 +892,12 @@ end
 function POC_Swimlanes.Initialize()
     xxx = POC.xxx
     saved = POC_Settings.SavedVariables
-    myults = saved.MyUltId[myultix]
     group_members = saved.GroupMembers
     for n, v in pairs(group_members) do
 	if n == myname then
-	    group_members[n] = nil
-	else
-	    group_members[n] = setmetatable(v, POC_Player)
-	    group_members[n].Lane = nil
+	    v = ZO_DeepTableCopy(v, POC_Me)
 	end
+	group_members[n] = setmetatable(v, POC_Player)
     end
 
     POC_UltNumber:ClearAnchors()

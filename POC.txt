@@ -17,6 +17,7 @@ libs/LibStub/LibStub.lua
 
 icons/ok.dds
 icons/ok1.dds
+icons/nook1.dds
 icons/lollipop.dds
 textures/grainy.dds
 textures/hover.dds

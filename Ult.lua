@@ -12,7 +12,6 @@ local bypings = {}
 
 local saved
 local xxx
-local myults
 
 -- ByPing gets the ultimate group from given ability ping
 --
@@ -345,11 +344,16 @@ function POC_Ult.UltApidFromIcon(icon)
 end
 
 function POC_Ult.SetSavedId(apid, n)
-    if saved.MyUltId[ultix] == nil then
-	saved.MyUltId[ultix] = {}
+    if apid == nil then
+	local one = saved.MyUltId[ultix][1]
+	saved.MyUltId[ultix][1] = saved.MyUltId[ultix][2]
+	saved.MyUltId[ultix][2] = one
+    else
+	if saved.MyUltId[ultix] == nil then
+	    saved.MyUltId[ultix] = {}
+	end
+	saved.MyUltId[ultix][n] = apid
     end
-xxx("Setting ", n, "to", apid)
-    saved.MyUltId[ultix][n] = apid
 end
 
 function POC_Ult.SetSavedFromIcon(icon, n)

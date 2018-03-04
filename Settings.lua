@@ -1,11 +1,5 @@
---[[
-	Local variables
-]]--
 local SETTINGS_VERSION = 5
 
---[[
-	Table POC_Settings
-]]--
 POC_Settings = {
     Name = "POC_Settings",
     SettingsName = "POCSettings",
@@ -203,6 +197,7 @@ function POC_Settings.InitializeWindow(major, minor, patch)
 	visibleRows = 5,
 	iconSize = 64
     }
+    if false then
     o[#o + 1] = {
 	type = "iconpicker",
 	name = "Choose your secondary ultimate",
@@ -218,6 +213,7 @@ function POC_Settings.InitializeWindow(major, minor, patch)
 	visibleRows = 5,
 	iconSize = 64
     }
+    end
     o[#o + 1] = {
 	type = "divider",
 	name = "DividerWeStand"

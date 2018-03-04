@@ -29,13 +29,13 @@ local IconPickerMenu = ZO_Object:Subclass()
 local iconPicker
 LAM.util.GetIconPickerMenu = function()
     if not iconPicker then
-        iconPicker = IconPickerMenu:New("LAMIconPicker")
-        local sceneFragment = LAM:GetAddonSettingsFragment()
-        ZO_PreHook(sceneFragment, "OnHidden", function()
-            if not iconPicker.control:IsHidden() then
-                iconPicker:Clear()
-            end
-        end)
+	iconPicker = IconPickerMenu:New("LAMIconPicker")
+	local sceneFragment = LAM:GetAddonSettingsFragment()
+	ZO_PreHook(sceneFragment, "OnHidden", function()
+	    if not iconPicker.control:IsHidden() then
+		iconPicker:Clear()
+	    end
+	end)
     end
     return iconPicker
 end
@@ -81,38 +81,38 @@ function IconPickerMenu:Initialize(name)
     mouseOver:SetHidden(true)
 
     local function IconFactory(pool)
-        local icon = wm:CreateControl(name .. "Entry" .. pool:GetNextControlId(), scroll, CT_TEXTURE)
-        icon:SetMouseEnabled(true)
-        icon:SetDrawLevel(3)
-        icon:SetHandler("OnMouseEnter", function()
-            mouseOver:SetAnchor(TOPLEFT, icon, TOPLEFT, 0, 0)
-            mouseOver:SetAnchor(BOTTOMRIGHT, icon, BOTTOMRIGHT, 0, 0)
-            mouseOver:SetHidden(false)
-            if self.customOnMouseEnter then
-                self.customOnMouseEnter(icon)
-            else
-                self:OnMouseEnter(icon)
-            end
-        end)
-        icon:SetHandler("OnMouseExit", function()
-            mouseOver:ClearAnchors()
-            mouseOver:SetHidden(true)
-            if self.customOnMouseExit then
-                self.customOnMouseExit(icon)
-            else
-                self:OnMouseExit(icon)
-            end
-        end)
-        icon:SetHandler("OnMouseUp", function(control, ...)
-            PlaySound("Click")
-            icon.OnSelect(icon, icon.texture)
-            self:Clear()
-        end)
-        return icon
+	local icon = wm:CreateControl(name .. "Entry" .. pool:GetNextControlId(), scroll, CT_TEXTURE)
+	icon:SetMouseEnabled(true)
+	icon:SetDrawLevel(3)
+	icon:SetHandler("OnMouseEnter", function()
+	    mouseOver:SetAnchor(TOPLEFT, icon, TOPLEFT, 0, 0)
+	    mouseOver:SetAnchor(BOTTOMRIGHT, icon, BOTTOMRIGHT, 0, 0)
+	    mouseOver:SetHidden(false)
+	    if self.customOnMouseEnter then
+		self.customOnMouseEnter(icon)
+	    else
+		self:OnMouseEnter(icon)
+	    end
+	end)
+	icon:SetHandler("OnMouseExit", function()
+	    mouseOver:ClearAnchors()
+	    mouseOver:SetHidden(true)
+	    if self.customOnMouseExit then
+		self.customOnMouseExit(icon)
+	    else
+		self:OnMouseExit(icon)
+	    end
+	end)
+	icon:SetHandler("OnMouseUp", function(control, ...)
+	    PlaySound("Click")
+	    icon.OnSelect(icon, icon.texture)
+	    self:Clear()
+	end)
+	return icon
     end
 
     local function ResetFunction(icon)
-        icon:ClearAnchors()
+	icon:ClearAnchors()
     end
 
     self.iconPool = ZO_ObjectPool:New(IconFactory, ResetFunction)
@@ -121,15 +121,15 @@ function IconPickerMenu:Initialize(name)
     self.color = ZO_DEFAULT_ENABLED_COLOR
 
     EVENT_MANAGER:RegisterForEvent(name .. "_OnGlobalMouseUp", EVENT_GLOBAL_MOUSE_UP, function()
-        if self.refCount ~= nil then
-            local moc = wm:GetMouseOverControl()
-            if(moc:GetOwningWindow() ~= control) then
-                self.refCount = self.refCount - 1
-                if self.refCount <= 0 then
-                    self:Clear()
-                end
-            end
-        end
+	if self.refCount ~= nil then
+	    local moc = wm:GetMouseOverControl()
+	    if(moc:GetOwningWindow() ~= control) then
+		self.refCount = self.refCount - 1
+		if self.refCount <= 0 then
+		    self:Clear()
+		end
+	    end
+	end
     end)
 end
 
@@ -171,8 +171,8 @@ function IconPickerMenu:UpdateDimensions()
 
     local icons = self.icons
     for i = 1, #icons do
-        local icon = icons[i]
-        icon:SetDimensions(iconSize, iconSize)
+	local icon = icons[i]
+	icon:SetDimensions(iconSize, iconSize)
     end
 end
 
@@ -184,19 +184,19 @@ function IconPickerMenu:UpdateAnchors()
     local icons = self.icons
 
     for i = 1, #icons do
-        local icon = icons[i]
-        icon:ClearAnchors()
-        if i == 1 then
-            icon:SetAnchor(TOPLEFT, scroll, TOPLEFT, 0, 0)
-            previousRow = icon
-        elseif col == 1 then
-            icon:SetAnchor(TOPLEFT, previousRow, BOTTOMLEFT, 0, 0)
-            previousRow = icon
-        else
-            icon:SetAnchor(TOPLEFT, previousCol, TOPRIGHT, 0, 0)
-        end
-        previousCol = icon
-        col = col >= maxCols and 1 or col + 1
+	local icon = icons[i]
+	icon:ClearAnchors()
+	if i == 1 then
+	    icon:SetAnchor(TOPLEFT, scroll, TOPLEFT, 0, 0)
+	    previousRow = icon
+	elseif col == 1 then
+	    icon:SetAnchor(TOPLEFT, previousRow, BOTTOMLEFT, 0, 0)
+	    previousRow = icon
+	else
+	    icon:SetAnchor(TOPLEFT, previousCol, TOPRIGHT, 0, 0)
+	end
+	previousCol = icon
+	col = col >= maxCols and 1 or col + 1
     end
 end
 
@@ -242,8 +242,8 @@ function IconPickerMenu:SetColor(color)
     local icons = self.icons
     self.color = color
     for i = 1, #icons do
-        local icon = icons[i]
-        icon:SetColor(color:UnpackRGBA())
+	local icon = icons[i]
+	icon:SetColor(color:UnpackRGBA())
     end
 end
 
@@ -252,45 +252,45 @@ end
 local function UpdateChoices(control, choices, choicesTooltips)
     local data = control.data
     if not choices then
-        choices, choicesTooltips = data.choices, data.choicesTooltips or {}
+	choices, choicesTooltips = data.choices, data.choicesTooltips or {}
     end
     local addedChoices = {}
 
     local iconPicker = LAM.util.GetIconPickerMenu()
     iconPicker:Clear()
     for i = 1, #choices do
-        local texture = choices[i]
-        if not addedChoices[texture] then -- remove duplicates
-            iconPicker:AddIcon(choices[i], function(self, texture)
-                control.icon:SetTexture(texture)
-                data.setFunc(texture)
-                LAM.util.RequestRefreshIfNeeded(control)
-            end, LAM.util.GetStringFromValue(choicesTooltips[i]))
-        addedChoices[texture] = true
-        end
+	local texture = choices[i]
+	if not addedChoices[texture] then -- remove duplicates
+	    iconPicker:AddIcon(choices[i], function(self, texture)
+		control.icon:SetTexture(texture)
+		data.setFunc(texture)
+		LAM.util.RequestRefreshIfNeeded(control)
+	    end, LAM.util.GetStringFromValue(choicesTooltips[i]))
+	addedChoices[texture] = true
+	end
     end
 end
 
 local function IsDisabled(control)
     if type(control.data.disabled) == "function" then
-        return control.data.disabled()
+	return control.data.disabled()
     else
-        return control.data.disabled
+	return control.data.disabled
     end
 end
 
 local function SetColor(control, color)
     local icon = control.icon
     if IsDisabled(control) then
-        icon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+	icon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
     else
-        icon.color = color or control.data.defaultColor or ZO_DEFAULT_ENABLED_COLOR
-        icon:SetColor(icon.color:UnpackRGBA())
+	icon.color = color or control.data.defaultColor or ZO_DEFAULT_ENABLED_COLOR
+	icon:SetColor(icon.color:UnpackRGBA())
     end
 
     local iconPicker = LAM.util.GetIconPickerMenu()
     if iconPicker.parent == control.container and not iconPicker.control:IsHidden() then
-        iconPicker:SetColor(icon.color)
+	iconPicker:SetColor(icon.color)
     end
 end
 
@@ -302,29 +302,29 @@ local function UpdateDisabled(control)
 
     local iconPicker = LAM.util.GetIconPickerMenu()
     if iconPicker.parent == control.container and not iconPicker.control:IsHidden() then
-        iconPicker:Clear()
+	iconPicker:Clear()
     end
 
     SetColor(control, control.icon.color)
     if disable then
-        control.label:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+	control.label:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
     else
-        control.label:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+	control.label:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
     end
 end
 
 local function UpdateValue(control, forceDefault, value)
     if forceDefault then --if we are forcing defaults
-        value = LAM.util.GetDefaultValue(control.data.default)
-        control.data.setFunc(value)
-        control.icon:SetTexture(value)
+	value = LAM.util.GetDefaultValue(control.data.default)
+	control.data.setFunc(value)
+	control.icon:SetTexture(value)
     elseif value then
-        control.data.setFunc(value)
-        --after setting this value, let's refresh the others to see if any should be disabled or have their settings changed
-        LAM.util.RequestRefreshIfNeeded(control)
+	control.data.setFunc(value)
+	--after setting this value, let's refresh the others to see if any should be disabled or have their settings changed
+	LAM.util.RequestRefreshIfNeeded(control)
     else
-        value = control.data.getFunc()
-        control.icon:SetTexture(value)
+	value = control.data.getFunc()
+	control.icon:SetTexture(value)
     end
 end
 
@@ -340,16 +340,16 @@ local function SetIconSize(control, size)
     height = math.max(height, MIN_HEIGHT)
     control.container:SetHeight(height)
     if control.lineControl then
-        control.lineControl:SetHeight(MIN_HEIGHT + size + HALF_WIDTH_LINE_SPACING)
+	control.lineControl:SetHeight(MIN_HEIGHT + size + HALF_WIDTH_LINE_SPACING)
     else
-        control:SetHeight(height)
+	control:SetHeight(height)
     end
 
     local iconPicker = LAM.util.GetIconPickerMenu()
     if iconPicker.parent == control.container and not iconPicker.control:IsHidden() then
-        iconPicker:SetIconSize(size)
-        iconPicker:UpdateDimensions()
-        iconPicker:UpdateAnchors()
+	iconPicker:SetIconSize(size)
+	iconPicker:UpdateDimensions()
+	iconPicker:UpdateAnchors()
     end
 end
 
@@ -357,23 +357,23 @@ function LAMCreateControl.iconpicker(parent, iconpickerData, controlName)
     local control = LAM.util.CreateLabelAndContainerControl(parent, iconpickerData, controlName)
 
     local function ShowIconPicker()
-        local iconPicker = LAM.util.GetIconPickerMenu()
-        if iconPicker.parent == control.container then
-            iconPicker:Clear()
-        else
-            iconPicker:SetMaxColumns(iconpickerData.maxColumns)
-            iconPicker:SetVisibleRows(iconpickerData.visibleRows)
-            iconPicker:SetIconSize(control.icon.size)
-            UpdateChoices(control)
-            iconPicker:SetColor(control.icon.color)
-            if iconpickerData.beforeShow then
-                if iconpickerData.beforeShow(control, iconPicker) then
-                    iconPicker:Clear()
-                    return
-                end
-            end
-            iconPicker:Show(control.container)
-        end
+	local iconPicker = LAM.util.GetIconPickerMenu()
+	if iconPicker.parent == control.container then
+	    iconPicker:Clear()
+	else
+	    iconPicker:SetMaxColumns(iconpickerData.maxColumns)
+	    iconPicker:SetVisibleRows(iconpickerData.visibleRows)
+	    iconPicker:SetIconSize(control.icon.size)
+	    UpdateChoices(control)
+	    iconPicker:SetColor(control.icon.color)
+	    if iconpickerData.beforeShow then
+		if iconpickerData.beforeShow(control, iconPicker) then
+		    iconPicker:Clear()
+		    return
+		end
+	    end
+	    iconPicker:Show(control.container)
+	end
     end
 
     local iconSize = iconpickerData.iconSize ~= nil and iconpickerData.iconSize or DEFAULT_SIZE
@@ -410,10 +410,10 @@ function LAMCreateControl.iconpicker(parent, iconpickerData, controlName)
     mungeOverlay:SetAnchorFill()
 
     if iconpickerData.warning ~= nil or iconpickerData.requiresReload then
-        control.warning = wm:CreateControlFromVirtual(nil, control, "ZO_Options_WarningIcon")
-        control.warning:SetAnchor(RIGHT, control.container, LEFT, -5, 0)
-        control.UpdateWarning = LAM.util.UpdateWarning
-        control:UpdateWarning()
+	control.warning = wm:CreateControlFromVirtual(nil, control, "ZO_Options_WarningIcon")
+	control.warning:SetAnchor(RIGHT, control.container, LEFT, -5, 0)
+	control.UpdateWarning = LAM.util.UpdateWarning
+	control:UpdateWarning()
     end
 
     control.UpdateChoices = UpdateChoices
@@ -425,8 +425,8 @@ function LAMCreateControl.iconpicker(parent, iconpickerData, controlName)
     control:SetIconSize(iconSize)
 
     if iconpickerData.disabled ~= nil then
-        control.UpdateDisabled = UpdateDisabled
-        control:UpdateDisabled()
+	control.UpdateDisabled = UpdateDisabled
+	control:UpdateDisabled()
     end
 
     LAM.util.RegisterForRefreshIfNeeded(control)
