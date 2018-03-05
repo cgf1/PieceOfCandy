@@ -7,7 +7,6 @@ UltMenu.__index = UltMenu
 icons = {}
 tooltips = {}
 
-local xxx
 local okimg = '/POC/icons/ok.dds'
 local ok1img = '/POC/icons/ok1.dds'
 local nook1img = '/POC/icons/nook1.dds'
@@ -128,6 +127,5 @@ end
 --
 function UltMenu.Initialize()
     myults = Settings.SavedVariables.MyUltId[ultix]
-    xxx = POC.xxx
     CALLBACK_MANAGER:RegisterCallback(SHOW_ULTIMATE_GROUP_MENU, UltMenu.ShowUltMenu)
 end

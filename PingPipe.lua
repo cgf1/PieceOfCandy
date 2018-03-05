@@ -8,7 +8,6 @@ local LGPS = LibStub("LibGPS2", true)
 local TWOBYTES = 65536
 local ROUND = .5 / TWOBYTES
 
-local xxx
 local pingerr = function() end
 local show_errors = false
 
@@ -55,15 +54,16 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
 
     local bytes = Comm.ToBytes(input)
     local ctype = bytes[1]
+    local timenow = GetTimeStamp()
     if ctype == COMM_TYPE_PCTULTOLD then
-	Player.Update(pingtag, bytes[2], bytes[3])
+	Player.New(pingtag, timenow, bytes[2], bytes[3])
     elseif ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
     elseif ctype == COMM_TYPE_PCTULT then
 	input = math.floor(input / 256)
 	local apid1, pct1, apid2, pct2 = unpack_ultpct(input)
--- if GetUnitName(pingtag) == GetUnitName("player") then POC.xxx("Receiving ", input, apid1, pct1, apid2, pct2) end
-	Player.Update(pingtag, apid1, pct1, apid2, pct2)
+-- if GetUnitName(pingtag) == GetUnitName("player") then xxx("Receiving ", input, apid1, pct1, apid2, pct2) end
+	Player.New(pingtag, timenow, apid1, pct1, apid2, pct2)
     end
 end
 
@@ -117,7 +117,6 @@ function PingPipe.Load()
     LMP:RegisterCallback("BeforePingAdded", on_map_ping)
     LMP:RegisterCallback("AfterPingRemoved", map_ping_finished)
 
-    xxx = POC.xxx
     saved = Settings.SavedVariables
 
     SLASH_COMMANDS["/pocpingerr"] = function()

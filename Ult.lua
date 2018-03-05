@@ -12,7 +12,6 @@ local byids = {}
 local bypings = {}
 
 local saved
-local xxx
 
 -- ByPing gets the ultimate group from given ability ping
 --
@@ -371,7 +370,6 @@ end
 function Ult.Initialize()
     saved = Settings.SavedVariables
     create_ults()
-    xxx = POC.xxx
 
     if saved.SwimlaneUltIds == nil then
 	ids = saved.LaneIds

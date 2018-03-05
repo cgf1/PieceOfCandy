@@ -7,20 +7,19 @@ GroupHandler.__index = GroupHandler
 -- Called when group member joined group
 --
 function GroupHandler.OnGroupMemberJoined(x, member)
-    CALLBACK_MANAGER:FireCallbacks(GROUP_CHANGED, member, "joined")
+    Swimlanes.Update("joined")
 end
 
 -- Called when group member left group
 --
 function GroupHandler.OnGroupMemberLeft(x, member)
-    CALLBACK_MANAGER:FireCallbacks(GROUP_CHANGED, member, "left")
+    Swimlanes.Update("left")
 end
 
 -- Called when groupUnitTags updated
 --
 function GroupHandler.OnGroupUpdate(x, hmm)
-    CALLBACK_MANAGER:FireCallbacks(GROUP_CHANGED, hmm, "update")
-    CALLBACK_MANAGER:FireCallbacks(UNIT_GROUPED_CHANGED)
+    Swimlanes.Update("group update")
 end
 
 function GroupHandler.IsGrouped()
@@ -30,7 +29,7 @@ end
 -- Called on ???
 --
 function GroupHandler.OnUnitFrameUpdate()
-    CALLBACK_MANAGER:FireCallbacks(GROUP_CHANGED, "frame update")
+    Swimlanes.Update("frame update")
 end
 
 -- Initialize GroupHandler

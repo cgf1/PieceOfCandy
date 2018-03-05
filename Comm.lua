@@ -25,8 +25,6 @@ local notify_when_not_grouped = false
 
 local myults
 
-local xxx
-
 function Comm.Send(...)
     comm.Send(...)
 end
@@ -56,7 +54,6 @@ local function ultpct(apid, i)
 	    end
 	end
     end
-if apid == 13 then d("HERE", pct) end
     return apid, pct
 end
 
@@ -69,7 +66,7 @@ local function on_update()
     if not IsUnitGrouped("player") then
 	if notify_when_not_grouped then
 	    notify_when_not_grouped = false
-	    CALLBACK_MANAGER:FireCallbacks(PLAYER_GROUP_CHANGED, "left")
+	    Swimlanes.Update("left group")
 	end
 	return
     end
@@ -93,16 +90,17 @@ local function on_update()
 -- d("Sending " .. tostring(send))
 	comm.Send(COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
     end
+    Swimlanes.Update("map update")
 end
 
 local function toggle(verbose)
-    comm.active = not comm.active
+    local activate = not comm.active
     if verbose then
 	msg = d
     else
 	msg = function() end
     end
-    if comm.active then
+    if activate then
 	msg("POC: on")
 	comm.Load()
 	EVENT_MANAGER:RegisterForUpdate('UltPing', 1000, on_update)
@@ -111,7 +109,7 @@ local function toggle(verbose)
 	comm.Unload()
 	EVENT_MANAGER:UnregisterForUpdate('UltPing')
     end
-    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
+    Swimlanes.Sched()
 end
 
 function Comm.IsActive()
@@ -124,7 +122,7 @@ local function commtype(s)
 	toset = MapPing
     elseif s == 'lgs' or s == 'libgroupsocket' or s == 'LGS' then
 	toset = LGS
-    elseif s == 'pipe' or s == 'pingpipe' or s == 'PingPipe' or s == 'POC_PingPipe'then
+    elseif s == 'pipe' or s == 'pingpipe' or s == 'PingPipe' or s == 'POC_PingPipe' then
 	toset = PingPipe
     else
 	return nil
@@ -134,21 +132,22 @@ local function commtype(s)
 end
 
 function Comm.Initialize()
-    xxx = POC.xxx
     saved = Settings.SavedVariables
     saved.MapPing = nil
     myults = saved.MyUltId[ultix]
     if saved.Comm == nil then
-	-- saved.Comm = 'MapPing'
 	saved.Comm = 'PingPipe'
     end
-    comm = commtype(saved.Comm)
+    Comm.Driver = commtype(saved.Comm)
+    comm = Comm.Driver
+    Comm.Type = comm.Name
     if comm == nil then
-	Error("Unknown communication type: " .. saved.Comm)
+	POC_Error("Unknown communication type: " .. saved.Comm)
     end
     if not comm.active then
 	toggle(false)
     end
+
     SLASH_COMMANDS["/poctoggle"] = function () toggle(true) end
     SLASH_COMMANDS["/poccomm"] = function(x)
 	if string.len(x) ~= 0 then
@@ -157,7 +156,7 @@ function Comm.Initialize()
 		comm.Unload()
 		comm = toset
 		comm.Load()
-		CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
+		Swimlanes.Update("Communication method changed")
 	    end
 	end
 	d("Communication method: " .. comm.Name:sub(5))

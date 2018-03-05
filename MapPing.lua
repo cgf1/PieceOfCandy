@@ -8,7 +8,6 @@ local LGPS = LibStub("LibGPS2", true)
 local ABILITY_COEFFICIENT = 100
 local ULTIMATE_COEFFICIENT = 1000
 
-local xxx
 local pingerr = function() end
 local show_errors = false
 
@@ -159,7 +158,6 @@ function MapPing.Load()
     LMP:RegisterCallback("BeforePingAdded", on_map_ping)
     LMP:RegisterCallback("AfterPingRemoved", map_ping_finished)
 
-    xxx = POC.xxx
     saved = Settings.SavedVariables
 
     SLASH_COMMANDS["/pocpingerr"] = function()

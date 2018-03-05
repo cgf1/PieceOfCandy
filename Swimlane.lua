@@ -1,4 +1,5 @@
 setfenv(1, POC)
+local after_style_changed = false
 local SWIMLANES = 6
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
@@ -66,12 +67,10 @@ Swimlanes.__index = Swimlanes
 
 local _this = Swimlanes
 
-local last_update = 0
 local need_to_fire = false
 
 local function _noop() end
 
-local xxx
 local msg = d
 local d = nil
 
@@ -143,28 +142,24 @@ function Lanes:Update(x)
     local refresh
     local displayed = false
     if (GroupHandler.IsGrouped()) then
-	refresh = true
+	refresh = Player.Update(true)
 	displayed = not _this.WasActive
     elseif (not _this.WasActive) then
 	refresh = false
     else
 	refresh = true	-- just get rid of everything
 	msg("POC: No longer grouped")
-	for n, _ in pairs(group_members) do
-	    group_members[n] = nil
-	end
+	saved.GroupMembers = {}
+	group_members = saved.GroupMembers
 	set_control_active()
 	_this.WasActive = false
     end
 
     if refresh then
 	-- Check all swimlanes
-	last_update = GetTimeStamp()
 	for _,lane in ipairs(IdSort(self, "Id")) do
 	    if lane:Update(false) then
 		displayed = true
-	    else
-		-- xxx("Didn't refresh " .. tostring(apid))
 	    end
 	end
     end
@@ -275,7 +270,6 @@ function Lane:Update(force)
 		    play_sound = true
 		    Me.Because = "ultpct < 100"
 		elseif priult and not player.IsDead and player:HasBeenInRange() then
--- if apid == 13 and playername == "Valandil Tiwel" then xxx('XXX', player == Me, Me == group_members[playername]) end
 		    player.Ults[apid] = gt100 - 1
 		    noshow = false
 		    Me.Because = "ultpct == 100"
@@ -421,75 +415,126 @@ function Lane:UpdateCell(i, player, playername, priult)
     row:SetHidden(false)
 end
 
+function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
+    if _this.Lanes == nil then
+	return
+    end
+    local name = GetUnitName(pingtag)
+    local self = group_members[name]
+    if self == nil then
+	if name == myname then
+	    self = Me
+	else
+	    self = {
+		IsMe = false,
+		NewClient = false,
+		TimeStamp = 0,
+		Ults = {},
+		Visited = false
+	    }
+	end
+	group_members[name] = setmetatable(self, Player)
+    end
+
+    if timestamp ~= nil then
+	-- XXX		-- coming from a map ping
+    elseif not self.Visited then
+	timestamp = self.TimeStamp	-- coming from Player.Update
+    else
+	self.Visited = false
+	return self
+    end
+
+    local player = {
+	InCombat = IsUnitInCombat(pingtag),
+	InRange = IsUnitInGroupSupportRange(pingtag),
+	IsLeader = IsUnitGroupLeader(pingtag),
+	IsDead = IsUnitDead(pingtag),
+	Online = IsUnitOnline(pingtag),
+	PingTag = pingtag,
+	UltMain = apid1,
+    }
+    if timestamp ~= self.TimeStamp then
+	self.TimeStamp = timestamp
+    end
+    if saved.AtNames and self.AtName == nil then
+	player.AtName = GetUnitDisplayName(pingtag)
+    end
+    local changed = player.TimeStamp ~= 0 and self:TimedOut()
+    if apid1 ~= nil then
+	local ults = {[apid1] = pct1}
+	if apid2 ~= nil then
+	    ults[apid2] = pct2
+	    player.NewClient = true
+	elseif not self.NewClient then
+	    -- just one in the array
+	elseif apid1 ~= self.UltMain then
+	    ults = {} -- can't handle this; wait for next ping
+	else
+	    -- Fill in with existing second ult if any
+	    for n, v in pairs(self.Ults) do
+		if n ~= apid1 then
+		    ults[n] = v
+		    break
+		end
+	    end
+	end
+	local ultchanged
+	for apid, pct in pairs(ults) do
+	    if self.Ults[apid] ~= pct then
+		ultchanged = true
+	    end
+	    local lane
+	    if _this.Lanes[apid] ~= nil then
+		lane = _this.Lanes[apid]
+	    elseif apid == player.UltMain then
+		lane = _this.Lanes['MIA']
+	    end
+	    if lane ~= nil and lane.Players[name] == nil then
+		lane.Players[name] = self
+		changed = true
+	    end
+	end
+	if ultchanged then
+	    self.Ults = ults
+	    changed = true
+	end
+    end
+
+    for n, v in pairs(player) do
+	if self[n] ~= v then
+	    changed = true
+	    self[n] = v
+	end
+    end
+
+    self.Visited = true
+
+    if changed then
+	need_to_fire = true
+    end
+
+    return self
+end
+
 -- Updates player (potentially) in the swimlane
 --
-function Player.Update(pingtag, apid1, pct1, apid2, pct2)
+function Player.Update(clear)
     local nmembers = 0
     local inrange = 0
-    local timenow = GetTimeStamp()
-    local inname = GetUnitName(pingtag)
--- msg(tostring(apid1), tostring(pct1), tostring(apid2), tostring(pct2))
+
     for i = 1, 24 do
 	local unitid = "group" .. tostring(i)
 	local unitname = GetUnitName(unitid)
 	if unitname ~= nil and unitname:len() ~= 0 then
 	    nmembers = nmembers + 1
-	    local player
-	    if inname == unitname then
-		player = {
-		    TimeStamp = timenow,
-		    UltMain = apid1,
-		    Ults = {[apid1] = pct1}
-		}
-		if apid2 == nil then
-		    player.NewClient = false
-		else
-		    player.Ults[apid2] = pct2
-		    player.NewClient = true
-		end
-	    else
-		local gplayer = group_members[unitname]
-		if gplayer ~= nil then
-		    player = ZO_DeepTableCopy(gplayer)
-		else
-		    local savedplayer = saved.GroupMembers[unitname]
-		    if savedplayer == nil then
-			player = {
-			    NewClient = false,
-			    TimeStamp = 0,
-			    Ults = {MIA = 0}
-			}
-		    else
-			-- This should only happen when coming back from, e.g., /reloadui
-			-- So, let New() repopulate.
-			player = savedplayer
-			-- Remove any left over cruft from an older version
-			if player.NewClient ~= nil then
-			    player.NewClient = false
-			    player.Ults[player.UltAid] = player.UltPct
-			end
-			for n, _ in pairs(player) do
-			    if Player[n] == nil then
-				player[n] = nil
-			    end
-			end
-			player.TimeStamp = 0
-		    end
-		end
-	    end
-	    player.PingTag = unitid
-	    if not player.UltMain then
-		player.UltMain = 0
-	    end
-	    local changed, player1 = Player.New(player, unitname, unitid)
-	    if changed then
-		need_to_fire = true
-	    end
-	    if player1:TimedOut() then
+	    local player = group_members[unitname]
+	    player = Player.New(unitid)
+	    if player:TimedOut() then
 		nmembers = nmembers - 1
-	    elseif player1.InRange then
+	    elseif player.InRange then
 		inrange = inrange + 1
-	    elseif player1.IsLeader then
+	    elseif player.IsLeader then
 		inrange = inrange - 1
 	    end
 	end
@@ -500,88 +545,16 @@ function Player.Update(pingtag, apid1, pct1, apid2, pct2)
     end
 
     if (inrange / nmembers) >= 0.5 then
-	Me.InRangeTime = timenow
+	Me.InRangeTime = GetTimeStamp()
     elseif Me.InRangeTime == nil then
 	Me.InRangeTime = 0
     end
 
-    if sldebug or ping_refresh or (need_to_fire and ((timenow - last_update) > REFRESH_IF_CHANGED)) then
+    local changed = sldebug or ping_refresh or need_to_fire
+    if need_to_fire and clear then
 	need_to_fire = false
-	CALLBACK_MANAGER:FireCallbacks(GROUP_CHANGED, "refresh")
     end
-end
-
-function Player.New(inplayer, name, pingtag)
-    if _this.Lanes == nil then
-	return
-    end
-    local self = group_members[name]
-    if self == nil then
-	if name == myname then
-	    self = Me
-	else
-	    self = {
-		IsMe = false,
-		TimeStamp = 0,
-		Ults = {}
-	    }
-	end
-	group_members[name] = setmetatable(self, Player)
-    end
-
-    inplayer.PingTag = pingtag
-    inplayer.IsLeader = IsUnitGroupLeader(pingtag)
-    inplayer.InCombat = IsUnitInCombat(pingtag)
-    inplayer.Online = IsUnitOnline(pingtag)
-    inplayer.InRange = IsUnitInGroupSupportRange(pingtag)
-    inplayer.IsDead = IsUnitDead(pingtag)
-    if saved.AtNames and self.AtName == nil then
-	inplayer.AtName = GetUnitDisplayName(pingtag)
-    end
-
-    local changed = inplayer.TimeStamp ~= nil and self.TimeStamp ~= nil and self:TimedOut()
-    if not inplayer.NewClient and inplayer.Ults and self.NewClient then
-	for apid, pct in pairs(inplayer.Ults) do
-	    if self.Ults[apid] ~= nil then
-		self.Ults[apid] = pct
-	    end
-	end
-	inplayer.Ults = nil
-	inplayer.NewClient = nil
-    end
-    for n, v in pairs(inplayer) do
-	if self[n] ~= v then
-	    if n ~= 'Ults' then
-		-- xxx(name .. " " .. tostring(n) .. "=" .. tostring(v))
-		if n ~= 'TimeStamp' then
-		    changed = true
-		end
-		self[n] = v
-	    else
-		for apid, pct in pairs(v) do
--- if name == "Sirech" then msg(name, apid, 'pct', pct, self.Ults[apid]) end
-		    if self.Ults[apid] ~= pct then
-			changed = true
-		    end
-		    local lane
-		    if _this.Lanes[apid] ~= nil then
-			lane = _this.Lanes[apid]
-		    elseif apid == v.UltMain then
-			lane = _this.Lanes['MIA']
-		    end
-		    if lane ~= nil and lane.Players[name] == nil then
-			lane.Players[name] = self
-		    end
-
-		end
-		if changed then
-		    self[n] = v
-		end
-	    end
-	end
-    end
-
-    return changed, self
+    return changed
 end
 
 -- Saves current widget position to settings
@@ -626,8 +599,9 @@ local function style_changed()
 	    restore_position(saved.PosX, saved.PosY)
 	    -- xxx("Saved New swimlane")
 	end
-	need_to_fire = true
 	set_control_active()
+	need_to_fire = true
+after_style_changed = true
     end
 end
 
@@ -660,7 +634,7 @@ function Lanes:SetUlt(id, newapid)
 	    break
 	end
     end
-    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
+    _this.Lanes:Update("Ultimate changed")
 end
 
 -- Lane:Click called on header clicked
@@ -794,6 +768,11 @@ function Swimlanes:SaveUltNumberPos()
     saved.UltNumberPos = {self:GetLeft(),self:GetTop()}
 end
 
+function Swimlanes.Sched()
+    need_to_fire = true
+    set_control_active()
+end
+
 function UltNumber.Hide(x)
     if saved.UltNumberShow then
 	if Me.IsDead or Me.UltMain == 0 or Me.Ults[Me.UltMain] < 100 then
@@ -822,6 +801,14 @@ function UltNumber.Show(n)
     play_sound = false
     -- xxx("sound", play_sound)
     Me.Because = "false because we played the sound"
+end
+
+local function clear()
+    saved.GroupMembers = {}
+    group_members = saved.GroupMembers
+    for _, v in pairs(_this.Lanes) do
+	v.Players = {}
+    end
 end
 
 local function dump(name)
@@ -884,10 +871,11 @@ local function dump(name)
 	msg("not found")
     end
 end
--- Initialize initializes _this
+
+-- Initialize Swimlanes
 --
+Swimlanes.Update = function(x) _this.Lanes:Update(x) end
 function Swimlanes.Initialize()
-    xxx = POC.xxx
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
     for n, v in pairs(group_members) do
@@ -911,12 +899,11 @@ function Swimlanes.Initialize()
     UltNumber.Hide(false)
 
     style_changed()
+    after_style_changed = false
 
+    EVENT_MANAGER:RegisterForEvent(Settings.Name, EVENT_PLAYER_ACTIVATED, Swimlanes.Update)
     CALLBACK_MANAGER:RegisterCallback(SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
     CALLBACK_MANAGER:RegisterCallback(STYLE_CHANGED, style_changed)
-    CALLBACK_MANAGER:RegisterCallback(GROUP_CHANGED, function (x) _this.Lanes:Update(x) end)
-    CALLBACK_MANAGER:RegisterCallback(ZONE_CHANGED, function() set_control_active() need_to_fire = true end)
-    CALLBACK_MANAGER:RegisterCallback(UNIT_GROUPED_CHANGED, set_control_active)
     SLASH_COMMANDS["/pocpct"] = function(pct)
 	if string.len(pct) == 0 then
 	    forcepct = nil
@@ -933,6 +920,7 @@ function Swimlanes.Initialize()
 	msg(sldebug)
     end
     SLASH_COMMANDS["/pocdump"] = dump
+    SLASH_COMMANDS["/pocclear"] = clear
     SLASH_COMMANDS["/pocrefresh"] = function(pct)
 	ping_refresh = not ping_refresh
 	if ping_refresh then

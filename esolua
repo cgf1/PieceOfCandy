@@ -24,5 +24,5 @@ for my $d (glob 'libs/*') {
 unshift @libs, '-l', 'linux';
 
 my @toexec = ('/usr/bin/lua', @libs, $infile);
-warn "+ @toexec\n";
+# warn "+ @toexec\n";
 exec @toexec;

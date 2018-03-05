@@ -1,13 +1,10 @@
 setfenv(1, POC)
 Name = "POC"
 -- Callbacks
-GROUP_CHANGED = "POC-GroupChanged"
-UNIT_GROUPED_CHANGED = "POC-UnitGroupedChanged"
 MAP_PING_CHANGED = "POC-MapPingChanged"
 PLAYER_DATA_CHANGED = "POC-PlayerDataChanged"
 STYLE_CHANGED = "POC-StyleChanged"
 MOVABLE_CHANGED = "POC-MovableChanged"
-ZONE_CHANGED = "POC-ZoneChanged"
 STATIC_ULTIMATE_ID_CHANGED = "POC-StaticUltimateIDChanged"
 SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltIdChanged"
 SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
@@ -68,8 +65,6 @@ function POC:initialize()
     -- Initialize settings
     Settings.Initialize()
 
-    -- Initialize logic
-    GroupHandler.Initialize()
     Ult.Initialize()
 
     -- Initialize ui
@@ -78,6 +73,7 @@ function POC:initialize()
     UltMenu.Initialize()
 
     Swimlanes.Initialize()
+    GroupHandler.Initialize()
 
     -- Start talking, see?
     Comm.Initialize()
@@ -92,17 +88,6 @@ local function OnAddOnLoaded(eventCode, addOnName)
 	-- Initialize
 	initialize()
     end
-end
-
-function xxx(...)
-    local args = {...}
-    local accum = ''
-    local space = ''
-    for _,n in ipairs(args) do
-	accum = accum .. space .. tostring(n)
-	space = ' '
-    end
-    d(accum)
 end
 
 -- Register Loaded Callback

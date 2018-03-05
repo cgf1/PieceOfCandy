@@ -27,3 +27,23 @@ end
 function Error(x)
     d("POC error: " .. x)
 end
+
+function xxx(...)
+    local args = {...}
+    local accum = ''
+    local space = ''
+    for i = 1, #args do
+	accum = accum .. space .. tostring(args[i])
+	space = ' '
+    end
+    d(accum)
+end
+
+function HERE(...)
+    local newargs = {"|c00ffff HERE"}
+    local args = {...}
+    for _, x in ipairs(args) do
+	newargs[#newargs + 1] = x
+    end
+    xxx(unpack(newargs))
+end

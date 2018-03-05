@@ -84,7 +84,7 @@ end
 function Settings.SetOnlyAvaSettings(onlyAva)
     saved.OnlyAva = onlyAva
 
-    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
+    Swimlanes.Update("AVA")
 end
 
 -- Sets maximum number of cells in a swimlane
@@ -129,12 +129,6 @@ function Settings.IsControlsVisible()
     else
 	return true
     end
-end
-
--- OnPlayerActivated sends ZoneChanged event
---
-function Settings.OnPlayerActivated(eventCode)
-    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
 end
 
 -- Initialize/create settings window
@@ -258,8 +252,10 @@ function Settings.InitializeWindow(major, minor, patch)
 	    return saved.AtNames
 	end,
 	setFunc = function(x)
-	    saved.AtNames = x
-	    CALLBACK_MANAGER:FireCallbacks(ZONE_CHANGED)
+	    if x ~= saved.AtNames then
+		saved.AtNames = x
+		Swimlanes.Update("Player name display style changed")
+	    end
 	end,
 	default = default.AtNames
     }
@@ -334,9 +330,6 @@ function Settings.Initialize()
     saved.StaticUltimateID = nil
     saved.SwimlaneUltGrpIds = nil
     saved.IsLgsActive = nil
-
-    -- Register
-    EVENT_MANAGER:RegisterForEvent(Settings.Name, EVENT_PLAYER_ACTIVATED, Settings.OnPlayerActivated)
 
     SLASH_COMMANDS["/pocstyle"] = function(style)
 	style = string.lower(style):gsub("^%l", string.upper)
