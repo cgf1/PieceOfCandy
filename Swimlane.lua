@@ -279,14 +279,15 @@ function Lane:Update(force)
 		    play_sound = true
 		    Me.Because = "out of range, dead, or not primary!"
 		end
-		-- xxx(playername .. " " .. tostring(player.IsMe) .. " " .. player.UltPct)
 		self:UpdateCell(n, player, playername, priult)
 		if (noshow or not saved.UltNumberShow or laneid == MIAlane or
 		    CurrentHudHiddenState() or player.IsDead or
 		    not GroupHandler.IsGrouped() or
 		    not Settings.IsSwimlaneListVisible()) then
-		    UltNumber.Hide(true)
-		    UltNumberLabel:SetText("")
+		    if priult then
+			UltNumber.Hide(true)
+			UltNumberLabel:SetText("")
+		    end
 		else
 		    UltNumber.Show(n)
 		end
@@ -434,6 +435,10 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	    }
 	end
 	group_members[name] = setmetatable(self, Player)
+    end
+
+    if self.IsMe and pct1 == 100 and Me.Ults[apid1] > 100 then
+	pct1 = Me.Ults[apid1]
     end
 
     if timestamp ~= nil then
