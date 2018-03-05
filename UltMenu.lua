@@ -59,7 +59,7 @@ function UltMenu.ShowUltMenu(parent, id, apid)
     local n
     if apid ~= myults[1] and apid ~= myults[2] then
 	n = 1
-    elseif apid == myults[2] then
+    elseif apid == myults[1] then
 	n = 2
     elseif myults[2] == 'MIA' then
 	n = 3

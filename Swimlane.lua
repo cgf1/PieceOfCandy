@@ -149,8 +149,7 @@ function Lanes:Update(x)
     else
 	refresh = true	-- just get rid of everything
 	msg("POC: No longer grouped")
-	saved.GroupMembers = {}
-	group_members = saved.GroupMembers
+	clear()
 	set_control_active()
 	_this.WasActive = false
     end
@@ -184,6 +183,15 @@ end
 --
 function Player:HasBeenInRange()
     return (GetTimeStamp() - self.InRangeTime) < INRANGETIME
+end
+
+
+local function clear()
+    saved.GroupMembers = {}
+    group_members = saved.GroupMembers
+    for _, v in pairs(_this.Lanes) do
+	v.Players = {}
+    end
 end
 
 -- Update swimlane
@@ -256,7 +264,7 @@ function Lane:Update(force)
 	    local player = players[playername]
 	    local priult = player.UltMain == apid
 	    displayed = true
-	    if not player.IsMe then
+	    if not player.IsMe or not priult then
 		self:UpdateCell(n, player, playername, priult)
 		if player.Ults[apid] > 100 then
 		    gt100 = player.Ults[apid]
@@ -273,21 +281,19 @@ function Lane:Update(force)
 		    player.Ults[apid] = gt100 - 1
 		    noshow = false
 		    Me.Because = "ultpct == 100"
-		elseif priult then
+		else
 		    -- reset order since we can't contribute
 		    player.Ults[apid] = 100
 		    play_sound = true
-		    Me.Because = "out of range, dead, or not primary!"
+		    Me.Because = "out of range or dead"
 		end
 		self:UpdateCell(n, player, playername, priult)
 		if (noshow or not saved.UltNumberShow or laneid == MIAlane or
 		    CurrentHudHiddenState() or player.IsDead or
 		    not GroupHandler.IsGrouped() or
 		    not Settings.IsSwimlaneListVisible()) then
-		    if priult then
-			UltNumber.Hide(true)
-			UltNumberLabel:SetText("")
-		    end
+		    UltNumber.Hide(true)
+		    UltNumberLabel:SetText("")
 		else
 		    UltNumber.Show(n)
 		end
@@ -806,14 +812,6 @@ function UltNumber.Show(n)
     play_sound = false
     -- xxx("sound", play_sound)
     Me.Because = "false because we played the sound"
-end
-
-local function clear()
-    saved.GroupMembers = {}
-    group_members = saved.GroupMembers
-    for _, v in pairs(_this.Lanes) do
-	v.Players = {}
-    end
 end
 
 local function dump(name)

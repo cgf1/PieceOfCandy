@@ -8,6 +8,8 @@ COMM_TYPE_COUNTDOWN = 0x02 + (COMM_MAGIC * 16)
 COMM_TYPE_PCTULT    = 0x03 + (COMM_MAGIC * 16)
 COMM_TYPE_MAX       = 0x03
 
+local DEFAULT_OLDCOUNT = 5
+
 local lgs_type = 21 -- aka, the code for 'u'
 
 local lgs_on = false
@@ -16,7 +18,6 @@ local lgs_handler
 Comm = {
     active = false,
     Name = "Comm",
-    SawPCTULTOLD = true
 }
 Comm.__index = Comm
 local ultix = GetUnitName("player")
@@ -57,7 +58,6 @@ local function ultpct(apid, i)
     return apid, pct
 end
 
-local OLDCOUNT = 5
 local counter = 0
 local function on_update()
     if not comm.active then
@@ -76,7 +76,7 @@ local function on_update()
     local _, pct = ultpct(myults[1])
 
     counter = counter + 1
-    if counter == OLDCOUNT and Comm.SawPCTULTOLD then
+    if counter == saved.OldCount then
 	comm.Send(COMM_TYPE_PCTULTOLD, mainult,  pct)
 	counter = 0
     else
@@ -138,6 +138,10 @@ function Comm.Initialize()
     if saved.Comm == nil then
 	saved.Comm = 'PingPipe'
     end
+    if not saved.OldCount then
+	saved.OldCount = DEFAULT_OLDCOUNT
+    end
+
     Comm.Driver = commtype(saved.Comm)
     comm = Comm.Driver
     Comm.Type = comm.Name
@@ -159,6 +163,11 @@ function Comm.Initialize()
 		Swimlanes.Update("Communication method changed")
 	    end
 	end
-	d("Communication method: " .. comm.Name:sub(5))
+	d("Communication method: " .. comm.Name)
+    end
+    SLASH_COMMANDS["/pocoldcount"] = function (n)
+	local was = saved.OldCount
+	saved.OldCount = tonumber(n)
+	xxx("Changed interval from", was, "to", saved.OldCount)
     end
 end
