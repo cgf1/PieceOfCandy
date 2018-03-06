@@ -444,7 +444,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	group_members[name] = setmetatable(self, Player)
     end
 
-    if self.IsMe and pct1 == 100 and Me.Ults[apid1] > 100 then
+    if self.IsMe and pct1 == 100 and Me.Ults ~= nil and Me.Ults[apid1] ~= nil and Me.Ults[apid1] > 100 then
 	pct1 = Me.Ults[apid1]
     end
 
@@ -466,13 +466,13 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	PingTag = pingtag,
 	UltMain = apid1,
     }
+    local changed = timestamp and self.TimeStamp and self:TimedOut()
     if timestamp ~= self.TimeStamp then
 	self.TimeStamp = timestamp
     end
     if saved.AtNames and self.AtName == nil then
 	player.AtName = GetUnitDisplayName(pingtag)
     end
-    local changed = timestamp and self:TimedOut()
     if apid1 ~= nil then
 	local ults = {[apid1] = pct1}
 	if apid2 ~= nil then
