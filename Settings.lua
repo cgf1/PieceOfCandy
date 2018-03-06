@@ -2,11 +2,13 @@ setfenv(1, POC)
 local SETTINGS_VERSION = 5
 
 Settings = {
-    Name = "Settings",
+    Name = "POC-Settings",
     SettingsName = "POCSettings",
     SavedVariables = nil,
     Default = {
 	AtNames = false,
+	ChalKeep = false,
+	ChalMine = false,
 	GroupMembers = {},
 	MIA = true,
 	MapIndex = 30,  -- Vvardenfell
@@ -288,6 +290,34 @@ function Settings.InitializeWindow(major, minor, patch)
 	end,
 	setFunc = function(val) Settings.SetMIA(val) end,
 	default = default.MIA
+    }
+    o[#o + 1] = {
+	type = "divider",
+	name = "DividerWeStand"
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Automatically ask for Chalman Keep quest",
+	tooltip = "Notice when you're lacking the Chalman Mine quest and ask for it from other players in group",
+	getFunc = function()
+	    return saved.ChalKeep
+	end,
+	setFund = function(val)
+	    saved.ChalKeep = true
+	end,
+	default = saved.ChalKeep
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Automatically ask for Chalman Keep quest",
+	tooltip = "Notice when you're lacking the Chalman Mine quest and ask for it from other players in group",
+	getFunc = function()
+	    return saved.ChalMine
+	end,
+	setFund = function(val)
+	    saved.ChalMine = true
+	end,
+	default = saved.ChalMine
     }
 
     local LAM = LibStub("LibAddonMenu-2.0")

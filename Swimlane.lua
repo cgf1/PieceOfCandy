@@ -58,7 +58,7 @@ local saved
 -- Table Swimlanes
 --
 Swimlanes = {
-    Name = "Swimlanes",
+    Name = "POC-Swimlanes",
     Lanes = nil,
     SavedLanes = {},
     WasActive = false,

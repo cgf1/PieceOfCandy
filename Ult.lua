@@ -1,6 +1,6 @@
 setfenv(1, POC)
 Ult = {
-    Name = "Ult",
+    Name = "POC-Ult",
     MaxPing = 0,
     Me = 0
 }

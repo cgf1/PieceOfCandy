@@ -1,6 +1,6 @@
 setfenv(1, POC)
 Countdown = {
-    Name = "Countdown"
+    Name = "POC-Countdown"
 }
 
 Countdown.__index = Countdown

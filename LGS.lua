@@ -9,7 +9,7 @@ local lgs_type = 21 -- aka, the code for 'u'
 local lgs_handler
 
 POC_LGS = {
-    Name = "POC_LGS",
+    Name = "POC-LGS",
     active = false,
 }
 POC_LGS.__index = POC_LGS

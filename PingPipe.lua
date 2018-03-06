@@ -14,7 +14,7 @@ local show_errors = false
 local REFRESHRATE = 2000 -- ms; RegisterForUpdate is in miliseconds
 
 PingPipe = {
-    Name = "PingPipe",
+    Name = "POC-PingPipe",
     active = false
 }
 PingPipe.__index = PingPipe

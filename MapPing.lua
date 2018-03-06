@@ -14,7 +14,7 @@ local show_errors = false
 local REFRESHRATE = 2000 -- ms; RegisterForUpdate is in miliseconds
 
 MapPing = {
-    Name = "MapPing",
+    Name = "POC-MapPing",
     active = false
 }
 MapPing.__index = MapPing

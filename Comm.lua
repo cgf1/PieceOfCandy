@@ -17,7 +17,7 @@ local lgs_handler
 
 Comm = {
     active = false,
-    Name = "Comm",
+    Name = "POC-Comm",
 }
 Comm.__index = Comm
 local ultix = GetUnitName("player")
@@ -122,7 +122,7 @@ local function commtype(s)
 	toset = MapPing
     elseif s == 'lgs' or s == 'libgroupsocket' or s == 'LGS' then
 	toset = LGS
-    elseif s == 'pipe' or s == 'pingpipe' or s == 'PingPipe' or s == 'POC_PingPipe' then
+    elseif s == 'pipe' or s == 'pingpipe' or s == 'PingPipe' or s == 'POC-PingPipe' then
 	toset = PingPipe
     else
 	return nil
@@ -163,7 +163,7 @@ function Comm.Initialize()
 		Swimlanes.Update("Communication method changed")
 	    end
 	end
-	d("Communication method: " .. comm.Name)
+	d("Communication method: " .. comm.Name:sub(5))
     end
     SLASH_COMMANDS["/pocoldcount"] = function (n)
 	local was = saved.OldCount
