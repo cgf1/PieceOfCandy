@@ -25,7 +25,7 @@ function IdSort(hash, key, debug)
 end
 
 function Error(x)
-    d("POC error: " .. x)
+    d("POC error: |cff0000" .. x .. "|c")
 end
 
 function xxx(...)
@@ -47,3 +47,62 @@ function HERE(...)
     end
     xxx(unpack(newargs))
 end
+
+local watchmen = {}
+
+local function mysplit(inputstr, sep)
+    if sep == nil then
+	sep = "%s"
+    end
+    local t={} ; i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+	t[i] = str
+	i = i + 1
+    end
+    return unpack(t)
+end
+
+local function setwatch(x)
+    local what, todo = mysplit(x)
+    local n = tonumber(todo)
+    if n ~= nil then
+	todo = n
+    elseif todo == nil then
+	todo = true
+    elseif todo == "on" or "todo" == "true" then
+	todo = true
+    elseif todo == "off" or todo == "false" then
+	todo = false
+    else
+	Error("Can't grok" .. todo)
+    end
+    watchmen[what] = todo
+    xxx("set", what, "to", todo)
+end
+
+function watch(what, ...)
+    local inargs = {...}
+    if watchmen[what] == nil then
+	return
+    end
+    local doit
+    if type(watchmen[what]) ~= 'number' then
+	doit = watchmen[what]
+    elseif watchmen[what] <= 0 then
+	return
+    else
+	watchmen[what] = watchmen[what] - 1
+	doit = true
+    end
+    if doit then
+	local args = {}
+	args[1] = "|cee22ee"
+	for _, x in ipairs(inargs) do
+	    args[#args + 1] = x
+	end
+	args[#args + 1] = "|c"
+	xxx(unpack(args))
+    end
+end
+
+SLASH_COMMANDS["/pocwatch"] = setwatch

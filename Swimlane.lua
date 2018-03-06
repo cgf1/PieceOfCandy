@@ -136,6 +136,14 @@ local function set_control_active()
     end
 end
 
+local function clear()
+    saved.GroupMembers = {}
+    group_members = saved.GroupMembers
+    for _, v in pairs(_this.Lanes) do
+	v.Players = {}
+    end
+end
+
 -- Sets visibility of labels
 --
 function Lanes:Update(x)
@@ -153,6 +161,7 @@ function Lanes:Update(x)
 	set_control_active()
 	_this.WasActive = false
     end
+    watch("Lanes:Update", refresh, _this.WasActive)
 
     if refresh then
 	-- Check all swimlanes
@@ -183,15 +192,6 @@ end
 --
 function Player:HasBeenInRange()
     return (GetTimeStamp() - self.InRangeTime) < INRANGETIME
-end
-
-
-local function clear()
-    saved.GroupMembers = {}
-    group_members = saved.GroupMembers
-    for _, v in pairs(_this.Lanes) do
-	v.Players = {}
-    end
 end
 
 -- Update swimlane
@@ -428,6 +428,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     end
     local name = GetUnitName(pingtag)
     local self = group_members[name]
+    watch("Player.New", name, pingtag, timestamp, apid1, pct1, apid2, pct2, self)
     if self == nil then
 	if name == myname then
 	    self = Me
@@ -471,7 +472,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     if saved.AtNames and self.AtName == nil then
 	player.AtName = GetUnitDisplayName(pingtag)
     end
-    local changed = player.TimeStamp ~= 0 and self:TimedOut()
+    local changed = timestamp and self:TimedOut()
     if apid1 ~= nil then
 	local ults = {[apid1] = pct1}
 	if apid2 ~= nil then
