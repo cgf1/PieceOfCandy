@@ -73,7 +73,7 @@ function POC:initialize()
     UltMenu.Initialize()
 
     Swimlanes.Initialize()
-    GroupHandler.Initialize()
+    Group.Initialize()
 
     -- Start talking, see?
     Comm.Initialize()

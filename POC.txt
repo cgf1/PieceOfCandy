@@ -50,7 +50,7 @@ PingPipe.lua
 Comm.lua
 
 Settings.lua
-GroupHandler.lua
+Group.lua
 Ult.lua
 Util.lua
 
