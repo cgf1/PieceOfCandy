@@ -55,6 +55,8 @@ local MIAlane = 0
 
 local saved
 
+local dumpme
+
 -- Table Swimlanes
 --
 Swimlanes = {
@@ -75,6 +77,67 @@ local msg = d
 local d = nil
 
 local LAM = LibStub("LibAddonMenu-2.0")
+
+local function dump(name)
+    local found = false
+    local function time(t)
+	local p
+	if (t == 0) then
+	    p = 'never'
+	else
+	    local duration = GetTimeStamp() - t
+	    p = FormatTimeSeconds(duration, TIME_FORMAT_STYLE_DURATION , TIME_FORMAT_PRECISION_SECONDS, TIME_FORMAT_DIRECTION_NONE)
+	end
+	return p
+    end
+    for n, v in pairs(group_members) do
+	if string.find(n, name, 1) then
+	    msg("== " .. n .. " ==")
+	    local a = {}
+	    for n in pairs(v) do
+		table.insert(a, n)
+	    end
+	    table.sort(a)
+	    for _, x in ipairs(a) do
+		local t = v[x]
+		local p
+		if x == 'UltAid' then
+		    local u = Ult.ByAid(t)
+		    local name
+		    if u == nil then
+			name = 'unknown'
+		    else
+			name = u.Desc
+		    end
+		    p = name .. ' [' .. tostring(t) .. ']'
+		    x = 'Ultimate Type'
+		elseif x == 'InRangeTime' then
+		    p = time(t)
+		elseif x == 'TimeStamp' then
+		    p = time(t)
+		elseif x == 'Ults' then
+		    x = "Ults"
+		    p = ''
+		    local comma = ''
+		    for n, v in pairs(t) do
+			local ult = Ult.ByPing(n)
+			if ult.Name ~= 'MIA' then
+			    p = p .. comma .. ult.Desc .. '[' .. v .. '%]'
+			    comma = ', '
+			end
+		    end
+		else
+		    p = tostring(t)
+		end
+		msg(x .. ':  ' .. p)
+	    end
+	    found = true
+	end
+    end
+    if not found then
+	msg("not found")
+    end
+end
 
 -- set_control_movable sets the Movable and MouseEnabled flag in UI elements
 --
@@ -215,9 +278,9 @@ function Lane:Update(force)
     if (laneid <= lastlane) then
 	function sortval(player)
 	    local a
-	    if player:TimedOut() or player.IsRemote then
+	    if player:TimedOut() or not player.InRange then
 		a = player.Ults[apid] - 200
-	    elseif player.IsDead or player:TimedOut() then
+	    elseif player.IsDead then
 		a = player.Ults[apid] - 100
 	    else
 		a = player.Ults[apid]
@@ -444,12 +507,11 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	group_members[name] = setmetatable(self, Player)
     end
 
-    if self.IsMe and pct1 == 100 and Me.Ults ~= nil and Me.Ults[apid1] ~= nil and Me.Ults[apid1] > 100 then
-	pct1 = Me.Ults[apid1]
-    end
 
     if timestamp ~= nil then
-	-- XXX		-- coming from a map ping
+	if self.IsMe and pct1 >= 100 and Me.Ults ~= nil and Me.Ults[apid1] ~= nil and Me.Ults[apid1] >= 100 then
+	    pct1 = Me.Ults[apid1]
+	end
     elseif not self.Visited then
 	timestamp = self.TimeStamp	-- coming from Player.Update
     else
@@ -540,7 +602,6 @@ function Player.Update(clear)
 	local unitname = GetUnitName(unitid)
 	if unitname ~= nil and unitname:len() ~= 0 then
 	    nmembers = nmembers + 1
-	    local player = group_members[unitname]
 	    player = Player.New(unitid)
 	    if player:TimedOut() then
 		nmembers = nmembers - 1
@@ -558,8 +619,13 @@ function Player.Update(clear)
 
     if (inrange / nmembers) >= 0.5 then
 	Me.InRangeTime = GetTimeStamp()
-    elseif Me.InRangeTime == nil then
+    else
+	Me.InRange = false
 	Me.InRangeTime = 0
+    end
+    if dumpme ~= nil then
+	dump(dumpme)
+	dumpme = nil
     end
 
     local changed = sldebug or ping_refresh or need_to_fire
@@ -815,67 +881,6 @@ function UltNumber.Show(n)
     Me.Because = "false because we played the sound"
 end
 
-local function dump(name)
-    local found = false
-    local function time(t)
-	local p
-	if (t == 0) then
-	    p = 'never'
-	else
-	    local duration = GetTimeStamp() - t
-	    p = FormatTimeSeconds(duration, TIME_FORMAT_STYLE_DURATION , TIME_FORMAT_PRECISION_SECONDS, TIME_FORMAT_DIRECTION_NONE)
-	end
-	return p
-    end
-    for n, v in pairs(group_members) do
-	if string.find(n, name, 1) then
-	    msg("== " .. n .. " ==")
-	    local a = {}
-	    for n in pairs(v) do
-		table.insert(a, n)
-	    end
-	    table.sort(a)
-	    for _, x in ipairs(a) do
-		local t = v[x]
-		local p
-		if x == 'UltAid' then
-		    local u = Ult.ByAid(t)
-		    local name
-		    if u == nil then
-			name = 'unknown'
-		    else
-			name = u.Desc
-		    end
-		    p = name .. ' [' .. tostring(t) .. ']'
-		    x = 'Ultimate Type'
-		elseif x == 'InRangeTime' then
-		    p = time(t)
-		elseif x == 'TimeStamp' then
-		    p = time(t)
-		elseif x == 'Ults' then
-		    x = "Ults"
-		    p = ''
-		    local comma = ''
-		    for n, v in pairs(t) do
-			local ult = Ult.ByPing(n)
-			if ult.Name ~= 'MIA' then
-			    p = p .. comma .. ult.Desc .. '[' .. v .. '%]'
-			    comma = ', '
-			end
-		    end
-		else
-		    p = tostring(t)
-		end
-		msg(x .. ':  ' .. p)
-	    end
-	    found = true
-	end
-    end
-    if not found then
-	msg("not found")
-    end
-end
-
 -- Initialize Swimlanes
 --
 Swimlanes.Update = function(x) _this.Lanes:Update(x) end
@@ -923,7 +928,7 @@ function Swimlanes.Initialize()
 	sldebug = not sldebug
 	msg(sldebug)
     end
-    SLASH_COMMANDS["/pocdump"] = dump
+    SLASH_COMMANDS["/pocdump"] = function(x) dumpme = x end
     SLASH_COMMANDS["/pocclear"] = clear
     SLASH_COMMANDS["/pocrefresh"] = function(pct)
 	ping_refresh = not ping_refresh
