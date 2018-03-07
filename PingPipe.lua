@@ -59,6 +59,8 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
 	Player.New(pingtag, timenow, bytes[2], bytes[3])
     elseif ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
+    elseif ctype == COMM_TYPE_NEEDQUEST then
+	Quest.Process(bytes[2], bytes[3])
     elseif ctype == COMM_TYPE_PCTULT then
 	input = math.floor(input / 256)
 	local apid1, pct1, apid2, pct2 = unpack_ultpct(input)
@@ -97,6 +99,7 @@ function PingPipe.Send(...)
 	word = word + (mul * v)
 	mul = mul * 256
     end
+
     PingPipe.SendWord(word)
 end
 

@@ -65,6 +65,8 @@ function POC:initialize()
     -- Initialize settings
     Settings.Initialize()
 
+    saved = Settings.SavedVariables     -- convenience
+
     Ult.Initialize()
 
     -- Initialize ui
@@ -74,6 +76,7 @@ function POC:initialize()
 
     Swimlanes.Initialize()
     Group.Initialize()
+    Quest.Initialize()
 
     -- Start talking, see?
     Comm.Initialize()

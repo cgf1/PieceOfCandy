@@ -28,6 +28,12 @@ function Error(x)
     d("POC error: |cff0000" .. x .. "|c")
 end
 
+function Info(...)
+    local args = {...}
+    args[1] = "|cffff00POC: " .. args[1]
+    xxx(unpack(args))
+end
+
 function xxx(...)
     local args = {...}
     local accum = ''
@@ -48,7 +54,7 @@ function HERE(...)
     xxx(unpack(newargs))
 end
 
-local watchmen = {}
+local watchmen
 
 local function mysplit(inputstr, sep)
     if sep == nil then
@@ -62,7 +68,18 @@ local function mysplit(inputstr, sep)
     return unpack(t)
 end
 
+local function initwatch()
+    if not saved.WatchMen then
+	saved.WatchMen = {}
+    end
+    if not watchmen then
+	watchmen = saved.WatchMen
+    end
+    initwatch = function() end
+end
+
 local function setwatch(x)
+    initwatch()
     local what, todo = mysplit(x)
     local n = tonumber(todo)
     if n ~= nil then
@@ -77,10 +94,11 @@ local function setwatch(x)
 	Error("Can't grok" .. todo)
     end
     watchmen[what] = todo
-    xxx("set", what, "to", todo)
+    Info("set", what, "to", todo)
 end
 
 function watch(what, ...)
+    initwatch()
     local inargs = {...}
     if watchmen[what] == nil then
 	return
@@ -96,7 +114,7 @@ function watch(what, ...)
     end
     if doit then
 	local args = {}
-	args[1] = "|cee22ee"
+	args[1] = "|cee22ee" .. what .. ':'
 	for _, x in ipairs(inargs) do
 	    args[#args + 1] = x
 	end

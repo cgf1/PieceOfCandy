@@ -1,14 +1,14 @@
 setfenv(1, POC)
-Comm = {}
-Comm.__index = Comm
-
-COMM_MAGIC          = 0x0c
-COMM_TYPE_PCTULTOLD = 0x01 + (COMM_MAGIC * 16)
-COMM_TYPE_COUNTDOWN = 0x02 + (COMM_MAGIC * 16)
-COMM_TYPE_PCTULT    = 0x03 + (COMM_MAGIC * 16)
-COMM_TYPE_MAX       = 0x03
+COMM_MAGIC              = 0x0c
+COMM_TYPE_PCTULTOLD     = 0x01 + (COMM_MAGIC * 16)
+COMM_TYPE_COUNTDOWN     = 0x02 + (COMM_MAGIC * 16)
+COMM_TYPE_PCTULT        = 0x03 + (COMM_MAGIC * 16)
+COMM_TYPE_NEEDQUEST     = 0x04 + (COMM_MAGIC * 16)
+COMM_TYPE_MAX           = 0x03
+COMM_ALL_PLAYERS        = 0
 
 local DEFAULT_OLDCOUNT = 5
+local QUEST_PING = 4
 
 local lgs_type = 21 -- aka, the code for 'u'
 
@@ -25,6 +25,7 @@ local comm
 local notify_when_not_grouped = false
 
 local myults
+local quest_ping = QUEST_PING
 
 function Comm.Send(...)
     comm.Send(...)
@@ -91,6 +92,11 @@ local function on_update()
 	comm.Send(COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
     end
     Swimlanes.Update("map update")
+    quest_ping = quest_ping - 1
+    if quest_ping <= 0 then
+	quest_ping = QUEST_PING
+	Quest.Ping()
+    end
 end
 
 local function toggle(verbose)
@@ -146,7 +152,7 @@ function Comm.Initialize()
     comm = Comm.Driver
     Comm.Type = comm.Name
     if comm == nil then
-	POC_Error("Unknown communication type: " .. saved.Comm)
+	Error("Unknown communication type: " .. saved.Comm)
     end
     if not comm.active then
 	toggle(false)

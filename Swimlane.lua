@@ -88,7 +88,7 @@ end
 -- Set hidden on control
 --
 local function set_control_hidden(ishidden)
-    if (GroupHandler.IsGrouped()) then
+    if (Group.IsGrouped()) then
 	widget:SetHidden(ishidden)
 	UltNumber.Hide(ishidden)
     else
@@ -107,7 +107,7 @@ end
 -- set_control_active sets hidden on control
 --
 local function set_control_active()
-    local isvisible = Settings.IsSwimlaneListVisible() and GroupHandler.IsGrouped()
+    local isvisible = Settings.IsSwimlaneListVisible() and Group.IsGrouped()
     local ishidden = not isvisible or CurrentHudHiddenState()
     set_control_hidden(ishidden)
 
@@ -149,7 +149,7 @@ end
 function Lanes:Update(x)
     local refresh
     local displayed = false
-    if (GroupHandler.IsGrouped()) then
+    if (Group.IsGrouped()) then
 	refresh = Player.Update(true)
 	displayed = not _this.WasActive
     elseif (not _this.WasActive) then
@@ -290,7 +290,7 @@ function Lane:Update(force)
 		self:UpdateCell(n, player, playername, priult)
 		if (noshow or not saved.UltNumberShow or laneid == MIAlane or
 		    CurrentHudHiddenState() or player.IsDead or
-		    not GroupHandler.IsGrouped() or
+		    not Group.IsGrouped() or
 		    not Settings.IsSwimlaneListVisible()) then
 		    UltNumber.Hide(true)
 		    UltNumberLabel:SetText("")
@@ -321,7 +321,7 @@ function Lane:UpdateCell(i, player, playername, priult)
     local rowi = "Row" .. i
     local apid = self.Apid
     local row = self.Control:GetNamedChild(rowi)
-    if saved.AtNames then
+    if saved.AtNames and player.AtName then
 	playername = string.sub(player.AtName, 2)
     end
     local namecell = row:GetNamedChild("PlayerName")
