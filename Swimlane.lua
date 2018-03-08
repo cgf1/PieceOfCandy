@@ -22,6 +22,8 @@ local group_members
 
 local ping_refresh = false
 
+local reloaded = true
+
 local Lane = {}
 Lane.__index = Lane
 
@@ -69,7 +71,7 @@ Swimlanes.__index = Swimlanes
 
 local _this = Swimlanes
 
-local need_to_fire = false
+local need_to_fire = true
 
 local function _noop() end
 
@@ -535,8 +537,13 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     if saved.AtNames and self.AtName == nil then
 	player.AtName = GetUnitDisplayName(pingtag)
     end
-    if apid1 ~= nil then
-	local ults = {[apid1] = pct1}
+    local ults
+    if apid1 == nil then
+	if reloaded then
+	    ults = self.Ults
+	end
+    else
+	ults = {[apid1] = pct1}
 	if apid2 ~= nil then
 	    ults[apid2] = pct2
 	    player.NewClient = true
@@ -553,6 +560,9 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 		end
 	    end
 	end
+    end
+
+    if ults then
 	local ultchanged
 	for apid, pct in pairs(ults) do
 	    if self.Ults[apid] ~= pct then
@@ -593,7 +603,7 @@ end
 
 -- Updates player (potentially) in the swimlane
 --
-function Player.Update(clear)
+function Player.Update(clear_need_to_fire)
     local nmembers = 0
     local inrange = 0
 
@@ -629,7 +639,7 @@ function Player.Update(clear)
     end
 
     local changed = sldebug or ping_refresh or need_to_fire
-    if need_to_fire and clear then
+    if clear_need_to_fire then
 	need_to_fire = false
     end
     return changed

@@ -7,6 +7,14 @@
     <Font name="CompactSwimlaneListFont" font="$(MEDIUM_FONT)|14|soft-shadow-thin"/>
   
     <Controls>
+        <Control name="POC_Alert" hidden="true" layer="OVERLAY" level="1" virtual="true">
+            <Anchor point="CENTER" relativeTo="GuiRoot" relativepoint="CENTER" />
+            <Controls>
+                <Label name="${parent}Label" width="1000" height="20" inheritAlpha="true" relativePoint="TOP">
+                    <Anchor point="TOP" relativeTo="${parent}" relativePoint="TOP" />
+                </Label>
+            </Controls>
+        </Control>
         <Label
             name="MoveActiveLabel"
             width="48"
@@ -14,8 +22,9 @@
             font="MoveActiveFont"
             inheritAlpha="true"
             color="FFFFFF"
-            virtual="true"/>
-    
+            virtual="true"
+        />
+
         <Label
             name="SwimlaneListLabel"
             width="90"
@@ -25,7 +34,8 @@
             color="FFFFFF"
             verticalAlignment="CENTER"
             horizontalAlignment="LEFT"
-            virtual="true"/>
+            virtual="true"
+        />
     
         <Label
             name="SwimlaneListHeaderLabel" 
@@ -36,7 +46,8 @@
             color="FFFFFF"
             verticalAlignment="TEXT_ALIGN_TOP" 
             horizontalAlignment="TEXT_ALIGN_LEFT" 
-            virtual="true"/>
+            virtual="true"
+        />
 
         <Label
             name="UltHeaderLabel"
@@ -48,7 +59,8 @@
             verticalAlignment="TEXT_ALIGN_TOP"
             horizontalAlignment="TEXT_ALIGN_LEFT"
             text="Header"
-            virtual="true"/>
+            virtual="true"
+        />
 
         <Label
             name="UltLabel"
@@ -60,8 +72,8 @@
             verticalAlignment="TEXT_ALIGN_TOP"
             horizontalAlignment="TEXT_ALIGN_LEFT"
             text="Label"
-            virtual="true"/>
-
+            virtual="true"
+        />
     
         <Label
             name="CompactSwimlaneListLabel"
@@ -72,7 +84,8 @@
             color="FFFFFF"
             verticalAlignment="CENTER"
             horizontalAlignment="LEFT"
-            virtual="true"/>
+            virtual="true"
+        />
 
         <Control name="MovableBackdropControl" virtual="true">
             <Controls>

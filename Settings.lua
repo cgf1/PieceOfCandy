@@ -360,6 +360,7 @@ function Settings.Initialize()
     saved.StaticUltimateID = nil
     saved.SwimlaneUltGrpIds = nil
     saved.IsLgsActive = nil
+    saved.CountdownNumberPos = nil
 
     SLASH_COMMANDS["/pocstyle"] = function(style)
 	style = string.lower(style):gsub("^%l", string.upper)

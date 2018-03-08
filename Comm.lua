@@ -72,6 +72,7 @@ local function on_update()
 	return
     end
     local notify_when_not_grouped = true
+    Swimlanes.Update("map update")
 
     counter = counter + 1
     if counter == saved.OldCount then
@@ -89,7 +90,6 @@ local function on_update()
 -- d("Sending " .. tostring(send))
 	comm.Send(COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
     end
-    Swimlanes.Update("map update")
     quest_ping = quest_ping - 1
     if quest_ping <= 0 then
 	quest_ping = QUEST_PING
