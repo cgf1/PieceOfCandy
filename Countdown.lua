@@ -10,14 +10,14 @@ local counting
 local first = 1
 
 local nnn
-local saved
 local xxx
 
-function init()
-    nnn = CountdownNumber
-    nnnlabel = CountdownNumberLabel
-    saved = Settings.SavedVariables
+local function init()
+    nnn = POC_CountdownNumber
+    nnnlabel = POC_CountdownNumberLabel
     xxx = xxx
+
+    saved = Settings.SavedVariables     -- convenience
 
     nnn:ClearAnchors()
     if (saved.CountdownNumberPos == nil) then
@@ -32,12 +32,12 @@ function init()
     nnn:SetHidden(false)
     nnnlabel:SetFont("EsoUI/Common/Fonts/univers67.otf|200|soft-shadow-thin")
     nnnlabel:SetScale(2.0)
+    init = function() end
 end
+
 local function go()
-    if first then
-	init()
-    end
-    EVENT_MANAGER:UnregisterForUpdate('Countdown', go)
+    init()
+    EVENT_MANAGER:UnregisterForUpdate(Countdown.Name, go)
     local sound
     if counting == 0 then
 	color = "00ff00"
@@ -63,8 +63,7 @@ local function go()
     nnnlabel:SetHidden(false)
 
     counting = counting - 1
-
-    EVENT_MANAGER:RegisterForUpdate('Countdown', 1000, go)
+    EVENT_MANAGER:RegisterForUpdate(Countdown.Name, 1000, go)
 end
 
 function Countdown.Start(n)
