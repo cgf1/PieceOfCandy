@@ -192,7 +192,7 @@ function Settings.InitializeWindow(major, minor, patch)
 	end,
 	maxColumns = 7,
 	visibleRows = 5,
-	iconSize = 64
+	iconSize = 32
     }
     if false then
     o[#o + 1] = {
