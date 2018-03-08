@@ -229,6 +229,7 @@ function Lanes:Update(x)
     watch("Lanes:Update", refresh, _this.WasActive)
 
     if refresh then
+	watch("refresh")
 	-- Check all swimlanes
 	for _,lane in ipairs(IdSort(self, "Id")) do
 	    if lane:Update(false) then
@@ -259,6 +260,12 @@ function Player:HasBeenInRange()
     return (GetTimeStamp() - self.InRangeTime) < INRANGETIME
 end
 
+-- Return true if player is in range of rest of group
+--
+local function Player:IsInRange()
+    return self.InRange and (self.InRangeTime == nil or self.InRangeTime > 0)
+end
+
 -- Update swimlane
 --
 function Lane:Update(force)
@@ -280,7 +287,7 @@ function Lane:Update(force)
     if (laneid <= lastlane) then
 	function sortval(player)
 	    local a
-	    if player:TimedOut() or not player.InRange then
+	    if player:TimedOut() or not player:IsInRange() then
 		a = player.Ults[apid] - 200
 	    elseif player.IsDead then
 		a = player.Ults[apid] - 100
@@ -413,7 +420,7 @@ function Lane:UpdateCell(i, player, playername, priult)
     local alivealpha
     local deadalpha
     local inprogressalpha
-    if not player.InRange then
+    if not player:IsInRange() then
 	alivealpha = .4
 	deadalpha = .3
 	inprogressalpha = .3
@@ -630,7 +637,6 @@ function Player.Update(clear_need_to_fire)
     if (inrange / nmembers) >= 0.5 then
 	Me.InRangeTime = GetTimeStamp()
     else
-	Me.InRange = false
 	Me.InRangeTime = 0
     end
     if dumpme ~= nil then
