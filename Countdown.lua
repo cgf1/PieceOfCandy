@@ -13,19 +13,19 @@ local nnn
 local xxx
 
 local function init()
-    nnn = POC_CountdownNumber
-    nnnlabel = POC_CountdownNumberLabel
+    nnn = POC_Countdown
+    nnnlabel = POC_CountdownLabel
     xxx = xxx
 
     saved = Settings.SavedVariables     -- convenience
 
     nnn:ClearAnchors()
-    if (saved.CountdownNumberPos == nil) then
+    if (saved.CountdownPos == nil) then
 	nnn:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
     else
 	nnn:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
-				saved.CountdownNumberPos[1],
-				saved.CountdownNumberPos[2])
+				saved.CountdownPos[1],
+				saved.CountdownPos[2])
     end
     nnn:SetMovable(true)
     nnn:SetMouseEnabled(true)
@@ -72,7 +72,7 @@ function Countdown.Start(n)
 end
 
 function Countdown.SavePos(self)
-    saved.CountdownNumberPos = {self:GetLeft(),self:GetTop()}
+    saved.CountdownPos = {self:GetLeft(),self:GetTop()}
 end
 
 SLASH_COMMANDS["/pocn"] = function(x)
