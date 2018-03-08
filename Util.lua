@@ -94,7 +94,7 @@ local function setwatch(x)
 	Error("Can't grok" .. todo)
     end
     watchmen[what] = todo
-    Info("set", what, "to", todo)
+    Info("watch", what, '=', todo)
 end
 
 function watch(what, ...)

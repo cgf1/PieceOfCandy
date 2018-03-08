@@ -262,7 +262,7 @@ end
 
 -- Return true if player is in range of rest of group
 --
-local function Player:IsInRange()
+function Player:IsInRange()
     return self.InRange and (self.InRangeTime == nil or self.InRangeTime > 0)
 end
 
