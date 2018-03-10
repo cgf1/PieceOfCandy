@@ -45,9 +45,10 @@ sub rest {
 
     p '';
     p "Searching AddOns directory for POC...";
-    $aopath = $ENV{USERPROFILE} . '\Documents\Elder Scrolls Online\live\AddOns';
+    # $aopath = $ENV{USERPROFILE} . '\Documents\Elder Scrolls Online\live\AddOns';
+    $aopath = '"' . $ENV{SYSTEMDRIVE} . '\users\*\Documents\Elder Scrolls Online\live\AddOns"';
     my @found = ();
-    find(sub {push @found, $File::Find::dir if $_ eq 'POC.txt'}, $aopath);
+    find(sub {push @found, $File::Find::dir if $_ eq 'POC.txt'}, glob $aopath);
     p "...done\n";
     p '';
 
@@ -60,7 +61,7 @@ sub rest {
             p "Found POC.txt in $d but no version???\n";
         } else {
             p "Directory: $d is version $_\n";
-            if ($d ne "$aopath\\POC") {
+            if ($d !~ m{\\Elder Scrolls Online\\live\\AddOns\\POC$}oi) {
                 p "!POC should not be installed here.\n";
                 getans("Should I delete this directory?", sub {rmtree $d});
             } elsif ($_ eq $v) {
