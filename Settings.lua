@@ -301,24 +301,22 @@ function Settings.InitializeWindow(major, minor, patch)
 	name = "Automatically ask for Chalman Keep quest",
 	tooltip = "Notice when you're lacking the Chalman Mine quest and ask for it from other players in group",
 	getFunc = function()
-	    return saved.ChalKeep
+	    return Quest.Want(KEEP_INDEX)
 	end,
-	setFund = function(val)
-	    saved.ChalKeep = true
-	end,
-	default = saved.ChalKeep
+	setFunc = function(val)
+	    Quest.Want(KEEP_INDEX, val)
+	end
     }
     o[#o + 1] = {
 	type = "checkbox",
 	name = "Automatically ask for Chalman Keep quest",
 	tooltip = "Notice when you're lacking the Chalman Mine quest and ask for it from other players in group",
 	getFunc = function()
-	    return saved.ChalMine
+	    return Quest.Want(RESOURCE_INDEX)
 	end,
-	setFund = function(val)
-	    saved.ChalMine = true
-	end,
-	default = saved.ChalMine
+	setFunc = function(val)
+	    Quest.Want(RESOURCE_INDEX, val)
+	end
     }
 
     local LAM = LibStub("LibAddonMenu-2.0")

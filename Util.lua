@@ -80,6 +80,19 @@ end
 
 local function setwatch(x)
     initwatch()
+    if x == "clear" then
+	saved.WatchMen = {}
+	watchmen = saved.WatchMen
+	Info("cleared all watchpoints")
+	return
+    end
+    if x:len() == 0 then
+	Info("Watchpoints")
+	for n, v in pairs(watchmen) do
+	    xxx(n .. ":", v)
+	end
+	return
+    end
     local what, todo = mysplit(x)
     local n = tonumber(todo)
     if n ~= nil then
