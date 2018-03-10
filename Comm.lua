@@ -122,12 +122,13 @@ end
 
 local function commtype(s)
     local toset
-    if s == 'ping' or s == 'mapping' or s == 'MapPing' then
-	toset = MapPing
-    elseif s == 'lgs' or s == 'libgroupsocket' or s == 'LGS' then
-	toset = LGS
-    elseif s == 'pipe' or s == 'pingpipe' or s == 'PingPipe' or s == 'POC-PingPipe' then
+    s = s:lower()
+    if s:find('pipe') ~= nil then
 	toset = PingPipe
+    elseif s:find('ping') then
+	toset = MapPing
+    elseif s == 'lgs' or s == 'libgroupsocket' then
+	toset = LGS
     else
 	return nil
     end
