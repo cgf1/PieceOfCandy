@@ -38,6 +38,7 @@ Player = {
 Player.__index = Player
 
 local me = setmetatable({
+    InRangeTime = 0,
     IsDead = false,
     IsMe = true,
     NewClient = true,
@@ -204,9 +205,6 @@ end
 local function clear()
     saved.GroupMembers = {}
     group_members = saved.GroupMembers
-    for _, v in pairs(_this.Lanes) do
-	v.Players = {}
-    end
 end
 
 -- Sets visibility of labels
@@ -274,7 +272,6 @@ function Lane:Update(force)
 	return
     end
     local apid = self.Apid
-    local players = self.Players
 
     local displayed = false
     local lastlane
@@ -283,7 +280,6 @@ function Lane:Update(force)
     else
 	lastlane = MIAlane - 1
     end
-watch("Lane:Update", laneid, lastlane, MIAlane)
     local n = 1
     if (laneid <= lastlane) then
 	function sortval(player)
@@ -299,8 +295,8 @@ watch("Lane:Update", laneid, lastlane, MIAlane)
 	end
 
 	function compare(key1, key2)
-	    local player1 = players[key1]
-	    local player2 = players[key2]
+	    local player1 = group_members[key1]
+	    local player2 = group_members[key2]
 	    local a = sortval(player1)
 	    local b = sortval(player2)
 	    -- xxx("A " .. a)
@@ -313,14 +309,10 @@ watch("Lane:Update", laneid, lastlane, MIAlane)
 	end
 
 	local keys = {}
-	for name, player in pairs(players) do
-	    local grouped = IsUnitGrouped(player.PingTag)
-	    if player.Ults[apid] == nil or not grouped then
-		players[name] = nil
-		if not grouped then
-		    group_members[name] = nil
-		end
-	    else
+	for name, player in pairs(group_members) do
+	    if not IsUnitGrouped(player.PingTag) then
+		group_members[name] = nil
+	    elseif player.Ults[apid] ~= nil then
 		table.insert(keys, name)
 	    end
 	end
@@ -334,7 +326,7 @@ watch("Lane:Update", laneid, lastlane, MIAlane)
 		-- log here?
 		break
 	    end
-	    local player = players[playername]
+	    local player = group_members[playername]
 	    local priult = player.UltMain == apid
 	    displayed = true
 	    if not player.IsMe or not priult then
@@ -586,17 +578,6 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	    if self.Ults[apid] ~= pct then
 		ultchanged = true
 	    end
-	    local lane
-	    if _this.Lanes[apid] ~= nil then
-		lane = _this.Lanes[apid]
-	    elseif apid == player.UltMain then
-		lane = _this.Lanes['MIA']
-watch("lane", lane, lane.Id)
-	    end
-	    if lane ~= nil and lane.Players[name] == nil then
-		lane.Players[name] = self
-		changed = true
-	    end
 	end
 	if ultchanged then
 	    self.Ults = ults
@@ -734,7 +715,6 @@ function Lanes:SetUlt(id, newapid)
 	    if lane.Label ~= nil then
 		lane.Label:SetText(Ult.ByPing(newapid).Name)
 	    end
-	    lane.Players = {}
 	    self[apid] = nil	        -- Delete old lane
 	    need_to_fire = true
 	    break
@@ -856,7 +836,6 @@ function Lane.New(lanes, i)
 	end
 	last_row = row
     end
-    self.Players = {}
     self.Apid = apid
     return self
 end

@@ -8,15 +8,20 @@ local controls = {}
 
 local screenx, screeny
 
-local ix = 0
+local ix = 12
 local MAX = 24
+local fontsize = 50
+local midscreen
+local above = MAX / 2
 
 function Alert.Show(text, duration)
     ix = ix + 1
     if ix > MAX then
 	ix = 1
     end
+d(ix)
     local control = controls[ix]
+    local yloc = (height / 3) * (ix - above)
     control:SetAnchor(CENTER, nil, CENTER, 0, yloc)
     control:SetHidden(false)
 --    control:SetText("|c66ff66" .. text)
@@ -42,22 +47,22 @@ end
 
 function Alert.Initialize()
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
-    local above = MAX / 2
     local wm = GetWindowManager()
-    local height = 50
-    local font = "$(HANDWRITTEN_FONT)|" .. tostring(height)
+    local font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
     local frame = wm:CreateTopLevelWindow()
     screenx, screeny = GuiRoot:GetDimensions()
+    midscreen = screeny / 2
     frame:SetDimensions(screenx, screeny)
     frame:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 0, 0)
+    local control
     for i = 1, MAX do
 	control = wm:CreateControl(nil, frame, CT_LABEL)
 	control:SetFont(font)
-	local yloc = (i - above) * (1.5 * height)
 	control:SetDrawLayer(1)
 	control:SetMouseEnabled(false)
 	control:SetHidden(true)
 	controls[i] = control
     end
-    SLASH_COMMANDS["/pocalert"] = Show
+    height = control:GetHeight()
+    SLASH_COMMANDS["/ppp"] = Show
 end
