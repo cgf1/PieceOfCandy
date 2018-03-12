@@ -19,13 +19,13 @@ function Alert.Show(text, duration)
     if ix > MAX then
 	ix = 1
     end
-d(ix)
     local control = controls[ix]
     local yloc = (height / 3) * (ix - above)
     control:SetAnchor(CENTER, nil, CENTER, 0, yloc)
     control:SetHidden(false)
 --    control:SetText("|c66ff66" .. text)
-    control:SetText("|cffa500" .. text)
+--    control:SetText("|cffa500" .. text)
+    control:SetText("|cff6600" .. text)
 
     local _, _, _, _, offx, offy = control:GetAnchor()
     local timeline = ANIMATION_MANAGER:CreateTimeline()

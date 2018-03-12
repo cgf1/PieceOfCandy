@@ -24,6 +24,8 @@ local ping_refresh = false
 
 local reloaded = true
 
+local tick = 0
+
 local Lane = {}
 Lane.__index = Lane
 
@@ -42,6 +44,7 @@ local me = setmetatable({
     IsDead = false,
     IsMe = true,
     NewClient = true,
+    Tick = 0,
     TimeStamp = 0,
     UltMain = 0,
     Ults = {}
@@ -66,7 +69,7 @@ Swimlanes = {
     Name = "POC-Swimlanes",
     Lanes = nil,
     SavedLanes = {},
-    WasActive = false,
+    WasActive = false
 }
 Swimlanes.__index = Swimlanes
 
@@ -229,8 +232,10 @@ function Lanes:Update(x)
     if refresh then
 	watch("refresh")
 	-- Check all swimlanes
+	tick = tick + 1
+	local tick = tick
 	for _,lane in ipairs(IdSort(self, "Id")) do
-	    if lane:Update(false) then
+	    if lane:Update(false, tick) then
 		displayed = true
 	    end
 	end
@@ -264,9 +269,27 @@ function Player:IsInRange()
     return self.InRange and (self.InRangeTime == nil or self.InRangeTime > 0)
 end
 
+function Player:PlunkNotMIA(apid, tick)
+    if self.Ults[apid] == nil then
+	return false
+    else
+	self.Tick = tick
+	return true
+    end
+end
+
+function Player:PlunkMIA(apid, tick)
+    if self.Tick == tick then
+	return false
+    else
+	self.Tick = tick
+	return true
+    end
+end
+
 -- Update swimlane
 --
-function Lane:Update(force)
+function Lane:Update(force, tick)
     local laneid = self.Id
     if not force and laneid > MIAlane then
 	return
@@ -282,7 +305,8 @@ function Lane:Update(force)
     end
     local n = 1
     if (laneid <= lastlane) then
-	function sortval(player)
+	local isMIA = laneid == MIAlane
+	local function sortval(player)
 	    local a
 	    if player:TimedOut() or not player:IsInRange() then
 		a = player.Ults[apid] - 200
@@ -294,7 +318,7 @@ function Lane:Update(force)
 	    return a
 	end
 
-	function compare(key1, key2)
+	local function compare(key1, key2)
 	    local player1 = group_members[key1]
 	    local player2 = group_members[key2]
 	    local a = sortval(player1)
@@ -309,10 +333,11 @@ function Lane:Update(force)
 	end
 
 	local keys = {}
+	local plunk = self.Plunk
 	for name, player in pairs(group_members) do
 	    if not IsUnitGrouped(player.PingTag) then
 		group_members[name] = nil
-	    elseif player.Ults[apid] ~= nil then
+	    elseif plunk(player, apid, tick) then
 		table.insert(keys, name)
 	    end
 	end
@@ -329,9 +354,9 @@ function Lane:Update(force)
 	    local player = group_members[playername]
 	    local priult = player.UltMain == apid
 	    displayed = true
-	    if not player.IsMe or not priult then
-		self:UpdateCell(n, player, playername, priult)
-		if player.Ults[apid] > 100 then
+	    if not player.IsMe or not priult or isMIA then
+		self:UpdateCell(n, player, playername, isMIA or priult)
+		if not isMIA and player.Ults[apid] > 100 then
 		    gt100 = player.Ults[apid]
 		end
 	    else
@@ -353,7 +378,7 @@ function Lane:Update(force)
 		    Me.Because = "out of range or dead"
 		end
 		self:UpdateCell(n, player, playername, priult)
-		if (noshow or not saved.UltNumberShow or laneid == MIAlane or
+		if (noshow or not saved.UltNumberShow or
 		    CurrentHudHiddenState() or player.IsDead or
 		    not Group.IsGrouped() or
 		    not Settings.IsSwimlaneListVisible()) then
@@ -382,7 +407,6 @@ end
 --
 function Lane:UpdateCell(i, player, playername, priult)
     local rowi = "Row" .. i
-    local apid = self.Apid
     local row = self.Control:GetNamedChild(rowi)
     if saved.AtNames and player.AtName then
 	playername = string.sub(player.AtName, 2)
@@ -402,6 +426,12 @@ function Lane:UpdateCell(i, player, playername, priult)
     end
 
     local ultpct
+    local apid
+    if self.Apid == 'MIA' then
+	apid = player.UltMain
+    else
+	apid = self.Apid
+    end
     if player.Ults[apid] > 100 then
 	ultpct = 100
     else
@@ -508,6 +538,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	    self = {
 		IsMe = false,
 		NewClient = false,
+		Tick = 0,
 		TimeStamp = 0,
 		Ults = {},
 		Visited = false
@@ -748,8 +779,10 @@ function Lane:Header()
     local apid
     if self.Id == MIAlane then
 	apid = 'MIA'
+	self.Plunk = Player.PlunkMIA
     else
 	apid = saved.LaneIds[self.Id]
+	self.Plunk = Player.PlunkNotMIA
     end
     local ult = Ult.ByPing(apid)
     if (ult == nil) then
