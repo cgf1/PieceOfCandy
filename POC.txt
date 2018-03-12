@@ -60,5 +60,6 @@ UltMenu.lua
 Countdown.lua
 
 Quest.lua
+Alert.lua
 
 POC.lua

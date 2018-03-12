@@ -4,7 +4,7 @@ local SWIMLANES = 6
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
-local MAXPLAYSOUNDTIME = 30
+local MAXPLAYSOUNDTIME = 60
 
 local widget = nil
 local curstyle = ""
@@ -283,6 +283,7 @@ function Lane:Update(force)
     else
 	lastlane = MIAlane - 1
     end
+watch("Lane:Update", laneid, lastlane, MIAlane)
     local n = 1
     if (laneid <= lastlane) then
 	function sortval(player)
@@ -315,7 +316,7 @@ function Lane:Update(force)
 	for name, player in pairs(players) do
 	    local grouped = IsUnitGrouped(player.PingTag)
 	    if player.Ults[apid] == nil or not grouped then
-		self[name] = nil
+		players[name] = nil
 		if not grouped then
 		    group_members[name] = nil
 		end
@@ -349,7 +350,7 @@ function Lane:Update(force)
 		if player.Ults[apid]  < 100 then
 		    play_sound = true
 		    Me.Because = "ultpct < 100"
-		elseif priult and not player.IsDead and player:HasBeenInRange() then
+		elseif priult and not player.IsDead and player:IsInRange() then
 		    player.Ults[apid] = gt100 - 1
 		    noshow = false
 		    Me.Because = "ultpct == 100"
@@ -387,8 +388,6 @@ end
 
 -- Update a cell
 --
-
-
 function Lane:UpdateCell(i, player, playername, priult)
     local rowi = "Row" .. i
     local apid = self.Apid
@@ -494,6 +493,15 @@ function Lane:UpdateCell(i, player, playername, priult)
     row:SetHidden(false)
 end
 
+function Player:Alert(name)
+    local ult = Ult.ByPing(self.UltMain)
+    local aid = ult.Aid
+    local duration = GetAbilityDuration(aid) - 500
+    local first = name:match('(%S+)')
+    local message = first .. "'s " .. ult.Name
+    Alert.Show(message, duration)
+end
+
 function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     if _this.Lanes == nil then
 	return
@@ -545,6 +553,9 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	player.AtName = GetUnitDisplayName(pingtag)
     end
     local ults
+    if pct1 == 0 and self.UltMain and self.Ults[self.UltMain] and self.Ults[self.UltMain] > 0 then
+	self:Alert(name)
+    end
     if apid1 == nil then
 	if reloaded then
 	    ults = self.Ults
@@ -580,6 +591,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 		lane = _this.Lanes[apid]
 	    elseif apid == player.UltMain then
 		lane = _this.Lanes['MIA']
+watch("lane", lane, lane.Id)
 	    end
 	    if lane ~= nil and lane.Players[name] == nil then
 		lane.Players[name] = self
@@ -636,7 +648,7 @@ function Player.Update(clear_need_to_fire)
 
     if (inrange / nmembers) >= 0.5 then
 	Me.InRangeTime = GetTimeStamp()
-    else
+    elseif not Me:HasBeenInRange() then
 	Me.InRangeTime = 0
     end
     if dumpme ~= nil then
@@ -886,8 +898,11 @@ function UltNumber.Show(n)
     UltNumberLabel:SetText("|c" .. color .. " #" .. n .. "|r")
     UltNumber.Hide(false)
     local timenow = GetTimeStamp()
-    if n ~= 1 or not play_sound or not saved.WereNumberOne or
-       ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
+    if ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
+	play_sound = false
+	return
+    end
+    if n ~= 1 or not play_sound or not saved.WereNumberOne then
 	return
     end
     PlaySound(SOUNDS.DUEL_START)
@@ -953,5 +968,8 @@ function Swimlanes.Initialize()
 	else
 	    msg("refresh off")
 	end
+    end
+    SLASH_COMMANDS["/pocfired"] = function()
+	Me:Alert(myname)
     end
 end

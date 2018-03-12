@@ -96,3 +96,6 @@ SCENE_MANAGER.__index = SCENE_MANAGER
 
 function SCENE_MANAGER:GetScene() return base end
 UltNumber = {}
+
+function GetWindowManager()
+end

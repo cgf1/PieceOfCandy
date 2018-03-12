@@ -10,6 +10,7 @@ SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltIdChanged"
 SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 SET_ULTIMATE_GROUP = "POC-SetUlt"
 SWIMLANE_COLMAX_CHANGED = "POC-Swimlane-ColMax"
+ALERT = "POC-Alert"
 
 REAL_API_VERSION = 0
 API_VERSION = REAL_API_VERSION
@@ -77,6 +78,7 @@ function POC:initialize()
     Swimlanes.Initialize()
     Group.Initialize()
     Quest.Initialize()
+    Alert.Initialize()
 
     -- Start talking, see?
     Comm.Initialize()
