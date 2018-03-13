@@ -81,8 +81,6 @@ local function _noop() end
 local msg = d
 local d = nil
 
-local LAM = LibStub("LibAddonMenu-2.0")
-
 local function dump(name)
     local found = false
     local function time(t)
@@ -368,16 +366,16 @@ function Lane:Update(force, tick)
 		end
 		if player.Ults[apid]  < 100 then
 		    play_sound = true
-		    Me.Because = "ultpct < 100"
+		    me.Because = "ultpct < 100"
 		elseif priult and not player.IsDead and player:IsInRange() then
 		    player.Ults[apid] = gt100 - 1
 		    noshow = false
-		    Me.Because = "ultpct == 100"
+		    me.Because = "ultpct == 100"
 		else
 		    -- reset order since we can't contribute
 		    player.Ults[apid] = 100
 		    play_sound = true
-		    Me.Because = "out of range or dead"
+		    me.Because = "out of range or dead"
 		end
 		self:UpdateCell(n, player, playername, priult)
 		if (noshow or not saved.UltNumberShow or
@@ -553,7 +551,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     watch("Player.New", name, pingtag, timestamp, apid1, pct1, apid2, pct2, self)
     if self == nil then
 	if name == myname then
-	    self = Me
+	    self = me
 	else
 	    self = {
 		IsMe = false,
@@ -569,8 +567,8 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 
 
     if timestamp ~= nil then
-	if self.IsMe and pct1 >= 100 and Me.Ults ~= nil and Me.Ults[apid1] ~= nil and Me.Ults[apid1] >= 100 then
-	    pct1 = Me.Ults[apid1]
+	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
+	    pct1 = me.Ults[apid1]
 	end
     elseif not self.Visited then
 	timestamp = self.TimeStamp	-- coming from Player.Update
@@ -674,14 +672,15 @@ function Player.Update(clear_need_to_fire)
 	end
     end
 
-    if Me.IsLeader then
+    if me.IsLeader then
 	inrange = inrange + 2
     end
 
     if (inrange / nmembers) >= 0.5 then
-	Me.InRangeTime = GetTimeStamp()
-    elseif not Me:HasBeenInRange() then
-	Me.InRangeTime = 0
+	me.InRangeTime = GetTimeStamp()
+    elseif me.InRangeTime ~= 0 and not me:HasBeenInRange() then
+	me.InRangeTime = 0
+	need_to_fire = true
     end
     if dumpme ~= nil then
 	dump(dumpme)
@@ -916,7 +915,7 @@ end
 
 function UltNumber.Hide(x)
     if saved.UltNumberShow then
-	if Me.IsDead or Me.UltMain == 0 or Me.Ults[Me.UltMain] < 100 then
+	if me.IsDead or me.UltMain == 0 or me.Ults[me.UltMain] < 100 then
 	    x = true
 	end
 	UltNumber:SetHidden(x)
@@ -944,7 +943,7 @@ function UltNumber.Show(n)
     last_played = GetTimeStamp()
     play_sound = false
     -- xxx("sound", play_sound)
-    Me.Because = "false because we played the sound"
+    me.Because = "false because we played the sound"
 end
 
 -- Initialize Swimlanes
@@ -956,7 +955,7 @@ function Swimlanes.Initialize()
     for n, v in pairs(group_members) do
 	setmetatable(v, Player)
 	if n == myname then
-	    v =  ZO_DeepTableCopy(v, Me)
+	    v =  ZO_DeepTableCopy(v, me)
 	end
 	group_members[n] = v
     end
@@ -1004,7 +1003,7 @@ function Swimlanes.Initialize()
 	end
     end
     SLASH_COMMANDS["/pocfired"] = function()
-	Me:Alert(myname)
+	me:Alert(myname)
     end
     SLASH_COMMANDS["/pocmovable"] = function(x)
 	local movable
