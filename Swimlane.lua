@@ -451,7 +451,7 @@ local function colors(inrange, tbl)
 	elseif i < 4 then
 	    x = x * 0.55
 	else
-	    x = x * 0.70
+	    x = x * 0.75
 	end
 	table.insert(ret, x)
     end
@@ -527,7 +527,7 @@ function Lane:UpdateCell(i, player, playername, priult)
     ultcell:SetValue(ultpct)
     local inrange = player:IsInRange()
     bgcell:SetCenterColor(colors(inrange, values.center))
-    namecell:SetColor(colors(true, values.name))
+    namecell:SetColor(colors(inrange, values.name))
     ultcell:SetColor(colors(inrange, values.ult))
 
     row:SetHidden(false)
