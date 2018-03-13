@@ -308,7 +308,9 @@ function Lane:Update(force, tick)
 	local isMIA = laneid == MIAlane
 	local function sortval(player)
 	    local a
-	    if player:TimedOut() or not player:IsInRange() then
+	    if isMIA then
+		a = player.Ults[player.UltMain]
+	    elseif player:TimedOut() or not player:IsInRange() then
 		a = player.Ults[apid] - 200
 	    elseif player.IsDead then
 		a = player.Ults[apid] - 100
@@ -487,7 +489,10 @@ function Lane:UpdateCell(i, player, playername, priult)
     else
 	apid = self.Apid
     end
-    if player.Ults[apid] > 100 then
+
+    if player.Ults[apid] == nil then
+	ultpct = 0
+    elseif player.Ults[apid] > 100 then
 	ultpct = 100
     else
 	ultpct = player.Ults[apid]
