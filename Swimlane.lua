@@ -403,6 +403,61 @@ function Lane:Update(force, tick)
     return displayed
 end
 
+local alivealpha = 1.0
+local deadalpha = 0.8
+local inprogressalpha = 0.8
+local normal = {
+    [true] = {		-- It's the primary
+	[true] = {		-- >= 100
+	    center = {0.51, 0.41, 0.65},
+	    name = {1, 1, 1, 1},
+	    ult = {0.01, 0.69, 0.02, alivealpha}
+	},
+	[false] = {		-- < 100
+	    center = {0.51, 0.41, 0.65},
+	    name = {1, 1, 1, 0.8},
+	    ult = {0.03, 0.03, 0.7, inprogressalpha},
+	},
+    },
+    [false] = {		-- secondary
+	 [true] = {		-- >= 100
+	    center = {0.51, 0.63, 0.90},
+	    name = {1, 1, 1, 1},
+	    ult = {0.18, 0.42, 0.96, alivealpha},
+	 },
+	 [false] = {	-- < 100
+	    center = {0.51, 0.63, 0.90},
+	    name = {1, 1, 1, 0.8},
+	    ult = {0.18, 0.42, 0.96, alivealpha}
+	}
+    }
+}
+local timedout = {
+    center = {0.15, 0.15, 0.15},
+    name = {1, 1, 1, 1},
+    ult = {0.80, 0.80, 0.80, .85}
+}
+local isdead = {
+    center = normal[true][true].center,
+    name = {0.8, 0.8, 0.8, 0.8},
+    ult = {0.8, 0.03, 0.03, deadalpha}
+}
+
+local function colors(inrange, tbl)
+    local ret = {}
+    for i, x in ipairs(tbl) do
+	if inrange then
+	    -- ok
+	elseif i < 4 then
+	    x = x * 0.55
+	else
+	    x = x * 0.80
+	end
+	table.insert(ret, x)
+    end
+    return unpack(ret)
+end
+
 -- Update a cell
 --
 function Lane:UpdateCell(i, player, playername, priult)
@@ -438,19 +493,6 @@ function Lane:UpdateCell(i, player, playername, priult)
 	ultpct = player.Ults[apid]
     end
 
-    local alivealpha
-    local deadalpha
-    local inprogressalpha
-    if not player:IsInRange() then
-	alivealpha = .4
-	deadalpha = .3
-	inprogressalpha = .3
-    else
-	alivealpha = 1
-	deadalpha = .8
-	inprogressalpha = .8
-    end
-
     local bdlength, _ = bgcell:GetWidth() - 4
     if bdlength == 0 then
 	-- Not sure why this happens
@@ -472,45 +514,21 @@ function Lane:UpdateCell(i, player, playername, priult)
 	    end
 	end
     end
-    ultcell:SetValue(ultpct)
-    if player.InvalidClient then
-	bgcell:SetCenterColor(0.85, 0.73, 0.15)
-	namecell:SetColor(1, 1, 1, 1)
-	ultcell:SetColor(1, 0.80, 0.00, 1)
-    elseif player:TimedOut() then
-	-- YELLOW row:GetNamedChild("Backdrop"):SetCenterColor(0.95, 0.83, 0.25)
-	bgcell:SetCenterColor(0.15, 0.15, 0.15)
-	namecell:SetColor(1, 1, 1, 1)
-	ultcell:SetColor(0.80, 0.80, 0.80, 1)
+
+    local values
+    if player:TimedOut() then
+	values = timedout
+    elseif player.IsDead then
+	values = isdead
     else
-	if priult then
-	    bgcell:SetCenterColor(0.51, 0.41, 0.65)
-	else
-	    bgcell:SetCenterColor(0.51, 0.63, 0.90)
-	end
-	if player.IsDead then
--- xxx(playername, rowi, "dead color", deadalpha)
-	    namecell:SetColor(0.5, 0.5, 0.5, 0.8)
-	    ultcell:SetColor(0.8, 0.03, 0.03, deadalpha)
-	elseif (player.Ults[apid] >= 100) then
--- xxx(playername, rowi, "ready color", alivealpha)
-	    namecell:SetColor(1, 1, 1, 1)
-	    -- row:GetNamedChild("UltPct"):SetColor(0.03, 0.7, 0.03, alivealpha)
-	    if priult then
-		ultcell:SetColor(0.01, 0.69, 0.02, alivealpha)
-	    else
-		ultcell:SetColor(0.18, 0.42, 0.96, alivealpha)
-	    end
-	else
--- xxx(playername, rowi, "inprogress color")
-	    namecell:SetColor(1, 1, 1, 0.8)
-	    if priult then
-		ultcell:SetColor(0.03, 0.03, 0.7, inprogressalpha)
-	    else
-		ultcell:SetColor(0.18, 0.42, 0.96, alivealpha)
-	    end
-	end
+	values = normal[priult][player.Ults[apid] >= 100]
     end
+
+    ultcell:SetValue(ultpct)
+    local inrange = player:IsInRange()
+    bgcell:SetCenterColor(colors(inrange, values.center))
+    namecell:SetColor(colors(true, values.name))
+    ultcell:SetColor(colors(inrange, values.ult))
 
     row:SetHidden(false)
 end
