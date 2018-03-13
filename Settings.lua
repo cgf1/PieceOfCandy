@@ -12,11 +12,8 @@ Settings = {
 	GroupMembers = {},
 	MIA = true,
 	MapIndex = 30,  -- Vvardenfell
-	Movable = true,
 	MyUltId = {},
 	OnlyAva = false,
-	PosX = 0,
-	PosY = 0,
 	Style = "Standard",
 	SwimlaneMax = 24,
 	SwimlaneMaxCols = 6,
@@ -71,14 +68,6 @@ end
 function Settings.SetMIA(what)
     saved.MIA = what
     CALLBACK_MANAGER:FireCallbacks(SWIMLANE_COLMAX_CHANGED, "Display MIA changed")
-end
-
--- Sets MovableSettings and fires POC-MovableChanged callbacks
---
-function Settings.SetMovableSettings(movable)
-    saved.Movable = movable
-
-    CALLBACK_MANAGER:FireCallbacks(MOVABLE_CHANGED, movable)
 end
 
 -- Control whether to only display in PVP setting
@@ -155,18 +144,6 @@ function Settings.InitializeWindow(major, minor, patch)
 	type = "header",
 	name = GetString(OPTIONS_HEADER),
      }
-    o[#o + 1] = {
-	type = "checkbox",
-	name = GetString(OPTIONS_DRAG_LABEL),
-	tooltip = GetString(OPTIONS_DRAG_TOOLTIP),
-	getFunc = function()
-	    return saved.Movable
-	end,
-	setFunc = function(value)
-	    Settings.SetMovableSettings(value)
-	end,
-	default = default.Movable
-    }
     o[#o + 1] = {
 	type = "checkbox",
 	name = GetString(OPTIONS_ONLY_AVA_LABEL),
@@ -298,8 +275,8 @@ function Settings.InitializeWindow(major, minor, patch)
     }
     o[#o + 1] = {
 	type = "checkbox",
-	name = "Automatically ask for Chalman Keep quest",
-	tooltip = "Notice when you're lacking the Chalman Mine quest and ask for it from other players in group",
+	name = "Automatically request Chalman Keep quest",
+	tooltip = "Notice when you're lacking the Chalman Keep quest and silently acquire it from other players in group",
 	getFunc = function()
 	    return Quest.Want(KEEP_INDEX)
 	end,
@@ -309,8 +286,8 @@ function Settings.InitializeWindow(major, minor, patch)
     }
     o[#o + 1] = {
 	type = "checkbox",
-	name = "Automatically ask for Chalman Keep quest",
-	tooltip = "Notice when you're lacking the Chalman Mine quest and ask for it from other players in group",
+	name = "Automatically request Chalman Mine quest",
+	tooltip = "Notice when you're lacking the Chalman Mine quest and silently acquire it from other players in group",
 	getFunc = function()
 	    return Quest.Want(RESOURCE_INDEX)
 	end,
@@ -360,6 +337,15 @@ function Settings.Initialize()
     saved.SwimlaneUltGrpIds = nil
     saved.IsLgsActive = nil
     saved.CountdownNumberPos = nil
+    saved.Movable = nil
+    if saved.PosX ~= nil and saved.PosY ~= nil then
+	saved.WinPos = {
+	    X = saved.PosX,
+	    Y = saved.PosY
+	}
+    end
+    saved.PosX = nil
+    saved.PosY = nil
 
     SLASH_COMMANDS["/pocstyle"] = function(style)
 	style = string.lower(style):gsub("^%l", string.upper)

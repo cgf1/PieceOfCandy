@@ -1,5 +1,4 @@
 setfenv(1, POC)
-local after_style_changed = false
 local SWIMLANES = 6
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
@@ -147,11 +146,13 @@ end
 
 -- set_control_movable sets the Movable and MouseEnabled flag in UI elements
 --
-local function set_control_movable(ismovable)
-    widget:GetNamedChild("MovableControl"):SetHidden(ismovable == false)
-
-    widget:SetMovable(ismovable)
-    widget:SetMouseEnabled(ismovable)
+local function set_control_movable()
+    local movable = saved.AllowMove
+    if movable == nil then
+	movable = true
+    end
+    widget:SetMovable(movable)
+    widget:SetMouseEnabled(movable)
 end
 
 -- Set hidden on control
@@ -168,9 +169,13 @@ end
 
 -- restore_position sets widget position
 --
-local function restore_position(x, y)
-    widget:ClearAnchors()
-    widget:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, x, y)
+local function restore_position()
+    if saved.WinPos == nil then
+	widget:GetNamedChild("MovableControl"):SetHidden(false)
+    else
+	widget:ClearAnchors()
+	widget:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, saved.WinPos.X, saved.WinPos.Y)
+    end
 end
 
 -- set_control_active sets hidden on control
@@ -185,11 +190,9 @@ local function set_control_active()
 	    return
 	end
 	registered = true
-	set_control_movable(saved.Movable)
-	restore_position(saved.PosX, saved.PosY)
+	restore_position()
 
 	CALLBACK_MANAGER:RegisterCallback(PLAYER_DATA_CHANGED, Player.Update)
-	CALLBACK_MANAGER:RegisterCallback(MOVABLE_CHANGED, set_control_movable)
 	CALLBACK_MANAGER:RegisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
 	CALLBACK_MANAGER:RegisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     elseif (registered) then
@@ -199,7 +202,6 @@ local function set_control_active()
 
 	-- CALLBACK_MANAGER:UnregisterCallback(GROUP_CHANGED, _this.UpdateAll)
 	CALLBACK_MANAGER:UnregisterCallback(PLAYER_DATA_CHANGED, Player.Update)
-	CALLBACK_MANAGER:UnregisterCallback(MOVABLE_CHANGED, set_control_movable)
 	CALLBACK_MANAGER:UnregisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
 	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     end
@@ -451,7 +453,7 @@ local function colors(inrange, tbl)
 	elseif i < 4 then
 	    x = x * 0.55
 	else
-	    x = x * 0.80
+	    x = x * 0.70
 	end
 	table.insert(ret, x)
     end
@@ -695,12 +697,16 @@ end
 
 -- Saves current widget position to settings
 --
-function Swimlanes:OnMoveStop()
-    local left = widget:GetLeft()
-    local top = widget:GetTop()
-
-    saved.PosX = left
-    saved.PosY = top
+function Swimlanes:OnMove(stop)
+    if not stop then
+	widget:GetNamedChild("MovableControl"):SetHidden(false)
+    else
+	widget:GetNamedChild("MovableControl"):SetHidden(true)
+	saved.WinPos = {
+	    X = widget:GetLeft(),
+	    Y = widget:GetTop()
+	}
+    end
 end
 
 -- Style changed
@@ -731,13 +737,12 @@ local function style_changed()
 	else
 	    _this.SavedLanes[style] = Lanes.New()
 	    _this.Lanes = _this.SavedLanes[style]
-	    set_control_movable(saved.Movable)
-	    restore_position(saved.PosX, saved.PosY)
+	    restore_position()
 	    -- xxx("Saved New swimlane")
 	end
+	set_control_movable()
 	set_control_active()
 	need_to_fire = true
-after_style_changed = true
     end
 end
 
@@ -969,7 +974,6 @@ function Swimlanes.Initialize()
     UltNumber.Hide(false)
 
     style_changed()
-    after_style_changed = false
 
     EVENT_MANAGER:RegisterForEvent(Settings.Name, EVENT_PLAYER_ACTIVATED, Swimlanes.Update)
     CALLBACK_MANAGER:RegisterCallback(SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
@@ -1001,5 +1005,21 @@ function Swimlanes.Initialize()
     end
     SLASH_COMMANDS["/pocfired"] = function()
 	Me:Alert(myname)
+    end
+    SLASH_COMMANDS["/pocmovable"] = function(x)
+	local movable
+	if x == "yes" or x == "true" or x == "on" then
+	    movable = true
+	elseif x == "no" or x == "false" or x == "off" then
+	    movable = false
+	elseif x ~= "" then
+	    Error("Huh?")
+	    return
+	end
+	if movable ~= nil then
+	    saved.AllowMove = movable
+	    set_control_movable()
+	end
+	Info("Movable state is:", movable)
     end
 end
