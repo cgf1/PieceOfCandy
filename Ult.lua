@@ -1,4 +1,9 @@
 setfenv(1, POC)
+local GetAbilityIcon = GetAbilityIcon
+local GetAbilityName = GetAbilityName
+local GetUnitClassId = GetUnitClassId
+local GetUnitName = GetUnitName
+
 Ult = {
     Name = "POC-Ult",
     MaxPing = 0,
@@ -20,9 +25,6 @@ function Ult.ByPing(pid)
 	return bypings[pid]
     end
 
-    -- not found
-    -- Error("AbilityId not found " .. tostring(pid))
-
     return nil
 end
 
@@ -34,7 +36,7 @@ function Ult.ByAid(aid)
     end
 
     -- not found
-    Error("AbilityId not found " .. tostring(aid))
+    Error(string.format("AbilityId not found %s", tostring(aid)))
 
     return nil
 end
@@ -47,7 +49,7 @@ function Ult.ByName(gname)
     end
 
     -- not found
-    Error("Name not found " .. tostring(gname))
+    Error(string.format("Name not found %s", tostring(gname)))
 
     return nil
 end
@@ -282,7 +284,7 @@ local function create_ults()
 	for name, group in pairs(x) do
 	    group.Name = name
 	    if group.Desc == nil then
-		group.Desc = class .. ': ' .. GetAbilityName(group.Aid)
+		group.Desc = string.format("%s: %s", class, GetAbilityName(group.Aid))
 	    end
 	    byids[group.Aid] = group
 	    bypings[group.Ping] = group
@@ -362,7 +364,7 @@ function Ult.SetSavedFromIcon(icon, n)
 	Ult.SetSavedId(apid, n)
 	return
     end
-    d("Ult.SetSaved: unknown icon " .. tostring(icon))
+    Error(string.format("Ult.SetSaved: unknown icon %s", tostring(icon)))
 end
 
 -- Initialize Ult

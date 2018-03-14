@@ -129,7 +129,7 @@ function PingPipe.Load()
 	else
 	    pingerr = function() return end
 	end
-	d("show_errors " .. tostring(show_errors))
+	Info(string.format("show_errors: %s", tostring(show_errors)))
     end
     PingPipe.active = true
 end

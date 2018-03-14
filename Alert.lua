@@ -8,7 +8,7 @@ local controls = {}
 
 local screenx, screeny
 
-local ix = 12
+local ix = 0
 local MAX = 24
 local fontsize = 50
 local midscreen
@@ -20,12 +20,12 @@ function Alert.Show(text, duration)
 	ix = 1
     end
     local control = controls[ix]
-    local yloc = (height / 3) * (ix - above)
+    local yloc = (fontsize * .60) * (ix - above)
     control:SetAnchor(CENTER, nil, CENTER, 0, yloc)
     control:SetHidden(false)
 --    control:SetText("|c66ff66" .. text)
 --    control:SetText("|cffa500" .. text)
-    control:SetText("|cff6600" .. text)
+    control:SetText(string.format("|cff6600%s", text))
 
     local _, _, _, _, offx, offy = control:GetAnchor()
     local timeline = ANIMATION_MANAGER:CreateTimeline()
@@ -63,6 +63,4 @@ function Alert.Initialize()
 	control:SetHidden(true)
 	controls[i] = control
     end
-    height = control:GetHeight()
-    SLASH_COMMANDS["/ppp"] = Show
 end

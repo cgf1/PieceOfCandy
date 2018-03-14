@@ -1,4 +1,19 @@
 setfenv(1, POC)
+local CreateControlFromVirtual = CreateControlFromVirtual
+local FormatTimeSeconds = FormatTimeSeconds
+local GetAbilityDuration = GetAbilityDuration
+local GetAbilityIcon = GetAbilityIcon
+local GetTimeStamp = GetTimeStamp
+local GetUnitDisplayName = GetUnitDisplayName
+local GetUnitName = GetUnitName
+local IsUnitDead = IsUnitDead
+local IsUnitGroupLeader = IsUnitGroupLeader
+local IsUnitGrouped = IsUnitGrouped
+local IsUnitInCombat = IsUnitInCombat
+local IsUnitInGroupSupportRange = IsUnitInGroupSupportRange
+local IsUnitOnline = IsUnitOnline
+local PlaySound = PlaySound
+
 local SWIMLANES = 6
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
@@ -76,8 +91,6 @@ local _this = Swimlanes
 
 local need_to_fire = true
 
-local function _noop() end
-
 local msg = d
 local d = nil
 
@@ -95,7 +108,7 @@ local function dump(name)
     end
     for n, v in pairs(group_members) do
 	if string.find(n, name, 1) then
-	    msg("== " .. n .. " ==")
+	    msg(string.format("== %s ==", n))
 	    local a = {}
 	    for n in pairs(v) do
 		table.insert(a, n)
@@ -112,7 +125,7 @@ local function dump(name)
 		    else
 			name = u.Desc
 		    end
-		    p = name .. ' [' .. tostring(t) .. ']'
+		    p = string.format("%s [%s]", name, tostring(t))
 		    x = 'Ultimate Type'
 		elseif x == 'InRangeTime' then
 		    p = time(t)
@@ -125,14 +138,14 @@ local function dump(name)
 		    for n, v in pairs(t) do
 			local ult = Ult.ByPing(n)
 			if ult.Name ~= 'MIA' then
-			    p = p .. comma .. ult.Desc .. '[' .. v .. '%]'
+			    p = string.format("%s%s%s[%s%]", p, comma, ult.Desc, v)
 			    comma = ', '
 			end
 		    end
 		else
 		    p = tostring(t)
 		end
-		msg(x .. ':  ' .. p)
+		msg(string.format("%s: %s", x, p))
 	    end
 	    found = true
 	end
@@ -203,11 +216,6 @@ local function set_control_active()
 	CALLBACK_MANAGER:UnregisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
 	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     end
-end
-
-local function clear()
-    saved.GroupMembers = {}
-    group_members = saved.GroupMembers
 end
 
 -- Sets visibility of labels
@@ -475,7 +483,7 @@ function Lane:UpdateCell(i, player, playername, priult)
     row:SetHidden(true)
 
     if not player.IsDead and player.InCombat then
-	playername = "|cff0000" .. playername .. "|r"
+	playername = string.format("|cff0000%s|r", playername)
     end
 
     if sldebug then
@@ -542,11 +550,11 @@ function Player:Alert(name)
     local ult = Ult.ByPing(self.UltMain)
     local aid = ult.Aid
     local duration = GetAbilityDuration(aid) - 500
-    local first = name:match('(%S+)')
-    local message = first .. "'s " .. ult.Name
+    local message = string.format("%s's %s", name, ult.Name)
     Alert.Show(message, duration)
 end
 
+local tmp_player = {}
 function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     if _this.Lanes == nil then
 	return
@@ -582,15 +590,14 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	return self
     end
 
-    local player = {
-	InCombat = IsUnitInCombat(pingtag),
-	InRange = IsUnitInGroupSupportRange(pingtag),
-	IsLeader = IsUnitGroupLeader(pingtag),
-	IsDead = IsUnitDead(pingtag),
-	Online = IsUnitOnline(pingtag),
-	PingTag = pingtag,
-	UltMain = apid1,
-    }
+    local player = tmp_player
+    player.InCombat = IsUnitInCombat(pingtag)
+    player.InRange = IsUnitInGroupSupportRange(pingtag)
+    player.IsLeader = IsUnitGroupLeader(pingtag)
+    player.IsDead = IsUnitDead(pingtag)
+    player.Online = IsUnitOnline(pingtag)
+    player.PingTag = pingtag
+    player.UltMain = apid1
     local changed = timestamp and self.TimeStamp and self:TimedOut()
     if timestamp ~= self.TimeStamp then
 	self.TimeStamp = timestamp
@@ -742,7 +749,6 @@ local function style_changed()
 	    _this.SavedLanes[style] = Lanes.New()
 	    _this.Lanes = _this.SavedLanes[style]
 	    restore_position()
-	    -- xxx("Saved New swimlane")
 	end
 	set_control_movable()
 	set_control_active()
@@ -867,7 +873,7 @@ function Lanes:Redo()
     end
 end
 
--- Create a swimlane list headers
+-- Create a swimlane list
 --
 function Lane.New(lanes, i)
     local self = setmetatable({Id = i}, Lane)
@@ -934,7 +940,7 @@ function UltNumber.Show(n)
     else
 	color = "ff0000"
     end
-    UltNumberLabel:SetText("|c" .. color .. " #" .. n .. "|r")
+    UltNumberLabel:SetText(string.format("|c%s#%s|r", color, tostring(n)))
     UltNumber.Hide(false)
     local timenow = GetTimeStamp()
     if ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
@@ -949,6 +955,16 @@ function UltNumber.Show(n)
     play_sound = false
     -- xxx("sound", play_sound)
     me.Because = "false because we played the sound"
+end
+
+local function clear()
+    saved.GroupMembers = {}
+    group_members = saved.GroupMembers
+    Swimlanes.Lanes = nil
+    Swimlanes.SavedLanes = {}
+    curstyle = ''
+    style_changed()
+    Info("memory cleared")
 end
 
 -- Initialize Swimlanes
@@ -1008,7 +1024,9 @@ function Swimlanes.Initialize()
 	end
     end
     SLASH_COMMANDS["/pocfired"] = function()
-	me:Alert(myname)
+	for i = 1, 24 do
+	    me:Alert(myname)
+	end
     end
     SLASH_COMMANDS["/pocmovable"] = function(x)
 	local movable

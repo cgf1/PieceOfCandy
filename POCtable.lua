@@ -9,3 +9,4 @@ local x = {
 }
 
 POC = setmetatable(x, x)
+POC.POC = POC

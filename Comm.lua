@@ -1,10 +1,18 @@
 setfenv(1, POC)
+
+local GetUnitPower = GetUnitPower
+local GetAbilityCost = GetAbilityCost
+local IsUnitGrouped = IsUnitGrouped
+local EVENT_MANAGER = EVENT_MANAGER
+local Swimlanes
+
 COMM_MAGIC              = 0x0c
 COMM_TYPE_PCTULTOLD     = 0x01 + (COMM_MAGIC * 16)
 COMM_TYPE_COUNTDOWN     = 0x02 + (COMM_MAGIC * 16)
 COMM_TYPE_PCTULT        = 0x03 + (COMM_MAGIC * 16)
 COMM_TYPE_NEEDQUEST     = 0x04 + (COMM_MAGIC * 16)
-COMM_TYPE_MAX           = 0x03
+COMM_TYPE_MYVERSION     = 0x05 + (COMM_MAGIC * 16)
+COMM_TYPE_MAX           = 0x05
 COMM_ALL_PLAYERS        = 0
 
 local DEFAULT_OLDCOUNT = 5
@@ -139,6 +147,7 @@ end
 function Comm.Initialize()
     saved = Settings.SavedVariables
     saved.MapPing = nil
+    Swimlanes = POC.Swimlanes
     myults = saved.MyUltId[ultix]
     if saved.Comm == nil then
 	saved.Comm = 'PingPipe'
@@ -151,7 +160,7 @@ function Comm.Initialize()
     comm = Comm.Driver
     Comm.Type = comm.Name
     if comm == nil then
-	Error("Unknown communication type: " .. saved.Comm)
+	Error(string.format("Unknown communication type: %s", saved.Comm))
     end
     if not comm.active then
 	toggle(false)
@@ -168,7 +177,7 @@ function Comm.Initialize()
 		Swimlanes.Update("Communication method changed")
 	    end
 	end
-	d("Communication method: " .. comm.Name:sub(5))
+	Info(string.format("Communication method: %s", comm.Name:sub(5)))
     end
     SLASH_COMMANDS["/pocoldcount"] = function (n)
 	local was = saved.OldCount

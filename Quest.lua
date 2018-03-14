@@ -6,19 +6,37 @@ Quest.__index = Quest
 
 KEEP_INDEX = 1
 RESOURCE_INDEX = 2
+KILL_INDEX = 3
+
+-- 3157 == Kill enemy players
+-- 5222 == Templars
+-- 5231 == Nightblades
+--
 local qidtonum = {
     [3089] = KEEP_INDEX,
-    [3126] = RESOURCE_INDEX
+    [3126] = RESOURCE_INDEX,
+    [3157] = KILL_INDEX
 }
 
-local numtoqname = {
-    [KEEP_INDEX] = 'Capture Chalman Keep',
-    [RESOURCE_INDEX] = 'Capture Chalman Mine'
+local numtoqname_lang = {
+    en = {
+	[KEEP_INDEX] = 'Capture Chalman Keep',
+	[RESOURCE_INDEX] = 'Capture Chalman Mine',
+	[KILL_INDEX] = 'Kill Enemy Players'
+    },
+    fr = {
+	[KEEP_INDEX] = 'Capturez la bastille Chalman',
+	[RESOURCE_INDEX] = 'Capturez la mine de Chalman',
+	[KILL_INDEX] = 'Tuez les joueurs adverses'
+    }
 }
+
+local numtoqname
 
 local need = {
     [KEEP_INDEX] = true,
-    [RESOURCE_INDEX] = true
+    [RESOURCE_INDEX] = true,
+    [KILL_INDEX] = false
 }
 
 local tracked = {}
@@ -41,14 +59,19 @@ local doit = false
 local function ourquest(jix)
     local qname = GetJournalQuestName(jix)
     local qtype = GetJournalQuestType(jix)
-    if qtype ~= QUEST_TYPE_AVA or qname:sub(1, 7) ~= 'Capture' then
+    local sub = qname:sub(1, 7)
+    if qtype ~= QUEST_TYPE_AVA then
 	return 0
+    elseif sub == 'Kill En' then
+	return KILL_INDEX
+    elseif sub == 'Capture' then
+	if qname:find(' Farm') ~= nil or qname:find(' Lumbermill') ~= nil or qname:find(' Mine') ~= nil then
+	    return RESOURCE_INDEX
+	else
+	    return KEEP_INDEX
+	end
     end
-    if qname:find(' Farm') ~= nil or qname:find(' Lumbermill') ~= nil or qname:find(' Mine') ~= nil then
-	return RESOURCE_INDEX
-    else
-	return KEEP_INDEX
-    end
+    return 0
 end
 
 local function quest_track(qname, id)
@@ -117,7 +140,7 @@ function Quest.Process(player, numquest)
     if qname ~= nil then
 	for i = 1, GetNumJournalQuests() do
 	    if GetJournalQuestName(i) == qname then
-		Info("Sharing quest #" .. GetJournalQuestName(i) .. ' (' .. i .. ')')
+		Info(zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
 		ShareQuest(i)
 		return
 	    end
@@ -147,6 +170,12 @@ function Quest.Want(id, set)
 end
 
 function Quest.Initialize()
+    local lang = GetCVar('Language.2')
+    numtoqname = numtoqname_lang[lang]
+    if numtoqname == nil then
+	Error(string.format("Sorry.  Can't handle language '%s'.  Quest handling disabled.", lang))
+	return
+    end
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_REMOVED, quest_gone)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_SHARED, shared)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_ADDED, quest_added)
@@ -158,6 +187,7 @@ function Quest.Initialize()
 	    [RESOURCE_INDEX] = true
 	}
     end
+
     want = saved.Quests
     for i = 1, GetNumJournalQuests() do
 	local id = ourquest(i)

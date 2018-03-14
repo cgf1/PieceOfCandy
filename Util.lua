@@ -25,7 +25,7 @@ function IdSort(hash, key, debug)
 end
 
 function Error(x)
-    d("POC error: |cff0000" .. x .. "|c")
+    d(string.format("POC error: |cff0000%s|c", x))
 end
 
 function Info(...)

@@ -1,11 +1,10 @@
 setfenv(1, POC)
--- Local variables
---
+local GetAbilityIcon = GetAbilityIcon
+local GetUnitName = GetUnitName
+
 local LAM = LibStub("LibAddonMenu-2.0")
 UltMenu = {}
 UltMenu.__index = UltMenu
-icons = {}
-tooltips = {}
 
 local okimg = '/POC/icons/ok.dds'
 local ok1img = '/POC/icons/ok1.dds'
