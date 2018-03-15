@@ -124,21 +124,12 @@ end
 
 -- Initialize/create settings window
 --
-function Settings.InitializeWindow(major, minor, patch)
+function Settings.InitializeWindow(major, minor)
     local default = Settings.Default
     local styleChoices = {
 	[1] = GetString(OPTIONS_STYLE_SWIM),
 	[2] = GetString(OPTIONS_STYLE_SHORT_SWIM)
     }
-    local paneldata = {
-	    type = "panel",
-	    name = "Piece Of Candy",
-	    author = "TProg Taonnor & Valandil",
-	    version = major .. "." .. minor .. "." .. patch,
-	    slashCommand = "/poc",
-	    registerForDefaults = true
-    }
-
     local o = {}
     o[#o + 1] = {
 	type = "header",
@@ -301,7 +292,7 @@ function Settings.InitializeWindow(major, minor, patch)
 	    type = "panel",
 	    name = "Piece Of Candy",
 	    author = "Valandil",
-	    version = major .. "." .. minor .. "." .. patch,
+	    version = string.format("%s.%s", major, minor),
 	    slashCommand = "/poc",
 	    registerForDefaults = true
     }

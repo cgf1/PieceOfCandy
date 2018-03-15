@@ -22,6 +22,8 @@ local lgs_type = 21 -- aka, the code for 'u'
 
 local lgs_on = false
 local lgs_handler
+local version
+local major, minor
 
 Comm = {
     active = false,
@@ -33,10 +35,25 @@ local comm
 local notify_when_not_grouped = false
 
 local myults
-local quest_ping = QUEST_PING
 
 function Comm.Send(...)
     comm.Send(...)
+end
+
+function Comm.Ready()
+    return comm ~= nil
+end
+
+function Comm.SendVersion(x)
+    if comm == nil then
+	return
+    end
+    if not x then
+	x = 0
+    else
+	x = 1
+    end
+    comm.Send(COMM_TYPE_MYVERSION, major, minor)
 end
 
 function Comm.ToBytes(n)
@@ -83,10 +100,9 @@ local function on_update()
     Swimlanes.Update("map update")
 
     counter = counter + 1
-    if counter == saved.OldCount then
+    if (counter % saved.OldCount) == 0 then
 	local ult, pct = ultpct(myults[1])
 	comm.Send(COMM_TYPE_PCTULTOLD, ult,  pct)
-	counter = 0
     else
 	local send = 0
 	for i, apid in ipairs(myults) do
@@ -95,11 +111,10 @@ local function on_update()
 	    send = (send * 124) + p
 	end
 	local bytes = Comm.ToBytes(send)
--- d("Sending " .. tostring(send))
+	watch("on_update", tostring(send))
 	comm.Send(COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
     end
-    quest_ping = quest_ping - 1
-    if quest_ping <= 0 then
+    if (counter % QUEST_PING) == 0 then
 	quest_ping = QUEST_PING
 	Quest.Ping()
     end
@@ -144,7 +159,7 @@ local function commtype(s)
     return toset
 end
 
-function Comm.Initialize()
+function Comm.Initialize(inmajor, inminor)
     saved = Settings.SavedVariables
     saved.MapPing = nil
     Swimlanes = POC.Swimlanes
@@ -166,6 +181,10 @@ function Comm.Initialize()
 	toggle(false)
     end
 
+    major = inmajor
+    minor = inminor
+    Comm.SendVersion(false)
+
     SLASH_COMMANDS["/poctoggle"] = function () toggle(true) end
     SLASH_COMMANDS["/poccomm"] = function(x)
 	if string.len(x) ~= 0 then
@@ -181,7 +200,12 @@ function Comm.Initialize()
     end
     SLASH_COMMANDS["/pocoldcount"] = function (n)
 	local was = saved.OldCount
-	saved.OldCount = tonumber(n)
+	n = tonumber(n)
+	if n == 1 or n == nil then
+	    Error("can't set to", n)
+	else
+	    saved.OldCount = tonumber(n)
+	end
 	xxx("Changed interval from", was, "to", saved.OldCount)
     end
 end

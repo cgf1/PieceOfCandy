@@ -2,7 +2,6 @@ setfenv(1, POC)
 Name = "POC"
 -- Callbacks
 MAP_PING_CHANGED = "POC-MapPingChanged"
-PLAYER_DATA_CHANGED = "POC-PlayerDataChanged"
 STYLE_CHANGED = "POC-StyleChanged"
 MOVABLE_CHANGED = "POC-MovableChanged"
 STATIC_ULTIMATE_ID_CHANGED = "POC-StaticUltimateIDChanged"
@@ -17,15 +16,14 @@ LANG = GetCVar("Language.2")
 REAL_API_VERSION = 0
 API_VERSION = REAL_API_VERSION
 
-local MAJOR = "2"
-local MINOR = "4"
-local PATCH = "0"
+local major = 3
+local minor = 0
 
 -- POC:initialize initializes addon
 --
 function POC:initialize()
     -- Initialize logging
-    df("Piece of Candy! (v%d.%d.%d)", MAJOR, MINOR, PATCH)
+    df("Piece of Candy! (v%d.%d)", major, minor)
 
     local strings = {
 	WARNING_LGS_ENABLE =             "Warning: Enable LibGroupSocket to send -> /lgs 1",
@@ -73,17 +71,17 @@ function POC:initialize()
     Ult.Initialize()
 
     -- Initialize ui
-    Settings.InitializeWindow(MAJOR, MINOR, PATCH)
+    Settings.InitializeWindow(major, minor)
 
     UltMenu.Initialize()
 
-    Swimlanes.Initialize()
+    Swimlanes.Initialize(major, minor)
     Group.Initialize()
     Quest.Initialize()
     Alert.Initialize()
 
     -- Start talking, see?
-    Comm.Initialize()
+    Comm.Initialize(major, minor)
 end
 
 -- OnAddOnLoaded if POC is loaded, initialize

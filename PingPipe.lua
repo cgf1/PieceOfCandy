@@ -61,6 +61,8 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
 	Countdown.Start(bytes[2])
     elseif ctype == COMM_TYPE_NEEDQUEST then
 	Quest.Process(bytes[2], bytes[3])
+    elseif ctype == COMM_TYPE_MYVERSION then
+	Player.Version(pingtag, bytes[2], bytes[3], bytes[4] == 1)
     elseif ctype == COMM_TYPE_PCTULT then
 	input = math.floor(input / 256)
 	local apid1, pct1, apid2, pct2 = unpack_ultpct(input)

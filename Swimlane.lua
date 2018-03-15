@@ -32,11 +32,12 @@ local SWIMLANEULTMAX = 24
 local forcepct = nil
 local sldebug = false
 
+local version
+local dversion
+
 local group_members
 
 local ping_refresh = false
-
-local reloaded = true
 
 local tick = 0
 
@@ -94,67 +95,6 @@ local need_to_fire = true
 local msg = d
 local d = nil
 
-local function dump(name)
-    local found = false
-    local function time(t)
-	local p
-	if (t == 0) then
-	    p = 'never'
-	else
-	    local duration = GetTimeStamp() - t
-	    p = FormatTimeSeconds(duration, TIME_FORMAT_STYLE_DURATION , TIME_FORMAT_PRECISION_SECONDS, TIME_FORMAT_DIRECTION_NONE)
-	end
-	return p
-    end
-    for n, v in pairs(group_members) do
-	if string.find(n, name, 1) then
-	    msg(string.format("== %s ==", n))
-	    local a = {}
-	    for n in pairs(v) do
-		table.insert(a, n)
-	    end
-	    table.sort(a)
-	    for _, x in ipairs(a) do
-		local t = v[x]
-		local p
-		if x == 'UltAid' then
-		    local u = Ult.ByAid(t)
-		    local name
-		    if u == nil then
-			name = 'unknown'
-		    else
-			name = u.Desc
-		    end
-		    p = string.format("%s [%s]", name, tostring(t))
-		    x = 'Ultimate Type'
-		elseif x == 'InRangeTime' then
-		    p = time(t)
-		elseif x == 'TimeStamp' then
-		    p = time(t)
-		elseif x == 'Ults' then
-		    x = "Ults"
-		    p = ''
-		    local comma = ''
-		    for n, v in pairs(t) do
-			local ult = Ult.ByPing(n)
-			if ult.Name ~= 'MIA' then
-			    p = string.format("%s%s%s[%s%]", p, comma, ult.Desc, v)
-			    comma = ', '
-			end
-		    end
-		else
-		    p = tostring(t)
-		end
-		msg(string.format("%s: %s", x, p))
-	    end
-	    found = true
-	end
-    end
-    if not found then
-	msg("not found")
-    end
-end
-
 -- set_control_movable sets the Movable and MouseEnabled flag in UI elements
 --
 local function set_control_movable()
@@ -203,18 +143,119 @@ local function set_control_active()
 	registered = true
 	restore_position()
 
-	CALLBACK_MANAGER:RegisterCallback(PLAYER_DATA_CHANGED, Player.Update)
 	CALLBACK_MANAGER:RegisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
 	CALLBACK_MANAGER:RegisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     elseif (registered) then
 	registered = false
-	-- Stop timeout timer
-	-- EVENT_MANAGER:UnregisterForUpdate(_this.Name)
-
-	-- CALLBACK_MANAGER:UnregisterCallback(GROUP_CHANGED, _this.UpdateAll)
-	CALLBACK_MANAGER:UnregisterCallback(PLAYER_DATA_CHANGED, Player.Update)
 	CALLBACK_MANAGER:UnregisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
 	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
+    end
+end
+
+-- Style changed
+--
+local function style_changed()
+    local style = saved.Style
+    if style ~= curstyle then
+	if curstyle ~= "" then
+	    set_control_hidden(true)
+	end
+	curstyle = style
+	if widget ~= nil then
+	    widget:SetHidden(true)
+	end
+	if style == "Compact" then
+	    widget = CompactSwimlaneControl
+	    swimlanerow = "CompactUltSwimlaneRow"
+	    namelen = 6
+	    topleft = 50
+	else
+	    widget = SwimlaneControl
+	    swimlanerow = "UltSwimlaneRow"
+	    namelen = 12
+	    topleft = 25
+	end
+	if (_this.SavedLanes[style] ~= nil) then
+	    _this.Lanes = _this.SavedLanes[style]
+	else
+	    _this.SavedLanes[style] = Lanes.New()
+	    _this.Lanes = _this.SavedLanes[style]
+	    restore_position()
+	end
+	set_control_movable()
+	set_control_active()
+	need_to_fire = true
+    end
+end
+
+local function clear()
+    saved.GroupMembers = {}
+    group_members = saved.GroupMembers
+    Swimlanes.Lanes = nil
+    Swimlanes.SavedLanes = {}
+    curstyle = ''
+    style_changed()
+    Info("memory cleared")
+end
+
+local function dump(name)
+    local found = false
+    local function time(t)
+	local p
+	if (t == 0) then
+	    p = 'never'
+	else
+	    local duration = GetTimeStamp() - t
+	    p = FormatTimeSeconds(duration, TIME_FORMAT_STYLE_DURATION , TIME_FORMAT_PRECISION_SECONDS, TIME_FORMAT_DIRECTION_NONE)
+	end
+	return p
+    end
+    for n, v in pairs(group_members) do
+	if string.find(n, name, 1) then
+	    msg(string.format("== %s ==", n))
+	    local a = {}
+	    for n in pairs(v) do
+		table.insert(a, n)
+	    end
+	    table.sort(a)
+	    for _, x in ipairs(a) do
+		local t = v[x]
+		local p
+		if x == 'UltAid' then
+		    local u = Ult.ByAid(t)
+		    local name
+		    if u == nil then
+			name = 'unknown'
+		    else
+			name = u.Desc
+		    end
+		    p = string.format("%s [%s]", name, tostring(t))
+		    x = 'Ultimate Type'
+		elseif x == 'InRangeTime' then
+		    p = time(t)
+		elseif x == 'TimeStamp' then
+		    p = time(t)
+		elseif x == 'Ults' then
+		    x = "Ults"
+		    p = ''
+		    local comma = ''
+		    for n, v in pairs(t) do
+			local ult = Ult.ByPing(n)
+			if ult.Name ~= 'MIA' then
+			    p = string.format("%s%s%s[%s%%]", p, comma, ult.Desc, v)
+			    comma = ', '
+			end
+		    end
+		else
+		    p = tostring(t)
+		end
+		msg(string.format("%s: %s", x, p))
+	    end
+	    found = true
+	end
+    end
+    if not found then
+	msg("not found")
     end
 end
 
@@ -223,6 +264,9 @@ end
 function Lanes:Update(x)
     local refresh
     local displayed = false
+    if x == "joined" then
+	Comm.SendVersion(false)
+    end
     if (Group.IsGrouped()) then
 	refresh = Player.Update(true)
 	displayed = not _this.WasActive
@@ -324,6 +368,9 @@ function Lane:Update(force, tick)
 		a = player.Ults[apid] - 100
 	    else
 		a = player.Ults[apid]
+	    end
+	    if a == nil then
+		a = 0
 	    end
 	    return a
 	end
@@ -554,6 +601,21 @@ function Player:Alert(name)
     Alert.Show(message, duration)
 end
 
+local newversion_alert = 5
+function Player.Version(pingtag, major, minor, force)
+    local v = string.format("%d.%03d", major, minor)
+    local dv = string.format("%d.%d", major, minor)
+    watch("Player.Version", pingtag, v)
+    if tonumber(v) > version then
+	if newversion_alert > 0 then
+	    Info(string.format("new version v%s detected (%s). You have v%s", dv, GetUnitName(pingtag), dversion))
+	end
+	newversion_alert = newversion_alert - 1
+    elseif force then
+	Info(string.format("version v%s detected (%s). You have v%s", dv, GetUnitName(pingtag), dversion))
+    end
+end
+
 local tmp_player = {}
 function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     if _this.Lanes == nil then
@@ -571,6 +633,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 		NewClient = false,
 		Tick = 0,
 		TimeStamp = 0,
+		UltMan = 0,
 		Ults = {},
 		Visited = false
 	    }
@@ -605,44 +668,29 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     if saved.AtNames and self.AtName == nil then
 	player.AtName = GetUnitDisplayName(pingtag)
     end
-    local ults
-    if pct1 == 0 and self.UltMain and self.Ults[self.UltMain] and self.Ults[self.UltMain] > 0 then
-	self:Alert(name)
-    end
-    if apid1 == nil then
-	if reloaded then
-	    ults = self.Ults
+
+    if apid1 ~= nil then
+	if self.UltMain and self.UltMain ~= 0 and self.UltMain ~= apid1 then
+	    self.Ults[self.UltMain] = nil       -- Player changed their main ult
 	end
-    else
-	ults = {[apid1] = pct1}
+	if self.Ults[apid1] ~= pct1 then
+	    self.Ults[apid1] = pct1
+	    changed = true
+	end
 	if apid2 ~= nil then
-	    ults[apid2] = pct2
-	    player.NewClient = true
-	elseif not self.NewClient then
-	    -- just one in the array
-	elseif apid1 ~= self.UltMain then
-	    ults = {} -- can't handle this; wait for next ping
-	else
-	    -- Fill in with existing second ult if any
-	    for n, v in pairs(self.Ults) do
-		if n ~= apid1 then
-		    ults[n] = v
-		    break
+	    if self.Ults[apid2] == nil then
+		-- Player changed their secondary ult
+		for apid, _ in pairs(self.Ults) do
+		    if apid ~= apid1 then
+			self.Ults[apid] = nil
+			break
+		    end
 		end
 	    end
-	end
-    end
-
-    if ults then
-	local ultchanged
-	for apid, pct in pairs(ults) do
-	    if self.Ults[apid] ~= pct then
-		ultchanged = true
+	    if self.Ults[apid2] ~= pct2 then
+		self.Ults[apid2] = pct2         -- secondary ult pct changed
+		changed = true
 	    end
-	end
-	if ultchanged then
-	    self.Ults = ults
-	    changed = true
 	end
     end
 
@@ -717,42 +765,6 @@ function Swimlanes:OnMove(stop)
 	    X = widget:GetLeft(),
 	    Y = widget:GetTop()
 	}
-    end
-end
-
--- Style changed
---
-local function style_changed()
-    local style = saved.Style
-    if style ~= curstyle then
-	if curstyle ~= "" then
-	    set_control_hidden(true)
-	end
-	curstyle = style
-	if widget ~= nil then
-	    widget:SetHidden(true)
-	end
-	if style == "Compact" then
-	    widget = CompactSwimlaneControl
-	    swimlanerow = "CompactUltSwimlaneRow"
-	    namelen = 6
-	    topleft = 50
-	else
-	    widget = SwimlaneControl
-	    swimlanerow = "UltSwimlaneRow"
-	    namelen = 12
-	    topleft = 25
-	end
-	if (_this.SavedLanes[style] ~= nil) then
-	    _this.Lanes = _this.SavedLanes[style]
-	else
-	    _this.SavedLanes[style] = Lanes.New()
-	    _this.Lanes = _this.SavedLanes[style]
-	    restore_position()
-	end
-	set_control_movable()
-	set_control_active()
-	need_to_fire = true
     end
 end
 
@@ -926,7 +938,7 @@ end
 
 function UltNumber.Hide(x)
     if saved.UltNumberShow then
-	if me.IsDead or me.UltMain == 0 or me.Ults[me.UltMain] < 100 then
+	if not x and me.IsDead or me.UltMain == 0 or me.Ults[me.UltMain] == nil or me.Ults[me.UltMain] < 100 then
 	    x = true
 	end
 	UltNumber:SetHidden(x)
@@ -957,20 +969,10 @@ function UltNumber.Show(n)
     me.Because = "false because we played the sound"
 end
 
-local function clear()
-    saved.GroupMembers = {}
-    group_members = saved.GroupMembers
-    Swimlanes.Lanes = nil
-    Swimlanes.SavedLanes = {}
-    curstyle = ''
-    style_changed()
-    Info("memory cleared")
-end
-
 -- Initialize Swimlanes
 --
 Swimlanes.Update = function(x) _this.Lanes:Update(x) end
-function Swimlanes.Initialize()
+function Swimlanes.Initialize(major, minor)
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
     for n, v in pairs(group_members) do
@@ -980,6 +982,7 @@ function Swimlanes.Initialize()
 	end
 	group_members[n] = v
     end
+    SLASH_COMMANDS["/pocclear"] = clear
 
     UltNumber:ClearAnchors()
     if (saved.UltNumberPos == nil) then
@@ -991,13 +994,17 @@ function Swimlanes.Initialize()
     end
     UltNumber:SetMovable(true)
     UltNumber:SetMouseEnabled(true)
-    UltNumber.Hide(false)
+    UltNumber.Hide(true)
 
     style_changed()
 
     EVENT_MANAGER:RegisterForEvent(Settings.Name, EVENT_PLAYER_ACTIVATED, Swimlanes.Update)
     CALLBACK_MANAGER:RegisterCallback(SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
     CALLBACK_MANAGER:RegisterCallback(STYLE_CHANGED, style_changed)
+
+    version = tonumber(string.format("%d.%03d", major, minor))
+    dversion = string.format("%d.%d", major, minor)
+
     SLASH_COMMANDS["/pocpct"] = function(pct)
 	if string.len(pct) == 0 then
 	    forcepct = nil
@@ -1014,7 +1021,6 @@ function Swimlanes.Initialize()
 	msg(sldebug)
     end
     SLASH_COMMANDS["/pocdump"] = function(x) dumpme = x end
-    SLASH_COMMANDS["/pocclear"] = clear
     SLASH_COMMANDS["/pocrefresh"] = function(pct)
 	ping_refresh = not ping_refresh
 	if ping_refresh then
@@ -1043,5 +1049,8 @@ function Swimlanes.Initialize()
 	    set_control_movable()
 	end
 	Info("Movable state is:", movable)
+    end
+    SLASH_COMMANDS["/pocsendver"] = function(x)
+	Comm.SendVersion(true)
     end
 end
