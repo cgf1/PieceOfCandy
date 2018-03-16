@@ -188,14 +188,16 @@ local function style_changed()
     end
 end
 
-local function clear()
+local function clear(verbose)
     saved.GroupMembers = {}
     group_members = saved.GroupMembers
     Swimlanes.Lanes = nil
     Swimlanes.SavedLanes = {}
     curstyle = ''
     style_changed()
-    Info("memory cleared")
+    if verbose then
+	Info("memory cleared")
+    end
 end
 
 local function dump(name)
@@ -275,7 +277,7 @@ function Lanes:Update(x)
     else
 	refresh = true	-- just get rid of everything
 	msg("POC: No longer grouped")
-	clear()
+	clear(false)
 	set_control_active()
 	_this.WasActive = false
     end
@@ -392,7 +394,8 @@ function Lane:Update(force, tick)
 	local keys = {}
 	local plunk = self.Plunk
 	for name, player in pairs(group_members) do
-	    if not IsUnitGrouped(player.PingTag) then
+	    local pingtag = player.PingTag
+	    if (not IsUnitGrouped(pingtag)) or GetUnitName(pingtag) ~= name then
 		group_members[name] = nil
 	    elseif plunk(player, apid, tick) then
 		table.insert(keys, name)
@@ -988,7 +991,7 @@ function Swimlanes.Initialize(major, minor)
 	end
 	group_members[n] = v
     end
-    SLASH_COMMANDS["/pocclear"] = clear
+    SLASH_COMMANDS["/pocclear"] = function() clear(true) end
 
     UltNumber:ClearAnchors()
     if (saved.UltNumberPos == nil) then

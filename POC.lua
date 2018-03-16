@@ -17,7 +17,7 @@ REAL_API_VERSION = 0
 API_VERSION = REAL_API_VERSION
 
 local major = 3
-local minor = 0
+local minor = 1
 
 -- POC:initialize initializes addon
 --
