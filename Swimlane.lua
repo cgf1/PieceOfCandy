@@ -633,7 +633,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 		NewClient = false,
 		Tick = 0,
 		TimeStamp = 0,
-		UltMan = 0,
+		UltMain = 0,
 		Ults = {},
 		Visited = false
 	    }
@@ -641,6 +641,9 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	group_members[name] = setmetatable(self, Player)
     end
 
+    if pct1 == 0 and self.UltMain and self.Ults[self.UltMain] and self.Ults[self.UltMain] > 0 then
+	self:Alert(name)
+    end
 
     if timestamp ~= nil then
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
