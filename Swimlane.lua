@@ -492,7 +492,7 @@ local normal = {
 local timedout = {
     center = {0.15, 0.15, 0.15},
     name = {1, 1, 1, 1},
-    ult = {0.80, 0.80, 0.80, .85}
+    ult = {0.80, 0.80, 0.80, 2}
 }
 local isdead = {
     center = normal[true][true].center,
@@ -596,7 +596,10 @@ end
 function Player:Alert(name)
     local ult = Ult.ByPing(self.UltMain)
     local aid = ult.Aid
-    local duration = GetAbilityDuration(aid) - 500
+    local duration = GetAbilityDuration(aid)
+    if duration < 10000 then
+	duration = 10000
+    end
     local message = string.format("%s's %s", name, ult.Name)
     Alert.Show(message, duration)
 end
