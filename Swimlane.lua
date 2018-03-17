@@ -13,6 +13,7 @@ local IsUnitInCombat = IsUnitInCombat
 local IsUnitInGroupSupportRange = IsUnitInGroupSupportRange
 local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
+local table = table
 
 local SWIMLANES = 6
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
@@ -342,7 +343,6 @@ end
 
 -- Update swimlane
 --
-local tmp_keys = {}
 function Lane:Update(force, tick)
     local laneid = self.Id
     if not force and laneid > MIAlane then
@@ -389,7 +389,7 @@ function Lane:Update(force, tick)
 	   end
 	end
 
-	local keys = {}
+	local keys = self.People
 	local plunk = self.Plunk
 	local i = 0
 	for name, player in pairs(group_members) do
@@ -400,6 +400,9 @@ function Lane:Update(force, tick)
 		i = i + 1
 		keys[i] = name
 	    end
+	end
+	while #keys > i do
+	    table.remove(keys)
 	end
 
 	table.sort(keys, compare)
@@ -937,6 +940,7 @@ function Lane.New(lanes, i)
 	last_row = row
     end
     self.Apid = apid
+    self.People = {}
     return self
 end
 
