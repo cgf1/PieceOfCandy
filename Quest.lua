@@ -140,7 +140,7 @@ function Quest.Process(player, numquest)
     if qname ~= nil then
 	for i = 1, GetNumJournalQuests() do
 	    if GetJournalQuestName(i) == qname then
-		Info(zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
+		-- Info(zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
 		ShareQuest(i)
 		return
 	    end
