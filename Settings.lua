@@ -26,6 +26,7 @@ Settings = {
 	    [6] = 46622,
 	    [7] = 'MIA'
 	},
+	UltAlert = true,
 	UltNumberPos = nil,
 	UltNumberShow = true,
 	WereNumberOne = true
@@ -229,6 +230,16 @@ function Settings.InitializeWindow(major, minor)
 	    end
 	end,
 	default = default.AtNames
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Show ultimate alerts",
+	tooltip = "Display player's ultimate on screen shortly after ultimate is used",
+	getFunc = function()
+	    return saved.UltAlert
+	end,
+	setFunc = function(val) saved.UltAlert = val end,
+	default = default.UltAlert
     }
     o[#o + 1] = {
 	type = "checkbox",

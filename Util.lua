@@ -1,27 +1,26 @@
 setfenv(1, POC)
-function IdSort(hash, key, debug)
-    local function compare(a, b)
-	print(tostring(a))
-	local na = tonumber(a[key])
-	local nb = tonumber(b[key])
-	if na == nil and nb == nil then
-	    return a < b
-	end
-	if na == nil then
-	    return false
-	end
-	if nb == nil then
-	    return true
-	end
-	return  a[key] < b[key]
-    end
-    local ret = {}
-    for _,v in pairs(hash) do
-	table.insert(ret, v)
-    end
 
-    table.sort(ret, compare)
-    return ret
+local tmp = {}
+local function iter(a, i)
+    i = i + 1
+    local v = a[i]
+    if v then
+	return i, v
+    end
+end
+
+function idpairs(hash, key)
+    local max = 0
+    local tmp = tmp
+    for _, v in pairs(hash) do
+	local i = v[key]
+	tmp[i] = v
+	if i > max then
+	    max = i
+	end
+    end
+    tmp[max + 1] = nil
+    return iter, tmp, 0
 end
 
 function Error(x)

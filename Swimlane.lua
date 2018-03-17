@@ -287,8 +287,7 @@ function Lanes:Update(x)
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
-	local tick = tick
-	for _,lane in ipairs(IdSort(self, "Id")) do
+	for _, lane in idpairs(self, "Id") do
 	    if lane:Update(false, tick) then
 		displayed = true
 	    end
@@ -343,6 +342,7 @@ end
 
 -- Update swimlane
 --
+local tmp_keys = {}
 function Lane:Update(force, tick)
     local laneid = self.Id
     if not force and laneid > MIAlane then
@@ -360,18 +360,18 @@ function Lane:Update(force, tick)
     local n = 1
     if (laneid <= lastlane) then
 	local isMIA = laneid == MIAlane
+
 	local function sortval(player)
 	    local a
-	    if isMIA then
-		a = player.Ults[player.UltMain]
-	    elseif player:TimedOut() or not player:IsInRange() then
-		a = player.Ults[apid] - 200
+	    if player:TimedOut() then
+		a = -2
 	    elseif player.IsDead then
-		a = player.Ults[apid] - 100
-	    else
+		a = -1
+	    elseif not isMIA then
 		a = player.Ults[apid]
-	    end
-	    if a == nil then
+	    elseif player.UltMain > 0 then
+		a = player.Ults[player.UltMain]
+	    else
 		a = 0
 	    end
 	    return a
@@ -382,8 +382,6 @@ function Lane:Update(force, tick)
 	    local player2 = group_members[key2]
 	    local a = sortval(player1)
 	    local b = sortval(player2)
-	    -- xxx("A " .. a)
-	    -- xxx("B " .. b)
 	    if (a == b) then
 		return player1.PingTag < player2.PingTag
 	    else
@@ -393,12 +391,14 @@ function Lane:Update(force, tick)
 
 	local keys = {}
 	local plunk = self.Plunk
+	local i = 0
 	for name, player in pairs(group_members) do
 	    local pingtag = player.PingTag
 	    if (not IsUnitGrouped(pingtag)) or GetUnitName(pingtag) ~= name then
 		group_members[name] = nil
 	    elseif plunk(player, apid, tick) then
-		table.insert(keys, name)
+		i = i + 1
+		keys[i] = name
 	    end
 	end
 
@@ -503,17 +503,21 @@ local isdead = {
     ult = {0.8, 0.03, 0.03, deadalpha}
 }
 
+local tmp_colors = {}
 local function colors(inrange, tbl)
-    local ret = {}
+    local ret = tmp_colors
     for i, x in ipairs(tbl) do
 	if inrange then
 	    -- ok
 	elseif i < 4 then
 	    x = x * 0.55
 	else
-	    x = x * 0.75
+	    x = x * 0.85
 	end
-	table.insert(ret, x)
+	ret[i] = x
+    end
+    if #ret > #tbl then
+	ret[#tbl + 1] = nil
     end
     return unpack(ret)
 end
@@ -597,6 +601,9 @@ function Lane:UpdateCell(i, player, playername, priult)
 end
 
 function Player:Alert(name)
+    if not saved.UltAlert then
+	return
+    end
     local ult = Ult.ByPing(self.UltMain)
     local aid = ult.Aid
     local duration = GetAbilityDuration(aid)
@@ -624,9 +631,6 @@ end
 
 local tmp_player = {}
 function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
-    if _this.Lanes == nil then
-	return
-    end
     local name = GetUnitName(pingtag)
     local self = group_members[name]
     watch("Player.New", name, pingtag, timestamp, apid1, pct1, apid2, pct2, self)
@@ -652,11 +656,15 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     end
 
     if timestamp ~= nil then
+	if apid1 == 0 then
+	    return			-- hopefully an anomaly
+	end
+	-- Coming from Player.New
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
-	    pct1 = me.Ults[apid1]
+	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
 	end
     elseif not self.Visited then
-	timestamp = self.TimeStamp	-- coming from Player.Update
+	timestamp = self.TimeStamp	-- coming from Player.Update - haven't seen before
     else
 	self.Visited = false
 	return self
@@ -670,6 +678,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     player.Online = IsUnitOnline(pingtag)
     player.PingTag = pingtag
     player.UltMain = apid1
+    -- Consider changed if we have a timestamp and timeout is detected
     local changed = timestamp and self.TimeStamp and self:TimedOut()
     if timestamp ~= self.TimeStamp then
 	self.TimeStamp = timestamp
@@ -679,25 +688,29 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     end
 
     if apid1 ~= nil then
+	-- Called from Player.New
 	if self.UltMain and self.UltMain ~= 0 and self.UltMain ~= apid1 then
-	    self.Ults[self.UltMain] = nil       -- Player changed their main ult
+	    self.Ults[self.UltMain] = nil	-- Player changed their main ult
 	end
 	if self.Ults[apid1] ~= pct1 then
-	    self.Ults[apid1] = pct1
+	    self.Ults[apid1] = pct1		-- Primary ult pct changed
 	    changed = true
 	end
 	if apid2 ~= nil then
+	    -- Called from Player.New with both ult1 and ult2
 	    if self.Ults[apid2] == nil then
 		-- Player changed their secondary ult
+		-- Search ults table for one that isn't primary
 		for apid, _ in pairs(self.Ults) do
 		    if apid ~= apid1 then
+			-- Found it
 			self.Ults[apid] = nil
 			break
 		    end
 		end
 	    end
 	    if self.Ults[apid2] ~= pct2 then
-		self.Ults[apid2] = pct2         -- secondary ult pct changed
+		self.Ults[apid2] = pct2		-- secondary ult pct changed
 		changed = true
 	    end
 	end
@@ -710,7 +723,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	end
     end
 
-    self.Visited = true
+    self.Visited = apid1 ~= nil			-- Saw this this time around
 
     if changed then
 	need_to_fire = true
@@ -789,7 +802,7 @@ end
 --
 function Lanes:SetUlt(id, newapid)
     if self[newapid] ~= nil then
-	return  -- already displaying this ultimate
+	return	-- already displaying this ultimate
     end
     for apid, lane in pairs(self) do
 	if lane.Id == id then
@@ -800,7 +813,7 @@ function Lanes:SetUlt(id, newapid)
 	    if lane.Label ~= nil then
 		lane.Label:SetText(Ult.ByPing(newapid).Name)
 	    end
-	    self[apid] = nil	        -- Delete old lane
+	    self[apid] = nil		-- Delete old lane
 	    need_to_fire = true
 	    break
 	end

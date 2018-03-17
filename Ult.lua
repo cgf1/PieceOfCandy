@@ -54,15 +54,9 @@ function Ult.ByName(gname)
     return nil
 end
 
--- GetUlts gets all ultimate groups
---
-function Ult.GetUlts()
-    return IdSort(bynames, "Id")
-end
-
 function Ult.Icons()
     local icons = {}
-    for _, v in ipairs(IdSort(bynames, 'Id')) do
+    for _, v in idpairs(bynames, 'Id') do
 	if v.Aid ~= 'MIA' then
 	    table.insert(icons, GetAbilityIcon(v.Aid))
 	end
@@ -72,7 +66,7 @@ end
 
 function Ult.Descriptions()
     local desclist = {}
-    for _, v in ipairs(IdSort(bynames, 'Id')) do
+    for _, v in idpairs(bynames, 'Id') do
 	if v.Aid ~= 'MIA' then
 	    table.insert(desclist, v.Desc)
 	end
@@ -81,12 +75,13 @@ function Ult.Descriptions()
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
-    for _, v in ipairs(IdSort(from_table[from_key], 'Aid', 1)) do
+    local t = from_table[from_key]
+    from_table[from_key] = nil
+    for _, v in ipairs(t) do
+	to_table[v.Name] = v
 	i = i + 1
 	v.Id = i
-	to_table[v.Name] = v
     end
-    from_table[from_key] = nil
     return i
 end
 
@@ -106,172 +101,201 @@ local function create_ults()
 
     local ults = {
 	["Sorcerer"] = {
-	    ["NEGATE"] = {
+	    {
+		Name = "NEGATE",
 		Ping = 1,
 		Aid = 29861
 	    },
-
-	    ["ATRO"] = {
+	    {
+		Name = "ATRO",
 		Ping = 2,
 		Aid = 30553
 	    },
-	    ["OVER"] = {
+	    {
+		Name = "OVER",
 		Ping = 3,
 		Aid = 30366
 	    },
 	},
 	["Templar"] = {
-	    ["SWEEP"] = {
+	    {
+		Name = "SWEEP",
 		Ping = 4,
 		Aid = 23788
 	    },
-	    ["NOVA"] = {
+	    {
+		Name = "NOVA",
 		Ping = 5,
 		Aid = 24301
 	    },
-	    ["TPHEAL"] = {
+	    {
+		Name = "TPHEAL",
 		Ping = 6,
 		Aid = 27413
 	    },
 	},
 	["Dragonknight"] = {
-	    ["STAND"] = {
+	    {
+		Name = "STAND",
 		Ping = 7,
 		Aid = 34021
 	    },
-	    ["LEAP"] = {
+	    {
+		Name = "LEAP",
 		Ping = 8,
 		Aid = 33668
 	    },
-	    ["MAGMA"] = {
+	    {
+		Name = "MAGMA",
 		Ping = 9,
 		Aid = 33841
 	    },
 	},
 	["Nightblade"] = {
-	    ["STROKE"] = {
+	    {
+		Name = "STROKE",
 		Ping = 10,
 		Aid = 37545
 	    },
-	    ["VEIL"] = {
+	    {
+		Name = "VEIL",
 		Ping = 11,
 		Aid = 37713
 	    },
-	    ["NBSOUL"] = {
+	    {
+		Name = "NBSOUL",
 		Ping = 12,
 		Aid = 36207
 	    },
 	},
 	["Warden"] = {
 	    -- BEAR not useful, its always up
-	    ["FREEZE"] = {
+	    {
+		Name = "FREEZE",
 		Ping = 13,
 		Aid = 86112
 	    },
-	    ["WDHEAL"] = {
+	    {
+		Name = "WDHEAL",
 		Ping = 14,
 		Aid = 93971
 	    },
 	},
 	["Destruction Staff"] = {
 	    -- Destro
-	    ["ICE"] = {
+	    {
+		Name = "ICE",
 		Ping = 15,
 		Aid = 86542
 	    },
-	    ["FIRE"] = {
+	    {
+		Name = "FIRE",
 		Ping = 16,
 		Aid = 86536
 	    },
-	    ["LIGHT"] = {
+	    {
+		Name = "LIGHT",
 		Ping = 17,
 		Aid = 86550
 	    },
 	},
 	["Restoration Staff"] = {
 	    -- Resto
-	    ["STHEAL"] = {
+	    {
+		Name = "STHEAL",
 		Ping = 18,
 		Aid = 86454
 	    },
 	},
 	["Two Handed"] = {
 	    -- 2H
-	    ["BERSERK"] = {
+	    {
+		Name = "BERSERK",
 		Ping = 19,
 		Aid = 86284
 	    },
 	},
 	["One Hand and Shield"] = {
 	    -- SB
-	    ["SHIELD"] = {
+	    {
+		Name = "SHIELD",
 		Ping = 20,
 		Aid = 83292
 	    },
 	},
 	["Dual Wield"] = {
 	    -- DW
-	    ["DUAL"] = {
+	    {
+		Name = "DUAL",
 		Ping = 21,
 		Aid = 86410
 	    },
 	},
 	["Bow"] = {
 	    -- BOW
-	    ["BOW"] = {
+	    {
+		Name = "BOW",
 		Ping = 22,
 		Aid = 86620
 	    },
 	},
 	["Soul Magic"] = {
 	    -- Soul
-	    ["SOUL"] = {
+	    {
+		Name = "SOUL",
 		Ping = 23,
 		Aid = 43109
 	    },
 	},
 	["Werewolf"] = {
 	    -- Werewolf
-	    ["WERE"] = {
+	    {
+		Name = "WERE",
 		Ping = 24,
 		Aid = 42379
 	    },
 	},
 	["Vampire"] = {
 	    -- Vamp
-	    ["VAMP"] = {
+	    {
+		Name = "VAMP",
 		Ping = 25,
 		Aid = 41937
 	    },
 	},
 	["Mages Guild"] = {
 	    -- Mageguild
-	    ["METEOR"] = {
+	    {
+		Name = "METEOR",
 		Ping = 26,
 		Aid = 42492
 	    },
 	},
 	["Fighters Guild"] = {
 	    -- Fighterguild
-	    ["DAWN"] = {
+	    {
+		Name = "DAWN",
 		Ping = 27,
 		Aid = 42598
 	    }
 	},
 	["PVP"] = {
 	    -- Support
-	    ["BARRIER"] = {
+	    {
+		Name = "BARRIER",
 		Ping = 28,
 		Aid = 46622
 	    },
 	    -- Assault
-	    ["HORN"] = {
+	    {
+		Name = "HORN",
 		Ping = 29,
 		Aid = 46537
 	    }
 	},
 	["POC"] = {
-	    ['MIA'] = {
+	    {
+		Name = "MIA",
 		Desc = "Incommunicado Player",
 		Ping = 30,  -- a contradiction?
 		Aid = 'MIA'
@@ -281,8 +305,7 @@ local function create_ults()
     }
     -- Add groups
     for class, x in pairs(ults) do
-	for name, group in pairs(x) do
-	    group.Name = name
+	for _, group in pairs(x) do
 	    if group.Desc == nil then
 		group.Desc = string.format("%s: %s", class, GetAbilityName(group.Aid))
 	    end
@@ -296,7 +319,7 @@ local function create_ults()
     local i = 0
     i = insert_group_table(bynames, ults, class, i)
     if saved.MyUltId[ultix] == nil then
-	for _, v in ipairs(IdSort(bynames, 'Id')) do
+	for _, v in idpairs(bynames, 'Id') do
 	    Ult.SetSavedId(v.Aid, 1)
 	    Ult.SetSavedId('MIA', 2)
 	    break
@@ -315,7 +338,7 @@ local function create_ults()
     i = insert_group_table(bynames, ults, "Werewolf", i)
     i = insert_group_table(bynames, ults, "Soul Magic", i)
     for _, class in pairs(classes) do
-	if ults[class] ~= null then
+	if ults[class] ~= nil then
 	    i = insert_group_table(bynames, ults, class, i)
 	end
     end
