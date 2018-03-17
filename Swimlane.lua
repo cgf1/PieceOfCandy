@@ -341,6 +341,35 @@ function Player:PlunkMIA(apid, tick)
     end
 end
 
+local lane_apid
+local function sortval(player)
+    local a
+    if player:TimedOut() then
+	a = -2
+    elseif player.IsDead then
+	a = -1
+    elseif not isMIA then
+	a = player.Ults[lane_apid]
+    elseif player.UltMain > 0 then
+	a = player.Ults[player.UltMain]
+    else
+	a = 0
+    end
+    return a
+end
+
+local function compare(key1, key2)
+    local player1 = group_members[key1]
+    local player2 = group_members[key2]
+    local a = sortval(player1)
+    local b = sortval(player2)
+    if (a == b) then
+	return player1.PingTag < player2.PingTag
+    else
+	return a > b
+   end
+end
+
 -- Update swimlane
 --
 function Lane:Update(force, tick)
@@ -348,7 +377,6 @@ function Lane:Update(force, tick)
     if not force and laneid > MIAlane then
 	return
     end
-    local apid = self.Apid
 
     local displayed = false
     local lastlane
@@ -360,34 +388,8 @@ function Lane:Update(force, tick)
     local n = 1
     if (laneid <= lastlane) then
 	local isMIA = laneid == MIAlane
-
-	local function sortval(player)
-	    local a
-	    if player:TimedOut() then
-		a = -2
-	    elseif player.IsDead then
-		a = -1
-	    elseif not isMIA then
-		a = player.Ults[apid]
-	    elseif player.UltMain > 0 then
-		a = player.Ults[player.UltMain]
-	    else
-		a = 0
-	    end
-	    return a
-	end
-
-	local function compare(key1, key2)
-	    local player1 = group_members[key1]
-	    local player2 = group_members[key2]
-	    local a = sortval(player1)
-	    local b = sortval(player2)
-	    if (a == b) then
-		return player1.PingTag < player2.PingTag
-	    else
-		return a > b
-	   end
-	end
+	local apid = self.Apid
+	lane_apid = apid
 
 	local keys = self.People
 	local plunk = self.Plunk
