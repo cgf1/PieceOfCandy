@@ -391,7 +391,7 @@ function Lane:Update(force, tick)
 	local apid = self.Apid
 	lane_apid = apid
 
-	local keys = self.People
+	local keys = {}
 	local plunk = self.Plunk
 	local i = 0
 	for name, player in pairs(group_members) do
