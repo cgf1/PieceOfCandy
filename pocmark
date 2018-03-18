@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use Archive::Extract;
+use File::Basename;
 use File::Find;
 use File::Path qw{remove_tree};
 use File::Slurp qw{read_file};
@@ -14,7 +15,7 @@ sub inst($);
 sub p(@);
 sub rmtree($);
 
-my ($ua, $aopath);
+my ($ua, $aopath, $installto);
 my $mw = MainWindow->new(-background=>'white');
 $mw->geometry("600x400");
 $mw->title("Piece Of Candy Updater");
@@ -54,6 +55,7 @@ sub rest {
 
     my $doit = 0;
     my $uptodate = 0;
+    my $error = 0;
     for my $d (sort @found) {
         $d =~ s{/}{\\}g;
         $_ = (read_file("$d\\POC.txt") =~ /^##\s+Version:\s+(\S+)/mo)[0];
@@ -67,7 +69,11 @@ sub rest {
             } elsif ($_ eq $v) {
                 p "You are up-to-date.\n";
                 $uptodate = 1;
+            } elsif (defined $installto) {
+                p "Multiple copies of POC detected: $installto / $d\n";
+                $uptodate = 1;  # not really
             } else {
+                $installto = dirname($d);
                 p "!!! You are not up-to-date!\n";
                 p "";
             }
@@ -81,19 +87,20 @@ sub rest {
 
 sub inst($) {
     my $v = shift;
+    $installto //= $ENV{USERPROFILE} . '\Documents\Elder Scrolls Online\live\AddOns\\POC';
     my $zip = $ENV{TEMP} . "/POC-$v.zip";
     open my $fd, '>', $zip;
     binmode $fd;
     my $response = $ua->get("http://www.esoui.com/downloads/dl1896/POC-$v.zip");
     if (!$response->is_success) {
-        p "Couldn't get retriever POC-$v.zip esoui.com said: ", $response->status_line, "\n";
+        p "Couldn't retrieve POC-$v.zip esoui.com said: ", $response->status_line, "\n";
     } else {
         print $fd $response->decoded_content;
         close $fd;
-        rmtree("$aopath\\POC");
+        rmtree("$installto\\POC");
         p "Extracting from: $zip...";
         my $ae = Archive::Extract->new(archive => $zip);
-        $ae->extract(to=>$aopath);
+        $ae->extract(to=>$installto);
         p "done\n";
     }
 }
