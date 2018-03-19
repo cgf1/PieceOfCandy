@@ -355,6 +355,9 @@ local function sortval(player)
     else
 	a = 0
     end
+    if a == nil then
+        a = 0
+    end
     return a
 end
 
