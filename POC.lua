@@ -13,9 +13,6 @@ ALERT = "POC-Alert"
 
 LANG = GetCVar("Language.2")
 
-REAL_API_VERSION = 0
-API_VERSION = REAL_API_VERSION
-
 local major = 3
 local minor = 4
 
@@ -53,15 +50,6 @@ function POC:initialize()
     end
 
     SLASH_COMMANDS["/rrr"] = function () ReloadUI() end
-    SLASH_COMMANDS["/pocapi"] = function(n)
-	n = n:gsub("^%s*(.-)%s*$", "%1")
-	if string.len(n) == 0 then
-	    API_VERSION = REAL_API_VERSION
-	else
-	    API_VERSION = tonumber(n)
-	end
-	d(API_VERSION)
-    end
 
     -- Initialize settings
     Settings.Initialize()

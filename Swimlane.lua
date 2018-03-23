@@ -30,6 +30,7 @@ local swimlanerow
 
 local SWIMLANEULTMAX = 24
 
+local myults
 local forcepct = nil
 local sldebug = false
 
@@ -356,7 +357,7 @@ local function sortval(player)
 	a = 0
     end
     if a == nil then
-        a = 0
+	a = 0
     end
     return a
 end
@@ -627,9 +628,13 @@ function Player.Version(pingtag, major, minor, force)
     local v = string.format("%d.%03d", major, minor)
     local dv = string.format("%d.%d", major, minor)
     watch("Player.Version", pingtag, v)
+    local name = GetUnitName(pingtag)
+    if group_members[name] ~= nil then
+	group_members[name].Version = dv
+    end
     if tonumber(v) > version then
 	if newversion_alert > 0 then
-	    Info(string.format("new version v%s detected (%s). You have v%s", dv, GetUnitName(pingtag), dversion))
+	    Info(string.format("new version v%s detected (%s). You have v%s", dv, name, dversion))
 	end
 	newversion_alert = newversion_alert - 1
     elseif force then
@@ -651,8 +656,10 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 		NewClient = false,
 		Tick = 0,
 		TimeStamp = 0,
-		UltMain = 0,
-		Ults = {},
+		UltMain = Ult.MaxPing,
+		Ults = {
+		    [Ult.MaxPing] = 0
+		},
 		Visited = false
 	    }
 	end
@@ -945,7 +952,6 @@ function Lane.New(lanes, i)
 	last_row = row
     end
     self.Apid = apid
-    self.People = {}
     return self
 end
 
@@ -1006,14 +1012,25 @@ Swimlanes.Update = function(x) _this.Lanes:Update(x) end
 function Swimlanes.Initialize(major, minor)
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
+    myults = saved.MyUltId[ultix]
+    if myults[1] == nil then
+	myults[1] = Ult.MaxPing
+    end
     for n, v in pairs(group_members) do
 	setmetatable(v, Player)
 	if n == myname then
 	    v =  ZO_DeepTableCopy(v, me)
 	end
+	if not v.UltMain or v.UltMain == 0 then
+	    v.UltMain = Ult.MaxPing
+	end
+	if not v.Ults[v.UltMain] then
+	    v.UltMain = 0
+	end
 	group_members[n] = v
     end
-    SLASH_COMMANDS["/pocclear"] = function() clear(true) end
+    me.UltMain = myults[1]
+    me.Ults[myults[1]] = 0
 
     UltNumber:ClearAnchors()
     if (saved.UltNumberPos == nil) then
@@ -1036,6 +1053,7 @@ function Swimlanes.Initialize(major, minor)
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
 
+    SLASH_COMMANDS["/pocclear"] = function() clear(true) end
     SLASH_COMMANDS["/pocpct"] = function(pct)
 	if string.len(pct) == 0 then
 	    forcepct = nil
@@ -1043,15 +1061,10 @@ function Swimlanes.Initialize(major, minor)
 	    forcepct = tonumber(pct)
 	end
     end
-    SLASH_COMMANDS["/pocpingtag"] = function(pct)
-	local p = tostring(GetGroupUnitTagByIndex(GetGroupIndexByUnitTag("player")))
-	msg(p)
-    end
     SLASH_COMMANDS["/pocsldebug"] = function(pct)
 	sldebug = not sldebug
 	msg(sldebug)
     end
-    SLASH_COMMANDS["/pocdump"] = function(x) dumpme = x end
     SLASH_COMMANDS["/pocrefresh"] = function(pct)
 	ping_refresh = not ping_refresh
 	if ping_refresh then
@@ -1060,12 +1073,12 @@ function Swimlanes.Initialize(major, minor)
 	    msg("refresh off")
 	end
     end
-    SLASH_COMMANDS["/pocfired"] = function()
+    Slash("fire", "test ultimate display", function()
 	for i = 1, 24 do
 	    me:Alert(myname)
 	end
-    end
-    SLASH_COMMANDS["/pocmovable"] = function(x)
+    end)
+    Slash("movable", "specify true/false to make ultimate display movable", function(x)
 	local movable
 	if x == "yes" or x == "true" or x == "on" then
 	    movable = true
@@ -1080,8 +1093,9 @@ function Swimlanes.Initialize(major, minor)
 	    set_control_movable()
 	end
 	Info("Movable state is:", movable)
-    end
-    SLASH_COMMANDS["/pocsendver"] = function(x)
+    end)
+    Slash("sendver", "send POC add-on version to others in your group", function(x)
 	Comm.SendVersion(true)
-    end
+    end)
+    Slash("dump", "show collected information for specified player", function(x) dumpme = x end)
 end

@@ -68,7 +68,6 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
     elseif ctype == COMM_TYPE_PCTULT then
 	input = math.floor(input / 256)
 	local apid1, pct1, apid2, pct2 = unpack_ultpct(input)
--- if GetUnitName(pingtag) == GetUnitName("player") then xxx("Receiving ", input, apid1, pct1, apid2, pct2) end
 	Player.New(pingtag, timenow, apid1, pct1, apid2, pct2)
     end
 end

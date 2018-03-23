@@ -32,7 +32,6 @@ libs/LibAddonMenu-2.0/controls/dropdown.lua
 
 libs/LibMapPing/LibMapPing.lua
 libs/LibGPS/LibGPS.lua
-; libs/LibGroupSocket/LibGroupSocket.lua
 
 VirtualControls.xml
 Bindings.xml
@@ -41,7 +40,7 @@ Countdown.xml
 Swimlane.xml
 UltNumber.xml
 
-POCtable.lua
+POC0.lua
 
 UiHelper.lua
 

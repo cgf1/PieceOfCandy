@@ -45,17 +45,6 @@ function Settings.SetStyleSettings(style)
     CALLBACK_MANAGER:FireCallbacks(STYLE_CHANGED)
 end
 
--- Set our ultimate
---
-function Settings.SetStaticUltimateIDSettings(ultid)
-    if saved.MyUltId == nil then
-	saved.MyUltId = {}
-    end
-    saved.MyUltId[ultix] = ultid
-
-    CALLBACK_MANAGER:FireCallbacks(STATIC_ULTIMATE_ID_CHANGED, ultid)
-end
-
 -- Set the ultimate to use for a specific swimlane
 --
 function Settings.SetSwimlaneUltId(swimlane, aid)
@@ -304,10 +293,9 @@ function Settings.InitializeWindow(major, minor)
 	    name = "Piece Of Candy",
 	    author = "Valandil",
 	    version = string.format("%s.%s", major, minor),
-	    slashCommand = "/poc",
 	    registerForDefaults = true
     }
-    LAM:RegisterAddonPanel("POCSettingsMainMenu", paneldata)
+    Panel = LAM:RegisterAddonPanel("POCSettingsMainMenu", paneldata)
     LAM:RegisterOptionControls("POCSettingsMainMenu", o)
 end
 

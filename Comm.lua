@@ -25,6 +25,8 @@ local lgs_handler
 local version
 local major, minor
 
+local me
+
 Comm = {
     active = false,
     Name = "POC-Comm",
@@ -66,19 +68,20 @@ function Comm.ToBytes(n)
 end
 
 local function ultpct(apid)
-    local pct = 0
-    if apid ~= nil and apid ~= 0 then
-	local curpct = Me.Ults[apid]
-	local ult = Ult.ByPing(apid)
-	if ult == nil then
+    local pct
+    if apid == nil or apid == 0 or me.Ults[apid] == nil then
+	pct = 0
+	if me.Ults[apid] == nil then
 	    apid = Ult.MaxPing
-	else
-	    local current, max = GetUnitPower("player", POWERTYPE_ULTIMATE)
-	    local cost = math.max(1, GetAbilityCost(ult.Aid))
-	    pct = math.min(100, math.floor((current / cost) * 100))
-	    if pct == 100 and curpct and curpct > 100 then
-		pct = curpct
-	    end
+	end
+    else
+	local ult = Ult.ByPing(apid)
+	local curpct = me.Ults[apid]
+	local current, max = GetUnitPower("player", POWERTYPE_ULTIMATE)
+	local cost = math.max(1, GetAbilityCost(ult.Aid))
+	pct = math.min(100, math.floor((current / cost) * 100))
+	if pct == 100 and curpct and curpct > 100 then
+	    pct = curpct
 	end
     end
     return apid, pct
@@ -184,6 +187,8 @@ function Comm.Initialize(inmajor, inminor)
     major = inmajor
     minor = inminor
     Comm.SendVersion(false)
+
+    me = Me
 
     SLASH_COMMANDS["/poctoggle"] = function () toggle(true) end
     SLASH_COMMANDS["/poccomm"] = function(x)
