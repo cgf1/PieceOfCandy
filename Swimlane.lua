@@ -374,6 +374,7 @@ end
 
 -- Update swimlane
 --
+local keys = {}
 function Lane:Update(force, tick)
     local laneid = self.Id
     if not force and laneid > MIAlane then
@@ -393,27 +394,26 @@ function Lane:Update(force, tick)
 	local apid = self.Apid
 	lane_apid = apid
 
-	local keys = {}
 	local plunk = self.Plunk
-	local i = 0
+        local keys = keys
 	for name, player in pairs(group_members) do
 	    local pingtag = player.PingTag
 	    if (not IsUnitGrouped(pingtag)) or GetUnitName(pingtag) ~= name then
 		group_members[name] = nil
 	    elseif plunk(player, apid, tick) then
-		i = i + 1
-		keys[i] = name
+		keys[#keys + 1] = name
 	    end
-	end
-	while #keys > i do
-	    table.remove(keys)
 	end
 
 	table.sort(keys, compare)
 
 	-- Update sorted swimlane
 	local gt100 = 100 + saved.SwimlaneMax
-	for _, playername in ipairs(keys) do
+	while true do
+	    local playername = table.remove(keys, 1)
+	    if playername == nil then
+		break
+	    end
 	    if n > saved.SwimlaneMax then
 		-- log here?
 		break
@@ -809,11 +809,11 @@ function Lanes:SetLaneUlt(oldapid, iconstr)
     local apid = Ult.UltApidFromIcon(iconstr)
     watch("Lanes:Setult", id, apid, iconstr)
     if self[apid] ~= nil then
-	return	-- already displaying this ultimate
+	return			-- already displaying this ultimate
     end
-    lane = self[oldapid]        -- Lane to replace
+    lane = self[oldapid]	-- Lane to replace
     saved.LaneIds[lane.Id] = apid    -- Remember what's here
-    self[apid] = lane           -- New column
+    self[apid] = lane		-- New column
     lane.Apid = apid
     lane.Icon:SetTexture(iconstr)
     if lane.Label ~= nil then
