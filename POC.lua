@@ -14,7 +14,7 @@ ALERT = "POC-Alert"
 LANG = GetCVar("Language.2")
 
 local major = 3
-local minor = 4
+local minor = 5
 
 -- POC:initialize initializes addon
 --

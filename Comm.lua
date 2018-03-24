@@ -69,11 +69,9 @@ end
 
 local function ultpct(apid)
     local pct
-    if apid == nil or apid == 0 or me.Ults[apid] == nil then
+    if apid == nil or apid == 0 or apid == 'MIA' then
+	apid = Ult.MaxPing
 	pct = 0
-	if me.Ults[apid] == nil then
-	    apid = Ult.MaxPing
-	end
     else
 	local ult = Ult.ByPing(apid)
 	local curpct = me.Ults[apid]
@@ -190,8 +188,8 @@ function Comm.Initialize(inmajor, inminor)
 
     me = Me
 
-    SLASH_COMMANDS["/poctoggle"] = function () toggle(true) end
-    SLASH_COMMANDS["/poccomm"] = function(x)
+    Slash("onoff", "toggle POC on/off",  function () toggle(true) end)
+    Slash("comm", "change communication method (don't use)",function(x)
 	if string.len(x) ~= 0 then
 	    local toset = commtype(x)
 	    if toset ~= comm then
@@ -202,8 +200,8 @@ function Comm.Initialize(inmajor, inminor)
 	    end
 	end
 	Info(string.format("Communication method: %s", comm.Name:sub(5)))
-    end
-    SLASH_COMMANDS["/pocoldcount"] = function (n)
+    end)
+    Slash("oldcount", "send old ult stats every n seconds", function (n)
 	local was = saved.OldCount
 	n = tonumber(n)
 	if n == 1 or n == nil then
@@ -212,5 +210,5 @@ function Comm.Initialize(inmajor, inminor)
 	    saved.OldCount = tonumber(n)
 	end
 	xxx("Changed interval from", was, "to", saved.OldCount)
-    end
+    end)
 end

@@ -1,4 +1,6 @@
 setfenv(1, POC)
+local GetTimeStamp = GetTimeStamp
+
 Alert = {
     Name = ALERT
 }
@@ -8,16 +10,21 @@ local controls = {}
 
 local screenx, screeny
 
-local ix = 0
 local MAX = 24
+local ix = MAX / 2
 local fontsize = 50
 local midscreen
 local above = MAX / 2
+local last_alert = 0
 
 function Alert.Show(text, duration)
-    ix = ix + 1
-    if ix > MAX then
-	ix = 1
+    if (GetTimeStamp() - last_alert) >= 10 then
+	ix = MAX / 2
+    else
+	ix = ix + 1
+	if ix > MAX then
+	    ix = 1
+	end
     end
     local control = controls[ix]
     local yloc = (fontsize * .60) * (ix - above)
@@ -43,6 +50,7 @@ function Alert.Show(text, duration)
     fadeout:SetAlphaValues(1, 0)
     fadeout:SetDuration(duration + 1000)
     timeline:PlayFromStart()
+    last_alert = GetTimeStamp()
 end
 
 function Alert.Initialize()

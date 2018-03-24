@@ -7,8 +7,8 @@
 ## APIVersion: 100021 100022 100023
 ## Description: PVP Helper
 ## Title: Piece of Candy
-## Version: 3.4
-## Author: |ca0a0a0|Valandil (adapted from TaosGroupUltimate by TProg r Taonnor)
+## Version: 3.5
+## Author: |ca0a0a0|Valandil
 ## SavedVariables: POCSettings
 ## OptionalDependsOn: LibAddonMenu-2.0
 ## OptionalDependsOn: TOM

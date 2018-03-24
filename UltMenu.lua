@@ -1,5 +1,4 @@
 setfenv(1, POC)
-local GetAbilityIcon = GetAbilityIcon
 local GetUnitName = GetUnitName
 
 local LAM = LibStub("LibAddonMenu-2.0")
@@ -33,15 +32,14 @@ local function set_ult(iconstr)
     elseif iconstr == nook1img then
 	Ult.SetSavedId('MIA', 2)
     else
-	local apid = Ult.UltApidFromIcon(iconstr)
-	if apid ~= curapid then
-	    CALLBACK_MANAGER:FireCallbacks(SET_ULTIMATE_GROUP, apid, curid)
-	end
+	Swimlanes.SetLaneUlt(curapid, iconstr)
     end
+    Swimlanes.Sched()
 end
 
 local function get_ult()
-    return GetAbilityIcon(curapid)
+    local ult = Ult.ByPing(curapid)
+    return ult.Icon
 end
 
 -- Show an appropriate "menu" for selecting ultimates

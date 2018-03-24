@@ -45,14 +45,6 @@ function Settings.SetStyleSettings(style)
     CALLBACK_MANAGER:FireCallbacks(STYLE_CHANGED)
 end
 
--- Set the ultimate to use for a specific swimlane
---
-function Settings.SetSwimlaneUltId(swimlane, aid)
-    saved.LaneIds[swimlane] = aid
-
-    CALLBACK_MANAGER:FireCallbacks(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, swimlane, aid)
-end
-
 -- Control whether or not to show MIA lane
 --
 function Settings.SetMIA(what)

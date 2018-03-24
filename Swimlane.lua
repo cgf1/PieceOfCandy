@@ -2,7 +2,6 @@ setfenv(1, POC)
 local CreateControlFromVirtual = CreateControlFromVirtual
 local FormatTimeSeconds = FormatTimeSeconds
 local GetAbilityDuration = GetAbilityDuration
-local GetAbilityIcon = GetAbilityIcon
 local GetTimeStamp = GetTimeStamp
 local GetUnitDisplayName = GetUnitDisplayName
 local GetUnitName = GetUnitName
@@ -145,11 +144,9 @@ local function set_control_active()
 	registered = true
 	restore_position()
 
-	CALLBACK_MANAGER:RegisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
 	CALLBACK_MANAGER:RegisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     elseif (registered) then
 	registered = false
-	CALLBACK_MANAGER:UnregisterCallback(SWIMLANE_ULTIMATE_GROUP_ID_CHANGED, function (x,y) _this.Lanes:SetUlt(x, y) end)
 	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     end
 end
@@ -265,6 +262,7 @@ end
 
 -- Sets visibility of labels
 --
+local tmplane = {}
 function Lanes:Update(x)
     local refresh
     local displayed = false
@@ -289,7 +287,7 @@ function Lanes:Update(x)
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
-	for _, lane in idpairs(self, "Id") do
+	for lane in idpairs(self, "Id", tmplane) do
 	    if lane:Update(false, tick) then
 		displayed = true
 	    end
@@ -805,42 +803,29 @@ function Swimlanes:OnMove(stop)
     end
 end
 
--- on_set_ult called on header clicked
+-- Called when header clicked to change column identifier
 --
-local function on_set_ult(apid, id)
-    CALLBACK_MANAGER:UnregisterCallback(SET_ULTIMATE_GROUP, on_set_ult)
-
-    Settings.SetSwimlaneUltId(id, apid)
-end
-
--- Set the swimlane header icon in base of apid
---
-function Lanes:SetUlt(id, newapid)
-    if self[newapid] ~= nil then
+function Lanes:SetLaneUlt(oldapid, iconstr)
+    local apid = Ult.UltApidFromIcon(iconstr)
+    watch("Lanes:Setult", id, apid, iconstr)
+    if self[apid] ~= nil then
 	return	-- already displaying this ultimate
     end
-    for apid, lane in pairs(self) do
-	if lane.Id == id then
-	    self[newapid] = lane -- New row
-	    lane.Apid = newapid
-	    local ult = Ult.ByPing(newapid)
-	    lane.Icon:SetTexture(GetAbilityIcon(ult.Aid))
-	    if lane.Label ~= nil then
-		lane.Label:SetText(Ult.ByPing(newapid).Name)
-	    end
-	    self[apid] = nil		-- Delete old lane
-	    need_to_fire = true
-	    break
-	end
+    lane = self[oldapid]        -- Lane to replace
+    saved.LaneIds[lane.Id] = apid    -- Remember what's here
+    self[apid] = lane           -- New column
+    lane.Apid = apid
+    lane.Icon:SetTexture(iconstr)
+    if lane.Label ~= nil then
+	lane.Label:SetText(Ult.ByPing(apid).Name)
     end
-    _this.Lanes:Update("Ultimate changed")
+    self[oldapid] = nil		-- Delete old column
 end
 
 -- Lane:Click called on header clicked
 --
 function Lane:Click()
     if (self.Button ~= nil) then
-	CALLBACK_MANAGER:RegisterCallback(SET_ULTIMATE_GROUP, on_set_ult)
 	CALLBACK_MANAGER:FireCallbacks(SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
     else
 	Error("Lane:Click, button nil")
@@ -867,18 +852,11 @@ function Lane:Header()
 	self.Plunk = Player.PlunkNotMIA
     end
     local ult = Ult.ByPing(apid)
-    if (ult == nil) then
-	apid = 'MIA'
-	ult = Ult.ByAid(apid)
+    if ult == nil then
+	ult = Ult.ByPing('MIA')
     end
-    local icon
-    if ult.Name == 'MIA' then
-	icon = "/POC/icons/lollipop.dds"
-    else
-	icon = GetAbilityIcon(ult.Aid)
-    end
-    self.Icon:SetTexture(icon)
 
+    self.Icon:SetTexture(ult.Icon)
     if (self.Label ~= nil) then
 	self.Label:SetText(ult.Name)
     end
@@ -1009,6 +987,7 @@ end
 -- Initialize Swimlanes
 --
 Swimlanes.Update = function(x) _this.Lanes:Update(x) end
+Swimlanes.SetLaneUlt = function(apid, icon) _this.Lanes:SetLaneUlt(apid, icon) end
 function Swimlanes.Initialize(major, minor)
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers

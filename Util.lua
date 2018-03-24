@@ -1,26 +1,19 @@
 setfenv(1, POC)
 
-local tmp = {}
-local function iter(a, i)
-    i = i + 1
-    local v = a[i]
-    if v then
-	return i, v
-    end
+local function iter(tmp)
+    return table.remove(tmp, 1)
 end
 
-function idpairs(hash, key)
-    local max = 0
-    local tmp = tmp
+function idpairs(hash, key, tmp)
+    for _ in pairs(tmp) do
+	table.remove(tmp)
+    end
     for _, v in pairs(hash) do
 	local i = v[key]
 	tmp[i] = v
-	if i > max then
-	    max = i
-	end
     end
-    tmp[max + 1] = nil
-    return iter, tmp, 0
+
+    return iter, tmp, nil
 end
 
 function Error(x)

@@ -15,14 +15,20 @@ local ultix = GetUnitName("player")
 local bynames = {}
 local byids = {}
 local bypings = {}
+local tmp = {}
 
 local saved
+local mia
+local MIAicon = "/POC/icons/lollipop.dds",
 
 -- ByPing gets the ultimate group from given ability ping
 --
 function Ult.ByPing(pid)
-    if bypings[pid] ~= nil then
+    if pid ~= nil and bypings[pid] ~= nil then
 	return bypings[pid]
+    end
+    if pid == 'MIA' then
+	return mia
     end
 
     return nil
@@ -56,9 +62,9 @@ end
 
 function Ult.Icons()
     local icons = {}
-    for _, v in idpairs(bynames, 'Id') do
+    for v in idpairs(bynames, 'Id', tmp) do
 	if v.Aid ~= 'MIA' then
-	    table.insert(icons, GetAbilityIcon(v.Aid))
+	    table.insert(icons, v.Icon)
 	end
     end
     return icons
@@ -66,7 +72,7 @@ end
 
 function Ult.Descriptions()
     local desclist = {}
-    for _, v in idpairs(bynames, 'Id') do
+    for v in idpairs(bynames, 'Id', tmp) do
 	if v.Aid ~= 'MIA' then
 	    table.insert(desclist, v.Desc)
 	end
@@ -297,6 +303,7 @@ local function create_ults()
 	    {
 		Name = "MIA",
 		Desc = "Incommunicado Player",
+		Icon = MIAicon,
 		Ping = 30,  -- a contradiction?
 		Aid = 'MIA'
 	    }
@@ -309,6 +316,9 @@ local function create_ults()
 	    if group.Desc == nil then
 		group.Desc = string.format("%s: %s", class, GetAbilityName(group.Aid))
 	    end
+	    if group.Icon == nil then
+		group.Icon = GetAbilityIcon(group.Aid)
+	    end
 	    byids[group.Aid] = group
 	    bypings[group.Ping] = group
 	    if group.Ping > Ult.MaxPing then
@@ -316,10 +326,12 @@ local function create_ults()
 	    end
 	end
     end
+    mia = bypings[Ult.MaxPing]
+    mia.IsMia = true
     local i = 0
     i = insert_group_table(bynames, ults, class, i)
     if saved.MyUltId[ultix] == nil then
-	for _, v in idpairs(bynames, 'Id') do
+	for v in idpairs(bynames, 'Id', tmp) do
 	    Ult.SetSavedId(v.Aid, 1)
 	    Ult.SetSavedId('MIA', 2)
 	    break
@@ -346,22 +358,19 @@ end
 
 function Ult.GetSaved(n)
     local ret
-    if saved.MyUltId[ultix][n] == nil then
-	-- should never happen
-    else
+    if saved.MyUltId[ultix][n] ~= nil then
+	-- should never be non-nil, but...
 	local ult = Ult.ByPing(saved.MyUltId[ultix][n])
 	if ult == nil or ult.Aid == 'MIA' then
-	    ret = "/POC/icons/lollipop.dds"
-	else
-	    ret = GetAbilityIcon(ult.Aid)
+	    ult = mia
 	end
+	return ult.Icon
     end
-    return ret
 end
 
 function Ult.UltApidFromIcon(icon)
     for id, v in pairs(byids) do
-	if id ~= 'MIA' and GetAbilityIcon(id) == icon then
+	if id ~= 'MIA' and v.Icon == icon then
 	    return v.Ping
 	end
     end
@@ -396,6 +405,7 @@ function Ult.Initialize()
     saved = Settings.SavedVariables
     create_ults()
 
+    local ids
     if saved.SwimlaneUltIds == nil then
 	ids = saved.LaneIds
     else
@@ -407,11 +417,13 @@ function Ult.Initialize()
     local newultids = {}
     ids[7] = nil
     local changed = false
-    for i, v in ipairs(ids) do
+    for i = 1, saved.SwimlaneMaxCols do
+	v = ids[i]
 	if v > Ult.MaxPing then
-	    newultids[i] = Ult.ByAid(v).Ping
+	    v = Ult.ByAid(v).Ping
 	    changed = true
 	end
+	newultids[i] = v
     end
     if changed then
 	saved.LaneIds = newultids

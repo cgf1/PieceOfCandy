@@ -45,6 +45,7 @@ function Slash(name, help, func)
 	Help = help,
 	Func = func
     }
+    SLASH_COMMANDS["/poc" .. name] = func
 end
 
 local lam = LibStub("LibAddonMenu-2.0")
