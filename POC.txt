@@ -44,7 +44,6 @@ POC0.lua
 
 UiHelper.lua
 
-MapPing.lua
 PingPipe.lua
 Comm.lua
 

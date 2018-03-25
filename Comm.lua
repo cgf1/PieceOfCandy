@@ -93,7 +93,7 @@ local function on_update()
     if not IsUnitGrouped("player") then
 	if notify_when_not_grouped then
 	    notify_when_not_grouped = false
-	    Swimlanes.Update("left group")
+	    Swimlanes.Update("left")
 	end
 	return
     end

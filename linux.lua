@@ -99,3 +99,5 @@ UltNumber = {}
 
 function GetWindowManager()
 end
+
+function Slash() end

@@ -1,7 +1,9 @@
 setfenv(1, POC)
+local collectgarbage = collectgarbage
 local CreateControlFromVirtual = CreateControlFromVirtual
 local FormatTimeSeconds = FormatTimeSeconds
 local GetAbilityDuration = GetAbilityDuration
+local GetGroupSize = GetGroupSize
 local GetTimeStamp = GetTimeStamp
 local GetUnitDisplayName = GetUnitDisplayName
 local GetUnitName = GetUnitName
@@ -19,6 +21,7 @@ local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
 local MAXPLAYSOUNDTIME = 60
+local GARBAGECOLLECT = 60 * 3
 
 local widget = nil
 local curstyle = ""
@@ -263,11 +266,15 @@ end
 -- Sets visibility of labels
 --
 local tmplane = {}
+local gc = GARBAGECOLLECT
 function Lanes:Update(x)
     local refresh
     local displayed = false
-    if x == "joined" then
+    if x == "left" then
+	need_to_fire = true
+    elseif x == "joined" then
 	Comm.SendVersion(false)
+	need_to_fire = true
     end
     if (Group.IsGrouped()) then
 	refresh = Player.Update(true)
@@ -301,6 +308,12 @@ function Lanes:Update(x)
 	    msg("POC: now grouped")
 	end
 	_this.WasActive = true
+	gc = gc - 1
+	if gc <= 0 then
+	    gc = GARBAGECOLLECT
+	    local n = collectgarbage("collect")
+	    watch("garbage", n)
+	end
     end
 end
 
@@ -395,7 +408,7 @@ function Lane:Update(force, tick)
 	lane_apid = apid
 
 	local plunk = self.Plunk
-        local keys = keys
+	local keys = keys
 	for name, player in pairs(group_members) do
 	    local pingtag = player.PingTag
 	    if (not IsUnitGrouped(pingtag)) or GetUnitName(pingtag) ~= name then
@@ -751,7 +764,7 @@ function Player.Update(clear_need_to_fire)
     local nmembers = 0
     local inrange = 0
 
-    for i = 1, 24 do
+    for i = 1, GetGroupSize() do
 	local unitid = "group" .. tostring(i)
 	local unitname = GetUnitName(unitid)
 	if unitname ~= nil and unitname:len() ~= 0 then
@@ -1032,27 +1045,27 @@ function Swimlanes.Initialize(major, minor)
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
 
-    SLASH_COMMANDS["/pocclear"] = function() clear(true) end
-    SLASH_COMMANDS["/pocpct"] = function(pct)
+    Slash("clear", "clear memory and recalculate everything", function() clear(true) end)
+    Slash("pct", "debugging: set your ultimate percentage", function(pct)
 	if string.len(pct) == 0 then
 	    forcepct = nil
 	else
 	    forcepct = tonumber(pct)
 	end
-    end
-    SLASH_COMMANDS["/pocsldebug"] = function(pct)
+    end)
+    Slash("sldebug", "debugging: display percentages next to names", function(pct)
 	sldebug = not sldebug
 	msg(sldebug)
-    end
-    SLASH_COMMANDS["/pocrefresh"] = function(pct)
+    end)
+    Slash("refresh", "debugging: force periodic update of display", function(pct)
 	ping_refresh = not ping_refresh
 	if ping_refresh then
 	    msg("refresh on")
 	else
 	    msg("refresh off")
 	end
-    end
-    Slash("fire", "test ultimate display", function()
+    end)
+    Slash("fire", "debugging: test ultimate display", function()
 	for i = 1, 24 do
 	    me:Alert(myname)
 	end

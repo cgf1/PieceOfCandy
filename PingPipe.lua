@@ -125,7 +125,7 @@ function PingPipe.Load()
 
     saved = Settings.SavedVariables
 
-    SLASH_COMMANDS["/pocpingerr"] = function()
+    Slash("pingerr", "show all map ping errors",function()
 	show_errors = not show_errors
 	if show_errors then
 	    pingerr = Error
@@ -133,6 +133,6 @@ function PingPipe.Load()
 	    pingerr = function() return end
 	end
 	Info(string.format("show_errors: %s", tostring(show_errors)))
-    end
+    end)
     PingPipe.active = true
 end

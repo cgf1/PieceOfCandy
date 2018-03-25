@@ -1,4 +1,5 @@
 setfenv(1, POC)
+local collectgarbage = collectgarbage
 local GetUnitName = GetUnitName
 
 local LAM = LibStub("LibAddonMenu-2.0")
@@ -35,6 +36,7 @@ local function set_ult(iconstr)
 	Swimlanes.SetLaneUlt(curapid, iconstr)
     end
     Swimlanes.Sched()
+    collectgarbage("collect")
 end
 
 local function get_ult()

@@ -176,6 +176,7 @@ function Quest.Initialize()
 	Error(string.format("Sorry.  Can't handle language '%s'.  Quest handling disabled.", lang))
 	return
     end
+
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_REMOVED, quest_gone)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_SHARED, shared)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_ADDED, quest_added)
@@ -196,12 +197,12 @@ function Quest.Initialize()
 	    need[id] = false
 	end
     end
-    SLASH_COMMANDS["/pocquest"] = function (x)
+    Slash("quest", "temporarily turn off quest sharing", function (x)
 	if x == "off" or x == "false" or x == "no" then
 	    getquest = false
 	elseif x == "on" then
 	    getquest = true
 	end
 	Info("Quest retrieval:", getquest)
-    end
+    end)
 end

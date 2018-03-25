@@ -128,4 +128,4 @@ function watch(what, ...)
     end
 end
 
-SLASH_COMMANDS["/pocwatch"] = setwatch
+Slash("watch", 'display debugging info for given "thing"', setwatch)

@@ -329,13 +329,13 @@ function Settings.Initialize()
     saved.PosX = nil
     saved.PosY = nil
 
-    SLASH_COMMANDS["/pocstyle"] = function(style)
+    Slash("style", 'set display style: "standard" or "compact"', function(style)
 	style = string.lower(style):gsub("^%l", string.upper)
 	if (style ~= "Compact" and style ~= "Standard") then
 	    d("POC: *** unknown style: " .. style)
 	else
 	    Settings.SetStyleSettings(style)
 	end
-    end
-    SLASH_COMMANDS["/pocmap"] = getmapindex
+    end)
+    Slash("map", "set map to use for communication", getmapindex)
 end

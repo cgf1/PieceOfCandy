@@ -6,19 +6,19 @@ Group.__index = Group
 
 -- Called when group member joined group
 --
-function Group.OnGroupMemberJoined(x, member)
+function Group.OnMemberJoined(x, member)
     Swimlanes.Update("joined")
 end
 
 -- Called when group member left group
 --
-function Group.OnGroupMemberLeft(x, member)
+function Group.OnMemberLeft(x, member)
     Swimlanes.Update("left")
 end
 
 -- Called when groupUnitTags updated
 --
-function Group.OnGroupUpdate(x, hmm)
+function Group.OnUpdate(x, hmm)
     Swimlanes.Update("group update")
 end
 
@@ -26,22 +26,15 @@ function Group.IsGrouped()
     return IsUnitGrouped("player")
 end
 
--- Called on ???
---
-function Group.OnUnitFrameUpdate()
-    Swimlanes.Update("frame update")
-end
-
 -- Initialize Group
 --
 function Group.Initialize()
     -- Initial call
-    Group:OnGroupUpdate()
+    Group:OnUpdate()
 
     -- Register events
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_JOINED, Group.OnGroupMemberJoined)
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_LEFT, Group.OnGroupMemberLeft)
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_UPDATE, Group.OnGroupUpdate)
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, Group.OnGroupUpdate)
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_UNIT_FRAME_UPDATE, Group.OnUnitFrameUpdate)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_JOINED, Group.OnMemberJoined)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_LEFT, Group.OnMemberLeft)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_UPDATE, Group.OnUpdate)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, Group.OnUpdate)
 end

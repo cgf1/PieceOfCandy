@@ -49,8 +49,6 @@ function POC:initialize()
 	SafeAddVersion(id, 1)
     end
 
-    SLASH_COMMANDS["/rrr"] = function () ReloadUI() end
-
     -- Initialize settings
     Settings.Initialize()
 
@@ -85,3 +83,4 @@ end
 
 -- Register Loaded Callback
 EVENT_MANAGER:RegisterForEvent(Name, EVENT_ADD_ON_LOADED, OnAddOnLoaded);
+Slash("/rrr", "alias for /reloadui",function () ReloadUI() end)

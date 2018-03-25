@@ -25,7 +25,7 @@ local function pochelp(x)
     end
     if x:len() == 0 then
 	for _, n in ipairs(keys) do
-	    df("%-8s %s", n, cmds[n].Help)
+	    d("|u0:10::" .. n .. "|u " .. cmds[n].Help)
 	end
     elseif cmds[x] == nil then
 	Error(string.format("no such command: %s", x))
@@ -45,7 +45,10 @@ function Slash(name, help, func)
 	Help = help,
 	Func = func
     }
-    SLASH_COMMANDS["/poc" .. name] = func
+    if name:sub(1, 1) ~= '/' then
+	name = "/poc" .. name
+    end
+    SLASH_COMMANDS[name] = func
 end
 
 local lam = LibStub("LibAddonMenu-2.0")
