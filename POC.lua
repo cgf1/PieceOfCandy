@@ -62,7 +62,7 @@ function POC:initialize()
     UltMenu.Initialize()
 
     Swimlanes.Initialize(major, minor)
-    Group.Initialize()
+    Group.Initialize(Settings.SavedVariables)
     Quest.Initialize()
     Alert.Initialize()
 

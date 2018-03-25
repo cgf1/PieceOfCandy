@@ -276,17 +276,20 @@ function Lanes:Update(x)
 	Comm.SendVersion(false)
 	need_to_fire = true
     end
-    if (Group.IsGrouped()) then
+    if x ~= 'off' and Group.IsGrouped() then
 	refresh = Player.Update(true)
 	displayed = not _this.WasActive
     elseif (not _this.WasActive) then
 	refresh = false
     else
 	refresh = true	-- just get rid of everything
-	msg("POC: No longer grouped")
+	if not Group.IsGrouped() then
+	    msg("POC: No longer grouped")
+	end
 	clear(false)
 	set_control_active()
 	_this.WasActive = false
+	Comm.Unload()
     end
     watch("Lanes:Update", refresh, _this.WasActive)
 
@@ -306,6 +309,8 @@ function Lanes:Update(x)
 	set_control_active()
 	if (not _this.WasActive) then
 	    msg("POC: now grouped")
+	    Comm.Load()
+	    Comm.SendVersion(false)
 	end
 	_this.WasActive = true
 	gc = gc - 1
@@ -1038,7 +1043,6 @@ function Swimlanes.Initialize(major, minor)
 
     style_changed()
 
-    EVENT_MANAGER:RegisterForEvent(Settings.Name, EVENT_PLAYER_ACTIVATED, Swimlanes.Update)
     CALLBACK_MANAGER:RegisterCallback(SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
     CALLBACK_MANAGER:RegisterCallback(STYLE_CHANGED, style_changed)
 

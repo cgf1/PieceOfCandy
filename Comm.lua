@@ -25,6 +25,8 @@ local lgs_handler
 local version
 local major, minor
 
+local load_later = false
+
 local me
 
 Comm = {
@@ -32,6 +34,8 @@ Comm = {
     Name = "POC-Comm",
 }
 Comm.__index = Comm
+
+local Comm = Comm
 local ultix = GetUnitName("player")
 local comm
 local notify_when_not_grouped = false
@@ -121,27 +125,42 @@ local function on_update()
     end
 end
 
-local function toggle(verbose)
-    local activate = not comm.active
-    if verbose then
-	msg = d
-    else
-	msg = function() end
-    end
-    if activate then
-	msg("POC: on")
-	comm.Load()
-	EVENT_MANAGER:RegisterForUpdate('UltPing', 1000, on_update)
-    else
-	msg("POC: off")
-	comm.Unload()
-	EVENT_MANAGER:UnregisterForUpdate('UltPing')
-    end
-    Swimlanes.Sched()
-end
-
 function Comm.IsActive()
     return comm ~= nil and comm.active
+end
+
+function Comm.Load(verbose)
+    local say
+    if comm == nil then
+	load_later = true
+    elseif comm.active then
+	say = "already on"
+    else
+	comm.Load()
+	EVENT_MANAGER:RegisterForUpdate('UltPing', 1000, on_update)
+	Comm.SendVersion(false)
+	say = "on"
+    end
+    if verbose then
+	Info(say)
+    end
+end
+
+function Comm.Unload(verbose)
+    local say
+    if comm == nil then
+	load_later = false
+    elseif not comm.active then
+	say = "already off"
+    else
+	comm.Unload()
+	EVENT_MANAGER:UnregisterForUpdate('UltPing')
+	Swimlanes.Update("off")
+	say = "off"
+    end
+    if verbose then
+	Info(say)
+    end
 end
 
 local function commtype(s)
@@ -178,17 +197,18 @@ function Comm.Initialize(inmajor, inminor)
     if comm == nil then
 	Error(string.format("Unknown communication type: %s", saved.Comm))
     end
-    if not comm.active then
-	toggle(false)
-    end
 
     major = inmajor
     minor = inminor
-    Comm.SendVersion(false)
 
     me = Me
+    if load_later then
+	Comm.Load()
+	load_later = false
+    end
 
-    Slash("onoff", "toggle POC on/off",  function () toggle(true) end)
+    Slash("on", "Turn POC on",	function () Comm.Load(true) end)
+    Slash("off", "Turn POC off",  function () Comm.Unload(true) end)
     Slash("comm", "change communication method (don't use)",function(x)
 	if string.len(x) ~= 0 then
 	    local toset = commtype(x)
