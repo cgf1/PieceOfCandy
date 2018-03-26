@@ -20,6 +20,7 @@ PingPipe = {
 PingPipe.__index = PingPipe
 
 local saved
+local sendword
 
 local function unpack_ultpct(x)
     pct2 = x % 124
@@ -94,6 +95,7 @@ function PingPipe.SendWord(word)
     LGPS:PopCurrentMap()
 end
 
+local sendword = PingPipe.SendWord
 function PingPipe.Send(...)
     local bytes = {...}
     local word = 0
@@ -103,7 +105,7 @@ function PingPipe.Send(...)
 	mul = mul * 256
     end
 
-    PingPipe.SendWord(word)
+    sendword(word)
 end
 
 -- Unload PingPipe
@@ -112,7 +114,7 @@ function PingPipe.Unload()
     CALLBACK_MANAGER:UnregisterCallback(MAP_PING_CHANGED, rcv)
     LMP:UnregisterCallback("BeforePingAdded", on_map_ping)
     LMP:UnregisterCallback("AfterPingRemoved", map_ping_finished)
-    SLASH_COMMANDS["/pocpingerr"] = nil
+    Slash("pingerr")
     PingPipe.active = false
 end
 

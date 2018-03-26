@@ -41,10 +41,14 @@ cmds.help = {
 }
 
 function Slash(name, help, func)
-    cmds[name] = {
-	Help = help,
-	Func = func
-    }
+    if func == nil then
+	cmds[name] = nil
+    else
+	cmds[name] = {
+	    Help = help,
+	    Func = func
+	}
+    end
     if name:sub(1, 1) ~= '/' then
 	name = "/poc" .. name
     end

@@ -8,22 +8,28 @@ local saved
 local JUMP1 = 'JUMP_TO_GROUP_LEADER_WORLD_PROMPT'
 local JUMP2 = 'JUMP_TO_GROUP_LEADER_OCCURANCE_PROMPT'
 
+local supdate
+
 -- Called when group member joined group
 --
 local function on_joined(x, member)
-    Swimlanes.Update("joined")
+    supdate("joined")
 end
 
 -- Called when group member left group
 --
 local function on_left(x, member)
-    Swimlanes.Update("left")
+    supdate("left")
 end
 
 -- Called when groupUnitTags updated
 --
 local function on_update(x, hmm)
-    Swimlanes.Update("group update")
+    supdate("group update")
+end
+
+local function on_formed(x, hmm)
+    supdate("formed")
 end
 
 local hooked = false
@@ -98,6 +104,8 @@ function Group.Initialize(insaved)
 	    end
 	end
     end
+
+    supdate = Swimlanes.Update
     -- Initial call
     on_update()
 
@@ -107,6 +115,7 @@ function Group.Initialize(insaved)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_UPDATE, on_update)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, on_update)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_INVITE_RECEIVED, on_invite)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_UNIT_FRAME_UPDATE, on_formed)
     Slash("gaccept", "auto-accept from given player", autoaccept)
     Slash("nogaccept", "auto-accept from given player", noautoaccept)
 end

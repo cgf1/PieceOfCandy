@@ -273,7 +273,6 @@ function Lanes:Update(x)
     if x == "left" then
 	need_to_fire = true
     elseif x == "joined" then
-	Comm.SendVersion(false)
 	need_to_fire = true
     end
     if x ~= 'off' and Group.IsGrouped() then
