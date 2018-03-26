@@ -39,6 +39,7 @@ cmds.help = {
     Help = 'show POC slash commands',
     Func = pochelp
 }
+SLASH_COMMANDS["/pochelp"] = pochelp
 
 function Slash(name, help, func)
     if func == nil then
