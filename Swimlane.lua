@@ -747,6 +747,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     end
 
     for n, v in pairs(player) do
+	player[n] = nil
 	if self[n] ~= v then
 	    changed = true
 	    self[n] = v

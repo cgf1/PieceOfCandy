@@ -35,6 +35,7 @@ end
 local hooked = false
 local suppress = false
 local function nodialog(name, data)
+    watch("nodialog", name, data)
     if (name == JUMP1 or name == JUMP2) and suppress then
 	suppress = false
 	return true
