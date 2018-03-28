@@ -69,3 +69,5 @@ SLASH_COMMANDS["/poc"] = function(x)
     end
     cmds[c].Func(rest)
 end
+
+Slash("/leave", "leave group", function () GroupLeave() end)

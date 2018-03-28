@@ -13,14 +13,15 @@ ALERT = "POC-Alert"
 
 LANG = GetCVar("Language.2")
 
-local major = 3
-local minor = 5
+local version = '3.6'
+local major = version:match("(^%d+)")
+local minor = version:match("\.(%d+)")
 
 -- POC:initialize initializes addon
 --
 function POC:initialize()
     -- Initialize logging
-    df("Piece of Candy! (v%d.%d)", major, minor)
+    df("Piece of Candy! (v%s)", version)
 
     local strings = {
 	WARNING_LGS_ENABLE =		 "Warning: Enable LibGroupSocket to send -> /lgs 1",
@@ -57,7 +58,7 @@ function POC:initialize()
     Ult.Initialize()
 
     -- Initialize ui
-    Settings.InitializeWindow(major, minor)
+    Settings.InitializeWindow(version)
 
     UltMenu.Initialize()
 

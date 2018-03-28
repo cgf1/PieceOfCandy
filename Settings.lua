@@ -106,7 +106,7 @@ end
 
 -- Initialize/create settings window
 --
-function Settings.InitializeWindow(major, minor)
+function Settings.InitializeWindow(version)
     local default = Settings.Default
     local styleChoices = {
 	[1] = GetString(OPTIONS_STYLE_SWIM),
@@ -280,11 +280,23 @@ function Settings.InitializeWindow(major, minor)
     }
 
     local LAM = LibStub("LibAddonMenu-2.0")
+    local manager = GetAddOnManager()
+    local name, title, author, description
+    for i = 1, manager:GetNumAddOns() do
+	name, title, author, description = manager:GetAddOnInfo(i)
+	if name == "POC" then
+	    break
+	end
+    end
+    d(name, title, author, description)
+
     local paneldata = {
 	    type = "panel",
-	    name = "Piece Of Candy",
-	    author = "Valandil",
-	    version = string.format("%s.%s", major, minor),
+	    name = name,
+	    displayName = "|c00B50F" .. title .. "|r",
+	    author = author,
+	    description = description,
+	    version = version,
 	    registerForDefaults = true
     }
     Panel = LAM:RegisterAddonPanel("POCSettingsMainMenu", paneldata)

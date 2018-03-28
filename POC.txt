@@ -5,10 +5,9 @@
 ; You can read the full terms at https://account.elderscrollsonline.com/add-on-terms
 
 ## APIVersion: 100021 100022 100023
-## Description: PVP Helper
 ## Title: Piece of Candy
-## Version: 3.5
-## Author: |ca0a0a0|Valandil
+## Author: |c66ffff|Valandil|r
+## Description: PVP Helper
 ## SavedVariables: POCSettings
 ## OptionalDependsOn: LibAddonMenu-2.0
 ## OptionalDependsOn: TOM

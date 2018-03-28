@@ -245,7 +245,7 @@ local function dump(name)
 		    local comma = ''
 		    for n, v in pairs(t) do
 			local ult = Ult.ByPing(n)
-			if ult.Name ~= 'MIA' then
+			if not ult.IsMIA then
 			    p = string.format("%s%s%s[%s%%]", p, comma, ult.Desc, v)
 			    comma = ', '
 			end
@@ -870,9 +870,6 @@ function Lane:Header()
 	self.Plunk = Player.PlunkNotMIA
     end
     local ult = Ult.ByPing(apid)
-    if ult == nil then
-	ult = Ult.ByPing('MIA')
-    end
 
     self.Icon:SetTexture(ult.Icon)
     if (self.Label ~= nil) then

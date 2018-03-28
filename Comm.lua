@@ -73,11 +73,11 @@ end
 
 local function ultpct(apid)
     local pct
-    if apid == nil or apid == 0 or apid == 'MIA' then
+    local ult = Ult.ByPing(apid)
+    if ult.IsMIA then
 	apid = Ult.MaxPing
 	pct = 0
     else
-	local ult = Ult.ByPing(apid)
 	local curpct = me.Ults[apid]
 	local current, max = GetUnitPower("player", POWERTYPE_ULTIMATE)
 	local cost = math.max(1, GetAbilityCost(ult.Aid))

@@ -27,11 +27,7 @@ function Ult.ByPing(pid)
     if pid ~= nil and bypings[pid] ~= nil then
 	return bypings[pid]
     end
-    if pid == 'MIA' then
-	return mia
-    end
-
-    return nil
+    return mia
 end
 
 -- ByAid gets the ultimate group from given ability ID
@@ -327,7 +323,7 @@ local function create_ults()
 	end
     end
     mia = bypings[Ult.MaxPing]
-    mia.IsMia = true
+    mia.IsMIA = true
     local i = 0
     i = insert_group_table(bynames, ults, class, i)
     if saved.MyUltId[ultix] == nil then
@@ -361,9 +357,6 @@ function Ult.GetSaved(n)
     if saved.MyUltId[ultix][n] ~= nil then
 	-- should never be non-nil, but...
 	local ult = Ult.ByPing(saved.MyUltId[ultix][n])
-	if ult == nil or ult.Aid == 'MIA' then
-	    ult = mia
-	end
 	return ult.Icon
     end
 end
