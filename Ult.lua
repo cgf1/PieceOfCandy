@@ -353,7 +353,6 @@ local function create_ults()
 end
 
 function Ult.GetSaved(n)
-    local ret
     if saved.MyUltId[ultix][n] ~= nil then
 	-- should never be non-nil, but...
 	local ult = Ult.ByPing(saved.MyUltId[ultix][n])

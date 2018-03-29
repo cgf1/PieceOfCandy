@@ -288,7 +288,6 @@ function Settings.InitializeWindow(version)
 	    break
 	end
     end
-    d(name, title, author, description)
 
     local paneldata = {
 	    type = "panel",

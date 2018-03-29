@@ -14,8 +14,8 @@ ALERT = "POC-Alert"
 LANG = GetCVar("Language.2")
 
 local version = '3.6'
-local major = version:match("(^%d+)")
-local minor = version:match("\.(%d+)")
+local major = tonumber(version:match("^(%d+)"))
+local minor = tonumber(version:match("\.(%d+)"))
 
 -- POC:initialize initializes addon
 --
