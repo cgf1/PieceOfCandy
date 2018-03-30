@@ -52,7 +52,6 @@ local play_sound = false
 local last_played = 0
 Player = {
     IsMe = false,
-    NewClient = true,
     TimeStamp = 0,
     Ults = {},
 }
@@ -62,7 +61,6 @@ local me = setmetatable({
     InRangeTime = 0,
     IsDead = false,
     IsMe = true,
-    NewClient = true,
     Tick = 0,
     TimeStamp = 0,
     UltMain = 0,
@@ -670,7 +668,6 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	else
 	    self = {
 		IsMe = false,
-		NewClient = false,
 		Tick = 0,
 		TimeStamp = 0,
 		UltMain = Ult.MaxPing,
