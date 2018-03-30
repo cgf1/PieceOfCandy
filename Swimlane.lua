@@ -564,16 +564,16 @@ function Lane:UpdateCell(i, player, playername, priult)
 	playername = string.format("|cff0000%s|r", playername)
     end
 
-    if sldebug then
-	playername = playername .. "   " .. player.Ults[apid] .. "%"
-    end
-
     local ultpct
     local apid
     if self.Apid == 'MIA' then
 	apid = player.UltMain
     else
 	apid = self.Apid
+    end
+
+    if sldebug then
+	playername = playername .. "   " .. player.Ults[apid] .. "%"
     end
 
     if player.Ults[apid] == nil then
@@ -585,7 +585,9 @@ function Lane:UpdateCell(i, player, playername, priult)
     end
 
     local bdlength, _ = bgcell:GetWidth() - 4
-    if bdlength == 0 then
+    if sldebug then
+	namecell:SetText(playername)
+    elseif bdlength == 0 then
 	-- Not sure why this happens
 	if string.len(playername) > 10 then
 	    playername = string.sub(playername, 1, 10) .. '..'
@@ -1052,6 +1054,7 @@ function Swimlanes.Initialize(major, minor)
 	    forcepct = nil
 	else
 	    forcepct = tonumber(pct)
+	    need_to_fire = true
 	end
     end)
     Slash("sldebug", "debugging: display percentages next to names", function(pct)
