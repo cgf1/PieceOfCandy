@@ -291,7 +291,7 @@ function Settings.InitializeWindow(version)
 
     local paneldata = {
 	    type = "panel",
-	    name = name,
+	    name = title,
 	    displayName = "|c00B50F" .. title .. "|r",
 	    author = author,
 	    description = description,
