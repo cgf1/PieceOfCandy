@@ -11,8 +11,6 @@ local ROUND = .5 / TWOBYTES
 local pingerr = function() end
 local show_errors = false
 
-local REFRESHRATE = 2000 -- ms; RegisterForUpdate is in miliseconds
-
 PingPipe = {
     Name = "POC-PingPipe",
     active = false

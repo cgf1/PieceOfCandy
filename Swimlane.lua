@@ -64,7 +64,8 @@ local me = setmetatable({
     Tick = 0,
     TimeStamp = 0,
     UltMain = 0,
-    Ults = {}
+    Ults = {},
+    Visited = false
 }, Player)
 Me = me
 
@@ -1087,8 +1088,8 @@ function Swimlanes.Initialize(major, minor)
 	end
 	Info("Movable state is:", movable)
     end)
-    Slash("sendver", "send POC add-on version to others in your group", function(x)
+    Slash("sendver", "debugging: send POC add-on version to others in your group", function(x)
 	Comm.SendVersion(true)
     end)
-    Slash("dump", "show collected information for specified player", function(x) dumpme = x end)
+    Slash("dump", "debugging: show collected information for specified player", function(x) dumpme = x end)
 end
