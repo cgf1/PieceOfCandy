@@ -125,7 +125,7 @@ function PingPipe.Load()
 
     saved = Settings.SavedVariables
 
-    Slash("pingerr", "show all map ping errors",function()
+    Slash("pingerr", "debugging: show all map ping errors",function()
 	show_errors = not show_errors
 	if show_errors then
 	    pingerr = Error

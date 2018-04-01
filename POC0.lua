@@ -23,9 +23,18 @@ local function pochelp(x)
 	end
 	table.sort(keys)
     end
+    local showdebug
+    if x ~= 'debug' then
+	showdebug = false
+    else
+	showdebug = true
+	x = ''
+    end
     if x:len() == 0 then
 	for _, n in ipairs(keys) do
-	    d("|u0:10::" .. n .. "|u " .. cmds[n].Help)
+	    if not cmds[n].Debug or showdebug then
+		d("|u0:10::" .. n .. "|u " .. cmds[n].Help)
+	    end
 	end
     elseif cmds[x] == nil then
 	Error(string.format("no such command: %s", x))
@@ -46,6 +55,7 @@ function Slash(name, help, func)
 	cmds[name] = nil
     else
 	cmds[name] = {
+	    Debug = help:match('debug'),
 	    Help = help,
 	    Func = func
 	}
