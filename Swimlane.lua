@@ -16,7 +16,7 @@ local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
 local table = table
 
-local SWIMLANES = 6
+SWIMLANES = 7
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
@@ -36,6 +36,8 @@ local myults
 local forcepct = nil
 local sldebug = false
 
+local max_ping
+
 local version
 local dversion
 
@@ -52,6 +54,7 @@ local play_sound = false
 local last_played = 0
 Player = {
     IsMe = false,
+    Pos = 0,
     TimeStamp = 0,
     Ults = {},
 }
@@ -61,6 +64,7 @@ local me = setmetatable({
     InRangeTime = 0,
     IsDead = false,
     IsMe = true,
+    Pos = 0,
     Tick = 0,
     TimeStamp = 0,
     UltMain = 0,
@@ -289,7 +293,7 @@ function Lanes:Update(x)
 	_this.WasActive = false
 	Comm.Unload()
     end
-    watch("Lanes:Update", refresh, _this.WasActive)
+    watch("Lanes:Update", 'refresh', refresh, 'wasactive', _this.WasActive)
 
     if refresh then
 	watch("refresh")
@@ -311,11 +315,13 @@ function Lanes:Update(x)
 	    Comm.SendVersion(false)
 	end
 	_this.WasActive = true
+	if false then
 	gc = gc - 1
 	if gc <= 0 then
 	    gc = GARBAGECOLLECT
 	    local n = collectgarbage("collect")
 	    watch("garbage", n)
+	end
 	end
     end
 end
@@ -338,7 +344,7 @@ function Player:IsInRange()
     return self.InRange and (self.InRangeTime == nil or self.InRangeTime > 0)
 end
 
-function Player:PlunkNotMIA(apid, tick)
+function plunk_not_mia(self, apid, tick)
     if self.Ults[apid] == nil then
 	return false
     else
@@ -347,8 +353,8 @@ function Player:PlunkNotMIA(apid, tick)
     end
 end
 
-function Player:PlunkMIA(apid, tick)
-    if self.Tick == tick then
+function plunk_mia(self, apid, tick)
+    if self.Pos == 0 and self.Tick == tick then
 	return false
     else
 	self.Tick = tick
@@ -357,8 +363,9 @@ function Player:PlunkMIA(apid, tick)
 end
 
 local lane_apid
-local function sortval(player)
+local function sortval_not_mia(key)
     local a
+    local player = group_members[key]
     if player:TimedOut() then
 	a = -2
     elseif player.IsDead then
@@ -373,14 +380,26 @@ local function sortval(player)
     if a == nil then
 	a = 0
     end
-    return a
+    return a, player
 end
 
-local function compare(key1, key2)
-    local player1 = group_members[key1]
-    local player2 = group_members[key2]
-    local a = sortval(player1)
-    local b = sortval(player2)
+local function sortval_mia(key)
+    local player = group_members[key]
+    if player.Pos ~= 0 then
+	return player.Pos
+    end
+    return 1000 + tonumber(player.PingTag:match('(%d+)$'))
+end
+
+local function compare_mia(key1, key2)
+    local a = sortval_mia(key1)
+    local b = sortval_mia(key2)
+    return a < b
+end
+
+local function compare_not_mia(key1, key2)
+    local a, player1 = sortval_not_mia(key1)
+    local b, player2 = sortval_not_mia(key2)
     if (a == b) then
 	return player1.PingTag < player2.PingTag
     else
@@ -421,7 +440,7 @@ function Lane:Update(force, tick)
 	    end
 	end
 
-	table.sort(keys, compare)
+	table.sort(keys, self.Compare)
 
 	-- Update sorted swimlane
 	local gt100 = 100 + saved.SwimlaneMax
@@ -659,21 +678,22 @@ function Player.Version(pingtag, major, minor, force)
 end
 
 local tmp_player = {}
-function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
+function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
     local name = GetUnitName(pingtag)
     local self = group_members[name]
-    watch("Player.New", name, pingtag, timestamp, apid1, pct1, apid2, pct2, self)
+    watch("Player.New", name, pingtag, timestamp, apid1, pct1, apid2, pct2, pos, self)
     if self == nil then
 	if name == myname then
 	    self = me
 	else
 	    self = {
 		IsMe = false,
+		Pos = 0,
 		Tick = 0,
 		TimeStamp = 0,
-		UltMain = Ult.MaxPing,
+		UltMain = max_ping,
 		Ults = {
-		    [Ult.MaxPing] = 0
+		    [max_ping] = 0
 		},
 		Visited = false
 	    }
@@ -708,6 +728,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     player.Online = IsUnitOnline(pingtag)
     player.PingTag = pingtag
     player.UltMain = apid1
+    player.Pos = pos
     -- Consider changed if we have a timestamp and timeout is detected
     local changed = timestamp and self.TimeStamp and self:TimedOut()
     if timestamp ~= self.TimeStamp then
@@ -718,7 +739,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
     end
 
     if apid1 ~= nil then
-	-- Called from Player.New
+	-- Called from map ping
 	if self.UltMain and self.UltMain ~= 0 and self.UltMain ~= apid1 then
 	    self.Ults[self.UltMain] = nil	-- Player changed their main ult
 	end
@@ -726,20 +747,19 @@ function Player.New(pingtag, timestamp, apid1, pct1, apid2, pct2)
 	    self.Ults[apid1] = pct1		-- Primary ult pct changed
 	    changed = true
 	end
-	if apid2 ~= nil then
-	    -- Called from Player.New with both ult1 and ult2
-	    if self.Ults[apid2] == nil then
+	if apid2 ~= nil and apid2 ~= max_ping and apid2 ~= 'MIA' then
+	    if self.Ults[apid2] == nil and self.UltMain ~= nil then
 		-- Player changed their secondary ult
 		-- Search ults table for one that isn't primary
 		for apid, _ in pairs(self.Ults) do
-		    if apid ~= apid1 then
+		    if apid ~= self.UltMain then
 			-- Found it
 			self.Ults[apid] = nil
 			break
 		    end
 		end
 	    end
-	    if self.Ults[apid2] ~= pct2 then
+	    if apid2 ~= max_ping and self.Ults[apid2] ~= pct2 then
 		self.Ults[apid2] = pct2		-- secondary ult pct changed
 		changed = true
 	    end
@@ -864,10 +884,12 @@ function Lane:Header()
     local apid
     if self.Id == MIAlane then
 	apid = 'MIA'
-	self.Plunk = Player.PlunkMIA
+	self.Compare = compare_mia
+	self.Plunk = plunk_mia
     else
 	apid = saved.LaneIds[self.Id]
-	self.Plunk = Player.PlunkNotMIA
+	self.Compare = compare_not_mia
+	self.Plunk = plunk_not_mia
     end
     local ult = Ult.ByPing(apid)
 
@@ -1008,18 +1030,22 @@ function Swimlanes.Initialize(major, minor)
     group_members = saved.GroupMembers
     myults = saved.MyUltId[ultix]
     if myults[1] == nil then
-	myults[1] = Ult.MaxPing
+	myults[1] = max_ping
     end
+    max_ping = Ult.MaxPing
     for n, v in pairs(group_members) do
 	setmetatable(v, Player)
 	if n == myname then
 	    v =  ZO_DeepTableCopy(v, me)
 	end
 	if not v.UltMain or v.UltMain == 0 then
-	    v.UltMain = Ult.MaxPing
+	    v.UltMain = max_ping
 	end
 	if not v.Ults[v.UltMain] then
 	    v.UltMain = 0
+	end
+	if v.Pos == nil then
+	    v.Pos = 0
 	end
 	group_members[n] = v
     end

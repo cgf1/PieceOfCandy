@@ -16,8 +16,9 @@ libs/LibStub/LibStub.lua
 
 icons/ok.dds
 icons/ok1.dds
+icons/mia.dds
 icons/nook1.dds
-icons/lollipop.dds
+icons/queue.dds
 textures/grainy.dds
 textures/hover.dds
 
@@ -58,5 +59,6 @@ Countdown.lua
 
 Quest.lua
 Alert.lua
+Campaign.lua
 
 POC.lua

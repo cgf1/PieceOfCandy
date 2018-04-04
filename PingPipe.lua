@@ -17,19 +17,26 @@ PingPipe = {
 }
 PingPipe.__index = PingPipe
 
+local max_ping
+
 local saved
 local sendword
 
-local function unpack_ultpct(x)
-    pct2 = x % 124
-    x = math.floor(x / 124)
-    apid2 = (x % Ult.MaxPing) + 1
-    x = math.floor(x / Ult.MaxPing)
-    pct1 = x % 124
-    x = math.floor(x / 124)
-    apid1 = (x % Ult.MaxPing) + 1
-    x = math.floor(x / Ult.MaxPing)     -- currently unused
-    return apid1, pct1, apid2, pct2
+-- LIFO!
+local function unpack_ultpct(cmd, x)
+    local orig_x = x
+    local lower = x % COMM_ULTPCT_MUL1
+    local upper = math.floor(x / COMM_ULTPCT_MUL1)
+    pct1 = upper % 124
+    apid1 = math.floor(upper / 124) + 1
+    local apid2, pct2, pos
+    if cmd == COMM_TYPE_PCTULT then
+	pos = lower
+    else
+	pct2 = lower % 124
+	apid2 = math.floor(lower / 124) + 1
+    end
+    return apid1, pct1, pos, apid2, pct2, pos
 end
 
 -- Called on map ping from LibMapPing
@@ -64,10 +71,11 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
 	Quest.Process(bytes[2], bytes[3])
     elseif ctype == COMM_TYPE_MYVERSION then
 	Player.Version(pingtag, bytes[2], bytes[3], bytes[4] == 1)
-    elseif ctype == COMM_TYPE_PCTULT then
+    elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	input = math.floor(input / 256)
-	local apid1, pct1, apid2, pct2 = unpack_ultpct(input)
-	Player.New(pingtag, timenow, apid1, pct1, apid2, pct2)
+	watch("on_map_ping", input)
+	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(cmd, input)
+	Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
     end
 end
 
@@ -124,6 +132,8 @@ function PingPipe.Load()
     LMP:RegisterCallback("AfterPingRemoved", map_ping_finished)
 
     saved = Settings.SavedVariables
+
+    max_ping = Ult.MaxPing
 
     Slash("pingerr", "debugging: show all map ping errors",function()
 	show_errors = not show_errors
