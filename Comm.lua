@@ -12,8 +12,11 @@ COMM_TYPE_COUNTDOWN	= 0x02 + (COMM_MAGIC * 16)
 COMM_TYPE_PCTULT	= 0x03 + (COMM_MAGIC * 16)
 COMM_TYPE_NEEDQUEST	= 0x04 + (COMM_MAGIC * 16)
 COMM_TYPE_MYVERSION	= 0x05 + (COMM_MAGIC * 16)
-COMM_TYPE_MAX		= 0x05
+COMM_TYPE_PCTULTPOS	= 0x06 + (COMM_MAGIC * 16)
+
 COMM_ALL_PLAYERS	= 0
+
+COMM_MAXQUEUE		= 200
 
 local update_interval
 
@@ -27,6 +30,9 @@ local version
 local major, minor
 
 local load_later = false
+local campaign
+local max_ping
+local oldqueue
 
 local me
 
@@ -40,6 +46,8 @@ local Comm = Comm
 local ultix = GetUnitName("player")
 local comm
 local notify_when_not_grouped = false
+
+local ultpct_mul2
 
 local myults
 
@@ -76,7 +84,7 @@ local function ultpct(apid)
     local pct
     local ult = Ult.ByPing(apid)
     if ult.IsMIA then
-	apid = Ult.MaxPing
+	apid = max_ping
 	pct = 0
     else
 	local curpct = me.Ults[apid]
@@ -87,7 +95,7 @@ local function ultpct(apid)
 	    pct = curpct
 	end
     end
-    return apid, pct
+    return (((apid - 1) * 124) + pct)
 end
 
 local counter = 0
@@ -107,14 +115,20 @@ local function on_update()
 
     counter = counter + 1
     local send = 0
-    for i, apid in ipairs(myults) do
-	local apid, p = ultpct(apid)
-	send = (send * 30) + (apid - 1)
-	send = (send * 124) + p
+    local apid1pct1 = ultpct(myults[1])
+    local queue = campaign.Pos
+    send = COMM_ULTPCT_MUL1 * apid1pct1
+    local cmd
+    if queue == 0 or queue == old_queue then
+	send = send + ultpct(myults[2])
+	cmd = COMM_TYPE_PCTULT
+    else
+	send = send + queue
+	cmd = COMM_TYPE_PCTULTPOS
     end
-    local bytes = Comm.ToBytes(send)
     watch("on_update", tostring(send))
-    comm.Send(COMM_TYPE_PCTULT, bytes[1], bytes[2], bytes[3])
+    local bytes = Comm.ToBytes(send)
+    comm.Send(cmd, bytes[1], bytes[2], bytes[3])
     if (counter % QUEST_PING) == 0 then
 	quest_ping = QUEST_PING
 	Quest.Ping()
@@ -186,6 +200,7 @@ function Comm.Initialize(inmajor, inminor)
     if saved.OldCount then
 	saved.OldCount = nil
     end
+    campaign = Campaign
 
     Comm.Driver = commtype(saved.Comm)
     comm = Comm.Driver
@@ -196,6 +211,9 @@ function Comm.Initialize(inmajor, inminor)
 
     major = inmajor
     minor = inminor
+    max_ping = Ult.MaxPing
+    COMM_ULTPCT_MUL1 = max_ping * 124
+    ultpct_mul2 = COMM_ULTPCT_MUL1 ^ 2
 
     if saved.UpdateInterval == nil then
 	saved.UpdateInterval = 2000

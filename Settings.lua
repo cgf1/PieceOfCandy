@@ -190,7 +190,7 @@ function Settings.InitializeWindow(version)
     o[#o + 1] = {
 	type = "slider",
 	name = "Max number of swimlanes to display",
-	min = 1, max = 6, step = 1,
+	min = 1, max = SWIMLANES, step = 1,
 	getFunc = function() return saved.SwimlaneMaxCols end,
 	width = "full",
 	setFunc = function(value) Settings.SetSwimlaneMaxCols(value) end,

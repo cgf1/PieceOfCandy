@@ -24,7 +24,7 @@ end
 
 -- Called when groupUnitTags updated
 --
-local function on_update(x, hmm)
+local function on_group_update(x, hmm)
     supdate("group update")
 end
 
@@ -108,13 +108,13 @@ function Group.Initialize(insaved)
 
     supdate = Swimlanes.Update
     -- Initial call
-    on_update()
+    on_group_update()
 
     -- Register events
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_JOINED, on_joined)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_LEFT, on_left)
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_UPDATE, on_update)
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, on_update)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_UPDATE, on_group_update)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_MEMBER_ROLES_CHANGED, on_group_update)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_GROUP_INVITE_RECEIVED, on_invite)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_UNIT_FRAME_UPDATE, on_formed)
     Slash("gaccept", "auto-accept group invite from given player", autoaccept)

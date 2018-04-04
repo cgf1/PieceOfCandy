@@ -19,7 +19,7 @@ local tmp = {}
 
 local saved
 local mia
-local MIAicon = "/POC/icons/lollipop.dds"
+local MIAicon = "/POC/icons/mia.dds"
 
 -- ByPing gets the ultimate group from given ability ping
 --
