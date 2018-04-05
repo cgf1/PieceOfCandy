@@ -16,7 +16,7 @@ local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
 local table = table
 
-SWIMLANES = 7
+SWIMLANES = 8
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
@@ -747,7 +747,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	    self.Ults[apid1] = pct1		-- Primary ult pct changed
 	    changed = true
 	end
-	if apid2 ~= nil and apid2 ~= max_ping and apid2 ~= 'MIA' then
+	if apid2 ~= nil then
 	    if self.Ults[apid2] == nil and self.UltMain ~= nil then
 		-- Player changed their secondary ult
 		-- Search ults table for one that isn't primary
@@ -755,6 +755,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 		    if apid ~= self.UltMain then
 			-- Found it
 			self.Ults[apid] = nil
+			changed = true
 			break
 		    end
 		end
@@ -892,6 +893,7 @@ function Lane:Header()
 	self.Plunk = plunk_not_mia
     end
     local ult = Ult.ByPing(apid)
+    apid = ult.Ping
 
     self.Icon:SetTexture(ult.Icon)
     if (self.Label ~= nil) then

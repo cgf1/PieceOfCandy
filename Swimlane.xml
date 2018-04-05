@@ -39,6 +39,12 @@
 		<Control name="$(parent)Swimlane7" inherits="UltSwimlane">
 		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="612" offsetY="0"/>
 		</Control>
+		<Control name="$(parent)Swimlane8" inherits="UltSwimlane">
+		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="714" offsetY="0"/>
+		</Control>
+		<Control name="$(parent)Swimlane9" inherits="UltSwimlane">
+		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="816" offsetY="0"/>
+		</Control>
 	    </Controls>
 	</TopLevelControl>
     </Controls>

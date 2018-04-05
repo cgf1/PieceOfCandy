@@ -126,7 +126,7 @@ local function on_update()
 	send = send + queue
 	cmd = COMM_TYPE_PCTULTPOS
     end
-    watch("on_update", tostring(send))
+    watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
     comm.Send(cmd, bytes[1], bytes[2], bytes[3])
     if (counter % QUEST_PING) == 0 then
