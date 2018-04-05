@@ -16,8 +16,6 @@ COMM_TYPE_PCTULTPOS	= 0x06 + (COMM_MAGIC * 16)
 
 COMM_ALL_PLAYERS	= 0
 
-COMM_MAXQUEUE		= 200
-
 local update_interval
 
 local QUEST_PING = 4
