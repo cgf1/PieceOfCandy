@@ -16,7 +16,7 @@ local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
 local table = table
 
-SWIMLANES = 8
+SWIMLANES = 6
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
@@ -632,7 +632,7 @@ function Lane:UpdateCell(i, player, playername, priult)
     elseif player.IsDead then
 	values = isdead
     else
-	values = normal[priult][player.Ults[apid] >= 100]
+	values = normal[priult][ultpct >= 100]
     end
 
     ultcell:SetValue(ultpct)
@@ -920,7 +920,7 @@ function Lanes:Redo()
     if MIAlane == oldMIAlane then
 	return
     end
-    local mialane = self['MIA']
+    local mialane = self[max_ping]
     if mialane.Id > MIAlane then
 	mialane:Update(true)
     end

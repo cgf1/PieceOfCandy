@@ -18,13 +18,15 @@ Settings = {
 	SwimlaneMax = 24,
 	SwimlaneMaxCols = 6,
 	LaneIds = {
-	    [1] = 29861,
-	    [2] = 27413,
-	    [3] = 86536,
-	    [4] = 86112,
-	    [5] = 46537,
-	    [6] = 46622,
-	    [7] = 'MIA'
+	    [1] = 1,
+	    [2] = 6,
+	    [3] = 16,
+	    [4] = 13,
+	    [5] = 27,
+	    [6] = 26,
+	    [7] = 30,   -- MIA
+	    [8] = 28,
+	    [9] = 12
 	},
 	UltAlert = true,
 	UltNumberPos = nil,
@@ -194,7 +196,7 @@ function Settings.InitializeWindow(version)
 	getFunc = function() return saved.SwimlaneMaxCols end,
 	width = "full",
 	setFunc = function(value) Settings.SetSwimlaneMaxCols(value) end,
-	default = 6,
+	default = SWIMLANES,
     }
     o[#o + 1] = {
 	type = "checkbox",
@@ -339,6 +341,9 @@ function Settings.Initialize()
     end
     saved.PosX = nil
     saved.PosY = nil
+    if saved.SwimlaneMaxCols > SWIMLANES then
+	saved.SwimlaneMaxCols = SWIMLANES
+    end
 
     Slash("style", 'set display style: "standard" or "compact"', function(style)
 	style = string.lower(style):gsub("^%l", string.upper)

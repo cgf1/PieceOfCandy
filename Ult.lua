@@ -411,7 +411,9 @@ function Ult.Initialize()
     local changed = false
     for i = 1, saved.SwimlaneMaxCols do
 	v = ids[i]
-	if v > Ult.MaxPing then
+	if v == nil or v == 'MIA' then
+	    v = Ult.MaxPing
+	elseif v > Ult.MaxPing then
 	    v = Ult.ByAid(v).Ping
 	    changed = true
 	end
