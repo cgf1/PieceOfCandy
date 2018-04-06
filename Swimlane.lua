@@ -16,7 +16,7 @@ local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
 local table = table
 
-SWIMLANES = 6
+SWIMLANES = 9
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
 local INRANGETIME = 60		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
@@ -47,8 +47,8 @@ local ping_refresh = false
 
 local tick = 0
 
-local Lane = {}
-Lane.__index = Lane
+local Col = {}
+Col.__index = Col
 
 local play_sound = false
 local last_played = 0
@@ -299,8 +299,8 @@ function Lanes:Update(x)
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
-	for lane in idpairs(self, "Id", tmplane) do
-	    if lane:Update(false, tick) then
+	for i = 1, saved.SwimlaneMaxCols + 1 do
+	    if self[i]:Update(tick) then
 		displayed = true
 	    end
 	end
@@ -410,9 +410,9 @@ end
 -- Update swimlane
 --
 local keys = {}
-function Lane:Update(force, tick)
+function Col:Update(tick)
     local laneid = self.Id
-    if not force and laneid > MIAlane then
+    if laneid > MIAlane then
 	return
     end
 
@@ -458,7 +458,7 @@ function Lane:Update(force, tick)
 	    displayed = true
 	    if not player.IsMe or not priult or isMIA then
 		self:UpdateCell(n, player, playername, isMIA or priult)
-		if not isMIA and player.Ults[apid] > 100 then
+		if not isMIA and player.Ults[apid] and player.Ults[apid] > 100 then
 		    gt100 = player.Ults[apid]
 		end
 	    else
@@ -566,7 +566,7 @@ end
 
 -- Update a cell
 --
-function Lane:UpdateCell(i, player, playername, priult)
+function Col:UpdateCell(i, player, playername, priult)
     local rowi = "Row" .. i
     local row = self.Control:GetNamedChild(rowi)
     if saved.AtNames and player.AtName then
@@ -844,56 +844,74 @@ end
 
 -- Called when header clicked to change column identifier
 --
-function Lanes:SetLaneUlt(oldapid, iconstr)
-    local apid = Ult.UltApidFromIcon(iconstr)
-    watch("Lanes:Setult", id, apid, iconstr)
-    if self[apid] ~= nil then
-	return			-- already displaying this ultimate
+function Lanes:SetLaneUlt(id, apid)
+    watch("Lanes:SetLaneUlt", id, apid)
+    if apid ~= max_ping then
+	for i = 1, saved.SwimlaneMaxCols do
+	    local v = self[i]
+	    if v.Apid == apid then
+		watch("Lanes:SetLaneUlt", _, v.Apid, '==', apid)
+		return			-- already displaying this ultimate
+	    end
+	end
     end
-    lane = self[oldapid]	-- Lane to replace
-    saved.LaneIds[lane.Id] = apid    -- Remember what's here
-    self[apid] = lane		-- New column
-    lane.Apid = apid
-    lane.Icon:SetTexture(iconstr)
-    if lane.Label ~= nil then
-	lane.Label:SetText(Ult.ByPing(apid).Name)
+    saved.LaneIds[id] = apid		-- Remember what's here
+    local ult = Ult.ByPing(apid)
+    local col = self[id]
+    col.Apid = ult.Ping
+    col.Icon:SetTexture(ult.Icon)
+    if col.Label ~= nil then
+	col.Label:SetText(ult.Name)
     end
-    self[oldapid] = nil		-- Delete old column
 end
 
--- Lane:Click called on header clicked
+-- Col:Click called on header clicked
 --
-function Lane:Click()
+function Col:Click()
     if (self.Button ~= nil) then
 	CALLBACK_MANAGER:FireCallbacks(SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
     else
-	Error("Lane:Click, button nil")
+	Error("Col:Click, button nil")
     end
 end
 
-function Lane:Header()
-    self.Control = widget:GetNamedChild("Swimlane" .. self.Id)
-    self.Button = self.Control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
-    self.Icon = self.Control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
-    self.Label = self.Control:GetNamedChild("Header"):GetNamedChild("UltLabel")
-    if self.Id == MIAlane then
-	self.Button:SetHandler("OnClicked", nil)
-    else
-	self.Button:SetHandler("OnClicked", function() self:Click() end)
+function Col.Header(col, i)
+    local control = widget:GetNamedChild("Swimlane" .. i)
+    if control == nil then
+	return nil
     end
 
     local apid
-    if self.Id == MIAlane then
-	apid = 'MIA'
-	self.Compare = compare_mia
-	self.Plunk = plunk_mia
+    if i == MIAlane then
+	apid = max_ping
     else
-	apid = saved.LaneIds[self.Id]
-	self.Compare = compare_not_mia
-	self.Plunk = plunk_not_mia
+	apid = saved.LaneIds[i]
     end
     local ult = Ult.ByPing(apid)
     apid = ult.Ping
+    local self
+    if col ~= nil then
+	self = col
+    else
+	self = setmetatable({Id = i}, Col)
+    end
+
+    if not self.Control then
+	self.Control = control
+	self.Button = control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
+	self.Icon = control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
+	self.Label = control:GetNamedChild("Header"):GetNamedChild("UltLabel")
+    end
+
+    if apid == max_ping then
+	self.Compare = compare_mia
+	self.Plunk = plunk_mia
+	self.Button:SetHandler("OnClicked", nil)
+    else
+	self.Compare = compare_not_mia
+	self.Plunk = plunk_not_mia
+	self.Button:SetHandler("OnClicked", function() self:Click() end)
+    end
 
     self.Icon:SetTexture(ult.Icon)
     if (self.Label ~= nil) then
@@ -901,11 +919,12 @@ function Lane:Header()
     end
 
     self:Hide(true)
+    self.Apid = apid
 
-    return apid
+    return self
 end
 
-function Lane:Hide(displayed)
+function Col:Hide(displayed)
     local hide = self.Id > MIAlane or (self.Id == MIAlane and not displayed)
     self.Button:SetHidden(hide)
     self.Icon:SetHidden(hide)
@@ -915,68 +934,53 @@ function Lane:Hide(displayed)
 end
 
 function Lanes:Redo()
-    local oldMIAlane = MIAlane
-    MIAlane = saved.SwimlaneMaxCols + 1
-    if MIAlane == oldMIAlane then
-	return
-    end
-    local mialane = self[max_ping]
-    if mialane.Id > MIAlane then
-	mialane:Update(true)
-    end
-    local lane = self[saved.LaneIds[mialane.Id]]
-    if lane == nil then
-	lane = Lane.New(self, mialane.Id)
-    else
-	lane.Id = mialane.Id
-	lane:Header()
-    end
-    mialane.Id = MIAlane
-    mialane:Header()
-
-    for n, v in pairs(self) do
-	v:Update(true)
-    end
+    self:New()
+    need_to_fire = true
+    self:Update("# lanes changed")
 end
 
 -- Create a swimlane list
 --
-function Lane.New(lanes, i)
-    local self = setmetatable({Id = i}, Lane)
+function Col.New(col, i)
+    local self = Col.Header(col, i)
 
-    apid = self:Header()
--- xxx("New", i, self.Control)
+    if self ~= nil then
+	local last_row = self.Control
+	for i = 1, SWIMLANEULTMAX, 1 do
+	    local row = self.Control:GetNamedChild("Row" .. i)
+	    if row == nil then
+		row = CreateControlFromVirtual("$(parent)Row", self.Control, swimlanerow, i)
+	    end
 
-    if lanes[apid] == nil then
-	lanes[apid] = self
-    end
+	    row:SetHidden(true) -- not visible initially
+	    row:SetDrawLayer(1)
 
-    local last_row = self.Control
-    for i = 1, SWIMLANEULTMAX, 1 do
-	local row = self.Control:GetNamedChild("Row" .. i)
-	if row == nil then
-	    row = CreateControlFromVirtual("$(parent)Row", self.Control, swimlanerow, i)
+	    if (i == 1) then
+		row:SetAnchor(TOPLEFT, last_row, TOPLEFT, 0, topleft)
+	    else
+		row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, -2)
+	    end
+	    last_row = row
 	end
-
-	row:SetHidden(true) -- not visible initially
-	row:SetDrawLayer(1)
-
-	if (i == 1) then
-	    row:SetAnchor(TOPLEFT, last_row, TOPLEFT, 0, topleft)
-	else
-	    row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, -2)
-	end
-	last_row = row
     end
-    self.Apid = apid
     return self
 end
 
-function Lanes.New()
-    local self = setmetatable({}, Lanes)
+function Lanes:New()
+    if self == nil then
+	self = setmetatable({}, Lanes)
+    end
     MIAlane = saved.SwimlaneMaxCols + 1
-    for i = 1, SWIMLANES + 1 do
-	Lane.New(self, i)
+    for i = 1, max_ping do
+	local col
+	if self[i] ~= nil then
+	    col = self[i]
+	end
+	col = Col.New(col, i)
+	if col == nil then
+	    break
+	end
+	self[i] = col
     end
     return self
 end
@@ -1027,6 +1031,7 @@ end
 --
 Swimlanes.Update = function(x) _this.Lanes:Update(x) end
 Swimlanes.SetLaneUlt = function(apid, icon) _this.Lanes:SetLaneUlt(apid, icon) end
+Swimlanes.Redo = function() _this.Lanes:Redo() end
 function Swimlanes.Initialize(major, minor)
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
@@ -1068,7 +1073,6 @@ function Swimlanes.Initialize(major, minor)
 
     style_changed()
 
-    CALLBACK_MANAGER:RegisterCallback(SWIMLANE_COLMAX_CHANGED, function () _this.Lanes:Redo() end)
     CALLBACK_MANAGER:RegisterCallback(STYLE_CHANGED, style_changed)
 
     version = tonumber(string.format("%d.%03d", major, minor))

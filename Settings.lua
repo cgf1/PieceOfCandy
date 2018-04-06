@@ -11,22 +11,23 @@ Settings = {
 	ChalMine = false,
 	GroupMembers = {},
 	MIA = true,
-	MapIndex = 30,  -- Vvardenfell
+	MapIndex = 30,	-- Vvardenfell
 	MyUltId = {},
 	OnlyAva = false,
 	Style = "Standard",
 	SwimlaneMax = 24,
 	SwimlaneMaxCols = 6,
 	LaneIds = {
-	    [1] = 1,
-	    [2] = 6,
-	    [3] = 16,
-	    [4] = 13,
-	    [5] = 27,
-	    [6] = 26,
-	    [7] = 30,   -- MIA
-	    [8] = 28,
-	    [9] = 12
+	    1,	-- Negate
+	    6,	-- Templar Heal
+	    16, -- Destro fire ultimate
+	    13, -- Warden Permafrost
+	    27, -- Dawnbreaker
+	    26, -- Meteor
+	    28, -- Barrier
+	    29, -- War horn
+	    12, -- Soul tether
+	    14	-- Warden heal
 	},
 	UltAlert = true,
 	UltNumberPos = nil,
@@ -51,7 +52,7 @@ end
 --
 function Settings.SetMIA(what)
     saved.MIA = what
-    CALLBACK_MANAGER:FireCallbacks(SWIMLANE_COLMAX_CHANGED, "Display MIA changed")
+    Swimlanes.Redo()
 end
 
 -- Control whether to only display in PVP setting
@@ -72,7 +73,7 @@ end
 --
 function Settings.SetSwimlaneMaxCols(max)
     saved.SwimlaneMaxCols = max
-    CALLBACK_MANAGER:FireCallbacks(SWIMLANE_COLMAX_CHANGED)
+    Swimlanes.Redo()
 end
 
 -- Set whether to show ultimate number on screen
@@ -326,7 +327,7 @@ function Settings.Initialize()
     saved = ZO_SavedVars:NewAccountWide(Settings.SettingsName, SETTINGS_VERSION, nil, Settings.Default)
     Settings.SavedVariables = saved
 
-    --  Obsolete variables
+    --	Obsolete variables
     saved.SwimlaneUltimateGroupIds = nil
     saved.StaticUltimateID = nil
     saved.SwimlaneUltGrpIds = nil

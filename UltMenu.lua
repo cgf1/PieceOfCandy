@@ -33,7 +33,7 @@ local function set_ult(iconstr)
     elseif iconstr == nook1img then
 	Ult.SetSavedId('MIA', 2)
     else
-	Swimlanes.SetLaneUlt(curapid, iconstr)
+	Swimlanes.SetLaneUlt(curid, Ult.UltApidFromIcon(iconstr))
     end
     Swimlanes.Sched()
     collectgarbage("collect")

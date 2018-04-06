@@ -40,6 +40,15 @@
 		<Control name="$(parent)Swimlane7" inherits="CompactUltSwimlane">
 		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="312" offsetY="0"/>
 		</Control>
+		<Control name="$(parent)Swimlane8" inherits="CompactUltSwimlane">
+		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="364" offsetY="0"/>
+		</Control>
+		<Control name="$(parent)Swimlane9" inherits="CompactUltSwimlane">
+		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="468" offsetY="0"/>
+		</Control>
+		<Control name="$(parent)Swimlane10" inherits="CompactUltSwimlane">
+		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="520" offsetY="0"/>
+		</Control>
 	    </Controls>
 	</TopLevelControl>
     </Controls>

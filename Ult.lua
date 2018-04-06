@@ -407,7 +407,6 @@ function Ult.Initialize()
 
     -- Convert array of ultimate ability ids to shorter ultimate ping ids
     local newultids = {}
-    ids[7] = nil
     local changed = false
     for i = 1, saved.SwimlaneMaxCols do
 	v = ids[i]
@@ -422,7 +421,6 @@ function Ult.Initialize()
     if changed then
 	saved.LaneIds = newultids
     end
-    saved.LaneIds[7] = 'MIA'
     for n, v in pairs(saved.MyUltId) do
 	if type(v) ~= 'table' then
 	    if v > Ult.MaxPing then
