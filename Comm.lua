@@ -20,10 +20,6 @@ local update_interval
 
 local QUEST_PING = 4
 
-local lgs_type = 21 -- aka, the code for 'u'
-
-local lgs_on = false
-local lgs_handler
 local version
 local major, minor
 
@@ -97,6 +93,7 @@ local function ultpct(apid)
 end
 
 local counter = 0
+local old_queue = 0
 local function on_update()
     if not comm.active then
 	return
@@ -114,10 +111,10 @@ local function on_update()
     counter = counter + 1
     local send = 0
     local apid1pct1 = ultpct(myults[1])
-    local queue = campaign.Pos
+    local queue = campaign.QueuePosition(false)
     send = COMM_ULTPCT_MUL1 * apid1pct1
     local cmd
-    if queue == 0 or queue == old_queue then
+    if queue == old_queue then
 	send = send + ultpct(myults[2])
 	cmd = COMM_TYPE_PCTULT
     else
@@ -188,6 +185,11 @@ local function commtype(s)
     return toset
 end
 
+function clearernow()
+    old_queue = 0
+    counter = 0
+end
+
 function Comm.Initialize(inmajor, inminor)
     saved = Settings.SavedVariables
     saved.MapPing = nil
@@ -249,4 +251,5 @@ function Comm.Initialize(inmajor, inminor)
 	    saved.UpdateInterval = update_interval
 	end
     end)
+    RegClear(clearernow)
 end

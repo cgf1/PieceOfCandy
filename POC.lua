@@ -21,17 +21,13 @@ local minor = tonumber(version:match("\.(%d+)"))
 --
 function POC:initialize()
     -- Initialize logging
-    df("Piece of Candy! (v%s)", version)
+    df("Piece of Candy! v%s", version)
 
     local strings = {
 	WARNING_LGS_ENABLE =		 "Warning: Enable LibGroupSocket to send -> /lgs 1",
 	OPTIONS_HEADER =		 "Options",
-	OPTIONS_DRAG_LABEL =		 "Drag elements",
-	OPTIONS_DRAG_TOOLTIP =		 "If activated, you can drag all elements.",
 	OPTIONS_ONLY_AVA_LABEL =	 "Show only in AvA",
 	OPTIONS_ONLY_AVA_TOOLTIP =	 "If activated, all elements will only be visible in Cyrodiil (AvA).",
-	OPTIONS_USE_LGS_LABEL =		 "Communication via LibGroupSocket",
-	OPTIONS_USE_LGS_TOOLTIP =	 "If activated, the addon will try to activate communication via LibGroupSocket. LibGroupSocket must be installed as own addon.",
 	OPTIONS_USE_SORTING_LABEL =	 "Sort lists by ultimate progress",
 	OPTIONS_USE_SORTING_TOOLTIP =	 "If activated, all lists will be sorted by ultimate progress (Maximum on top).",
 	OPTIONS_STYLE_LABEL =		 "Choose style",

@@ -53,6 +53,10 @@ function Alert.Show(text, duration)
     last_alert = GetTimeStamp()
 end
 
+local function clearernow()
+    last_alert = 0
+end
+
 function Alert.Initialize()
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
     local wm = GetWindowManager()
@@ -71,4 +75,5 @@ function Alert.Initialize()
 	control:SetHidden(true)
 	controls[i] = control
     end
+    RegClear(clearernow)
 end

@@ -193,15 +193,30 @@ local function style_changed()
     end
 end
 
-local function clear(verbose)
+local function clear(verbose, gc)
     saved.GroupMembers = {}
     group_members = saved.GroupMembers
     Swimlanes.Lanes = nil
+    me.Ults = {}
+    me.Pos = 0
     Swimlanes.SavedLanes = {}
     curstyle = ''
+    forcepct = nil
+    ping_refresh = false
+    sldebug = false
+    RunClear()
     style_changed()
+    local msg
+    if not gc then
+	msg = 'memory cleared'
+    else
+	local n = collectgarbage("count")
+	collectgarbage()
+	n = n - collectgarbage("count")
+	msg = string.format("memory cleared: freed %d Kbytes", n)
+    end
     if verbose then
-	Info("memory cleared")
+	Info(msg)
     end
 end
 
@@ -288,7 +303,7 @@ function Lanes:Update(x)
 	if not Group.IsGrouped() then
 	    msg("POC: No longer grouped")
 	end
-	clear(false)
+	clear(false, true)
 	set_control_active()
 	_this.WasActive = false
 	Comm.Unload()
@@ -329,7 +344,15 @@ end
 -- Return true if we timed out
 --
 function Player:TimedOut()
-    return (GetTimeStamp() - self.TimeStamp) > TIMEOUT
+    local timedout = (GetTimeStamp() - self.TimeStamp) > TIMEOUT
+    if timedout then
+	self.HasTimedOut = true
+    else
+	if self.HasTimedOut then
+	    Comm.SendVersion()
+	end
+	self.HasTimedOut = false
+    end
 end
 
 -- Return true if we need to back the heck off
@@ -1067,8 +1090,10 @@ function Swimlanes.Initialize(major, minor)
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
 
-    Slash("clear", "clear memory and recalculate everything", function() clear(true) end)
-    Slash("pct", "debugging: set your ultimate percentage", function(pct)
+    Slash("clear", "clear memory; extra argument means force game garbage collection", function(n)
+	clear(true, n:len() > 0)
+    end)
+    Slash("pct", "debugging: set fake ultimate percentage", function(pct)
 	if string.len(pct) == 0 then
 	    forcepct = nil
 	else
@@ -1107,7 +1132,7 @@ function Swimlanes.Initialize(major, minor)
 	    saved.AllowMove = movable
 	    set_control_movable()
 	end
-	Info("Movable state is:", movable)
+	Info("movable state is:", movable)
     end)
     Slash("sendver", "debugging: send POC add-on version to others in your group", function(x)
 	Comm.SendVersion(true)

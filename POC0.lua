@@ -81,3 +81,14 @@ SLASH_COMMANDS["/poc"] = function(x)
 end
 
 Slash("/leave", "leave group", function () GroupLeave() end)
+
+local clearfuncs = {}
+function RegClear(func)
+    clearfuncs[#clearfuncs + 1] = func
+end
+
+function RunClear()
+    for _, func in ipairs(clearfuncs) do
+	func()
+    end
+end

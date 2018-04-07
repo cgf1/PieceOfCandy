@@ -169,6 +169,10 @@ function Quest.Want(id, set)
     end
 end
 
+local function clearernow()
+    getquest = true
+end
+
 function Quest.Initialize()
     local lang = GetCVar('Language.2')
     numtoqname = numtoqname_lang[lang]
@@ -205,4 +209,5 @@ function Quest.Initialize()
 	end
 	Info("Quest retrieval:", getquest)
     end)
+    RegClear(clearernow)
 end
