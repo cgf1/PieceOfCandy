@@ -119,7 +119,6 @@ function watch(what, ...)
     end
     if doit then
 	local args = {}
-	-- args[1] = "|cee22ee" .. what .. ':'
 	args[1] = "|c00ff11" .. what .. ':'
 	for _, x in ipairs(inargs) do
 	    args[#args + 1] = x

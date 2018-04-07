@@ -13,7 +13,7 @@ ALERT = "POC-Alert"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.9'
+local version = '3.12'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 

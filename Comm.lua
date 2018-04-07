@@ -123,6 +123,7 @@ local function on_update()
     else
 	send = send + queue
 	cmd = COMM_TYPE_PCTULTPOS
+	old_queue = queue
     end
     watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
