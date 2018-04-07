@@ -4,12 +4,7 @@ Name = "POC"
 MAP_PING_CHANGED = "POC-MapPingChanged"
 STYLE_CHANGED = "POC-StyleChanged"
 MOVABLE_CHANGED = "POC-MovableChanged"
-STATIC_ULTIMATE_ID_CHANGED = "POC-StaticUltimateIDChanged"
-SWIMLANE_ULTIMATE_GROUP_ID_CHANGED = "POC-SwimlaneUltIdChanged"
 SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
-SET_ULTIMATE_GROUP = "POC-SetUlt"
-SWIMLANE_COLMAX_CHANGED = "POC-Swimlane-ColMax"
-ALERT = "POC-Alert"
 
 LANG = GetCVar("Language.2")
 
@@ -19,7 +14,8 @@ local minor = tonumber(version:match("\.(%d+)"))
 
 -- POC:initialize initializes addon
 --
-function POC:initialize()
+local function initialize()
+    LuaErrors.Initialize()
     -- Initialize logging
     df("Piece of Candy! v%s", version)
 
@@ -74,7 +70,6 @@ local function OnAddOnLoaded(eventCode, addOnName)
     if addOnName == Name then
 	-- Unregister Loaded Callback
 	EVENT_MANAGER:UnregisterForEvent(Name, EVENT_ADD_ON_LOADED)
-	-- Initialize
 	initialize()
     end
 end

@@ -2,11 +2,12 @@ setfenv(1, POC)
 local GetTimeStamp = GetTimeStamp
 
 Alert = {
-    Name = ALERT
+    Name = 'POC-Alert'
 }
 Alert.__index = Alert
 
 local controls = {}
+local animations = {}
 
 local screenx, screeny
 
@@ -26,7 +27,22 @@ function Alert.Show(text, duration)
 	    ix = 1
 	end
     end
-    local control = controls[ix]
+    local this = controls[ix]
+    local control = this.Control
+    local timeline = this.Timeline
+    local fadeout
+    local translate
+    if timeline then
+	fadeout = this.Fadeout
+	translate = this.Translate
+    else
+	timeline = ANIMATION_MANAGER:CreateTimeline()
+	fadeout = timeline:InsertAnimation(ANIMATION_ALPHA, control)
+	translate = timeline:InsertAnimation(ANIMATION_TRANSLATE, control)
+	this.Timeline = timeline
+	this.Fadeout = fadeout
+	this.Translate = translate
+    end
     local yloc = (fontsize * .60) * (ix - above)
     control:SetAnchor(CENTER, nil, CENTER, 0, yloc)
     control:SetHidden(false)
@@ -35,8 +51,6 @@ function Alert.Show(text, duration)
     control:SetText(string.format("|cff6600%s", text))
 
     local _, _, _, _, offx, offy = control:GetAnchor()
-    local timeline = ANIMATION_MANAGER:CreateTimeline()
-    local translate = timeline:InsertAnimation(ANIMATION_TRANSLATE, control)
     local xto
     xto = screenx / 2
     if (ix % 2) == 0 then
@@ -46,7 +60,6 @@ function Alert.Show(text, duration)
     translate:SetTranslateOffsets(offx, offy, xto, -(screeny / 2))
     translate:SetDuration(duration)
     translate:SetEasingFunction(ZO_EaseInQuadratic)
-    local fadeout = timeline:InsertAnimation(ANIMATION_ALPHA, control)
     fadeout:SetAlphaValues(1, 0)
     fadeout:SetDuration(duration + 1000)
     timeline:PlayFromStart()
@@ -73,7 +86,7 @@ function Alert.Initialize()
 	control:SetDrawLayer(1)
 	control:SetMouseEnabled(false)
 	control:SetHidden(true)
-	controls[i] = control
+	controls[i] = {Control = control}
     end
     RegClear(clearernow)
 end

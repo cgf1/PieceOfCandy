@@ -87,8 +87,8 @@ function RegClear(func)
     clearfuncs[#clearfuncs + 1] = func
 end
 
-function RunClear()
+function RunClear(force)
     for _, func in ipairs(clearfuncs) do
-	func()
+	func(force)
     end
 end

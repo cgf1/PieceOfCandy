@@ -204,7 +204,7 @@ local function clear(verbose, gc)
     forcepct = nil
     ping_refresh = false
     sldebug = false
-    RunClear()
+    RunClear(gc)
     style_changed()
     local msg
     if not gc then
