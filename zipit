@@ -1,7 +1,12 @@
 #!/bin/sh -e
-cd ..
+here=$(pwd)
+mkdir /tmp/$$
+ln -s $here /tmp/$$/POC
+cd /tmp/$$
 files=$({ echo POC/POC.txt; sed -nr -e '/^( *$|#|;)/d' -e 's%^%POC/%p' POC/POC.txt; } | sort)
 ver=$(/bin/sed -nre "s/^[local      ]*version[      ]*=[    ]*['\"](.*)['\"]/\1/p" POC/POC.lua)
 rm -f /tmp/POC-$ver.zip
 echo creating /tmp/POC-$ver.zip
-exec zip /tmp/POC-$ver.zip POC $files
+zip /tmp/POC-$ver.zip POC $files
+cd /tmp
+exec /bin/rm -rf /tmp/$$
