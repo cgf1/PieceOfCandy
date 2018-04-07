@@ -23,20 +23,19 @@ local saved
 local sendword
 
 -- LIFO!
-local function unpack_ultpct(cmd, x)
-    local orig_x = x
+local function unpack_ultpct(ctype, x)
     local lower = x % COMM_ULTPCT_MUL1
     local upper = math.floor(x / COMM_ULTPCT_MUL1)
     pct1 = upper % 124
     apid1 = math.floor(upper / 124) + 1
     local apid2, pct2, pos
-    if cmd == COMM_TYPE_PCTULT then
+    if ctype ~= COMM_TYPE_PCTULT then
 	pos = lower
     else
 	pct2 = lower % 124
 	apid2 = math.floor(lower / 124) + 1
     end
-    return apid1, pct1, pos, apid2, pct2, pos
+    return apid1, pct1, pos, apid2, pct2
 end
 
 -- Called on map ping from LibMapPing
@@ -73,8 +72,8 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
 	Player.Version(pingtag, bytes[2], bytes[3], bytes[4] == 1)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	input = math.floor(input / 256)
-	watch("on_map_ping", input)
-	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(cmd, input)
+	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(ctype, input)
+	watch("on_map_ping", string.format("%x %d %d %s %s %s", ctype, apid1, pct1, tostring(pos), tostring(apid2), tostring(pct2)))
 	Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
     end
 end

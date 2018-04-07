@@ -117,12 +117,13 @@ local function on_update()
     local queue = campaign.Pos
     send = COMM_ULTPCT_MUL1 * apid1pct1
     local cmd
-    if queue == 0 or queue == old_queue then
+    if true or queue == 0 or queue == old_queue then
 	send = send + ultpct(myults[2])
 	cmd = COMM_TYPE_PCTULT
     else
 	send = send + queue
 	cmd = COMM_TYPE_PCTULTPOS
+	old_queue = queue
     end
     watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
