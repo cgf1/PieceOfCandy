@@ -5,6 +5,7 @@ LuaErrors = {
 }
 LuaErrors.__index = LuaErrors
 
+local uhoh = true
 local seen_errors = {}
 local errors = {}
 local function error_handler(_, str)
@@ -12,6 +13,10 @@ local function error_handler(_, str)
 	return
     end
     ZO_ERROR_FRAME:HideCurrentError()
+    if uhoh then
+	Error("Uh oh.  lua errors detected.  /pocerrors will show them")
+	uhoh = false
+    end
     local firstline, rest = str:match('([^\n]+)(.*)')
     if seen_errors[firstline] ~= nil then
 	seen_errors[firstline] = seen_errors[firstline] + 1
@@ -29,7 +34,13 @@ local function plural(n)
     end
 end
 
-function show_errors()
+function show_errors(n)
+    if n == 'clear' then
+	seen_errors = {}
+	errors = {}
+	Info("errors cleared")
+        return
+    end
     local yup = false
     for i, n in ipairs(errors) do
 	if not yup then
@@ -54,6 +65,8 @@ end
 function LuaErrors.Initialize()
     EVENT_MANAGER:RegisterForEvent("POC-Errors", EVENT_LUA_ERROR, error_handler)
     Slash("errors", "show any POC lua errors", show_errors)
+    SLASH_COMMANDS["/pocerr"] = show_errors
+    SLASH_COMMANDS["/pocerror"] = show_errors
     SLASH_COMMANDS["/anerror"] = function()
 	local a = {}
 	a[nil] = 1
