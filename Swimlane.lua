@@ -740,30 +740,19 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 
     if apid1 ~= nil then
 	-- Called from map ping
-	if self.UltMain and self.UltMain ~= 0 and self.UltMain ~= apid1 then
-	    self.Ults[self.UltMain] = nil	-- Player changed their main ult
+	-- If either is nil then player changed their ultimate
+	if self.Ults[apid1] == nil or apid2 ~= nil and self.Ults[apid2] == nil then
+	    for n in pairs(self.Ults) do
+		self.Ults[n] = nil
+	    end
 	end
 	if self.Ults[apid1] ~= pct1 then
 	    self.Ults[apid1] = pct1		-- Primary ult pct changed
 	    changed = true
 	end
-	if apid2 ~= nil then
-	    if self.Ults[apid2] == nil and self.UltMain ~= nil then
-		-- Player changed their secondary ult
-		-- Search ults table for one that isn't primary
-		for apid, _ in pairs(self.Ults) do
-		    if apid ~= self.UltMain then
-			-- Found it
-			self.Ults[apid] = nil
-			changed = true
-			break
-		    end
-		end
-	    end
-	    if apid2 ~= max_ping and self.Ults[apid2] ~= pct2 then
-		self.Ults[apid2] = pct2		-- secondary ult pct changed
-		changed = true
-	    end
+	if apid2 ~= nil and apid2 ~= max_ping and self.Ults[apid2] ~= pct2 then
+	    self.Ults[apid2] = pct2		-- secondary ult pct changed
+	    changed = true
 	end
     end
 
