@@ -585,7 +585,9 @@ end
 function Col:UpdateCell(i, player, playername, priult)
     local rowi = "Row" .. i
     local row = self.Control:GetNamedChild(rowi)
-    if saved.AtNames and player.AtName then
+    if player.DispName then
+	playername = player.DispName
+    elseif saved.AtNames and player.AtName then
 	playername = string.sub(player.AtName, 2)
     end
     local namecell = row:GetNamedChild("PlayerName")
@@ -619,10 +621,8 @@ function Col:UpdateCell(i, player, playername, priult)
     end
 
     local bdlength, _ = bgcell:GetWidth() - 4
-    if sldebug then
+    if sldebug or player.DispName then
 	namecell:SetText(playername)
-    elseif player.DispName then
-	namecell:SetText(player.DispName)
     elseif bdlength == 0 then
 	-- Not sure why this happens
 	if string.len(playername) > 10 then
