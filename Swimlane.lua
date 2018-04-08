@@ -330,14 +330,6 @@ function Lanes:Update(x)
 	    Comm.SendVersion(false)
 	end
 	_this.WasActive = true
-	if false then
-	gc = gc - 1
-	if gc <= 0 then
-	    gc = GARBAGECOLLECT
-	    local n = collectgarbage("collect")
-	    watch("garbage", n)
-	end
-	end
     end
 end
 
@@ -353,6 +345,7 @@ function Player:TimedOut()
 	end
 	self.HasTimedOut = false
     end
+    return timedout
 end
 
 -- Return true if we need to back the heck off
@@ -628,6 +621,8 @@ function Col:UpdateCell(i, player, playername, priult)
     local bdlength, _ = bgcell:GetWidth() - 4
     if sldebug then
 	namecell:SetText(playername)
+    elseif player.DispName then
+	namecell:SetText(player.DispName)
     elseif bdlength == 0 then
 	-- Not sure why this happens
 	if string.len(playername) > 10 then
@@ -647,15 +642,19 @@ function Col:UpdateCell(i, player, playername, priult)
 		break
 	    end
 	end
+	player.DispName = playername
     end
 
     local values
     if player:TimedOut() then
 	values = timedout
+	watch("Col:UpdateCell", playername, "timedout")
     elseif player.IsDead then
 	values = isdead
+	watch("Col:UpdateCell", playername, "isdead")
     else
 	values = normal[priult][ultpct >= 100]
+	watch("Col:UpdateCell", playername, "normal", ultpct >= 100)
     end
 
     ultcell:SetValue(ultpct)
@@ -759,6 +758,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
     end
     if saved.AtNames and self.AtName == nil then
 	player.AtName = GetUnitDisplayName(pingtag)
+	player.DispName = nil
     end
 
     if apid1 ~= nil then
@@ -1001,8 +1001,13 @@ function Swimlanes:SaveUltNumberPos()
     saved.UltNumberPos = {self:GetLeft(),self:GetTop()}
 end
 
-function Swimlanes.Sched()
+function Swimlanes.Sched(clear_dispname)
     need_to_fire = true
+    if clear_dispname then
+	for _, v in pairs(group_members) do
+	    v.DispName = nil
+	end
+    end
     set_control_active()
 end
 
@@ -1066,6 +1071,7 @@ function Swimlanes.Initialize(major, minor)
 	if v.Pos == nil then
 	    v.Pos = 0
 	end
+	v.DispName = nil
 	group_members[n] = v
     end
     me.UltMain = myults[1]

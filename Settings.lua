@@ -209,7 +209,7 @@ function Settings.InitializeWindow(version)
 	setFunc = function(x)
 	    if x ~= saved.AtNames then
 		saved.AtNames = x
-		Swimlanes.Sched()
+		Swimlanes.Sched(true)
 		Swimlanes.Update("Player name display style changed", true)
 	    end
 	end,
