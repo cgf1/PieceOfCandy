@@ -101,3 +101,4 @@ function GetWindowManager()
 end
 
 function Slash() end
+SOUNDS = {}

@@ -38,23 +38,22 @@ local function unpack_ultpct(ctype, x)
     return apid1, pct1, pos, apid2, pct2
 end
 
+local function mapop(func, ...)
+    local args = {...}
+    local mapix = GetCurrentMapIndex()
+    SetMapToMapListIndex(saved.MapIndex)
+    local x, y = func(LMP, unpack(args))
+    SetMapToMapListIndex(mapix)
+    return x, y
+end
+
 -- Called on map ping from LibMapPing
 --
-local unsuppress = false
 local function on_map_ping(pingtype, pingtag, x, y, _)
-    LGPS:PushCurrentMap()
-    SetMapToMapListIndex(saved.MapIndex)
-    x, y = LMP:GetMapPing(pingtype, pingtag)
-    local onmap = LMP:IsPositionOnMap(x, y)
-    LGPS:PopCurrentMap()
-    if pingtype ~= MAP_PIN_TYPE_PING or not onmap then
-	unsuppress = false
+    if pingtype ~= MAP_PIN_TYPE_PING then
 	return
     end
-
-    unsuppress = true
-
-    LMP:SuppressPing(pingtype, pingtag)
+    x, y = mapop(LMP.GetMapPing, pingtype, pingtag)
 
     local input = math.floor((x + ROUND) * TWOBYTES) +
 		  (TWOBYTES * math.floor((y + ROUND) * TWOBYTES))
@@ -78,15 +77,6 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
     end
 end
 
--- Called on map ping from LibMapPing
---
-local function map_ping_finished(pingtype, pingtag, x, y, isLocalPlayerOwner)
-    if unsuppress then
-	LMP:UnsuppressPing(pingtype, pingtag)
-	unsuppress = false
-    end
-end
-
 function PingPipe.SendWord(word)
     local x = (word % TWOBYTES) / TWOBYTES
     local y = math.floor(word / TWOBYTES) / TWOBYTES
@@ -94,10 +84,9 @@ function PingPipe.SendWord(word)
 	y = .1 / TWOBYTES
     end
 
-    LGPS:PushCurrentMap()
-    SetMapToMapListIndex(saved.MapIndex)
-    LMP:SetMapPing(MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
-    LGPS:PopCurrentMap()
+    local before = GetGameTimeMilliseconds()
+    mapop(LMP.SetMapPing, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
+    watch("PingPipe.SendWord", GetGameTimeMilliseconds() - before)
 end
 
 local sendword = PingPipe.SendWord
@@ -116,19 +105,21 @@ end
 -- Unload PingPipe
 --
 function PingPipe.Unload()
-    CALLBACK_MANAGER:UnregisterCallback(MAP_PING_CHANGED, rcv)
     LMP:UnregisterCallback("BeforePingAdded", on_map_ping)
-    LMP:UnregisterCallback("AfterPingRemoved", map_ping_finished)
     Slash("pingerr")
     PingPipe.active = false
+    for i = 1, 24 do
+	LMP:UnsuppressPing(MAP_PIN_TYPE_PING, 'group' .. i)
+    end
 end
 
 -- Initialize PingPipe
 --
 function PingPipe.Load()
-    CALLBACK_MANAGER:RegisterCallback(MAP_PING_CHANGED, rcv)
     LMP:RegisterCallback("BeforePingAdded", on_map_ping)
-    LMP:RegisterCallback("AfterPingRemoved", map_ping_finished)
+    for i = 1, 24 do
+	LMP:SuppressPing(MAP_PIN_TYPE_PING, 'group' .. i)
+    end
 
     saved = Settings.SavedVariables
 
