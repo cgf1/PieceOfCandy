@@ -123,7 +123,7 @@ function watch(what, ...)
 	for _, x in ipairs(inargs) do
 	    args[#args + 1] = x
 	end
-	args[#args + 1] = "|c"
+	-- args[#args + 1] = "|c"
 	xxx(unpack(args))
     end
 end

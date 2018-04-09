@@ -250,6 +250,7 @@ function Comm.Initialize(inmajor, inminor)
 	    update_interval = n * 1000
 	    saved.UpdateInterval = update_interval
 	end
+	Info(string.format("update every %d seconds",  update_interval / 1000))
     end)
     RegClear(clearernow)
 end

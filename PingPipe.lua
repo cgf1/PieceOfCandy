@@ -1,8 +1,5 @@
 setfenv(1, POC)
 local LMP = LibStub("LibMapPing")
-if not LMP then
-    error("Cannot load without LibMapPing")
-end
 local LGPS = LibStub("LibGPS2", true)
 
 local TWOBYTES = 65536
@@ -40,20 +37,21 @@ end
 
 local function mapop(func, ...)
     local args = {...}
-    local mapix = GetCurrentMapIndex()
+    LGPS:PushCurrentMap()
     SetMapToMapListIndex(saved.MapIndex)
-    local x, y = func(LMP, unpack(args))
-    SetMapToMapListIndex(mapix)
+    local x, y = func(unpack(args))
+    LGPS:PopCurrentMap()
     return x, y
 end
 
 -- Called on map ping from LibMapPing
 --
-local function on_map_ping(pingtype, pingtag, x, y, _)
+local function on_map_ping(pingtype, pingtag)
+    -- local before = GetGameTimeMilliseconds()
     if pingtype ~= MAP_PIN_TYPE_PING then
 	return
     end
-    x, y = mapop(LMP.GetMapPing, pingtype, pingtag)
+    x, y = mapop(LMP.GetMapPing, LMP, pingtype, pingtag)
 
     local input = math.floor((x + ROUND) * TWOBYTES) +
 		  (TWOBYTES * math.floor((y + ROUND) * TWOBYTES))
@@ -72,9 +70,9 @@ local function on_map_ping(pingtype, pingtag, x, y, _)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	input = math.floor(input / 256)
 	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(ctype, input)
-	watch("on_map_ping", string.format("%x %d %d %s %s %s", ctype, apid1, pct1, tostring(pos), tostring(apid2), tostring(pct2)))
 	Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
     end
+    -- watch('on_map_ping', pingtag, GetGameTimeMilliseconds() - before)
 end
 
 function PingPipe.SendWord(word)
@@ -84,9 +82,9 @@ function PingPipe.SendWord(word)
 	y = .1 / TWOBYTES
     end
 
-    local before = GetGameTimeMilliseconds()
-    mapop(LMP.SetMapPing, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
-    watch("PingPipe.SendWord", GetGameTimeMilliseconds() - before)
+    -- local before = GetGameTimeMilliseconds()
+    mapop(PingMap, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
+    -- watch("PingPipe.SendWord", GetGameTimeMilliseconds() - before)
 end
 
 local sendword = PingPipe.SendWord

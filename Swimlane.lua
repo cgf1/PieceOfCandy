@@ -308,7 +308,7 @@ function Lanes:Update(x)
 	_this.WasActive = false
 	Comm.Unload()
     end
-    watch("Lanes:Update", 'refresh', refresh, 'wasactive', _this.WasActive)
+    watch("Lanes:Update", x, 'refresh', refresh, 'wasactive', _this.WasActive)
 
     if refresh then
 	watch("refresh")
