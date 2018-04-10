@@ -1,6 +1,6 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="POC_SwimlaneControl" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false"
+	<TopLevelControl name="POC_Main" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false"
 			 mouseEnabled="true" movable="true" clampedToScreen="true">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
 	    <Dimensions x="712" y="265" />
@@ -10,43 +10,6 @@
 		<Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">
 		    <Anchor point="TOPLEFT"/>
 		    <Anchor point="BOTTOMRIGHT" />
-		</Control>
-
-		<Control name="$(parent)Swimlane1" inherits="UltSwimlane">
-		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
-		</Control>
-	
-		<Control name="$(parent)Swimlane2" inherits="UltSwimlane">
-		    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="102" offsetY="0"/>
-		</Control>
-
-		<Control name="$(parent)Swimlane3" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="204" offsetY="0"/>
-		</Control>
-
-		<Control name="$(parent)Swimlane4" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="306" offsetY="0"/>
-		</Control>
-
-		<Control name="$(parent)Swimlane5" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="408" offsetY="0"/>
-		</Control>
-
-		<Control name="$(parent)Swimlane6" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="510" offsetY="0"/>
-		</Control>
-
-		<Control name="$(parent)Swimlane7" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="612" offsetY="0"/>
-		</Control>
-		<Control name="$(parent)Swimlane8" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="714" offsetY="0" hidden="true"/>
-		</Control>
-		<Control name="$(parent)Swimlane9" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="816" offsetY="0" hidden="true"/>
-		</Control>
-		<Control name="$(parent)Swimlane10" inherits="UltSwimlane">
-		      <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="918" offsetY="0" hidden="true"/>
 		</Control>
 	    </Controls>
 	</TopLevelControl>

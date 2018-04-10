@@ -15,6 +15,8 @@ local IsUnitInGroupSupportRange = IsUnitInGroupSupportRange
 local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
 local table = table
+local ZO_ObjectPool_CreateControl = ZO_ObjectPool_CreateControl
+local ZO_DeepTableCopy = ZO_DeepTableCopy
 
 SWIMLANES = 9
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
@@ -24,7 +26,7 @@ local MAXPLAYSOUNDTIME = 60
 local GARBAGECOLLECT = 60 * 3
 
 local widget = nil
-local curstyle = ""
+local cellpool = nil
 local registered = false
 local namelen = 12
 local topleft = 25
@@ -47,7 +49,10 @@ local ping_refresh = false
 
 local tick = 0
 
-local Col = {}
+local icon_size = {25, 25}
+
+local Col = {
+}
 Col.__index = Col
 
 local play_sound = false
@@ -76,8 +81,8 @@ Me = me
 local myname = GetUnitName("player")
 local ultix = myname
 
-local Lanes = {}
-Lanes.__index = Lanes
+local Cols = {}
+Cols.__index = Cols
 
 local MIAlane = 0
 
@@ -89,13 +94,11 @@ local dumpme
 --
 Swimlanes = {
     Name = "POC-Swimlanes",
-    Lanes = nil,
-    SavedLanes = {},
     WasActive = false
 }
 Swimlanes.__index = Swimlanes
 
-local _this = Swimlanes
+local swimlanes = Swimlanes
 
 local need_to_fire = true
 
@@ -116,7 +119,7 @@ end
 -- Set hidden on control
 --
 local function set_control_hidden(ishidden)
-    if (Group.IsGrouped()) then
+    if Group.IsGrouped() then
 	widget:SetHidden(ishidden)
 	UltNumber.Hide(ishidden)
     else
@@ -143,7 +146,7 @@ local function set_control_active()
     local ishidden = not isvisible or CurrentHudHiddenState()
     set_control_hidden(ishidden)
 
-    if (isvisible) then
+    if isvisible then
 	if registered then
 	    return
 	end
@@ -151,61 +154,21 @@ local function set_control_active()
 	restore_position()
 
 	CALLBACK_MANAGER:RegisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
-    elseif (registered) then
+    elseif registered then
 	registered = false
 	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
-    end
-end
-
--- Style changed
---
-local function style_changed()
-    local style = saved.Style
-    if style ~= curstyle then
-	if curstyle ~= "" then
-	    set_control_hidden(true)
-	end
-	curstyle = style
-	if widget ~= nil then
-	    widget:SetHidden(true)
-	end
-	if style == "Compact" then
-	    widget = CompactSwimlaneControl
-	    swimlanerow = "CompactUltSwimlaneRow"
-	    namelen = 6
-	    topleft = 50
-	else
-	    widget = SwimlaneControl
-	    swimlanerow = "UltSwimlaneRow"
-	    namelen = 12
-	    topleft = 25
-	end
-	if (_this.SavedLanes[style] ~= nil) then
-	    _this.Lanes = _this.SavedLanes[style]
-	else
-	    _this.SavedLanes[style] = Lanes.New()
-	    _this.Lanes = _this.SavedLanes[style]
-	    restore_position()
-	end
-	set_control_movable()
-	set_control_active()
-	need_to_fire = true
     end
 end
 
 local function clear(verbose, gc)
     saved.GroupMembers = {}
     group_members = saved.GroupMembers
-    Swimlanes.Lanes = nil
     me.Ults = {}
     me.Pos = 0
-    Swimlanes.SavedLanes = {}
-    curstyle = ''
     forcepct = nil
     ping_refresh = false
     sldebug = false
     RunClear(gc)
-    style_changed()
     local msg
     if not gc then
 	msg = 'memory cleared'
@@ -224,7 +187,7 @@ local function dump(name)
     local found = false
     local function time(t)
 	local p
-	if (t == 0) then
+	if t == 0 then
 	    p = 'never'
 	else
 	    local duration = GetTimeStamp() - t
@@ -285,7 +248,7 @@ end
 --
 local tmplane = {}
 local gc = GARBAGECOLLECT
-function Lanes:Update(x)
+function Cols:Update(x)
     local refresh
     local displayed = false
     if x == "left" then
@@ -295,8 +258,8 @@ function Lanes:Update(x)
     end
     if x ~= 'off' and Group.IsGrouped() then
 	refresh = Player.Update(true)
-	displayed = not _this.WasActive
-    elseif (not _this.WasActive) then
+	displayed = not swimlanes.WasActive
+    elseif not swimlanes.WasActive then
 	refresh = false
     else
 	refresh = true	-- just get rid of everything
@@ -305,17 +268,17 @@ function Lanes:Update(x)
 	end
 	clear(false, true)
 	set_control_active()
-	_this.WasActive = false
+	swimlanes.WasActive = false
 	Comm.Unload()
     end
-    watch("Lanes:Update", x, 'refresh', refresh, 'wasactive', _this.WasActive)
+    watch("Cols:Update", x, 'refresh', refresh, 'wasactive', swimlanes.WasActive)
 
     if refresh then
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
-	for i = 1, saved.SwimlaneMaxCols + 1 do
-	    if self[i]:Update(tick) then
+	for _, v in ipairs(self) do
+	    if v:Update(tick) then
 		displayed = true
 	    end
 	end
@@ -324,12 +287,12 @@ function Lanes:Update(x)
     if displayed then
 	-- displayed should be false if not grouped
 	set_control_active()
-	if (not _this.WasActive) then
+	if not swimlanes.WasActive then
 	    msg("POC: now grouped")
 	    Comm.Load()
 	    Comm.SendVersion(false)
 	end
-	_this.WasActive = true
+	swimlanes.WasActive = true
     end
 end
 
@@ -416,11 +379,26 @@ end
 local function compare_not_mia(key1, key2)
     local a, player1 = sortval_not_mia(key1)
     local b, player2 = sortval_not_mia(key2)
-    if (a == b) then
+    if a == b then
 	return player1.PingTag < player2.PingTag
     else
 	return a > b
    end
+end
+
+local function create_cell(pool)
+    local control = ZO_ObjectPool_CreateControl('POC_Cell', pool, widget)
+    return {
+	Control = control,
+	Name = control:GetNamedChild("PlayerName"),
+	Backdrop = control:GetNamedChild("Backdrop"),
+	UltPct = control:GetNamedChild("UltPct")
+    }
+end
+
+local function reset_cell(tbl)
+     tbl.Control:SetHidden(true)
+     tbl.Control:ClearAnchors()
 end
 
 -- Update swimlane
@@ -440,7 +418,7 @@ function Col:Update(tick)
 	lastlane = MIAlane - 1
     end
     local n = 1
-    if (laneid <= lastlane) then
+    if laneid <= lastlane then
 	local isMIA = laneid == MIAlane
 	local apid = self.Apid
 	lane_apid = apid
@@ -511,14 +489,26 @@ function Col:Update(tick)
     end
 
     -- Clear any abandonded cells
-    for i = n, SWIMLANEULTMAX do
-	local row = self.Control:GetNamedChild("Row" .. i)
-	row:SetHidden(true)
+    while self[n] do
+	cellpool:ReleaseObject(table.remove(self, n))
     end
 
     self:Hide(displayed)
 
     return displayed
+end
+
+local function colstuff(col, row)
+    local sizex = icon_size[1]
+    local sizey = icon_size[2]
+    if saved.Style == 'Standard' then
+	sizex = sizex + 75      -- room for text
+    else
+	sizex = sizex + 27
+    end
+    local x = (col - 1) * (sizex + 2)
+    local y = row * (sizey + 2)
+    return x, y, sizex, sizey
 end
 
 local alivealpha = 1.0
@@ -583,21 +573,30 @@ end
 -- Update a cell
 --
 function Col:UpdateCell(i, player, playername, priult)
-    local rowi = "Row" .. i
-    local row = self.Control:GetNamedChild(rowi)
+    rowtbl, key = cellpool:AcquireObject(self[i])
+    local row = rowtbl.Control
+    local namecell = rowtbl.Name
+    local bgcell = rowtbl.Backdrop
+    local ultcell = rowtbl.UltPct
+    local x, y, sizex = colstuff(self.Id, i)
+    if not self[i] then
+	row:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
+	row:SetWidth(sizex)
+	bgcell:SetWidth(sizex)
+	ultcell:SetWidth(sizex)
+	self[i] = key
+    end
     if player.DispName then
 	playername = player.DispName
     elseif saved.AtNames and player.AtName then
 	playername = string.sub(player.AtName, 2)
     end
-    local namecell = row:GetNamedChild("PlayerName")
-    local bgcell = row:GetNamedChild("Backdrop")
-    local ultcell = row:GetNamedChild("UltPct")
 
-    row:SetHidden(true)
-
+    local prefix
     if not player.IsDead and player.InCombat then
-	playername = string.format("|cff0000%s|r", playername)
+	prefix = '|cff0000'
+    else
+	prefix = ''
     end
 
     local ultpct
@@ -620,16 +619,9 @@ function Col:UpdateCell(i, player, playername, priult)
 	ultpct = player.Ults[apid]
     end
 
-    local bdlength, _ = bgcell:GetWidth() - 4
-    if sldebug or player.DispName then
-	namecell:SetText(playername)
-    elseif bdlength == 0 then
-	-- Not sure why this happens
-	if string.len(playername) > 10 then
-	    playername = string.sub(playername, 1, 10) .. '..'
-	end
-	namecell:SetText(playername)
-    else
+    if not sldebug and not player.DispName then
+	local bdlength = sizex - 4
+	-- laboriously calculate length
 	local lensub = -2
 	local i = 1
 	namecell:SetText(playername)
@@ -644,6 +636,7 @@ function Col:UpdateCell(i, player, playername, priult)
 	end
 	player.DispName = playername
     end
+    namecell:SetText(prefix .. playername)
 
     local values
     if player:TimedOut() then
@@ -856,13 +849,13 @@ end
 
 -- Called when header clicked to change column identifier
 --
-function Lanes:SetLaneUlt(id, apid)
-    watch("Lanes:SetLaneUlt", id, apid)
+function Cols:SetLaneUlt(id, apid)
+    watch("Cols:SetLaneUlt", id, apid)
     if apid ~= max_ping then
 	for i = 1, saved.SwimlaneMaxCols do
 	    local v = self[i]
 	    if v.Apid == apid then
-		watch("Lanes:SetLaneUlt", _, v.Apid, '==', apid)
+		watch("Cols:SetLaneUlt", _, v.Apid, '==', apid)
 		return			-- already displaying this ultimate
 	    end
 	end
@@ -872,27 +865,27 @@ function Lanes:SetLaneUlt(id, apid)
     local col = self[id]
     col.Apid = ult.Ping
     col.Icon:SetTexture(ult.Icon)
-    if col.Label ~= nil then
+    if saved.Style == 'Standard' then
 	col.Label:SetText(ult.Name)
+    else
+	col.Label:SetText('')
     end
 end
 
 -- Col:Click called on header clicked
 --
 function Col:Click()
-    if (self.Button ~= nil) then
+    if self.Button ~= nil then
 	CALLBACK_MANAGER:FireCallbacks(SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
     else
 	Error("Col:Click, button nil")
     end
 end
 
-function Col.Header(col, i)
-    local control = widget:GetNamedChild("Swimlane" .. i)
-    if control == nil then
-	return nil
-    end
-
+-- Create icon/label at top of column
+--
+function Col.New(col, i)
+    local self = col or setmetatable({Id = i}, Col)
     local apid
     if i == MIAlane then
 	apid = max_ping
@@ -901,21 +894,21 @@ function Col.Header(col, i)
     end
     local ult = Ult.ByPing(apid)
     apid = ult.Ping
-    local self
-    if col ~= nil then
-	self = col
-    else
-	self = setmetatable({Id = i}, Col)
-    end
+    self.Apid = apid
 
-    if not self.Control then
+    local control = self.Control
+    if not control then
+	control = CreateControlFromVirtual('POCheader' .. i, widget, 'POC_Header')
 	self.Control = control
-	self.Button = control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Button")
-	self.Icon = control:GetNamedChild("Header"):GetNamedChild("SelectorButtonControl"):GetNamedChild("Icon")
-	self.Label = control:GetNamedChild("Header"):GetNamedChild("UltLabel")
+	self.Button = control:GetNamedChild("Button")
+	self.Icon = control:GetNamedChild("Icon")
+	self.Label = control:GetNamedChild("Label")
     end
+    local x, y, sizex, sizey = colstuff(i, 0)
+    -- control:SetWidth(sizex)
+    control:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 
-    if apid == max_ping then
+    if i == MIAlane then
 	self.Compare = compare_mia
 	self.Plunk = plunk_mia
 	self.Button:SetHandler("OnClicked", nil)
@@ -926,12 +919,18 @@ function Col.Header(col, i)
     end
 
     self.Icon:SetTexture(ult.Icon)
-    if (self.Label ~= nil) then
+    if saved.Style == 'Standard' then
 	self.Label:SetText(ult.Name)
+    else
+	self.Label:SetText('')
     end
 
     self:Hide(true)
-    self.Apid = apid
+
+    -- Start fresh with any existing cells
+    while self[1] do
+	cellpool:ReleaseObject(table.remove(self, 1))
+    end
 
     return self
 end
@@ -945,63 +944,35 @@ function Col:Hide(displayed)
     end
 end
 
-function Lanes:Redo()
+function Cols:Redo()
     self:New()
+    for _, v in pairs(group_members) do
+	v.DispName = nil
+    end
     need_to_fire = true
-    self:Update("# lanes changed")
+    swimlanes.Sched(true)
 end
 
--- Create a swimlane list
---
-function Col.New(col, i)
-    local self = Col.Header(col, i)
-
-    if self ~= nil then
-	local last_row = self.Control
-	for i = 1, SWIMLANEULTMAX, 1 do
-	    local row = self.Control:GetNamedChild("Row" .. i)
-	    if row == nil then
-		row = CreateControlFromVirtual("$(parent)Row", self.Control, swimlanerow, i)
-	    end
-
-	    row:SetHidden(true) -- not visible initially
-	    row:SetDrawLayer(1)
-
-	    if (i == 1) then
-		row:SetAnchor(TOPLEFT, last_row, TOPLEFT, 0, topleft)
-	    else
-		row:SetAnchor(TOPLEFT, last_row, BOTTOMLEFT, 0, -2)
-	    end
-	    last_row = row
-	end
-    end
-    return self
-end
-
-function Lanes:New()
+function Cols:New()
     if self == nil then
-	self = setmetatable({}, Lanes)
+	self = setmetatable({}, Cols)
     end
+    local oldMIAlane = MIAlane or saved.SwimlaneMaxCols + 1
     MIAlane = saved.SwimlaneMaxCols + 1
-    for i = 1, max_ping do
-	local col
-	if self[i] ~= nil then
-	    col = self[i]
-	end
-	col = Col.New(col, i)
-	if col == nil then
-	    break
-	end
-	self[i] = col
+    for i = 1, MIAlane do
+	self[i] = Col.New(self[i], i)
+    end
+    for i = MIAlane + 1, oldMIAlane do
+	self[i].Control:SetHidden(true)
     end
     return self
 end
 
-function Swimlanes:SaveUltNumberPos()
+function swimlanes:SaveUltNumberPos()
     saved.UltNumberPos = {self:GetLeft(),self:GetTop()}
 end
 
-function Swimlanes.Sched(clear_dispname)
+function swimlanes.Sched(clear_dispname)
     need_to_fire = true
     if clear_dispname then
 	for _, v in pairs(group_members) do
@@ -1046,10 +1017,11 @@ end
 
 -- Initialize Swimlanes
 --
-Swimlanes.Update = function(x) _this.Lanes:Update(x) end
-Swimlanes.SetLaneUlt = function(apid, icon) _this.Lanes:SetLaneUlt(apid, icon) end
-Swimlanes.Redo = function() _this.Lanes:Redo() end
+Swimlanes.Update = function(x) Cols:Update(x) end
+Swimlanes.SetLaneUlt = function(apid, icon) Cols:SetLaneUlt(apid, icon) end
+Swimlanes.Redo = function() Cols:Redo() end
 function Swimlanes.Initialize(major, minor)
+    widget = POC_Main
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
     myults = saved.MyUltId[ultix]
@@ -1077,8 +1049,12 @@ function Swimlanes.Initialize(major, minor)
     me.UltMain = myults[1]
     me.Ults[myults[1]] = 0
 
+    cellpool = ZO_ObjectPool:New(create_cell, reset_cell)
+
+    Cols:New()
+
     UltNumber:ClearAnchors()
-    if (saved.UltNumberPos == nil) then
+    if saved.UltNumberPos == nil then
 	UltNumber:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
     else
 	UltNumber:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
@@ -1088,10 +1064,6 @@ function Swimlanes.Initialize(major, minor)
     UltNumber:SetMovable(true)
     UltNumber:SetMouseEnabled(true)
     UltNumber.Hide(true)
-
-    style_changed()
-
-    CALLBACK_MANAGER:RegisterCallback(STYLE_CHANGED, style_changed)
 
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)

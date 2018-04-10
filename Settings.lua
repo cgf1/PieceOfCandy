@@ -43,9 +43,10 @@ local saved
 -- Sets SetStyleSettings and fires POC-StyleChanged callbacks
 --
 function Settings.SetStyleSettings(style)
-    saved.Style = style
-
-    CALLBACK_MANAGER:FireCallbacks(STYLE_CHANGED)
+    if style ~= saved.Style then
+	saved.Style = style
+	Swimlanes.Redo()
+    end
 end
 
 -- Control whether or not to show MIA lane
@@ -66,12 +67,18 @@ end
 -- Sets maximum number of cells in a swimlane
 --
 function Settings.SetSwimlaneMax(max)
+    if type(max) ~= 'number' then
+	max = tonumber(max)
+    end
     saved.SwimlaneMax = max
 end
 
 -- Sets maximum number of swimlanes
 --
 function Settings.SetSwimlaneMaxCols(max)
+    if type(max) ~= 'number' then
+	max = tonumber(max)
+    end
     saved.SwimlaneMaxCols = max
     Swimlanes.Redo()
 end
@@ -197,7 +204,7 @@ function Settings.InitializeWindow(version)
 	getFunc = function() return saved.SwimlaneMaxCols end,
 	width = "full",
 	setFunc = function(value) Settings.SetSwimlaneMaxCols(value) end,
-	default = SWIMLANES,
+	default = 6,
     }
     o[#o + 1] = {
 	type = "checkbox",
@@ -355,4 +362,5 @@ function Settings.Initialize()
 	end
     end)
     Slash("map", "set map to use for communication", getmapindex)
+    Slash("cols", "set max number of columns to display", Settings.SetSwimlaneMaxCols)
 end

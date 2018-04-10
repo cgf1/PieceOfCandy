@@ -35,7 +35,6 @@ libs/LibGPS/LibGPS.lua
 
 VirtualControls.xml
 Bindings.xml
-CompactSwimlane.xml
 Countdown.xml
 Swimlane.xml
 UltNumber.xml

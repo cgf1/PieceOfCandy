@@ -72,16 +72,15 @@ end
 
 function Alert.Initialize()
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
-    local wm = GetWindowManager()
+    local frame = WM:CreateTopLevelWindow()
     local font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
-    local frame = wm:CreateTopLevelWindow()
     screenx, screeny = GuiRoot:GetDimensions()
     midscreen = screeny / 2
     frame:SetDimensions(screenx, screeny)
     frame:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 0, 0)
     local control
     for i = 1, MAX do
-	control = wm:CreateControl(nil, frame, CT_LABEL)
+	control = WM:CreateControl(nil, frame, CT_LABEL)
 	control:SetFont(font)
 	control:SetDrawLayer(1)
 	control:SetMouseEnabled(false)

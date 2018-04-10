@@ -2,7 +2,6 @@ setfenv(1, POC)
 Name = "POC"
 -- Callbacks
 MAP_PING_CHANGED = "POC-MapPingChanged"
-STYLE_CHANGED = "POC-StyleChanged"
 MOVABLE_CHANGED = "POC-MovableChanged"
 SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 
@@ -41,6 +40,8 @@ local function initialize()
 	ZO_CreateStringId(id, val)
 	SafeAddVersion(id, 1)
     end
+
+    WM = GetWindowManager()
 
     -- Initialize settings
     Settings.Initialize()
