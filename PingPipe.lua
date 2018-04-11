@@ -72,6 +72,9 @@ local function on_map_ping(pingtype, pingtag)
 	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(ctype, input)
 	Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
     end
+    if not LMP:IsPingSuppressed(pingtype, pingtag) then
+	LMP:SuppressPing(pingtype, pingtag)
+    end
     -- watch('on_map_ping', pingtag, GetGameTimeMilliseconds() - before)
 end
 
@@ -115,9 +118,6 @@ end
 --
 function PingPipe.Load()
     LMP:RegisterCallback("BeforePingAdded", on_map_ping)
-    for i = 1, 24 do
-	LMP:SuppressPing(MAP_PIN_TYPE_PING, 'group' .. i)
-    end
 
     saved = Settings.SavedVariables
 
