@@ -1,5 +1,6 @@
 setfenv(1, POC)
 local GetTimeStamp = GetTimeStamp
+local ZO_EaseInQuadratic = ZO_EaseInQuadratic
 
 Alert = {
     Name = 'POC-Alert'
@@ -17,6 +18,30 @@ local fontsize = 50
 local midscreen
 local above = MAX / 2
 local last_alert = 0
+local pool
+local frame
+local font
+
+local function create()
+    local this = {}
+    local control = WM:CreateControl(nil, frame, CT_LABEL)
+    control:SetFont(font)
+    control:SetDrawLayer(1)
+    control:SetMouseEnabled(false)
+    control:SetHidden(true)
+    local timeline = ANIMATION_MANAGER:CreateTimeline()
+    local fadeout = timeline:InsertAnimation(ANIMATION_ALPHA, control)
+    local translate = timeline:InsertAnimation(ANIMATION_TRANSLATE, control)
+    this.Control = control
+    this.Fadeout = fadeout
+    this.Timeline = timeline
+    this.Translate = translate
+    return this
+end
+
+local function reset(this)
+    -- nothing to do really
+end
 
 function Alert.Show(text, duration)
     if (GetTimeStamp() - last_alert) >= 10 then
@@ -27,32 +52,21 @@ function Alert.Show(text, duration)
 	    ix = 1
 	end
     end
-    local this = controls[ix]
+    local this, key = pool:AcquireObject()
     local control = this.Control
+    local fadeout = this.Fadeout
     local timeline = this.Timeline
-    local fadeout
-    local translate
-    if timeline then
-	fadeout = this.Fadeout
-	translate = this.Translate
-    else
-	timeline = ANIMATION_MANAGER:CreateTimeline()
-	fadeout = timeline:InsertAnimation(ANIMATION_ALPHA, control)
-	translate = timeline:InsertAnimation(ANIMATION_TRANSLATE, control)
-	this.Timeline = timeline
-	this.Fadeout = fadeout
-	this.Translate = translate
+    local translate = this.Translate
+    if this.Func == nil then
+	this.Func = function () pool:ReleaseObject(key) end
     end
     local yloc = (fontsize * .60) * (ix - above)
     control:SetAnchor(CENTER, nil, CENTER, 0, yloc)
     control:SetHidden(false)
---    control:SetText("|c66ff66" .. text)
---    control:SetText("|cffa500" .. text)
     control:SetText(string.format("|cff6600%s", text))
 
     local _, _, _, _, offx, offy = control:GetAnchor()
-    local xto
-    xto = screenx / 2
+    local xto = screenx / 2
     if (ix % 2) == 0 then
 	xto = -xto
     end
@@ -62,30 +76,24 @@ function Alert.Show(text, duration)
     translate:SetEasingFunction(ZO_EaseInQuadratic)
     fadeout:SetAlphaValues(1, 0)
     fadeout:SetDuration(duration + 1000)
+    timeline:InsertCallback(this.Func, timeline:GetDuration())
     timeline:PlayFromStart()
     last_alert = GetTimeStamp()
 end
 
 local function clearernow()
     last_alert = 0
+    pool:ReleaseAllObjects()
 end
 
 function Alert.Initialize()
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
-    local frame = WM:CreateTopLevelWindow()
-    local font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
+    frame = WM:CreateTopLevelWindow()
+    font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
     screenx, screeny = GuiRoot:GetDimensions()
     midscreen = screeny / 2
     frame:SetDimensions(screenx, screeny)
     frame:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 0, 0)
-    local control
-    for i = 1, MAX do
-	control = WM:CreateControl(nil, frame, CT_LABEL)
-	control:SetFont(font)
-	control:SetDrawLayer(1)
-	control:SetMouseEnabled(false)
-	control:SetHidden(true)
-	controls[i] = {Control = control}
-    end
+    pool = ZO_ObjectPool:New(create, reset)
     RegClear(clearernow)
 end

@@ -160,7 +160,7 @@ local function set_control_active()
     end
 end
 
-local function clear(verbose, gc)
+local function clear(verbose)
     saved.GroupMembers = {}
     group_members = saved.GroupMembers
     me.Ults = {}
@@ -170,14 +170,10 @@ local function clear(verbose, gc)
     sldebug = false
     RunClear(gc)
     local msg
-    if not gc then
-	msg = 'memory cleared'
-    else
-	local n = collectgarbage("count")
-	collectgarbage()
-	n = n - collectgarbage("count")
-	msg = string.format("memory cleared: freed %d Kbytes", n)
-    end
+    local n = collectgarbage("count")
+    collectgarbage()
+    n = n - collectgarbage("count")
+    msg = string.format("memory cleared: freed %d Kbytes", n)
     if verbose then
 	Info(msg)
     end
@@ -246,7 +242,6 @@ end
 
 -- Sets visibility of labels
 --
-local tmplane = {}
 local gc = GARBAGECOLLECT
 function Cols:Update(x)
     local refresh
@@ -266,7 +261,7 @@ function Cols:Update(x)
 	if not Group.IsGrouped() then
 	    msg("POC: No longer grouped")
 	end
-	clear(false, true)
+	clear(false)
 	set_control_active()
 	swimlanes.WasActive = false
 	Comm.Unload()
@@ -1068,8 +1063,8 @@ function Swimlanes.Initialize(major, minor)
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
 
-    Slash("clear", "clear memory; extra argument means force game garbage collection", function(n)
-	clear(true, n:len() > 0)
+    Slash("clear", "clear POC memory, run game garbage collection", function()
+	clear(true)
     end)
     Slash("pct", "debugging: set fake ultimate percentage", function(pct)
 	if string.len(pct) == 0 then
