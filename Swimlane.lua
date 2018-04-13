@@ -55,6 +55,8 @@ local Col = {
 }
 Col.__index = Col
 
+local ultn
+
 local play_sound = false
 local last_played = 0
 Player = {
@@ -116,15 +118,60 @@ local function set_control_movable()
     widget:SetMouseEnabled(movable)
 end
 
+function ultn_save_pos()
+    saved.UltNumberPos = {ultn:GetLeft(),ultn:GetTop()}
+end
+
+function swimlanes.Sched(clear_dispname)
+    need_to_fire = true
+    if clear_dispname then
+	for _, v in pairs(group_members) do
+	    v.DispName = nil
+	end
+    end
+    set_control_active()
+end
+
+local function ultn_hide(x)
+    if saved.UltNumberShow then
+	if not x and me.IsDead or me.UltMain == 0 or me.Ults[me.UltMain] == nil or me.Ults[me.UltMain] < 100 then
+	    x = true
+	end
+	ultn:SetHidden(x)
+    end
+end
+
+local function ultn_show(n)
+    local color
+    if n == 1 then
+	color = "00ff00"
+    else
+	color = "ff0000"
+    end
+    ultn:SetText(string.format("|c%s#%s|r", color, tostring(n)))
+    ultn_hide(false)
+    local timenow = GetTimeStamp()
+    if ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
+	play_sound = false
+	return
+    end
+    if n ~= 1 or not play_sound or not saved.WereNumberOne then
+	return
+    end
+    PlaySound(SOUNDS.DUEL_START)
+    last_played = GetTimeStamp()
+    play_sound = false
+    -- xxx("sound", play_sound)
+    me.Because = "false because we played the sound"
+end
+
 -- Set hidden on control
 --
 local function set_control_hidden(ishidden)
     if Group.IsGrouped() then
 	widget:SetHidden(ishidden)
-	UltNumber.Hide(ishidden)
     else
 	widget:SetHidden(true)
-	UltNumber.Hide(true)
     end
 end
 
@@ -473,10 +520,10 @@ function Col:Update(tick)
 		    CurrentHudHiddenState() or player.IsDead or
 		    not Group.IsGrouped() or
 		    not Settings.IsSwimlaneListVisible()) then
-		    UltNumber.Hide(true)
-		    UltNumberLabel:SetText("")
+		    ultn_hide(true)
+		    ultn:SetText("")
 		else
-		    UltNumber.Show(n)
+		    ultn_show(n)
 		end
 	    end
 	    n = n + 1
@@ -974,59 +1021,12 @@ function Cols:New()
     return self
 end
 
-function swimlanes:SaveUltNumberPos()
-    saved.UltNumberPos = {self:GetLeft(),self:GetTop()}
-end
-
-function swimlanes.Sched(clear_dispname)
-    need_to_fire = true
-    if clear_dispname then
-	for _, v in pairs(group_members) do
-	    v.DispName = nil
-	end
-    end
-    set_control_active()
-end
-
-function UltNumber.Hide(x)
-    if saved.UltNumberShow then
-	if not x and me.IsDead or me.UltMain == 0 or me.Ults[me.UltMain] == nil or me.Ults[me.UltMain] < 100 then
-	    x = true
-	end
-	UltNumber:SetHidden(x)
-    end
-end
-
-function UltNumber.Show(n)
-    local color
-    if n == 1 then
-	color = "00ff00"
-    else
-	color = "ff0000"
-    end
-    UltNumberLabel:SetText(string.format("|c%s#%s|r", color, tostring(n)))
-    UltNumber.Hide(false)
-    local timenow = GetTimeStamp()
-    if ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
-	play_sound = false
-	return
-    end
-    if n ~= 1 or not play_sound or not saved.WereNumberOne then
-	return
-    end
-    PlaySound(SOUNDS.DUEL_START)
-    last_played = GetTimeStamp()
-    play_sound = false
-    -- xxx("sound", play_sound)
-    me.Because = "false because we played the sound"
-end
-
 -- Initialize Swimlanes
 --
-Swimlanes.Update = function(x) Cols:Update(x) end
-Swimlanes.SetLaneUlt = function(apid, icon) Cols:SetLaneUlt(apid, icon) end
-Swimlanes.Redo = function() Cols:Redo() end
-function Swimlanes.Initialize(major, minor)
+swimlanes.Update = function(x) Cols:Update(x) end
+swimlanes.SetLaneUlt = function(apid, icon) Cols:SetLaneUlt(apid, icon) end
+swimlanes.Redo = function() Cols:Redo() end
+function swimlanes.Initialize(major, minor)
     widget = POC_Main
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
@@ -1038,7 +1038,7 @@ function Swimlanes.Initialize(major, minor)
     for n, v in pairs(group_members) do
 	setmetatable(v, Player)
 	if n == myname then
-	    v =  ZO_DeepTableCopy(v, me)
+	    v =	 ZO_DeepTableCopy(v, me)
 	end
 	if not v.UltMain or v.UltMain == 0 then
 	    v.UltMain = max_ping
@@ -1059,17 +1059,22 @@ function Swimlanes.Initialize(major, minor)
 
     Cols:New()
 
-    UltNumber:ClearAnchors()
+    ultn = WM:CreateControl(nil, widget, CT_LABEL)
+    ultn:SetDimensions(100, 100)
+    ultn:SetHandler('OnMoveStop', ultn_save_pos)
+    ultn:SetFont('ZoFontWinH1')
+    ultn:ClearAnchors()
+
     if saved.UltNumberPos == nil then
-	UltNumber:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
+	ultn:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
     else
-	UltNumber:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
+	ultn:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT,
 				saved.UltNumberPos[1],
 				saved.UltNumberPos[2])
     end
-    UltNumber:SetMovable(true)
-    UltNumber:SetMouseEnabled(true)
-    UltNumber.Hide(true)
+    ultn:SetMovable(true)
+    ultn:SetMouseEnabled(true)
+    ultn_hide(true)
 
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)

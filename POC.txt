@@ -37,7 +37,6 @@ VirtualControls.xml
 Bindings.xml
 Countdown.xml
 Swimlane.xml
-UltNumber.xml
 
 POC0.lua
 LuaErrors.lua
