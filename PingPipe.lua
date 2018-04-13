@@ -69,6 +69,8 @@ local function on_map_ping(pingtype, pingtag)
 	Player.Version(pingtag, bytes[2], bytes[3], bytes[4] == 1)
     elseif ctype == COMM_TYPE_KEEPALIVE then
 	Player.New(pingtag, timenow)
+    elseif ctype == COMM_TYPE_MAKEMELEADER then
+	Player.MakeLeader(pingtag)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	input = math.floor(input / 256)
 	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(ctype, input)

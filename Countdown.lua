@@ -17,7 +17,7 @@ local function init()
     nnnlabel = POC_CountdownLabel
     xxx = xxx
 
-    saved = Settings.SavedVariables     -- convenience
+    saved = Settings.SavedVariables	-- convenience
 
     nnn:ClearAnchors()
     if (saved.CountdownPos == nil) then

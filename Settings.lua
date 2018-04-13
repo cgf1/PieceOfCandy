@@ -126,7 +126,7 @@ function Settings.InitializeWindow(version)
     o[#o + 1] = {
 	type = "header",
 	name = GetString(OPTIONS_HEADER),
-     }
+    }
     o[#o + 1] = {
 	type = "checkbox",
 	name = GetString(OPTIONS_ONLY_AVA_LABEL),

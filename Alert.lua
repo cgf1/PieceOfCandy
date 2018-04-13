@@ -44,7 +44,7 @@ local function reset(this)
 end
 
 function Alert.Show(text, duration)
-    if (GetTimeStamp() - last_alert) >= 10 then
+    if (GetTimeStamp() - last_alert) >= 4 then
 	ix = MAX / 2
     else
 	ix = ix + 1

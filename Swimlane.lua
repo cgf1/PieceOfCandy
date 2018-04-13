@@ -392,8 +392,8 @@ local function create_cell(pool)
 end
 
 local function reset_cell(tbl)
-     tbl.Control:SetHidden(true)
-     tbl.Control:ClearAnchors()
+    tbl.Control:SetHidden(true)
+    tbl.Control:ClearAnchors()
 end
 
 -- Update swimlane
@@ -497,7 +497,7 @@ local function colstuff(col, row)
     local sizex = icon_size[1]
     local sizey = icon_size[2]
     if saved.Style == 'Standard' then
-	sizex = sizex + 75      -- room for text
+	sizex = sizex + 75	-- room for text
     else
 	sizex = sizex + 27
     end
@@ -668,6 +668,14 @@ function Player:Alert(name)
     Alert.Show(message, duration)
 end
 
+function Player.MakeLeader(pingtag)
+    local name = GetUnitName(pingtag)
+    local player = group_members[name]
+    if player ~= nil and me.IsLeader and (player.HasBeenLeader or saved.AutoAccept[name]) then
+	GroupPromote(pingtag)
+    end
+end
+
 local newversion_alert = 5
 function Player.Version(pingtag, major, minor, force)
     local v = string.format("%d.%03d", major, minor)
@@ -730,6 +738,9 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
     player.InCombat = IsUnitInCombat(pingtag)
     player.InRange = IsUnitInGroupSupportRange(pingtag)
     player.IsLeader = IsUnitGroupLeader(pingtag)
+    if player.IsLeader then
+	player.HasBeenLeader = true
+    end
     player.IsDead = IsUnitDead(pingtag)
     player.Online = IsUnitOnline(pingtag)
     player.PingTag = pingtag
@@ -1111,4 +1122,7 @@ function Swimlanes.Initialize(major, minor)
 	Comm.SendVersion(true)
     end)
     Slash("dump", "debugging: show collected information for specified player", function(x) dumpme = x end)
+    Slash("leader", "make me group leader or record name to allow as leader", function(n)
+	Comm.Send(COMM_TYPE_MAKEMELEADER)
+    end)
 end

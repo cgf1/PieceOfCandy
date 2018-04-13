@@ -11,7 +11,7 @@ all: ${modified}
 FORCE:
 
 %.lua.ok: %.lua
-	@unexpand -I $?
+	@unexpand -aI $?
 	esolua $?
 	@touch $@
 
