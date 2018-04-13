@@ -39,7 +39,7 @@ function show_errors(n)
 	seen_errors = {}
 	errors = {}
 	Info("errors cleared")
-        return
+	return
     end
     local yup = false
     for i, n in ipairs(errors) do
@@ -47,7 +47,7 @@ function show_errors(n)
 	    Info("lua errors (sigh):")
 	end
 	local count = seen_errors[n[1]]
-	df("|c42ebf4Saw %d time%s:|c\r\n%s%s", count, plural(count), n[1], n[2])
+	df("|c42ebf4Saw %d time%s:|r\r\n%s%s", count, plural(count), n[1], n[2])
 	yup = true
     end
     if not yup then

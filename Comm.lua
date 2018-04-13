@@ -13,12 +13,15 @@ COMM_TYPE_PCTULT	= 0x03 + (COMM_MAGIC * 16)
 COMM_TYPE_NEEDQUEST	= 0x04 + (COMM_MAGIC * 16)
 COMM_TYPE_MYVERSION	= 0x05 + (COMM_MAGIC * 16)
 COMM_TYPE_PCTULTPOS	= 0x06 + (COMM_MAGIC * 16)
+COMM_TYPE_KEEPALIVE	= 0x07 + (COMM_MAGIC * 16)
 
 COMM_ALL_PLAYERS	= 0
 
 local update_interval
 
-local QUEST_PING = 4
+local QUEST_PING = j
+local KEEPALIVE_PING_SECS = 6
+local keepalive_ping
 
 local version
 local major, minor
@@ -94,6 +97,7 @@ end
 
 local counter = 0
 local old_queue = 0
+local last_ult_ping = 0
 local function on_update()
     if not comm.active then
 	return
@@ -108,27 +112,37 @@ local function on_update()
     local notify_when_not_grouped = true
     Swimlanes.Update("map update")
 
+    if (counter % QUEST_PING) == 0 then
+	Quest.Ping()
+    end
+
     counter = counter + 1
     local send = 0
     local apid1pct1 = ultpct(myults[1])
     local queue = campaign.QueuePosition(false)
     send = COMM_ULTPCT_MUL1 * apid1pct1
     local cmd
-    if queue == old_queue then
-	send = send + ultpct(myults[2])
-	cmd = COMM_TYPE_PCTULT
-    else
+    if queue ~= old_queue then
 	send = send + queue
 	cmd = COMM_TYPE_PCTULTPOS
 	old_queue = queue
+    else
+	send = send + ultpct(myults[2])
+	cmd = COMM_TYPE_PCTULT
+	last_ult_ping = send
+	if send ~= last_ult_ping then
+	    -- cmd = COMM_TYPE_PCTULT
+	    -- last_ult_ping = send
+	elseif (counter % keepalive_ping) ~= 0 then
+	    return
+	elseif someday then
+	    cmd = COMM_TYPE_KEEPALIVE
+	    send = 0
+	end
     end
     watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
     comm.Send(cmd, bytes[1], bytes[2], bytes[3])
-    if (counter % QUEST_PING) == 0 then
-	quest_ping = QUEST_PING
-	Quest.Ping()
-    end
 end
 
 function Comm.IsActive()
@@ -220,6 +234,7 @@ function Comm.Initialize(inmajor, inminor)
 	saved.UpdateInterval = 2000
     end
     update_interval = saved.UpdateInterval
+    keepalive_ping = math.floor((KEEPALIVE_PING_SECS / (update_interval / 1000)) + .5)
     me = Me
     if load_later then
 	Comm.Load()
@@ -243,12 +258,15 @@ function Comm.Initialize(inmajor, inminor)
     end)
     end
     Slash("update", "update every n seconds", function (n)
-	n = tonumber(n)
-	if n == nil or n < 1 then
-	    Error("invalid value")
-	else
-	    update_interval = n * 1000
-	    saved.UpdateInterval = update_interval
+	if n:len() ~= 0 then
+	    n = tonumber(n)
+	    if n == nil or n < 1 then
+		Error("invalid value")
+	    else
+		keepalive_ping = math.floor((KEEPALIVE_PING_SECS / n) + .5)
+		update_interval = n * 1000
+		saved.UpdateInterval = update_interval
+	    end
 	end
 	Info(string.format("update every %d seconds",  update_interval / 1000))
     end)

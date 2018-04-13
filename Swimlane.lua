@@ -719,12 +719,8 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	if apid1 == 0 then
 	    return			-- hopefully an anomaly
 	end
-	-- Coming from Player.New
-	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
-	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
-	end
     elseif not self.Visited then
-	timestamp = self.TimeStamp	-- coming from Player.Update - haven't seen before
+	timestamp = self.TimeStamp	-- coming from Player.Update - haven't seen yet
     else
 	self.Visited = false
 	return self
@@ -750,6 +746,10 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
     end
 
     if apid1 ~= nil then
+	-- Coming from on_map_ping
+	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
+	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
+	end
 	-- Called from map ping
 	-- If either is nil then player changed their ultimate
 	if self.Ults[apid1] == nil or apid2 ~= nil and self.Ults[apid2] == nil then

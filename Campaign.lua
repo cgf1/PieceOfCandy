@@ -11,21 +11,16 @@ Campaign.__index = Campaign
 
 local campaign = Campaign
 local campaign_id
-
-local debug_pos = {
-    [true] = nil,
-    [false] = nil
-}
+local campaign_index
 
 local function pretty()
     return string.gsub(" " .. saved.Campaign.Name, "%W%l", string.upper):sub(2)
 end
 
 function Campaign.QueuePosition(isgroup)
-    if debug_pos[isgroup] ~= nil then
-	return debug_pos[isgroup]
-    end
-    return GetCampaignQueuePosition(saved.Campaign[isgroup], isgroup)
+    local pos = GetCampaignQueuePosition(saved.Campaign[isgroup], isgroup)
+    watch("Campaign.QueuePosition", saved.Campaign[isgroup], isgroup, pos)
+    return pos
 end
 
 local function joined(_, n, isgroup)
@@ -57,7 +52,7 @@ local function state_changed(_, n, isgroup, state)
 end
 
 local function clearernow()
-   debug_pos = {} 
+    -- maybe
 end
 
 local function get_campaign_id(name)
@@ -65,10 +60,12 @@ local function get_campaign_id(name)
 	local id = GetSelectionCampaignId(i)
 	if GetCampaignName(id):lower() == name then
 	    campaign_id = id
+	    campaign_index = i
 	    return
 	end
     end
     campaign_id = nil
+    campaign_index = nil
 end
 
 function Campaign.Initialize()
@@ -100,23 +97,23 @@ function Campaign.Initialize()
 	Info("Preferred campaign: ", pretty(), id)
     end)
     Slash("queue", "debugging: specify pretend queue position, extra arg means group", function (n)
-	local n, isgroup = n:match("(%S*)%s*(%S*)")
-	local i
-	isgroup = isgroup:len() > 0
-	if n:len() ~= 0 then
-	    if n == 'nil' or n == 'off' then
-		debug_pos[isgroup] = nil
-	    else
-		debug_pos[isgroup]= tonumber(n)
-	    end
-	end
+	isgroup = n:len() > 0
 	local s
 	if isgroup then
 	    s = 'Group queue: '
 	else
 	    s = 'Queue: '
 	end
-	Info(s, Campaign.QueuePosition(isgroup))
+	local pos = Campaign.QueuePosition(isgroup)
+	if pos ~= 0 then
+	    Info(string.format("%s for %s: %d", s, pretty(), pos))
+	end
+	local wait = GetSelectionCampaignQueueWaitTime(campaign_index)
+	local seconds = wait % 60
+	wait = math.floor(wait / 60)
+	local minutes = wait % 60
+	wait = math.floor(wait / 60)
+	Info(string.format("game says estimated wait time for %s is %02d:%02d:%02d", pretty(), wait, minutes, seconds))
     end)
     Slash("pvp", "queue for your preferred PVP campaign (e.g., 'Vivec')", function()
 	if not campaign_id then
