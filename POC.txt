@@ -41,8 +41,6 @@ Swimlane.xml
 POC0.lua
 LuaErrors.lua
 
-UiHelper.lua
-
 PingPipe.lua
 Comm.lua
 

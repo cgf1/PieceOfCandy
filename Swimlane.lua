@@ -27,7 +27,6 @@ local GARBAGECOLLECT = 60 * 3
 
 local widget = nil
 local cellpool = nil
-local registered = false
 local namelen = 12
 local topleft = 25
 local swimlanerow
@@ -179,21 +178,9 @@ end
 -- set_control_active sets hidden on control
 --
 local function set_control_active()
-    local isvisible = Settings.IsSwimlaneListVisible() and Group.IsGrouped()
-    local ishidden = not isvisible or CurrentHudHiddenState()
-    set_control_hidden(ishidden)
-
-    if isvisible then
-	if registered then
-	    return
-	end
-	registered = true
-	restore_position()
-
-	CALLBACK_MANAGER:RegisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
-    elseif registered then
-	registered = false
-	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
+    if not widget:IsHidden() then
+	local visible = Settings.IsSwimlaneListVisible() and Group.IsGrouped()
+	set_control_hidden(not visible)
     end
 end
 
@@ -315,7 +302,7 @@ function Cols:Update(x)
     end
     watch("Cols:Update", x, 'refresh', refresh, 'wasactive', swimlanes.WasActive)
 
-    if refresh then
+    if refresh and not widget:IsHidden() then
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
@@ -328,7 +315,7 @@ function Cols:Update(x)
 
     if displayed then
 	-- displayed should be false if not grouped
-	set_control_active()
+	set_control_hidden(false)
 	if not swimlanes.WasActive then
 	    msg("POC: now grouped")
 	    Comm.Load()
@@ -517,7 +504,7 @@ function Col:Update(tick)
 		end
 		self:UpdateCell(n, player, playername, priult)
 		if (noshow or not saved.UltNumberShow or
-		    CurrentHudHiddenState() or player.IsDead or
+		    widget:IsHidden() or player.IsDead or
 		    not Group.IsGrouped() or
 		    not Settings.IsSwimlaneListVisible()) then
 		    ultn_hide(true)
@@ -1028,6 +1015,10 @@ swimlanes.SetLaneUlt = function(apid, icon) Cols:SetLaneUlt(apid, icon) end
 swimlanes.Redo = function() Cols:Redo() end
 function swimlanes.Initialize(major, minor)
     widget = POC_Main
+    local fragment = ZO_SimpleSceneFragment:New(widget)
+    SCENE_MANAGER:GetScene("hud"):AddFragment(fragment)
+    SCENE_MANAGER:GetScene("hudui"):AddFragment(fragment)
+    SCENE_MANAGER:GetScene("siegeBar"):AddFragment( fragment )
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
     myults = saved.MyUltId[ultix]
@@ -1058,6 +1049,7 @@ function swimlanes.Initialize(major, minor)
     cellpool = ZO_ObjectPool:New(create_cell, reset_cell)
 
     Cols:New()
+    restore_position()
 
     ultn = WM:CreateControl(nil, widget, CT_LABEL)
     ultn:SetDimensions(100, 100)
