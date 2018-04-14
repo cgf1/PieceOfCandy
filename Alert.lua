@@ -19,12 +19,12 @@ local midscreen
 local above = MAX / 2
 local last_alert = 0
 local pool
-local frame
+local tlw
 local font
 
 local function create()
     local this = {}
-    local control = WM:CreateControl(nil, frame, CT_LABEL)
+    local control = WM:CreateControl(nil, tlw, CT_LABEL)
     control:SetFont(font)
     control:SetDrawLayer(1)
     control:SetMouseEnabled(false)
@@ -88,12 +88,12 @@ end
 
 function Alert.Initialize()
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
-    frame = WM:CreateTopLevelWindow()
+    tlw = WM:CreateTopLevelWindow()
     font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
     screenx, screeny = GuiRoot:GetDimensions()
     midscreen = screeny / 2
-    frame:SetDimensions(screenx, screeny)
-    frame:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 0, 0)
+    tlw:SetDimensions(screenx, screeny)
+    tlw:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 0, 0)
     pool = ZO_ObjectPool:New(create, reset)
     RegClear(clearernow)
 end
