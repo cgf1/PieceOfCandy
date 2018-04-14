@@ -122,16 +122,6 @@ function ultn_save_pos()
     saved.UltNumberPos = {ultn:GetLeft(),ultn:GetTop()}
 end
 
-function swimlanes.Sched(clear_dispname)
-    need_to_fire = true
-    if clear_dispname then
-	for _, v in pairs(group_members) do
-	    v.DispName = nil
-	end
-    end
-    set_control_active()
-end
-
 local function ultn_hide(x)
     if saved.UltNumberShow then
 	if not x and me.IsDead or me.UltMain == 0 or me.Ults[me.UltMain] == nil or me.Ults[me.UltMain] < 100 then
@@ -205,6 +195,16 @@ local function set_control_active()
 	registered = false
 	CALLBACK_MANAGER:UnregisterCallback(HUD_HIDDEN_STATE_CHANGED, set_control_hidden)
     end
+end
+
+function swimlanes.Sched(clear_dispname)
+    need_to_fire = true
+    if clear_dispname then
+	for _, v in pairs(group_members) do
+	    v.DispName = nil
+	end
+    end
+    set_control_active()
 end
 
 local function clear(verbose)
