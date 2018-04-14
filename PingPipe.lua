@@ -59,6 +59,7 @@ local function on_map_ping(pingtype, pingtag)
     local bytes = Comm.ToBytes(input)
     local ctype = bytes[1]
     local timenow = GetTimeStamp()
+    watch('on_map_ping', string.format("0x%2x", ctype))
     if ctype == COMM_TYPE_PCTULTOLD then
 	Player.New(pingtag, timenow, bytes[2], bytes[3])
     elseif ctype == COMM_TYPE_COUNTDOWN then

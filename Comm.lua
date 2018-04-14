@@ -130,10 +130,8 @@ local function on_update()
     else
 	send = send + ultpct(myults[2])
 	cmd = COMM_TYPE_PCTULT
-	last_ult_ping = send
 	if send ~= last_ult_ping then
-	    -- cmd = COMM_TYPE_PCTULT
-	    -- last_ult_ping = send
+	    last_ult_ping = send
 	elseif (counter % keepalive_ping) ~= 0 then
 	    return
 	elseif someday then

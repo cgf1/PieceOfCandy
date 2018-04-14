@@ -1,4 +1,8 @@
 setfenv(1, POC)
+local AcceptGroupInvite = AcceptGroupInvite
+local IsUnitGrouped = IsUnitGrouped
+local ZO_PreHook = ZO_PreHook
+
 Group = {
     Name = "POC-Group"
 }

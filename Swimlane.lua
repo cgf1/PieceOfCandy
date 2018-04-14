@@ -14,6 +14,7 @@ local IsUnitInCombat = IsUnitInCombat
 local IsUnitInGroupSupportRange = IsUnitInGroupSupportRange
 local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
+local SCENE_MANAGER = SCENE_MANAGER
 local table = table
 local ZO_ObjectPool_CreateControl = ZO_ObjectPool_CreateControl
 local ZO_DeepTableCopy = ZO_DeepTableCopy
@@ -32,6 +33,7 @@ local topleft = 25
 local swimlanerow
 
 local SWIMLANEULTMAX = 24
+local SWIMLANEPCTADD = 100 + SWIMLANEULTMAX - 1
 
 local myults
 local forcepct = nil
@@ -106,9 +108,17 @@ local need_to_fire = true
 local msg = d
 local d = nil
 
--- set_control_movable sets the Movable and MouseEnabled flag in UI elements
+local function widget_visible()
+    if not (Group.IsGrouped() or Comm.IsActive()) then
+	return false
+    else
+	return (not saved.OnlyAva) or IsPlayerInAvAWorld()
+    end
+end
+
+-- set_widget_movable sets the Movable and MouseEnabled flag in UI elements
 --
-local function set_control_movable()
+local function set_widget_movable()
     local movable = saved.AllowMove
     if movable == nil then
 	movable = true
@@ -156,12 +166,28 @@ end
 
 -- Set hidden on control
 --
-local function set_control_hidden(ishidden)
-    if Group.IsGrouped() then
-	widget:SetHidden(ishidden)
-    else
-	widget:SetHidden(true)
+
+local fragment
+local fragstate = false
+local function hide_widget(hideit)
+    hideit = hideit or not widget_visible()
+    local sceneon = not hideit
+    if fragstate ~= sceneon then
+	fragstate = sceneon
+	if not sceneon then
+	    SCENE_MANAGER:GetScene("hud"):RemoveFragment(fragment)
+	    SCENE_MANAGER:GetScene("hudui"):RemoveFragment(fragment)
+	    SCENE_MANAGER:GetScene("siegeBar"):RemoveFragment(fragment)
+	else
+	    SCENE_MANAGER:GetScene("hud"):AddFragment(fragment)
+	    SCENE_MANAGER:GetScene("hudui"):AddFragment(fragment)
+	    SCENE_MANAGER:GetScene("siegeBar"):AddFragment(fragment)
+	    if not (SCENE_MANAGER:IsShowing("hudui") and SCENE_MANAGER:GetScene("siegeBar")) then
+		return
+	    end
+	end
     end
+    widget:SetHidden(hideit)
 end
 
 -- restore_position sets widget position
@@ -175,15 +201,6 @@ local function restore_position()
     end
 end
 
--- set_control_active sets hidden on control
---
-local function set_control_active()
-    if not widget:IsHidden() then
-	local visible = Settings.IsSwimlaneListVisible() and Group.IsGrouped()
-	set_control_hidden(not visible)
-    end
-end
-
 function swimlanes.Sched(clear_dispname)
     need_to_fire = true
     if clear_dispname then
@@ -191,7 +208,6 @@ function swimlanes.Sched(clear_dispname)
 	    v.DispName = nil
 	end
     end
-    set_control_active()
 end
 
 local function clear(verbose)
@@ -285,7 +301,7 @@ function Cols:Update(x)
     elseif x == "joined" then
 	need_to_fire = true
     end
-    if x ~= 'off' and Group.IsGrouped() then
+    if x ~= 'off' and widget_visible() then
 	refresh = Player.Update(true)
 	displayed = not swimlanes.WasActive
     elseif not swimlanes.WasActive then
@@ -296,13 +312,13 @@ function Cols:Update(x)
 	    msg("POC: No longer grouped")
 	end
 	clear(false)
-	set_control_active()
+	hide_widget(true)
 	swimlanes.WasActive = false
 	Comm.Unload()
     end
     watch("Cols:Update", x, 'refresh', refresh, 'wasactive', swimlanes.WasActive)
 
-    if refresh and not widget:IsHidden() then
+    if refresh then
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
@@ -315,11 +331,11 @@ function Cols:Update(x)
 
     if displayed then
 	-- displayed should be false if not grouped
-	set_control_hidden(false)
 	if not swimlanes.WasActive then
 	    msg("POC: now grouped")
 	    Comm.Load()
 	    Comm.SendVersion(false)
+	    hide_widget(false)
 	end
 	swimlanes.WasActive = true
     end
@@ -466,7 +482,7 @@ function Col:Update(tick)
 	table.sort(keys, self.Compare)
 
 	-- Update sorted swimlane
-	local gt100 = 100 + saved.SwimlaneMax
+	local gt100 = SWIMLANEPCTADD
 	while true do
 	    local playername = table.remove(keys, 1)
 	    if playername == nil then
@@ -485,32 +501,31 @@ function Col:Update(tick)
 		    gt100 = player.Ults[apid]
 		end
 	    else
-		local noshow = true
+		local show
 		if forcepct ~= nil then
 		    player.Ults[apid] = forcepct
 		end
 		if player.Ults[apid]  < 100 then
 		    play_sound = true
 		    me.Because = "ultpct < 100"
+		    show = false
 		elseif priult and not player.IsDead and player:IsInRange() then
 		    player.Ults[apid] = gt100 - 1
-		    noshow = false
 		    me.Because = "ultpct == 100"
+		    show = true
 		else
 		    -- reset order since we can't contribute
 		    player.Ults[apid] = 100
 		    play_sound = true
 		    me.Because = "out of range or dead"
+		    show = false
 		end
 		self:UpdateCell(n, player, playername, priult)
-		if (noshow or not saved.UltNumberShow or
-		    widget:IsHidden() or player.IsDead or
-		    not Group.IsGrouped() or
-		    not Settings.IsSwimlaneListVisible()) then
+		if show and saved.UltNumberShow then
+		    ultn_show(n)
+		else
 		    ultn_hide(true)
 		    ultn:SetText("")
-		else
-		    ultn_show(n)
 		end
 	    end
 	    n = n + 1
@@ -979,7 +994,7 @@ function Col:Hide(displayed)
     local hide = self.Id > MIAlane or (self.Id == MIAlane and not displayed)
     self.Button:SetHidden(hide)
     self.Icon:SetHidden(hide)
-    if self.Label then
+    if saved.Style == 'Standard' then
 	self.Label:SetHidden(hide)
     end
 end
@@ -1015,10 +1030,8 @@ swimlanes.SetLaneUlt = function(apid, icon) Cols:SetLaneUlt(apid, icon) end
 swimlanes.Redo = function() Cols:Redo() end
 function swimlanes.Initialize(major, minor)
     widget = POC_Main
-    local fragment = ZO_SimpleSceneFragment:New(widget)
-    SCENE_MANAGER:GetScene("hud"):AddFragment(fragment)
-    SCENE_MANAGER:GetScene("hudui"):AddFragment(fragment)
-    SCENE_MANAGER:GetScene("siegeBar"):AddFragment( fragment )
+    widget:SetHidden(true)
+    fragment = ZO_SimpleSceneFragment:New(widget)
     saved = Settings.SavedVariables
     group_members = saved.GroupMembers
     myults = saved.MyUltId[ultix]
@@ -1111,7 +1124,7 @@ function swimlanes.Initialize(major, minor)
 	end
 	if movable ~= nil then
 	    saved.AllowMove = movable
-	    set_control_movable()
+	    set_widget_movable()
 	end
 	Info("movable state is:", movable)
     end)

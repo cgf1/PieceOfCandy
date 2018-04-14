@@ -95,25 +95,6 @@ function Settings.SetWereNumberOne(val)
     saved.WereNumberOne = val
 end
 
--- Return Swimlane visibility
---
-function Settings.IsSwimlaneListVisible()
-    return Settings.IsControlsVisible()
-end
-
-
--- Return control visibility
---
-function Settings.IsControlsVisible()
-    if not Comm.IsActive() then
-	return false
-    elseif saved.OnlyAva then
-	return IsPlayerInAvAWorld()
-    else
-	return true
-    end
-end
-
 -- Initialize/create settings window
 --
 function Settings.InitializeWindow(version)
