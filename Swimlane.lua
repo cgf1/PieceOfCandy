@@ -375,7 +375,7 @@ function plunk_not_mia(self, apid, tick)
 end
 
 function plunk_mia(self, apid, tick)
-    if self.Pos == 0 and self.Tick == tick then
+    if self.Tick == tick then
 	return false
     else
 	self.Tick = tick
