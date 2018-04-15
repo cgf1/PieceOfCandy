@@ -32,7 +32,7 @@ local function pochelp(x)
     if x:len() == 0 then
 	for _, n in ipairs(keys) do
 	    if not cmds[n].Debug or showdebug then
-		d(string.format("%-10s	%s", n, cmds[n].Help))
+		df("%-10s	%s", n, cmds[n].Help)
 	    end
 	end
     elseif cmds[x] == nil then
