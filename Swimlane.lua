@@ -1009,6 +1009,7 @@ function Cols:Redo()
 end
 
 function Cols:New()
+    local redo = self ~= nil
     if self == nil then
 	self = setmetatable({}, Cols)
     end
@@ -1016,9 +1017,16 @@ function Cols:New()
     MIAlane = saved.SwimlaneMaxCols + 1
     for i = 1, MIAlane do
 	self[i] = Col.New(self[i], i)
+	if redo then
+	    self[i].Control:SetHidden(false)
+	end
     end
     for i = MIAlane + 1, oldMIAlane do
 	self[i].Control:SetHidden(true)
+	-- Clear any left-over cells
+	while self[i][1] do
+	    cellpool:ReleaseObject(table.remove(self[i], 1))
+	end
     end
     return self
 end

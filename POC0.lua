@@ -32,13 +32,13 @@ local function pochelp(x)
     if x:len() == 0 then
 	for _, n in ipairs(keys) do
 	    if not cmds[n].Debug or showdebug then
-		d("|u0:10::" .. n .. "|u " .. cmds[n].Help)
+		d(string.format("%-10s	%s", n, cmds[n].Help))
 	    end
 	end
     elseif cmds[x] == nil then
 	Error(string.format("no such command: %s", x))
     else
-	df("%s  %s", x, cmds[x].Help)
+	df("%s	%s", x, cmds[x].Help)
     end
 
 end
