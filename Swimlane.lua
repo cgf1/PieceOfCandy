@@ -97,7 +97,6 @@ local dumpme
 --
 Swimlanes = {
     Name = "POC-Swimlanes",
-    WasActive = false
 }
 Swimlanes.__index = Swimlanes
 
@@ -109,7 +108,7 @@ local msg = d
 local d = nil
 
 local function widget_visible()
-    if not (Group.IsGrouped() or Comm.IsActive()) then
+    if not (Group.IsGrouped() and Comm.IsActive()) then
 	return false
     else
 	return (not saved.OnlyAva) or IsPlayerInAvAWorld()
@@ -293,6 +292,7 @@ end
 -- Sets visibility of labels
 --
 local gc = GARBAGECOLLECT
+local wasactive = false
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -301,10 +301,10 @@ function Cols:Update(x)
     elseif x == "joined" then
 	need_to_fire = true
     end
-    if x ~= 'off' and widget_visible() then
+    if x ~= 'off' and Group.IsGrouped() then
 	refresh = Player.Update(true)
-	displayed = not swimlanes.WasActive
-    elseif not swimlanes.WasActive then
+	displayed = not wasactive
+    elseif not wasactive then
 	refresh = false
     else
 	refresh = true	-- just get rid of everything
@@ -313,10 +313,10 @@ function Cols:Update(x)
 	end
 	clear(false)
 	hide_widget(true)
-	swimlanes.WasActive = false
+	wasactive = false
 	Comm.Unload()
     end
-    watch("Cols:Update", x, 'refresh', refresh, 'wasactive', swimlanes.WasActive)
+    watch("Cols:Update", x, 'refresh', refresh, 'wasactive', wasactive)
 
     if refresh then
 	watch("refresh")
@@ -331,13 +331,13 @@ function Cols:Update(x)
 
     if displayed then
 	-- displayed should be false if not grouped
-	if not swimlanes.WasActive then
+	if not wasactive then
 	    msg("POC: now grouped")
 	    Comm.Load()
 	    Comm.SendVersion(false)
 	    hide_widget(false)
 	end
-	swimlanes.WasActive = true
+	wasactive = true
     end
 end
 

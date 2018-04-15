@@ -145,7 +145,7 @@ local function on_update()
 end
 
 function Comm.IsActive()
-    return comm ~= nil and comm.active
+    return (comm ~= nil and comm.active) or load_later
 end
 
 function Comm.Load(verbose)
