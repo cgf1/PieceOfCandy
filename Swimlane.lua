@@ -479,7 +479,9 @@ function Col:Update(tick)
 	    end
 	end
 
-	table.sort(keys, self.Compare)
+	if #keys > 1 then
+	    table.sort(keys, self.Compare)
+	end
 
 	-- Update sorted swimlane
 	local gt100 = SWIMLANEPCTADD
@@ -1048,10 +1050,10 @@ function swimlanes.Initialize(major, minor)
     end
     max_ping = Ult.MaxPing
     for n, v in pairs(group_members) do
-	setmetatable(v, Player)
 	if n == myname then
 	    v =	 ZO_DeepTableCopy(v, me)
 	end
+	setmetatable(v, Player)
 	if not v.UltMain or v.UltMain == 0 then
 	    v.UltMain = max_ping
 	end
