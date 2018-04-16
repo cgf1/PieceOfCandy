@@ -96,7 +96,7 @@ function Campaign.Initialize()
 	end
 	Info("Preferred campaign: ", pretty(), id)
     end)
-    Slash("queue", "debugging: specify pretend queue position, extra arg means group", function (n)
+    Slash("queue", "show position in queue (any argument means show group queue)", function (n)
 	isgroup = n:len() > 0
 	local s
 	if isgroup then
