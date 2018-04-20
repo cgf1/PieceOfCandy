@@ -4,6 +4,7 @@ allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort
 FORCE := false
 
 e:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
+f:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/pts/AddOns/POC
 # allfiles := $(shell ( echo POC.txt ; egrep -v '^[ 	]*[;#]|$$' POC.txt; } | sort )
 all: ${modified}
 
@@ -25,15 +26,19 @@ install: install-gotham install-norton
 .PHONY: install-gotham
 install-gotham: gotham-mounted | all clean
 	@rm -rf /smb$e/*
-	@echo Rsyncing to gotham...
+	@echo Rsyncing to gotham live...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb$e
+	@echo Rsyncing to gotham PTS...
+	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb$f
 	@touch /smb$e/POC.txt
 
 .PHONY: install-norton
 install-norton: norton-mounted | all clean
 	@rm -rf /smb1$e/*
-	@echo Rsyncing to norton...
+	@echo Rsyncing to norton live...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb1$e
+	@echo Rsyncing to norton PTS...
+	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb1$f
 	@touch /smb1$e/POC.txt
 
 .PHONY: clean

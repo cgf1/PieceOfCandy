@@ -76,6 +76,55 @@ function Ult.Descriptions()
     return desclist
 end
 
+local function addtbl(tbl, name, id, morphchoice, morphs)
+    tbl[name] = tbl[name] or {}
+    tbl[name].Morphs = morphs
+    tbl[name].Aid = id
+    tbl[name].MorphChoice = morphchoice
+    if not morphs then
+	tbl[name].Base = name
+    else
+	for _, morph in pairs(morphs) do
+	    tbl[morph] = tbl[morph] or {}
+	    tbl[morph].Base = name
+	end
+    end
+end
+
+local function mkulttbl()
+    local tbl = {}
+    for i = 1, 99999 do
+	if DoesAbilityExist(i) then
+	    local cost, mechanic = GetAbilityCost(i)
+	    if cost ~= 0 and mechanic == POWERTYPE_ULTIMATE then
+		local name = GetAbilityName(i)
+		local aid
+		local skillType, skillIndex, abilityIndex, morphChoice, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(i)
+		local doit
+		if morphChoice ~= 0 then
+		    doit = true
+		else
+		    aid = {}
+		    aid[1] = GetSpecificSkillAbilityInfo(skillType, skillIndex, abilityIndex, 1, rankIndex)
+		    aid[2] = GetSpecificSkillAbilityInfo(skillType, skillIndex, abilityIndex, 2, rankIndex)
+		    if aid[1] == 0 or aid[2] == 0 then
+			doit = name:lower():sub(1, 7) == 'eye of '
+		    else
+			for i, x in pairs(aid) do
+			    aid[i] = GetAbilityName(x)
+			end
+			doit = true
+		    end
+		end
+		if doit then
+		    addtbl(tbl, name, i, morphChoice, aid)
+		end
+	    end
+	end
+    end
+    return tbl
+end
+
 local function insert_group_table(to_table, from_table, from_key, i)
     local t = from_table[from_key]
     from_table[from_key] = nil
@@ -102,216 +151,204 @@ local function create_ults()
     local class = classes[classid]
 
     local ults = {
-	["Sorcerer"] = {
+	['Sorcerer'] = {
 	    {
-		Name = "NEGATE",
-		Ping = 1,
-		Aid = 29861
+		['Ping'] = 1,
+		['Name'] = 'NEGATE',
+		['Desc'] = 'Negate Magic'
 	    },
 	    {
-		Name = "ATRO",
-		Ping = 2,
-		Aid = 30553
+		['Ping'] = 2,
+		['Name'] = 'ATRO',
+		['Desc'] = 'Summon Storm Atronach'
 	    },
 	    {
-		Name = "OVER",
-		Ping = 3,
-		Aid = 30366
-	    },
-	},
-	["Templar"] = {
-	    {
-		Name = "SWEEP",
-		Ping = 4,
-		Aid = 23788
-	    },
-	    {
-		Name = "NOVA",
-		Ping = 5,
-		Aid = 24301
-	    },
-	    {
-		Name = "TPHEAL",
-		Ping = 6,
-		Aid = 27413
-	    },
-	},
-	["Dragonknight"] = {
-	    {
-		Name = "STAND",
-		Ping = 7,
-		Aid = 34021
-	    },
-	    {
-		Name = "LEAP",
-		Ping = 8,
-		Aid = 33668
-	    },
-	    {
-		Name = "MAGMA",
-		Ping = 9,
-		Aid = 33841
-	    },
-	},
-	["Nightblade"] = {
-	    {
-		Name = "STROKE",
-		Ping = 10,
-		Aid = 37545
-	    },
-	    {
-		Name = "VEIL",
-		Ping = 11,
-		Aid = 37713
-	    },
-	    {
-		Name = "NBSOUL",
-		Ping = 12,
-		Aid = 36207
-	    },
-	},
-	["Warden"] = {
-	    -- BEAR not useful, its always up
-	    {
-		Name = "FREEZE",
-		Ping = 13,
-		Aid = 86112
-	    },
-	    {
-		Name = "WDHEAL",
-		Ping = 14,
-		Aid = 93971
-	    },
-	},
-	["Destruction Staff"] = {
-	    -- Destro
-	    {
-		Name = "ICE",
-		Ping = 15,
-		Aid = 86542
-	    },
-	    {
-		Name = "FIRE",
-		Ping = 16,
-		Aid = 86536
-	    },
-	    {
-		Name = "LIGHT",
-		Ping = 17,
-		Aid = 86550
-	    },
-	},
-	["Restoration Staff"] = {
-	    -- Resto
-	    {
-		Name = "STHEAL",
-		Ping = 18,
-		Aid = 86454
-	    },
-	},
-	["Two Handed"] = {
-	    -- 2H
-	    {
-		Name = "BERSERK",
-		Ping = 19,
-		Aid = 86284
-	    },
-	},
-	["One Hand and Shield"] = {
-	    -- SB
-	    {
-		Name = "SHIELD",
-		Ping = 20,
-		Aid = 83292
-	    },
-	},
-	["Dual Wield"] = {
-	    -- DW
-	    {
-		Name = "DUAL",
-		Ping = 21,
-		Aid = 86410
-	    },
-	},
-	["Bow"] = {
-	    -- BOW
-	    {
-		Name = "BOW",
-		Ping = 22,
-		Aid = 86620
-	    },
-	},
-	["Soul Magic"] = {
-	    -- Soul
-	    {
-		Name = "SOUL",
-		Ping = 23,
-		Aid = 43109
-	    },
-	},
-	["Werewolf"] = {
-	    -- Werewolf
-	    {
-		Name = "WERE",
-		Ping = 24,
-		Aid = 42379
-	    },
-	},
-	["Vampire"] = {
-	    -- Vamp
-	    {
-		Name = "VAMP",
-		Ping = 25,
-		Aid = 41937
-	    },
-	},
-	["Mages Guild"] = {
-	    -- Mageguild
-	    {
-		Name = "METEOR",
-		Ping = 26,
-		Aid = 42492
-	    },
-	},
-	["Fighters Guild"] = {
-	    -- Fighterguild
-	    {
-		Name = "DAWN",
-		Ping = 27,
-		Aid = 42598
+		['Ping'] = 3,
+		['Name'] = 'OVER',
+		['Desc'] = 'Overload'
 	    }
 	},
-	["PVP"] = {
-	    -- Support
+	['Templar'] = {
 	    {
-		Name = "BARRIER",
-		Ping = 28,
-		Aid = 46622
+		['Ping'] = 4,
+		['Name'] = 'SWEEP',
+		['Desc'] = 'Radial Sweep'
 	    },
-	    -- Assault
 	    {
-		Name = "HORN",
-		Ping = 29,
-		Aid = 46537
+		['Ping'] = 5,
+		['Name'] = 'NOVA',
+		['Desc'] = 'Nova'
+	    },
+	    {
+		['Ping'] = 6,
+		['Name'] = 'TPHEAL',
+		['Desc'] = 'Rite of Passage'
 	    }
 	},
-	["POC"] = {
+	['Dragonknight'] = {
 	    {
-		Name = "MIA",
-		Desc = "Incommunicado Player",
+		['Ping'] = 7,
+		['Name'] = 'STAND',
+		['Desc'] = 'Dragonknight Standard'
+	    },
+	    {
+		['Ping'] = 8,
+		['Name'] = 'LEAP',
+		['Desc'] = 'Dragon Leap'
+	    },
+	    {
+		['Ping'] = 9,
+		['Name'] = 'MAGMA',
+		['Desc'] = 'Magma Armor'
+	    }
+	},
+	['Nightblade'] = {
+	    {
+		['Ping'] = 10,
+		['Name'] = 'STROKE',
+		['Desc'] = 'Death Stroke'
+	    },
+	    {
+		['Ping'] = 11,
+		['Name'] = 'VEIL',
+		['Desc'] = 'Consuming Darkness'
+	    },
+	    {
+		['Ping'] = 12,
+		['Name'] = 'NBSOUL',
+		['Desc'] = 'Soul Shred'
+	    }
+	},
+	['Warden'] = {
+	    {
+		['Ping'] = 13,
+		['Name'] = 'FREEZE',
+		['Desc'] = 'Sleet Storm'
+	    },
+	    {
+		['Ping'] = 14,
+		['Name'] = 'WDHEAL',
+		['Desc'] = 'Secluded Grove'
+	    }
+	},
+	['Destruction Staff'] = {
+	    {
+		['Ping'] = 15,
+		['Name'] = 'ICE',
+		['Desc'] = 'Eye of Frost'
+	    },
+	    {
+		['Ping'] = 16,
+		['Name'] = 'FIRE',
+		['Desc'] = 'Eye of Flame'
+	    },
+	    {
+		['Ping'] = 17,
+		['Name'] = 'LIGHT',
+		['Desc'] = 'Eye of Lightning'
+	    }
+	},
+	['Restoration Staff'] = {
+	    {
+		['Ping'] = 18,
+		['Name'] = 'STHEAL',
+		['Desc'] = 'Panacea'
+	    }
+	},
+	['Two Handed'] = {
+	    {
+		['Ping'] = 19,
+		['Name'] = 'BERSERK',
+		['Desc'] = 'Berserker Strike'
+	    }
+	},
+	['One Hand and Shield'] = {
+	    {
+		['Ping'] = 20,
+		['Name'] = 'SHIELD',
+		['Desc'] = 'Shield Wall'
+	    }
+	},
+	['Dual Wield'] = {
+	    {
+		['Ping'] = 21,
+		['Name'] = 'DUAL',
+		['Desc'] = 'Lacerate'
+	    }
+	},
+	['Bow'] = {
+	    {
+		['Ping'] = 22,
+		['Name'] = 'BOW',
+		['Desc'] = 'Rapid Fire'
+	    }
+	},
+	['Soul Magic'] = {
+	    {
+		['Ping'] = 23,
+		['Name'] = 'SOUL',
+		['Desc'] = 'Soul Strike'
+	    }
+	},
+	['Werewolf'] = {
+	    {
+		['Ping'] = 24,
+		['Name'] = 'WERE',
+		['Desc'] = 'Werewolf Transformation'
+	    }
+	},
+	['Vampire'] = {
+	    {
+		['Ping'] = 25,
+		['Name'] = 'VAMP',
+		['Desc'] = 'Bat Swarm'
+	    }
+	},
+	['Mages Guild'] = {
+	    {
+		['Ping'] = 26,
+		['Name'] = 'METEOR',
+		['Desc'] = 'Meteor'
+	    }
+	},
+	['Fighters Guild'] = {
+	    {
+		['Ping'] = 27,
+		['Name'] = 'DAWN',
+		['Desc'] = 'Dawnbreaker'
+	    }
+	},
+	['PVP'] = {
+	    {
+		['Ping'] = 28,
+		['Name'] = 'BARRIER',
+		['Desc'] = 'Barrier'
+	    },
+	    {
+		['Ping'] = 29,
+		['Name'] = 'HORN',
+		['Desc'] = 'War Horn'
+	    }
+	},
+	['POC'] = {
+	    {
+		Name = 'MIA',
+		Desc = 'Incommunicado Player',
 		Icon = MIAicon,
-		Ping = 30,  -- a contradiction?
+		Ping = 30,
 		Aid = 'MIA'
 	    }
 	}
-
     }
-    -- Add groups
+
+    -- Create tables indexed by different things
+    local xltults = mkulttbl()
     for class, x in pairs(ults) do
 	for _, group in pairs(x) do
-	    if group.Desc == nil then
-		group.Desc = string.format("%s: %s", class, GetAbilityName(group.Aid))
+	    if not group.Aid then
+		group.Aid = xltults[group.Desc].Aid
 	    end
+	    group.Desc = string.format('%s: %s', class, group.Desc)
 	    if group.Icon == nil then
 		group.Icon = GetAbilityIcon(group.Aid)
 	    end
