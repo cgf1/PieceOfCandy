@@ -18,7 +18,7 @@ local function pretty()
 end
 
 function Campaign.QueuePosition(isgroup)
-    local pos = GetCampaignQueuePosition(saved.Campaign[isgroup], isgroup)
+    local pos = GetCampaignQueuePosition(campaign_id, isgroup)
     watch("Campaign.QueuePosition", saved.Campaign[isgroup], isgroup, pos)
     return pos
 end
@@ -76,6 +76,7 @@ function Campaign.Initialize()
 	    Name = 'vivec'
 	}
     end
+    saved.Campaign = {Name = saved.Campaign.Name}
     get_campaign_id(saved.Campaign.Name)
 
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_JOINED, joined)
@@ -105,6 +106,7 @@ function Campaign.Initialize()
 	    s = 'Queue: '
 	end
 	local pos = Campaign.QueuePosition(isgroup)
+	watch("queue", "isgroup", isgroup, '=', pos)
 	if pos ~= 0 then
 	    Info(string.format("%s for %s: %d", s, pretty(), pos))
 	end
@@ -116,6 +118,9 @@ function Campaign.Initialize()
 	Info(string.format("game says estimated wait time for %s is %02d:%02d:%02d", pretty(), wait, minutes, seconds))
     end)
     Slash("pvp", "queue for your preferred PVP campaign (e.g., 'Vivec')", function()
+	if not campaign_id then
+	    get_campaign_id(saved.Campaign.Name)
+	end
 	if not campaign_id then
 	    Error(string.format("don't know how to queue for campaign %s", pretty()))
 	else
