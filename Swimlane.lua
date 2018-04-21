@@ -514,7 +514,7 @@ function Col:Update(tick)
 		elseif priult and not player.IsDead and player:IsInRange() then
 		    player.Ults[apid] = gt100 - 1
 		    me.Because = "ultpct == 100"
-		    show = true
+		    show = saved.UltNumberShow
 		else
 		    -- reset order since we can't contribute
 		    player.Ults[apid] = 100
@@ -523,7 +523,7 @@ function Col:Update(tick)
 		    show = false
 		end
 		self:UpdateCell(n, player, playername, priult)
-		if show and saved.UltNumberShow then
+		if show then
 		    ultn_show(n)
 		else
 		    ultn_hide(true)

@@ -19,7 +19,7 @@ end
 
 function Campaign.QueuePosition(isgroup)
     local pos = GetCampaignQueuePosition(campaign_id, isgroup)
-    watch("Campaign.QueuePosition", saved.Campaign[isgroup], isgroup, pos)
+    watch("Campaign.QueuePosition", campaign_id, isgroup, pos)
     return pos
 end
 
