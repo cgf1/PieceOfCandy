@@ -76,48 +76,15 @@ function Ult.Descriptions()
     return desclist
 end
 
-local function addtbl(tbl, name, id, morphchoice, morphs)
-    tbl[name] = tbl[name] or {}
-    tbl[name].Morphs = morphs
-    tbl[name].Aid = id
-    tbl[name].MorphChoice = morphchoice
-    if not morphs then
-	tbl[name].Base = name
-    else
-	for _, morph in pairs(morphs) do
-	    tbl[morph] = tbl[morph] or {}
-	    tbl[morph].Base = name
-	end
-    end
-end
-
 local function mkulttbl()
     local tbl = {}
-    for i = 1, 99999 do
-	if DoesAbilityExist(i) then
-	    local cost, mechanic = GetAbilityCost(i)
+    for aid = 1, 99999 do
+	if DoesAbilityExist(aid) then
+	    local cost, mechanic = GetAbilityCost(aid)
 	    if cost ~= 0 and mechanic == POWERTYPE_ULTIMATE then
-		local name = GetAbilityName(i)
-		local aid
-		local skillType, skillIndex, abilityIndex, morphChoice, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(i)
-		local doit
-		if morphChoice ~= 0 then
-		    doit = true
-		else
-		    aid = {}
-		    aid[1] = GetSpecificSkillAbilityInfo(skillType, skillIndex, abilityIndex, 1, rankIndex)
-		    aid[2] = GetSpecificSkillAbilityInfo(skillType, skillIndex, abilityIndex, 2, rankIndex)
-		    if aid[1] == 0 or aid[2] == 0 then
-			doit = name:lower():sub(1, 7) == 'eye of '
-		    else
-			for i, x in pairs(aid) do
-			    aid[i] = GetAbilityName(x)
-			end
-			doit = true
-		    end
-		end
-		if doit then
-		    addtbl(tbl, name, i, morphChoice, aid)
+		local _, _, _, morphChoice = GetSpecificSkillAbilityKeysByAbilityId(aid)
+		if morphChoice == 0 then
+		    tbl[GetAbilityIcon(aid)] = aid
 		end
 	    end
 	end
@@ -153,190 +120,190 @@ local function create_ults()
     local ults = {
 	['Sorcerer'] = {
 	    {
-		['Ping'] = 1,
-		['Name'] = 'NEGATE',
-		['Desc'] = 'Negate Magic'
+		Ping = 1,
+		Name = 'NEGATE',
+		Icon = '/esoui/art/icons/ability_sorcerer_monsoon.dds'
 	    },
 	    {
-		['Ping'] = 2,
-		['Name'] = 'ATRO',
-		['Desc'] = 'Summon Storm Atronach'
+		Ping = 2,
+		Name = 'ATRO',
+		Icon = '/esoui/art/icons/ability_sorcerer_storm_atronach.dds'
 	    },
 	    {
-		['Ping'] = 3,
-		['Name'] = 'OVER',
-		['Desc'] = 'Overload'
+		Ping = 3,
+		Name = 'OVER',
+		Icon = '/esoui/art/icons/ability_sorcerer_overload.dds'
 	    }
 	},
 	['Templar'] = {
 	    {
-		['Ping'] = 4,
-		['Name'] = 'SWEEP',
-		['Desc'] = 'Radial Sweep'
+		Ping = 4,
+		Name = 'SWEEP',
+		Icon = '/esoui/art/icons/ability_templar_radial_sweep.dds'
 	    },
 	    {
-		['Ping'] = 5,
-		['Name'] = 'NOVA',
-		['Desc'] = 'Nova'
+		Ping = 5,
+		Name = 'NOVA',
+		Icon = '/esoui/art/icons/ability_templar_nova.dds'
 	    },
 	    {
-		['Ping'] = 6,
-		['Name'] = 'TPHEAL',
-		['Desc'] = 'Rite of Passage'
+		Ping = 6,
+		Name = 'TPHEAL',
+		Icon = '/esoui/art/icons/ability_templar_rite_of_passage.dds'
 	    }
 	},
 	['Dragonknight'] = {
 	    {
-		['Ping'] = 7,
-		['Name'] = 'STAND',
-		['Desc'] = 'Dragonknight Standard'
+		Ping = 7,
+		Name = 'STAND',
+		Icon = '/esoui/art/icons/ability_dragonknight_006.dds'
 	    },
 	    {
-		['Ping'] = 8,
-		['Name'] = 'LEAP',
-		['Desc'] = 'Dragon Leap'
+		Ping = 8,
+		Name = 'LEAP',
+		Icon = '/esoui/art/icons/ability_dragonknight_009.dds'
 	    },
 	    {
-		['Ping'] = 9,
-		['Name'] = 'MAGMA',
-		['Desc'] = 'Magma Armor'
+		Ping = 9,
+		Name = 'MAGMA',
+		Icon = '/esoui/art/icons/ability_dragonknight_018.dds'
 	    }
 	},
 	['Nightblade'] = {
 	    {
-		['Ping'] = 10,
-		['Name'] = 'STROKE',
-		['Desc'] = 'Death Stroke'
+		Ping = 10,
+		Name = 'STROKE',
+		Icon = '/esoui/art/icons/ability_nightblade_007.dds'
 	    },
 	    {
-		['Ping'] = 11,
-		['Name'] = 'VEIL',
-		['Desc'] = 'Consuming Darkness'
+		Ping = 11,
+		Name = 'VEIL',
+		Icon = '/esoui/art/icons/ability_nightblade_015.dds'
 	    },
 	    {
-		['Ping'] = 12,
-		['Name'] = 'NBSOUL',
-		['Desc'] = 'Soul Shred'
+		Ping = 12,
+		Name = 'NBSOUL',
+		Icon = '/esoui/art/icons/ability_nightblade_018.dds'
 	    }
 	},
 	['Warden'] = {
 	    {
-		['Ping'] = 13,
-		['Name'] = 'FREEZE',
-		['Desc'] = 'Sleet Storm'
+		Ping = 13,
+		Name = 'FREEZE',
+		Icon = '/esoui/art/icons/ability_warden_006.dds'
 	    },
 	    {
-		['Ping'] = 14,
-		['Name'] = 'WDHEAL',
-		['Desc'] = 'Secluded Grove'
+		Ping = 14,
+		Name = 'WDHEAL',
+		Icon = '/esoui/art/icons/ability_warden_012.dds'
 	    }
 	},
 	['Destruction Staff'] = {
 	    {
-		['Ping'] = 15,
-		['Name'] = 'ICE',
-		['Desc'] = 'Eye of Frost'
+		Ping = 15,
+		Name = 'ICE',
+		Icon = '/esoui/art/icons/ability_destructionstaff_014_a.dds'
 	    },
 	    {
-		['Ping'] = 16,
-		['Name'] = 'FIRE',
-		['Desc'] = 'Eye of Flame'
+		Ping = 16,
+		Name = 'FIRE',
+		Icon = '/esoui/art/icons/ability_destructionstaff_013_a.dds'
 	    },
 	    {
-		['Ping'] = 17,
-		['Name'] = 'LIGHT',
-		['Desc'] = 'Eye of Lightning'
+		Ping = 17,
+		Name = 'LIGHT',
+		Icon = '/esoui/art/icons/ability_destructionstaff_015_a.dds'
 	    }
 	},
 	['Restoration Staff'] = {
 	    {
-		['Ping'] = 18,
-		['Name'] = 'STHEAL',
-		['Desc'] = 'Panacea'
+		Ping = 18,
+		Name = 'STHEAL',
+		Icon = '/esoui/art/icons/ability_restorationstaff_006.dds'
 	    }
 	},
 	['Two Handed'] = {
 	    {
-		['Ping'] = 19,
-		['Name'] = 'BERSERK',
-		['Desc'] = 'Berserker Strike'
+		Ping = 19,
+		Name = 'BERSERK',
+		Icon = '/esoui/art/icons/ability_2handed_006.dds'
 	    }
 	},
 	['One Hand and Shield'] = {
 	    {
-		['Ping'] = 20,
-		['Name'] = 'SHIELD',
-		['Desc'] = 'Shield Wall'
+		Ping = 20,
+		Name = 'SHIELD',
+		Icon = '/esoui/art/icons/ability_1handed_006.dds'
 	    }
 	},
 	['Dual Wield'] = {
 	    {
-		['Ping'] = 21,
-		['Name'] = 'DUAL',
-		['Desc'] = 'Lacerate'
+		Ping = 21,
+		Name = 'DUAL',
+		Icon = '/esoui/art/icons/ability_dualwield_006.dds'
 	    }
 	},
 	['Bow'] = {
 	    {
-		['Ping'] = 22,
-		['Name'] = 'BOW',
-		['Desc'] = 'Rapid Fire'
+		Ping = 22,
+		Name = 'BOW',
+		Icon = '/esoui/art/icons/ability_bow_006.dds'
 	    }
 	},
 	['Soul Magic'] = {
 	    {
-		['Ping'] = 23,
-		['Name'] = 'SOUL',
-		['Desc'] = 'Soul Strike'
+		Ping = 23,
+		Name = 'SOUL',
+		Icon = '/esoui/art/icons/ability_otherclass_002.dds'
 	    }
 	},
 	['Werewolf'] = {
 	    {
-		['Ping'] = 24,
-		['Name'] = 'WERE',
-		['Desc'] = 'Werewolf Transformation'
+		Ping = 24,
+		Name = 'WERE',
+		Icon = '/esoui/art/icons/ability_werewolf_001.dds'
 	    }
 	},
 	['Vampire'] = {
 	    {
-		['Ping'] = 25,
-		['Name'] = 'VAMP',
-		['Desc'] = 'Bat Swarm'
+		Ping = 25,
+		Name = 'VAMP',
+		Icon = '/esoui/art/icons/ability_vampire_001.dds'
 	    }
 	},
 	['Mages Guild'] = {
 	    {
-		['Ping'] = 26,
-		['Name'] = 'METEOR',
-		['Desc'] = 'Meteor'
+		Ping = 26,
+		Name = 'METEOR',
+		Icon = '/esoui/art/icons/ability_mageguild_005.dds'
 	    }
 	},
 	['Fighters Guild'] = {
 	    {
-		['Ping'] = 27,
-		['Name'] = 'DAWN',
-		['Desc'] = 'Dawnbreaker'
+		Ping = 27,
+		Name = 'DAWN',
+		Icon = '/esoui/art/icons/ability_fightersguild_005.dds'
 	    }
 	},
 	['PVP'] = {
 	    {
-		['Ping'] = 28,
-		['Name'] = 'BARRIER',
-		['Desc'] = 'Barrier'
+		Ping = 28,
+		Name = 'BARRIER',
+		Icon = '/esoui/art/icons/ability_ava_006.dds'
 	    },
 	    {
-		['Ping'] = 29,
-		['Name'] = 'HORN',
-		['Desc'] = 'War Horn'
+		Ping = 29,
+		Name = 'HORN',
+		Icon = '/esoui/art/icons/ability_ava_003.dds'
 	    }
 	},
 	['POC'] = {
 	    {
 		Name = 'MIA',
-		Desc = 'Incommunicado Player',
-		Icon = MIAicon,
+		Desc = 'POC: Incommunicado Player',
 		Ping = 30,
-		Aid = 'MIA'
+		Aid = 'MIA',
+		Icon = MIAicon
 	    }
 	}
     }
@@ -346,11 +313,13 @@ local function create_ults()
     for class, x in pairs(ults) do
 	for _, group in pairs(x) do
 	    if not group.Aid then
-		group.Aid = xltults[group.Desc].Aid
-	    end
-	    group.Desc = string.format('%s: %s', class, group.Desc)
-	    if group.Icon == nil then
-		group.Icon = GetAbilityIcon(group.Aid)
+		local aid = xltults[group.Icon]
+		if not aid then
+		    Error(string.format('no icon found for: %s', group.Name))
+		else
+		    group.Aid = aid
+		    group.Desc = string.format('%s: %s', class, GetAbilityName(aid))
+		end
 	    end
 	    byids[group.Aid] = group
 	    bypings[group.Ping] = group

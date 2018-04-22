@@ -1,13 +1,11 @@
 setfenv(1, POC)
 Name = "POC"
 -- Callbacks
-MAP_PING_CHANGED = "POC-MapPingChanged"
-MOVABLE_CHANGED = "POC-MovableChanged"
 SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.14'
+local version = '3.15'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 
@@ -19,7 +17,6 @@ local function initialize()
     df("Piece of Candy! v%s", version)
 
     local strings = {
-	WARNING_LGS_ENABLE =		 "Warning: Enable LibGroupSocket to send -> /lgs 1",
 	OPTIONS_HEADER =		 "Options",
 	OPTIONS_ONLY_AVA_LABEL =	 "Show only in AvA",
 	OPTIONS_ONLY_AVA_TOOLTIP =	 "If activated, all elements will only be visible in Cyrodiil (AvA).",

@@ -17,7 +17,7 @@ function idpairs(hash, key, tmp)
 end
 
 function Error(x)
-    d(string.format("POC error: |cff0000%s|c", x))
+    d(string.format("POC error: |cff0000%s|r", x))
 end
 
 function Info(...)
