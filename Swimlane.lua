@@ -512,7 +512,7 @@ function Col:Update(tick)
 		    me.Because = "ultpct < 100"
 		    show = false
 		elseif priult and not player.IsDead and player:IsInRange() then
-		    player.Ults[apid] = gt100 - 1
+		    player.Ults[apid] = gt100
 		    me.Because = "ultpct == 100"
 		    show = saved.UltNumberShow
 		else
