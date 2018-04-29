@@ -33,7 +33,7 @@ local topleft = 25
 local swimlanerow
 
 local SWIMLANEULTMAX = 24
-local SWIMLANEPCTADD = 100 + SWIMLANEULTMAX - 1
+local SWIMLANEPCTADD = 100 + SWIMLANEULTMAX
 
 local myults
 local forcepct = nil
@@ -512,7 +512,7 @@ function Col:Update(tick)
 		    me.Because = "ultpct < 100"
 		    show = false
 		elseif priult and not player.IsDead and player:IsInRange() then
-		    player.Ults[apid] = gt100
+		    player.Ults[apid] = gt100 - 1
 		    me.Because = "ultpct == 100"
 		    show = saved.UltNumberShow
 		else

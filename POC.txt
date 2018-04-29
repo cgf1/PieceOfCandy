@@ -10,7 +10,8 @@
 ## Description: PVP Helper
 ## SavedVariables: POCSettings
 ## OptionalDependsOn: LibAddonMenu-2.0
-## OptionalDependsOn: TOM
+## OptionalDependsOn: tom
+## OptionalDependsOn: pChat
 
 libs/LibStub/LibStub.lua
 

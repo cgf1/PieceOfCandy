@@ -11,7 +11,6 @@ Campaign.__index = Campaign
 
 local campaign = Campaign
 local campaign_id
-local campaign_index
 
 local function pretty()
     return string.gsub(" " .. saved.Campaign.Name, "%W%l", string.upper):sub(2)
@@ -23,11 +22,9 @@ function Campaign.QueuePosition(isgroup)
     return pos
 end
 
-local function joined(_, n, isgroup)
-    local name = GetCampaignName(n)
-    watch("joined", n, isgroup, name)
-    if name:lower() == saved.Campaign.Name then
-	saved.Campaign[isgroup] = n
+local function joined(_, id, isgroup)
+    watch("joined", id, isgroup)
+    if id == campaign_id then
 	local s
 	if isgroup then
 	    s = 'group '
@@ -35,20 +32,33 @@ local function joined(_, n, isgroup)
 	    s = ''
 	end
 	Info(string.format("%squeued for campaign %s", s, pretty()))
+	if GetCampaignQueuePosition(id, isgroup) == 0 then
+	    ConfirmCampaignEntry(id, isgroup, true)
+	end
     end
 end
 
-local function left(_, n, isgroup)
-    watch("left", n, isgroup)
-    saved.Campaign[isgroup] = 0
+local function initialized(_, id)
+    watch("initialized", id)
 end
 
-local function changed(_, n, isgroup, pos)
-    watch("changed", n, isgroup, pos)
+local function response(_, resp)
+    watch("response", resp)
 end
 
-local function state_changed(_, n, isgroup, state)
-    watch("state_changed", n, isgroup, state, CAMPAIGN_QUEUE_REQUEST_STATE_FINISHED)
+local function left(_, id, isgroup)
+    watch("left", id, isgroup)
+end
+
+local function pos_changed(_, id, isgroup, pos)
+    watch("pos_changed", id, isgroup, pos)
+end
+
+local function state_changed(_, id, isgroup, state)
+    watch("state_changed", id, isgroup, state, id == campaign_id, state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING)
+    if id == campaign_id and state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING then
+	ConfirmCampaignEntry(id, isgroup, true)
+    end
 end
 
 local function clearernow()
@@ -56,16 +66,28 @@ local function clearernow()
 end
 
 local function get_campaign_id(name)
-    for i = 1, GetNumSelectionCampaigns() do
-	local id = GetSelectionCampaignId(i)
-	if GetCampaignName(id):lower() == name then
-	    campaign_id = id
-	    campaign_index = i
-	    return
-	end
+    local assigned = GetAssignedCampaignId()
+    local guest = GetGuestCampaignId()
+    -- don't really know why this is necessary
+    if GetNumSelectionCampaigns() == 0 and saved.KnownCampaigns[name] then
+	campaign_id = saved.KnownCampaigns[name]
+	return
     end
     campaign_id = nil
-    campaign_index = nil
+    if GetNumSelectionCampaigns() ~= 0 then
+	saved.KnownCampaigns = {}
+    end
+    -- the below two assignments seem to initialize the campaign list
+    for i = 1, GetNumSelectionCampaigns() do
+	local id = GetSelectionCampaignId(i)
+	if id and id ~= 0 then
+	    local thisname = GetCampaignName(id):lower()
+	    saved.KnownCampaigns[thisname] = id
+	    if GetCampaignName(id):lower() == name then
+		campaign_id = id
+	    end
+	end
+    end
 end
 
 function Campaign.Initialize()
@@ -81,7 +103,7 @@ function Campaign.Initialize()
 
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_JOINED, joined)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_LEFT, left)
-    EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_POSITION_CHANGED, changed)
+    EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_POSITION_CHANGED, pos_changed)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_STATE_CHANGED, state_changed)
     Slash("campaign", 'specify desired PVP campaign (e.g. "vivec")', function(n)
 	if n:len() ~= 0 then
@@ -97,35 +119,38 @@ function Campaign.Initialize()
 	end
 	Info("Preferred campaign: ", pretty(), id)
     end)
-    Slash("queue", "show position in queue (any argument means show group queue)", function (n)
-	isgroup = n:len() > 0
+    Slash("queue", "show position in queue", function ()
 	local s
 	if isgroup then
 	    s = 'Group queue: '
 	else
 	    s = 'Queue: '
 	end
-	local pos = Campaign.QueuePosition(isgroup)
-	watch("queue", "isgroup", isgroup, '=', pos)
+	local pos = Campaign.QueuePosition(false)
+	local gpos = Campaign.QueuePosition(true)
+	watch("queue", "isgroup", 'group', gpos, 'pos', pos)
 	if pos ~= 0 then
-	    Info(string.format("%s for %s: %d", s, pretty(), pos))
+	    Info(string.format("solo queue for %s: %d", pretty(), pos))
 	end
-	local wait = GetSelectionCampaignQueueWaitTime(campaign_index)
-	local seconds = wait % 60
-	wait = math.floor(wait / 60)
-	local minutes = wait % 60
-	wait = math.floor(wait / 60)
-	Info(string.format("game says estimated wait time for %s is %02d:%02d:%02d", pretty(), wait, minutes, seconds))
+	if gpos ~= 0 then
+	    Info(string.format("group queue for %s: %d", pretty(), gpos))
+	end
     end)
-    Slash("pvp", "queue for your preferred PVP campaign (e.g., 'Vivec')", function()
+    Slash("pvp", "queue for your preferred PVP campaign (e.g., 'Vivec')", function(x)
 	if not campaign_id then
 	    get_campaign_id(saved.Campaign.Name)
+	end
+	local what
+	if x:lower() == 'group' then
+	    what = 'group '
+	else
+	    what = ''
 	end
 	if not campaign_id then
 	    Error(string.format("don't know how to queue for campaign %s", pretty()))
 	else
-	    QueueForCampaign(campaign_id)
-	    Info(string.format("queuing for campaign %s", pretty()))
+	    QueueForCampaign(campaign_id, what:len() > 0)
+	    Info(string.format("%squeuing for campaign %s", what, pretty()))
 	end
     end)
     RegClear(clearernow)
