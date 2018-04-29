@@ -682,7 +682,6 @@ function Col:UpdateCell(i, player, playername, priult)
 	end
 	player.DispName = playername
     end
-    namecell:SetText(prefix .. playername)
 
     local values
     if player:TimedOut() then
@@ -699,6 +698,7 @@ function Col:UpdateCell(i, player, playername, priult)
     ultcell:SetValue(ultpct)
     local inrange = player:IsInRange()
     bgcell:SetCenterColor(colors(inrange, values.center))
+    namecell:SetText(prefix .. playername)
     namecell:SetColor(colors(inrange, values.name))
     ultcell:SetColor(colors(inrange, values.ult))
 
