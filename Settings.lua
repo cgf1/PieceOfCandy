@@ -6,6 +6,7 @@ Settings = {
     SettingsName = "POCSettings",
     SavedVariables = nil,
     Default = {
+	AcceptPVP = false,
 	AtNames = false,
 	ChalKeep = false,
 	ChalMine = false,
@@ -13,6 +14,7 @@ Settings = {
 	MIA = true,
 	MapIndex = 30,	-- Vvardenfell
 	MyUltId = {},
+	NeedsHelp = false,
 	OnlyAva = false,
 	Style = "Standard",
 	SwimlaneMax = 24,
@@ -267,6 +269,28 @@ function Settings.InitializeWindow(version)
 	end,
 	setFunc = function(val)
 	    Quest.Want(RESOURCE_INDEX, val)
+	end
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Accept \"Needs Help\" alerts from other group members",
+	tooltip = "Display a \"Needs Help\" message and a sound when someone in your group presses a key.  Requires setting a key in Controls.",
+	getFunc = function()
+	    return saved.NeedsHelp
+	end,
+	setFunc = function(val)
+	    saved.NeedsHelp = true
+	end
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Automatically accept request to enter Cyrodiil",
+	tooltip = "Automatically accept the \"Do you want to enter Cyrodiil?\" prompt for your specified (current default is \"Vivec\") campaign.",
+	getFunc = function()
+	    return saved.AcceptPVP
+	end,
+	setFunc = function(val)
+	    saved.AcceptPVP = true
 	end
     }
 

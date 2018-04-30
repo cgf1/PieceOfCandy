@@ -1,5 +1,6 @@
 setfenv(1, POC)
 local GetTimeStamp = GetTimeStamp
+local SOUNDS = SOUNDS
 local ZO_EaseInQuadratic = ZO_EaseInQuadratic
 
 Alert = {
@@ -15,7 +16,6 @@ local screenx, screeny
 local MAX = 24
 local ix = MAX / 2
 local fontsize = 50
-local midscreen
 local above = MAX / 2
 local last_alert = 0
 local pool
@@ -25,13 +25,14 @@ local font
 local function create()
     local this = {}
     local control = WM:CreateControl(nil, tlw, CT_LABEL)
-    control:SetFont(font)
     control:SetDrawLayer(1)
     control:SetMouseEnabled(false)
     control:SetHidden(true)
     local timeline = ANIMATION_MANAGER:CreateTimeline()
     local fadeout = timeline:InsertAnimation(ANIMATION_ALPHA, control)
     local translate = timeline:InsertAnimation(ANIMATION_TRANSLATE, control)
+    translate:SetEasingFunction(ZO_EaseInQuadratic)
+    fadeout:SetAlphaValues(1, 0)
     this.Control = control
     this.Fadeout = fadeout
     this.Timeline = timeline
@@ -43,8 +44,25 @@ local function reset(this)
     -- nothing to do really
 end
 
-function Alert.Show(text, duration)
-    if (GetTimeStamp() - last_alert) >= 4 then
+function Alert.NeedsHelp(tag)
+    local name
+    if not saved.NeedsHelp then
+	return
+    end
+    if saved.AtNames then
+	name = GetUnitDisplayName(tag)
+    else
+	name = GetUnitName(tag)
+    end
+    for i = 1, 10 do
+	PlaySound(SOUNDS.DUEL_BOUNDARY_WARNING)
+    end
+    Alert.Show(string.format("%s needs help", name), 4000, true)
+end
+
+
+function Alert.Show(text, total_duration, flash)
+    if (GetTimeStamp() - last_alert) > 8 then
 	ix = MAX / 2
     else
 	ix = ix + 1
@@ -58,25 +76,56 @@ function Alert.Show(text, duration)
     local timeline = this.Timeline
     local translate = this.Translate
     if this.Func == nil then
-	this.Func = function () pool:ReleaseObject(key) end
+	this.Func = function (self, n, m)
+	    if self:GetPlaybackLoopsRemaining() == 1 then
+		control:SetHidden(true)
+		self:ClearAllCallbacks()
+		pool:ReleaseObject(key)
+		watch('alert', 'RELEASED!')
+	    end
+	end
     end
     local yloc = (fontsize * .60) * (ix - above)
     control:SetAnchor(CENTER, nil, CENTER, 0, yloc)
     control:SetHidden(false)
-    control:SetText(string.format("|cff6600%s", text))
 
     local _, _, _, _, offx, offy = control:GetAnchor()
-    local xto = screenx / 2
-    if (ix % 2) == 0 then
-	xto = -xto
-    end
+    local ease
+    local font
+    local atype
+    local offset
+    local loopcount
+    local color
+    if	flash then
+	ease = ZO_EaseInOutCubic
+	atype = ANIMATION_PLAYBACK_PING_PONG
+	translate:SetTranslateOffsets(offx, offy, offx, offy)
+	timeline:SetPlaybackLoopsRemaining(loopcount)
+	loopcount = total_duration / 400
+	duration = 400
+	offset = loopcount
+	font = flash_font
+	color = 'ff0000'
+    else
+	local xto = screenx / 2
+	if (ix % 2) == 0 then
+	    xto = -xto
+	end
 
-    translate:SetTranslateOffsets(offx, offy, xto, -(screeny / 2))
+	translate:SetTranslateOffsets(offx, offy, xto, -(screeny / 2))
+	atype = ANIMATION_PLAYBACK_ONE_SHOT
+	loopcount = 1
+	duration = total_duration
+	offset = duration
+	font = alert_font
+	color = 'ff6600'
+    end
+    control:SetFont(font)
+    control:SetText(string.format("|c%s|%s", color, text))
     translate:SetDuration(duration)
-    translate:SetEasingFunction(ZO_EaseInQuadratic)
-    fadeout:SetAlphaValues(1, 0)
-    fadeout:SetDuration(duration + 1000)
-    timeline:InsertCallback(this.Func, timeline:GetDuration())
+    timeline:SetPlaybackType(atype, loopcount)
+    fadeout:SetDuration(duration)
+    timeline:InsertCallback(this.Func, duration)
     timeline:PlayFromStart()
     last_alert = GetTimeStamp()
 end
@@ -89,11 +138,12 @@ end
 function Alert.Initialize()
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
     tlw = WM:CreateTopLevelWindow()
-    font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
+    alert_font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
+    flash_font = "$(BOLD_FONT)|" .. tostring(fontsize) .. "|soft-shadow-thick"
     screenx, screeny = GuiRoot:GetDimensions()
-    midscreen = screeny / 2
     tlw:SetDimensions(screenx, screeny)
     tlw:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 0, 0)
     pool = ZO_ObjectPool:New(create, reset)
+    ZO_CreateStringId("SI_BINDING_NAME_POC_NEEDHELP_KEY", "Key to notify raid that you need help")
     RegClear(clearernow)
 end

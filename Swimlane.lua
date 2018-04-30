@@ -15,6 +15,7 @@ local IsUnitInGroupSupportRange = IsUnitInGroupSupportRange
 local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
 local SCENE_MANAGER = SCENE_MANAGER
+local SOUNDS = SOUNDS
 local table = table
 local ZO_ObjectPool_CreateControl = ZO_ObjectPool_CreateControl
 local ZO_DeepTableCopy = ZO_DeepTableCopy

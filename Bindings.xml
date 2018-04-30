@@ -4,8 +4,13 @@
 	    <Action name="POC_COUNTDOWN_KEY">
 		<Down>
 		    if POC.Me ~= nil and POC_Me.IsLeader then
-			POC.Comm.Send(POC_COMM_TYPE_COUNTDOWN, 3)
+			POC.Comm.Send(POC.COMM_TYPE_COUNTDOWN, 3)
 		    end
+		</Down>
+	    </Action>
+	    <Action name="POC_NEEDHELP_KEY">
+		<Down>
+                    POC.Comm.Send(POC.COMM_TYPE_NEEDHELP)
 		</Down>
 	    </Action>
 	</Category>

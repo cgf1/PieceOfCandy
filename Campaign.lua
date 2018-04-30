@@ -32,8 +32,8 @@ local function joined(_, id, isgroup)
 	    s = ''
 	end
 	Info(string.format("%squeued for campaign %s", s, pretty()))
-	if GetCampaignQueuePosition(id, isgroup) == 0 then
-	    ConfirmCampaignEntry(id, isgroup, true)
+	if saved.AcceptPVP and not IsUnitGroupLeader("player") and GetCampaignQueuePosition(id, isgroup) == 0 then
+	    zo_callLater(function () ConfirmCampaignEntry(id, isgroup, true) end, 2000)
 	end
     end
 end
@@ -56,7 +56,7 @@ end
 
 local function state_changed(_, id, isgroup, state)
     watch("state_changed", id, isgroup, state, id == campaign_id, state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING)
-    if id == campaign_id and state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING then
+    if id == campaign_id and state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING and saved.AcceptPVP then
 	ConfirmCampaignEntry(id, isgroup, true)
     end
 end
@@ -148,6 +148,8 @@ function Campaign.Initialize()
 	end
 	if not campaign_id then
 	    Error(string.format("don't know how to queue for campaign %s", pretty()))
+	elseif not IsUnitGroupLeader("player") then
+	    Error("you're not the group leader")
 	else
 	    QueueForCampaign(campaign_id, what:len() > 0)
 	    Info(string.format("%squeuing for campaign %s", what, pretty()))
