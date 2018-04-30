@@ -76,10 +76,9 @@
     
         <Control name="MovableBackdropControl" virtual="true" hidden="true">
             <Controls>
-                <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.2" >
+                <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.1" >
                     <Anchor point="TOPLEFT"/>
                     <Anchor point="BOTTOMRIGHT" />
-                    <Edge edgeSize="2" />
                 </Backdrop>
                 <Label name="$(parent)MoveActiveLabel" inherits="MoveActiveLabel" text="MOVE" tier="2">
                     <Anchor point="CENTER"/>

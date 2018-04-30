@@ -1,7 +1,7 @@
 <GuiXml>
     <Controls>
 	<TopLevelControl name="POC_Main" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false"
-			 mouseEnabled="true" movable="true" clampedToScreen="true">
+			 mouseEnabled="true" movable="true">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
 	    <Dimensions x="712" y="265" />
 	    <OnMoveStart>POC.Swimlanes:OnMove(false)</OnMoveStart>
@@ -9,7 +9,7 @@
 	    <Controls>
 		<Control name="$(parent)MovableControl" tier="PARENT" inherits="MovableBackdropControl">
 		    <Anchor point="TOPLEFT"/>
-		    <Anchor point="BOTTOMRIGHT" />
+		    <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetY=60/>
 		</Control>
 	    </Controls>
 	</TopLevelControl>

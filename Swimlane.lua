@@ -53,6 +53,9 @@ local tick = 0
 
 local icon_size = {25, 25}
 
+local max_x = 0
+local max_y = 0
+
 local Col = {
 }
 Col.__index = Col
@@ -323,6 +326,8 @@ function Cols:Update(x)
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
+	max_x = 0
+	max_y = 60
 	for _, v in ipairs(self) do
 	    if v:Update(tick) then
 		displayed = true
@@ -447,6 +452,21 @@ local function reset_cell(tbl)
     tbl.Control:ClearAnchors()
 end
 
+
+local function colstuff(col, row)
+    local sizex = icon_size[1]
+    local sizey = icon_size[2]
+    if saved.Style == 'Standard' then
+	sizex = sizex + 75	-- room for text
+    else
+	sizex = sizex + 27
+    end
+    local x = (col - 1) * (sizex + 2)
+    local y = row * (sizey + 2)
+    return x, y, sizex, sizey
+end
+
+
 -- Update swimlane
 --
 local keys = {}
@@ -498,8 +518,9 @@ function Col:Update(tick)
 	    local player = group_members[playername]
 	    local priult = player.UltMain == apid
 	    displayed = true
+	    local y
 	    if not player.IsMe or not priult or isMIA then
-		self:UpdateCell(n, player, playername, isMIA or priult)
+		y = self:UpdateCell(n, player, playername, isMIA or priult)
 		if not isMIA and player.Ults[apid] and player.Ults[apid] > 100 then
 		    gt100 = player.Ults[apid]
 		end
@@ -523,7 +544,7 @@ function Col:Update(tick)
 		    me.Because = "out of range or dead"
 		    show = false
 		end
-		self:UpdateCell(n, player, playername, priult)
+		y = self:UpdateCell(n, player, playername, priult)
 		if show then
 		    ultn_show(n)
 		else
@@ -532,6 +553,13 @@ function Col:Update(tick)
 		end
 	    end
 	    n = n + 1
+	    if y > max_y then
+		max_y = y
+	    end
+	end
+	if not isMIA or displayed then
+	    local x, y, sizex, sizey = colstuff(self.Id, 0)
+	    max_x = x + sizex
 	end
     end
 
@@ -543,19 +571,6 @@ function Col:Update(tick)
     self:Hide(displayed)
 
     return displayed
-end
-
-local function colstuff(col, row)
-    local sizex = icon_size[1]
-    local sizey = icon_size[2]
-    if saved.Style == 'Standard' then
-	sizex = sizex + 75	-- room for text
-    else
-	sizex = sizex + 27
-    end
-    local x = (col - 1) * (sizex + 2)
-    local y = row * (sizey + 2)
-    return x, y, sizex, sizey
 end
 
 local alivealpha = 1.0
@@ -625,7 +640,7 @@ function Col:UpdateCell(i, player, playername, priult)
     local namecell = rowtbl.Name
     local bgcell = rowtbl.Backdrop
     local ultcell = rowtbl.UltPct
-    local x, y, sizex = colstuff(self.Id, i)
+    local x, y, sizex, sizey = colstuff(self.Id, i)
     if not self[i] then
 	row:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 	row:SetWidth(sizex)
@@ -704,6 +719,7 @@ function Col:UpdateCell(i, player, playername, priult)
     ultcell:SetColor(colors(inrange, values.ult))
 
     row:SetHidden(false)
+    return y + sizey
 end
 
 function Player:Alert(name)
@@ -895,6 +911,7 @@ end
 --
 function Swimlanes:OnMove(stop)
     if not stop then
+	widget:GetNamedChild("MovableControl"):SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, max_x, max_y)
 	widget:GetNamedChild("MovableControl"):SetHidden(false)
     else
 	widget:GetNamedChild("MovableControl"):SetHidden(true)
