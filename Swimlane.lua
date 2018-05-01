@@ -895,7 +895,8 @@ end
 --
 function Swimlanes:OnMove(stop)
     if not stop then
-	widget:GetNamedChild("MovableControl"):SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, max_x, max_y)
+	widget:SetDimensions(max_x, max_y)
+	widget:GetNamedChild("MovableControl"):SetDimensionConstraints(max_x, max_y, max_x, max_y)
 	widget:GetNamedChild("MovableControl"):SetHidden(false)
     else
 	widget:GetNamedChild("MovableControl"):SetHidden(true)
