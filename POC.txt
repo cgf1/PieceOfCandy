@@ -19,7 +19,6 @@ icons/ok.dds
 icons/ok1.dds
 icons/mia.dds
 icons/nook1.dds
-icons/queue.dds
 textures/grainy.dds
 textures/hover.dds
 
