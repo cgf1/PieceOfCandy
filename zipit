@@ -10,7 +10,8 @@ else
     ver=$(/bin/sed -nre "s/^[local      ]*version[      ]*=[    ]*['\"](.*)['\"]/\1/p" POC/POC.lua)
 fi
 rm -f /tmp/POC-$ver.zip
-echo creating /tmp/POC-$ver.zip
 zip /tmp/POC-$ver.zip POC $files
+echo "
+created /tmp/POC-$ver.zip"
 cd /tmp
 exec /bin/rm -rf /tmp/$$
