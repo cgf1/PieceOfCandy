@@ -123,4 +123,13 @@ function watch(what, ...)
     end
 end
 
+function player_name(tag)
+    if saved.AtNames then
+	name = GetUnitDisplayName(tag)
+    else
+	name = GetUnitName(tag)
+    end
+    return name
+end
+
 Slash("watch", 'display debugging info for given "thing"', setwatch)

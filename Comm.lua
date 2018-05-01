@@ -16,6 +16,7 @@ COMM_TYPE_PCTULTPOS	= 0x06 + (COMM_MAGIC * 16)
 COMM_TYPE_KEEPALIVE	= 0x07 + (COMM_MAGIC * 16)
 COMM_TYPE_MAKEMELEADER	= 0x08 + (COMM_MAGIC * 16)
 COMM_TYPE_NEEDHELP	= 0x09 + (COMM_MAGIC * 16)
+COMM_TYPE_ULTFIRED	= 0x0a + (COMM_MAGIC * 16)
 
 COMM_ALL_PLAYERS	= 0
 
@@ -56,6 +57,10 @@ end
 
 function Comm.Ready()
     return comm ~= nil
+end
+
+function Comm.UltFired(n)
+    comm.Send(COMM_TYPE_ULTFIRED, unpack(Comm.ToBytes(n)))
 end
 
 function Comm.SendVersion(x)

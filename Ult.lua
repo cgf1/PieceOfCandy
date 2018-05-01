@@ -3,6 +3,8 @@ local GetAbilityIcon = GetAbilityIcon
 local GetAbilityName = GetAbilityName
 local GetUnitClassId = GetUnitClassId
 local GetUnitName = GetUnitName
+local PlaySound = PlaySound
+local SOUNDS = SOUNDS
 
 Ult = {
     Name = "POC-Ult",
@@ -397,11 +399,21 @@ function Ult.SetSavedFromIcon(icon, n)
     Error(string.format("Ult.SetSaved: unknown icon %s", tostring(icon)))
 end
 
+local function ability_used(_, slotnum)
+    if slotnum == 8 then
+	if saved.UltNoise then
+	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+	end
+	Comm.UltFired(GetSlotBoundId(slotnum))
+    end
+end
+
 -- Initialize Ult
 --
 function Ult.Initialize()
     saved = Settings.SavedVariables
     create_ults()
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, ability_used)
 
     local ids
     if saved.SwimlaneUltIds == nil then
@@ -435,4 +447,12 @@ function Ult.Initialize()
 	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
 	end
     end
+    Slash('sendult', 'debugging: pretend that an ultimate fired', function(x)
+	x = tonumber(x)
+	if not x or x <= 0 then
+	    ability_used(_, 8)
+	else
+	    Comm.UltFired(x)
+	end
+    end)
 end

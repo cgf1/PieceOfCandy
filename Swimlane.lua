@@ -722,20 +722,6 @@ function Col:UpdateCell(i, player, playername, priult)
     return y + sizey
 end
 
-function Player:Alert(name)
-    if not saved.UltAlert then
-	return
-    end
-    local ult = Ult.ByPing(self.UltMain)
-    local aid = ult.Aid
-    local duration = GetAbilityDuration(aid)
-    if duration < 10000 then
-	duration = 10000
-    end
-    local message = string.format("%s's %s", name, ult.Name)
-    Alert.Show(message, duration)
-end
-
 function Player.MakeLeader(pingtag)
     local name = GetUnitName(pingtag)
     local player = group_members[name]
@@ -785,10 +771,6 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	    }
 	end
 	group_members[name] = setmetatable(self, Player)
-    end
-
-    if pct1 == 0 and self.UltMain and self.Ults[self.UltMain] and self.Ults[self.UltMain] > 0 then
-	self:Alert(name)
     end
 
     if timestamp ~= nil then
@@ -1133,11 +1115,6 @@ function swimlanes.Initialize(major, minor)
 	    msg("refresh on")
 	else
 	    msg("refresh off")
-	end
-    end)
-    Slash("fire", "debugging: test ultimate display", function()
-	for i = 1, 24 do
-	    me:Alert(myname)
 	end
     end)
     Slash("movable", "specify true/false to make ultimate display movable", function(x)

@@ -59,6 +59,7 @@ local function on_map_ping(pingtype, pingtag)
     local bytes = Comm.ToBytes(input)
     local ctype = bytes[1]
     local timenow = GetTimeStamp()
+    local data = math.floor(input / 256)
     watch('on_map_ping', string.format("0x%2x", ctype))
     if ctype == COMM_TYPE_PCTULTOLD then
 	Player.New(pingtag, timenow, bytes[2], bytes[3])
@@ -74,8 +75,10 @@ local function on_map_ping(pingtype, pingtag)
 	Player.MakeLeader(pingtag)
     elseif ctype == COMM_TYPE_NEEDHELP then
 	Alert.NeedsHelp(pingtag)
+    elseif ctype == COMM_TYPE_ULTFIRED then
+	Alert.UltFired(pingtag, data)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
-	input = math.floor(input / 256)
+	input = data
 	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(ctype, input)
 	Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
     end

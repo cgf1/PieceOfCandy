@@ -7,6 +7,7 @@ Alert = {
     Name = 'POC-Alert'
 }
 Alert.__index = Alert
+local Alert = Alert
 
 local controls = {}
 local animations = {}
@@ -45,21 +46,28 @@ local function reset(this)
 end
 
 function Alert.NeedsHelp(tag)
-    local name
     if not saved.NeedsHelp then
 	return
     end
-    if saved.AtNames then
-	name = GetUnitDisplayName(tag)
-    else
-	name = GetUnitName(tag)
-    end
-    for i = 1, 10 do
-	PlaySound(SOUNDS.DUEL_BOUNDARY_WARNING)
-    end
+    local name = player_name(tag)
     Alert.Show(string.format("%s needs help", name), 4000, true)
 end
 
+function Alert.UltFired(tag, aid)
+    if not saved.UltAlert then
+	return
+    end
+    local ult = Ult.ByPing(aid)
+    local duration = GetAbilityDuration(aid)
+    if duration < 10000 then
+	duration = 10000
+    end
+    local name = player_name(tag)
+    watch('Alert.UltFired', tag, aid, name)
+    local ultname = GetAbilityName(aid)
+    local message = string.format("%s's %s", player_name(tag), ultname)
+    Alert.Show(message, duration)
+end
 
 function Alert.Show(text, total_duration, flash)
     if (GetTimeStamp() - last_alert) > 8 then
@@ -146,4 +154,9 @@ function Alert.Initialize()
     pool = ZO_ObjectPool:New(create, reset)
     ZO_CreateStringId("SI_BINDING_NAME_POC_NEEDHELP_KEY", "Key to notify raid that you need help")
     RegClear(clearernow)
+    Slash("fire", "debugging: test ultimate display", function()
+	for i = 1, 24 do
+	    Alert.Show("Fireworks!")
+	end
+    end)
 end

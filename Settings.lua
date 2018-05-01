@@ -32,6 +32,7 @@ Settings = {
 	    14	-- Warden heal
 	},
 	UltAlert = true,
+	UltNoise = false,
 	UltNumberPos = nil,
 	UltNumberShow = true,
 	WereNumberOne = true
@@ -274,7 +275,7 @@ function Settings.InitializeWindow(version)
     o[#o + 1] = {
 	type = "checkbox",
 	name = "Accept \"Needs Help\" alerts from other group members",
-	tooltip = "Display a \"Needs Help\" message and a sound when someone in your group presses a key.  Requires setting a key in Controls.",
+	tooltip = "Display a \"Needs Help\" message and a sound when someone in your group presses a key.  Requires setting a key in Controls",
 	getFunc = function()
 	    return saved.NeedsHelp
 	end,
@@ -285,12 +286,23 @@ function Settings.InitializeWindow(version)
     o[#o + 1] = {
 	type = "checkbox",
 	name = "Automatically accept request to enter Cyrodiil",
-	tooltip = "Automatically accept the \"Do you want to enter Cyrodiil?\" prompt for your specified (current default is \"Vivec\") campaign.",
+	tooltip = "Automatically accept the \"Do you want to enter Cyrodiil?\" prompt for your specified (current default is \"Vivec\") campaign",
 	getFunc = function()
 	    return saved.AcceptPVP
 	end,
 	setFunc = function(val)
 	    saved.AcceptPVP = true
+	end
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Play a distinctive noise when your ultimate fires",
+	tooltip = "Automatically plays a noise when your ultimate actually goes off",
+	getFunc = function()
+	    return saved.UltNoise
+	end,
+	setFunc = function(val)
+	    saved.UltNoise = true
 	end
     }
 
