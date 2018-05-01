@@ -26,8 +26,7 @@ local QUEST_PING = 4
 local KEEPALIVE_PING_SECS = 6
 local keepalive_ping
 
-local version
-local major, minor
+local major, minor, beta
 
 local load_later = false
 local campaign
@@ -63,16 +62,11 @@ function Comm.UltFired(n)
     comm.Send(COMM_TYPE_ULTFIRED, unpack(Comm.ToBytes(n)))
 end
 
-function Comm.SendVersion(x)
+function Comm.SendVersion()
     if comm == nil then
 	return
     end
-    if not x then
-	x = 0
-    else
-	x = 1
-    end
-    comm.Send(COMM_TYPE_MYVERSION, major, minor)
+    comm.Send(COMM_TYPE_MYVERSION, major, minor, beta)
 end
 
 function Comm.ToBytes(n)
@@ -163,7 +157,7 @@ function Comm.Load(verbose)
     else
 	comm.Load()
 	EVENT_MANAGER:RegisterForUpdate('UltPing', update_interval, on_update)
-	Comm.SendVersion(false)
+	Comm.SendVersion()
 	say = "on"
     end
     if verbose then
@@ -209,7 +203,7 @@ function clearernow()
     counter = 0
 end
 
-function Comm.Initialize(inmajor, inminor)
+function Comm.Initialize(inmajor, inminor, inbeta)
     saved = Settings.SavedVariables
     saved.MapPing = nil
     Swimlanes = POC.Swimlanes
@@ -231,6 +225,7 @@ function Comm.Initialize(inmajor, inminor)
 
     major = inmajor
     minor = inminor
+    beta = inbeta
     max_ping = Ult.MaxPing
     COMM_ULTPCT_MUL1 = max_ping * 124
     ultpct_mul2 = COMM_ULTPCT_MUL1 ^ 2

@@ -5,9 +5,10 @@ SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.16'
+local version = '3.17b1'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
+local beta = tonumber(version:match("b(%d+)")) or '0'
 
 -- POC:initialize initializes addon
 --
@@ -59,7 +60,7 @@ local function initialize()
     Campaign.Initialize()
 
     -- Start talking, see?
-    Comm.Initialize(major, minor)
+    Comm.Initialize(major, minor, beta)
 end
 
 -- OnAddOnLoaded if POC is loaded, initialize

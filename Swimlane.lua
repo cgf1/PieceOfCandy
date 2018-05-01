@@ -340,7 +340,6 @@ function Cols:Update(x)
 	if not wasactive then
 	    msg("POC: now grouped")
 	    Comm.Load()
-	    Comm.SendVersion(false)
 	    hide_widget(false)
 	end
 	wasactive = true
@@ -731,21 +730,24 @@ function Player.MakeLeader(pingtag)
 end
 
 local newversion_alert = 5
-function Player.Version(pingtag, major, minor, force)
+function Player.Version(pingtag, major, minor, beta)
+    if beta == 0 then
+	beta = ''
+    else
+	beta = string.format("b%d", beta)
+    end
     local v = string.format("%d.%03d", major, minor)
-    local dv = string.format("%d.%d", major, minor)
+    local dv = string.format("%d.%d%s", major, minor, beta)
     watch("Player.Version", pingtag, v)
     local name = GetUnitName(pingtag)
     if group_members[name] ~= nil then
 	group_members[name].Version = dv
     end
-    if tonumber(v) > version then
+    if beta == '' and tonumber(v) > version then
 	if newversion_alert > 0 then
 	    Info(string.format("new version v%s detected (%s). You have v%s", dv, name, dversion))
 	end
 	newversion_alert = newversion_alert - 1
-    elseif force then
-	Info(string.format("version v%s detected (%s). You have v%s", dv, GetUnitName(pingtag), dversion))
     end
 end
 
@@ -1134,7 +1136,7 @@ function swimlanes.Initialize(major, minor)
 	Info("movable state is:", movable)
     end)
     Slash("sendver", "debugging: send POC add-on version to others in your group", function(x)
-	Comm.SendVersion(true)
+	Comm.SendVersion()
     end)
     Slash("dump", "debugging: show collected information for specified player", function(x) dumpme = x end)
     Slash("leader", "make me group leader or record name to allow as leader", function(n)
