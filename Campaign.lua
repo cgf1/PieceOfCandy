@@ -69,7 +69,7 @@ local function get_campaign_id(name)
     local assigned = GetAssignedCampaignId()
     local guest = GetGuestCampaignId()
     -- don't really know why this is necessary
-    if GetNumSelectionCampaigns() == 0 and saved.KnownCampaigns[name] then
+    if GetNumSelectionCampaigns() == 0 and saved.KnownCampaigns and saved.KnownCampaigns[name] then
 	campaign_id = saved.KnownCampaigns[name]
 	return
     end
