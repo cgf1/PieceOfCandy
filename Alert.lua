@@ -53,7 +53,7 @@ function Alert.NeedsHelp(tag)
     for i = 1, 10 do
        PlaySound(SOUNDS.DUEL_BOUNDARY_WARNING)
     end
-    Alert.Show(string.format("%s needs help", name), 4000, true)
+    Alert.Show(string.format("%s needs help", name), 5000, true)
 end
 
 function Alert.UltFired(tag, aid)
@@ -132,7 +132,7 @@ function Alert.Show(text, total_duration, flash)
 	color = 'ff6600'
     end
     control:SetFont(font)
-    control:SetText(string.format("|c%s|%s", color, text))
+    control:SetText(string.format("|c%s%s|r", color, text))
     translate:SetDuration(duration)
     timeline:SetPlaybackType(atype, loopcount)
     fadeout:SetDuration(duration)
