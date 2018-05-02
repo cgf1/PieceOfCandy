@@ -5,7 +5,7 @@ SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.17b1'
+local version = '3.17b2'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
