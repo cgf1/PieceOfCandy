@@ -50,6 +50,9 @@ function Alert.NeedsHelp(tag)
 	return
     end
     local name = player_name(tag)
+    for i = 1, 10 do
+       PlaySound(SOUNDS.DUEL_BOUNDARY_WARNING)
+    end
     Alert.Show(string.format("%s needs help", name), 4000, true)
 end
 
