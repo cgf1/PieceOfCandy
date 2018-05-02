@@ -399,24 +399,27 @@ function Ult.SetSavedFromIcon(icon, n)
     Error(string.format("Ult.SetSaved: unknown icon %s", tostring(icon)))
 end
 
-local lastpower
+local lasttime = 0
+local lastpower = 0
 local function fire_maybe()
     thispower = GetUnitPower("player", POWERTYPE_ULTIMATE)
     if thispower < lastpower then
-	lastpower = thispower
-	if saved.UltNoise then
-	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+	local thistime = GetTimeStamp()
+	if (thistime - lasttime) > 10 then
+	    lasttime = thistime
+	    lastpower = 0
+	    if saved.UltNoise then
+		PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+	    end
+	    Comm.UltFired(GetSlotBoundId(8))
 	end
-	Comm.UltFired(GetSlotBoundId(8))
     end
 end
 
-local lasttime = 0
 local function ability_used(_, slotnum)
-    if (slotnum == 8) and (GetTimeStamp() - lasttime) > 5 then
+    if slotnum == 8 then
 	lastpower = GetUnitPower("player", POWERTYPE_ULTIMATE)
 	zo_callLater(fire_maybe, 500)
-	lasttime = GetTimeStamp()
     end
 end
 
