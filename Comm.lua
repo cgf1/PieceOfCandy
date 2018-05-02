@@ -51,7 +51,9 @@ local ultpct_mul2
 local myults
 
 function Comm.Send(...)
-    comm.Send(...)
+    if comm then
+        comm.Send(...)
+    end
 end
 
 function Comm.Ready()
@@ -63,9 +65,6 @@ function Comm.UltFired(n)
 end
 
 function Comm.SendVersion()
-    if comm == nil then
-	return
-    end
     comm.Send(COMM_TYPE_MYVERSION, major, minor, beta)
 end
 
