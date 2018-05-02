@@ -399,8 +399,10 @@ function Ult.SetSavedFromIcon(icon, n)
     Error(string.format("Ult.SetSaved: unknown icon %s", tostring(icon)))
 end
 
+local lasttime = 0
 local function ability_used(_, slotnum)
-    if slotnum == 8 then
+    if (slotnum == 8) and (GetTimeStamp() - lasttime) > 5 then
+	lasttime = GetTimeStamp()
 	if saved.UltNoise then
 	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
 	end

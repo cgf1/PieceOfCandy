@@ -93,13 +93,14 @@ end
 function Campaign.Initialize()
     saved = Settings.SavedVariables
 
-    if saved.Campaign == nil then
-	saved.Campaign = {
-	    Name = 'vivec'
-	}
+    local name
+    if saved.Campaign and saved.Campaign.Name then
+	name = saved.Campaign.Name
+    else
+	name = 'vivec'
     end
-    saved.Campaign = {Name = saved.Campaign.Name}
-    get_campaign_id(saved.Campaign.Name)
+    saved.Campaign = {Name = name}
+    get_campaign_id(name)
 
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_JOINED, joined)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_LEFT, left)
