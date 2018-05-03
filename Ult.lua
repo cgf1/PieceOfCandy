@@ -410,6 +410,8 @@ local function fire_maybe()
 	    lastpower = 0
 	    if saved.UltNoise then
 		PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+		PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+		PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
 	    end
 	    Comm.UltFired(GetSlotBoundId(8))
 	end
@@ -467,6 +469,9 @@ function Ult.Initialize()
 	if not x or x <= 0 then
 	    ability_used(_, 8)
 	else
+	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
 	    Comm.UltFired(x)
 	end
     end)
