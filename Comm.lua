@@ -61,11 +61,11 @@ function Comm.Ready()
 end
 
 function Comm.UltFired(n)
-    comm.Send(COMM_TYPE_ULTFIRED, unpack(Comm.ToBytes(n)))
+    Comm.Send(COMM_TYPE_ULTFIRED, unpack(Comm.ToBytes(n)))
 end
 
 function Comm.SendVersion()
-    comm.Send(COMM_TYPE_MYVERSION, major, minor, beta)
+    Comm.Send(COMM_TYPE_MYVERSION, major, minor, beta)
 end
 
 function Comm.ToBytes(n)
@@ -140,7 +140,7 @@ local function on_update()
     end
     watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
-    comm.Send(cmd, bytes[1], bytes[2], bytes[3])
+    Comm.Send(cmd, bytes[1], bytes[2], bytes[3])
 end
 
 function Comm.IsActive()
