@@ -52,7 +52,7 @@ local myults
 
 function Comm.Send(...)
     if comm then
-        comm.Send(...)
+	comm.Send(...)
     end
 end
 
@@ -60,8 +60,38 @@ function Comm.Ready()
     return comm ~= nil
 end
 
-function Comm.UltFired(n)
-    Comm.Send(COMM_TYPE_ULTFIRED, unpack(Comm.ToBytes(n)))
+local lasttime = 0
+local lastpower = 0
+local lastult = 0
+local function ult_fired()
+    watch('ult_fired0', lastult)
+    if lastult == 0 then
+	return 0
+    end
+    local thistime = GetTimeStamp()
+    thispower = GetUnitPower("player", POWERTYPE_ULTIMATE)
+    local delta = thistime - lasttime
+    watch('ult_fired', 'lastult', lastult, 'lastpower', lastpower, 'thispower', thispower, 'delta', delta)
+    if thispower ~= 0 and thispower >= lastpower or delta <= 10 then
+	lastult = 0
+	return 0
+    end
+    local n = lastult
+    lastpower = 0
+    lasttime = thistime
+    lastult = 0
+    if saved.UltNoise then
+	PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+	PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+	PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
+    end
+    return n
+end
+
+function Comm.UltFired(n, p)
+    lastult = n
+    lastpower = p
+    watch('Comm.UltFired', 'lastult', lastult, 'lastpower', lastpower)
 end
 
 function Comm.SendVersion()
@@ -117,12 +147,15 @@ local function on_update()
     end
 
     counter = counter + 1
-    local send = 0
     local apid1pct1 = ultpct(myults[1])
     local queue = campaign.QueuePosition(false)
-    send = COMM_ULTPCT_MUL1 * apid1pct1
+    local send = COMM_ULTPCT_MUL1 * apid1pct1
+    local ultf = ult_fired()
     local cmd
-    if queue ~= old_queue then
+    if ultf ~= 0 then
+	cmd = COMM_TYPE_ULTFIRED
+	send = ultf
+    elseif queue ~= old_queue then
 	send = send + queue
 	cmd = COMM_TYPE_PCTULTPOS
 	old_queue = queue

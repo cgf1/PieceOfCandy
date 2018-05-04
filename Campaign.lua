@@ -149,7 +149,7 @@ function Campaign.Initialize()
 	end
 	if not campaign_id then
 	    Error(string.format("don't know how to queue for campaign %s", pretty()))
-	elseif not IsUnitGroupLeader("player") then
+	elseif what ~= '' and not IsUnitGroupLeader("player") then
 	    Error("you're not the group leader")
 	else
 	    QueueForCampaign(campaign_id, what:len() > 0)

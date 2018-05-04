@@ -159,7 +159,7 @@ function Alert.Initialize()
     RegClear(clearernow)
     Slash("fire", "debugging: test ultimate display", function()
 	for i = 1, 24 do
-	    Alert.Show("Fireworks!")
+	    Alert.Show("Fireworks!", 5000, false)
 	end
     end)
 end

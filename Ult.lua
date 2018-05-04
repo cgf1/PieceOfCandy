@@ -399,29 +399,9 @@ function Ult.SetSavedFromIcon(icon, n)
     Error(string.format("Ult.SetSaved: unknown icon %s", tostring(icon)))
 end
 
-local lasttime = 0
-local lastpower = 0
-local function fire_maybe()
-    thispower = GetUnitPower("player", POWERTYPE_ULTIMATE)
-    if thispower < lastpower then
-	local thistime = GetTimeStamp()
-	if (thistime - lasttime) > 10 then
-	    lasttime = thistime
-	    lastpower = 0
-	    if saved.UltNoise then
-		PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
-		PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
-		PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
-	    end
-	    Comm.UltFired(GetSlotBoundId(8))
-	end
-    end
-end
-
 local function ability_used(_, slotnum)
     if slotnum == 8 then
-	lastpower = GetUnitPower("player", POWERTYPE_ULTIMATE)
-	zo_callLater(fire_maybe, 500)
+	Comm.UltFired(GetSlotBoundId(8), GetUnitPower("player", POWERTYPE_ULTIMATE))
     end
 end
 
@@ -469,10 +449,7 @@ function Ult.Initialize()
 	if not x or x <= 0 then
 	    ability_used(_, 8)
 	else
-	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
-	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
-	    PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
-	    Comm.UltFired(x)
+	    Comm.UltFired(x, 9999)
 	end
     end)
 end
