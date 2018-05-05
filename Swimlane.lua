@@ -894,16 +894,18 @@ end
 -- Saves current widget position to settings
 --
 function Swimlanes:OnMove(stop)
-    if not stop then
-	widget:SetDimensions(max_x, max_y)
-	widget:GetNamedChild("MovableControl"):SetDimensionConstraints(max_x, max_y, max_x, max_y)
-	widget:GetNamedChild("MovableControl"):SetHidden(false)
-    else
-	widget:GetNamedChild("MovableControl"):SetHidden(true)
+    local mvc = widget:GetNamedChild("MovableControl")
+    if stop then
+	mvc:SetHidden(true)
 	saved.WinPos = {
 	    X = widget:GetLeft(),
 	    Y = widget:GetTop()
 	}
+    else
+	widget:SetDimensions(max_x, max_y)
+	mvc:SetDimensionConstraints(0, 0, max_x, max_y + 8)
+	mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, max_x, max_y + 8)
+	mvc:SetHidden(false)
     end
 end
 
