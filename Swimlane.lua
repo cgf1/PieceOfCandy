@@ -937,11 +937,7 @@ end
 -- Col:Click called on header clicked
 --
 function Col:Click()
-    if self.Button ~= nil then
-	CALLBACK_MANAGER:FireCallbacks(SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
-    else
-	Error("Col:Click, button nil")
-    end
+    CALLBACK_MANAGER:FireCallbacks(SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
 end
 
 -- Create icon/label at top of column
