@@ -33,6 +33,7 @@ local function joined(_, id, isgroup)
 	end
 	Info(string.format("%squeued for campaign %s", s, pretty()))
 	if saved.AcceptPVP and isgroup and not IsUnitGroupLeader("player") and GetCampaignQueuePosition(id, isgroup) == 0 then
+	    watch("joined", "delayed start")
 	    zo_callLater(function () ConfirmCampaignEntry(id, isgroup, true) end, 3000)
 	end
     end

@@ -206,6 +206,7 @@ end
 
 function swimlanes.Sched(clear_dispname)
     need_to_fire = true
+    watch("need_to_fire", "swimlanes.Sched")
     if clear_dispname then
 	for _, v in pairs(group_members) do
 	    v.DispName = nil
@@ -302,8 +303,10 @@ function Cols:Update(x)
     local displayed = false
     if x == "left" then
 	need_to_fire = true
+	watch("need_to_fire", "left")
     elseif x == "joined" then
 	need_to_fire = true
+	watch("need_to_fire", "joined")
     end
     if x ~= 'off' and Group.IsGrouped() then
 	refresh = Player.Update(true)
@@ -348,8 +351,11 @@ end
 
 -- Return true if we timed out
 --
-function Player:TimedOut()
-    local timedout = (GetTimeStamp() - self.TimeStamp) > TIMEOUT
+function Player:TimedOut(timestamp)
+    if timestamp == nil then
+	timestamp = GetTimeStamp()
+    end
+    local timedout = (timestamp - self.TimeStamp) > TIMEOUT
     if timedout then
 	self.HasTimedOut = true
     else
@@ -723,8 +729,9 @@ end
 
 function Player.MakeLeader(pingtag)
     local name = GetUnitName(pingtag)
+    local dname= GetUnitDisplayName(pingtag)
     local player = group_members[name]
-    if player ~= nil and me.IsLeader and (player.HasBeenLeader or saved.AutoAccept[name]) then
+    if player ~= nil and me.IsLeader and (player.HasBeenLeader or saved.AutoAccept[name] or saved.AutoAccept[dname]) then
 	GroupPromote(pingtag)
     end
 end
@@ -799,7 +806,17 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
     player.UltMain = apid1
     player.Pos = pos
     -- Consider changed if we have a timestamp and timeout is detected
-    local changed = timestamp and self.TimeStamp and self:TimedOut()
+    local was_timedout = self.TimedOut
+    local changed = false
+    if not timestamp then
+	changed = false
+    else
+	local was_timedout = self.HasTimedOut
+	changed = was_timedout ~= self:TimedOut(timestamp)
+	if changed then
+	    watch("need_to_fire", name, "changed timestamp", was_timedout)
+	end
+    end
     if timestamp ~= self.TimeStamp then
 	self.TimeStamp = timestamp
     end
@@ -809,6 +826,9 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
     end
 
     if apid1 ~= nil then
+	if apid2 == max_ping then
+	    apid2 = nil
+	end
 	-- Coming from on_map_ping
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
 	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
@@ -821,12 +841,14 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	    end
 	end
 	if self.Ults[apid1] ~= pct1 then
+	    changed = true
+	    watch("need_to_fire", name, "apid1 different", apid1, pct1, self.Ults[apid1], '~=', pct1)
 	    self.Ults[apid1] = pct1		-- Primary ult pct changed
-	    changed = true
 	end
-	if apid2 ~= nil and apid2 ~= max_ping and self.Ults[apid2] ~= pct2 then
-	    self.Ults[apid2] = pct2		-- secondary ult pct changed
+	if apid2 ~= nil and self.Ults[apid2] ~= pct2 then
 	    changed = true
+	    watch("need_to_fire", "apid2 different", self.Ults[apid2], '~=', pct2)
+	    self.Ults[apid2] = pct2		-- secondary ult pct changed
 	end
     end
 
@@ -834,6 +856,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	player[n] = nil
 	if self[n] ~= v then
 	    changed = true
+	    watch("need_to_fire", 'player vs. self', self[n], '~=', v)
 	    self[n] = v
 	end
     end
@@ -842,10 +865,17 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 
     if changed then
 	need_to_fire = true
+	watch("need_to_fire", "changed")
     end
 
     return self
 end
+
+local unitnames = {
+    'group1', 'group2', 'group3', 'group4', 'group5', 'group6', 'group7', 'group8',
+    'group9', 'group10', 'group11', 'group12', 'group13', 'group14', 'group15', 'group16',
+    'group17', 'group18', 'group19', 'group20', 'group21', 'group22', 'group23', 'group24'
+}
 
 -- Updates player (potentially) in the swimlane
 --
@@ -854,7 +884,7 @@ function Player.Update(clear_need_to_fire)
     local inrange = 0
 
     for i = 1, GetGroupSize() do
-	local unitid = "group" .. tostring(i)
+	local unitid = unitnames[i]
 	local unitname = GetUnitName(unitid)
 	if unitname ~= nil and unitname:len() ~= 0 then
 	    nmembers = nmembers + 1
@@ -876,6 +906,7 @@ function Player.Update(clear_need_to_fire)
     if (inrange / nmembers) >= 0.5 then
 	me.InRangeTime = GetTimeStamp()
     elseif me.InRangeTime ~= 0 and not me:HasBeenInRange() then
+	watch("need_to_fire", "inrange", me.InrangeTime)
 	me.InRangeTime = 0
 	need_to_fire = true
     end
@@ -1008,6 +1039,7 @@ function Cols:Redo()
 	v.DispName = nil
     end
     need_to_fire = true
+    watch("need_to_fire", "Cols:Redo")
     swimlanes.Sched(true)
 end
 

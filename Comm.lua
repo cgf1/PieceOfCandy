@@ -51,7 +51,7 @@ local ultpct_mul2
 local myults
 
 function Comm.Send(...)
-    if comm then
+    if comm and comm.active then
 	comm.Send(...)
     end
 end
@@ -89,9 +89,11 @@ local function ult_fired()
 end
 
 function Comm.UltFired(n, p)
-    lastult = n
-    lastpower = p
-    watch('Comm.UltFired', 'lastult', lastult, 'lastpower', lastpower)
+    if comm and comm.active then
+	lastult = n
+	lastpower = p
+	watch('Comm.UltFired', 'lastult', lastult, 'lastpower', lastpower)
+    end
 end
 
 function Comm.SendVersion()
@@ -136,6 +138,9 @@ local function on_update()
 	if notify_when_not_grouped then
 	    notify_when_not_grouped = false
 	    Swimlanes.Update("left")
+	    lastult = 0
+	    lastpower = 0
+	    lasttime = 0
 	end
 	return
     end
@@ -187,6 +192,9 @@ function Comm.Load(verbose)
     elseif comm.active then
 	say = "already on"
     else
+	lasttime = 0
+	lastpower = 0
+	lastult = 0
 	comm.Load()
 	EVENT_MANAGER:RegisterForUpdate('UltPing', update_interval, on_update)
 	Comm.SendVersion()
