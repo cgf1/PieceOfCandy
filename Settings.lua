@@ -35,6 +35,7 @@ Settings = {
 	UltNoise = false,
 	UltNumberPos = nil,
 	UltNumberShow = true,
+	WarnConflict = true,
 	WereNumberOne = true
     }
 }
@@ -303,6 +304,17 @@ function Settings.InitializeWindow(version)
 	end,
 	setFunc = function(val)
 	    saved.UltNoise = true
+	end
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Warn when conflicting add-ons are detected",
+	tooltip = "Display a warning window when a conflicting add-on (like Sanct's Ultimate Organizer) is detected",
+	getFunc = function()
+	    return saved.WarnConflict
+	end,
+	setFunc = function(val)
+	    saved.WarnConflict = val
 	end
     }
 

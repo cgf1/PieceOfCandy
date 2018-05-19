@@ -33,6 +33,8 @@ libs/LibAddonMenu-2.0/controls/dropdown.lua
 libs/LibMapPing/LibMapPing.lua
 libs/LibGPS/LibGPS.lua
 
+libs/LibMsgWin-1.0/LibMsgWin-1.0.lua
+
 VirtualControls.xml
 Bindings.xml
 Countdown.xml

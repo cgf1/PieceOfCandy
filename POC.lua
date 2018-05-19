@@ -5,10 +5,19 @@ SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.18'
+local version = '3.19'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
+
+local addon_conflicts = {
+    RaidNotifier = true,
+    SanctsUltimateOrganiser = true,
+    TaosGroupTools = true,
+    TaosGroupUltimate = true
+}
+
+local conflicts = {}
 
 -- POC:initialize initializes addon
 --
@@ -66,12 +75,36 @@ end
 -- OnAddOnLoaded if POC is loaded, initialize
 --
 local function OnAddOnLoaded(eventCode, addOnName)
-    if addOnName == Name then
+    if addon_conflicts[addOnName] then
+	conflicts[#conflicts + 1] = addOnName
+    elseif addOnName == Name then
 	-- Unregister Loaded Callback
-	EVENT_MANAGER:UnregisterForEvent(Name, EVENT_ADD_ON_LOADED)
+	-- EVENT_MANAGER:UnregisterForEvent(Name, EVENT_ADD_ON_LOADED)
 	initialize()
     end
 end
 
+local function player_activated()
+    if saved.WarnConflict and #conflicts > 0 then
+	local LMW = LibStub:GetLibrary("LibMsgWin-1.0")
+	local win = LMW:CreateMsgWindow("POC_Conflicts", "|c00ee00Conflicting add-ons|r", 10000, 20000)
+	win:SetDimensions(550, 180)
+	win:SetAnchor(TOP, GuiRoot, CENTER, 0,0)
+	win:AddText("\n|cffff00The following add-ons are known to conflict with Piece of Candy:|r\n\n")
+	for _, x in ipairs(conflicts) do
+	    win:AddText('|u:20:0::' .. x .. '|u')
+	end
+	win:AddText('\n\n|cffff00Running these together will likely result in a game crash.|r')
+	win.close = CreateControlFromVirtual(nil, win, "ZO_CloseButton")
+	win.close:ClearAnchors()
+	win.close:SetAnchor(TOPRIGHT, luiChangeLog, TOPRIGHT, -12, 14)
+	win.close:SetClickSound("Click")
+	win.close:SetHandler("OnClicked", function(...) win:SetHidden(true) end)
+
+	win:SetHidden(false)
+    end
+end
+
 EVENT_MANAGER:RegisterForEvent(Name, EVENT_ADD_ON_LOADED, OnAddOnLoaded);
+EVENT_MANAGER:RegisterForEvent(Name, EVENT_PLAYER_ACTIVATED, player_activated);
 Slash("/rrr", "alias for /reloadui",function () ReloadUI() end)
