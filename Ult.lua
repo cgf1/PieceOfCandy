@@ -399,9 +399,9 @@ function Ult.SetSavedFromIcon(icon, n)
     Error(string.format("Ult.SetSaved: unknown icon %s", tostring(icon)))
 end
 
-local function ability_used(_, slotnum)
+local function ability_used(slotnum, power)
     if slotnum == 8 then
-	Comm.UltFired(GetSlotBoundId(8), GetUnitPower("player", POWERTYPE_ULTIMATE))
+	Comm.UltFired(GetSlotBoundId(8), power or GetUnitPower("player", POWERTYPE_ULTIMATE))
     end
 end
 
@@ -410,7 +410,7 @@ end
 function Ult.Initialize()
     saved = Settings.SavedVariables
     create_ults()
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, ability_used)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, function (_, x) ability_used(x) end)
 
     local ids
     if saved.SwimlaneUltIds == nil then
@@ -447,7 +447,7 @@ function Ult.Initialize()
     Slash('sendult', 'debugging: pretend that an ultimate fired', function(x)
 	x = tonumber(x)
 	if not x or x <= 0 then
-	    ability_used(_, 8)
+	    ability_used(8, GetUnitPower("player", POWERTYPE_ULTIMATE) + 10)
 	else
 	    Comm.UltFired(x, 9999)
 	end

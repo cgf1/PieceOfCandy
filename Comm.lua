@@ -4,7 +4,8 @@ local GetUnitPower = GetUnitPower
 local GetAbilityCost = GetAbilityCost
 local IsUnitGrouped = IsUnitGrouped
 local EVENT_MANAGER = EVENT_MANAGER
-local Swimlanes
+local Swimlanes = Swimlanes
+local SOUNDS = SOUNDS
 
 COMM_MAGIC		= 0x0c
 COMM_TYPE_PCTULTOLD	= 0x01 + (COMM_MAGIC * 16)
@@ -15,8 +16,8 @@ COMM_TYPE_MYVERSION	= 0x05 + (COMM_MAGIC * 16)
 COMM_TYPE_PCTULTPOS	= 0x06 + (COMM_MAGIC * 16)
 COMM_TYPE_KEEPALIVE	= 0x07 + (COMM_MAGIC * 16)
 COMM_TYPE_MAKEMELEADER	= 0x08 + (COMM_MAGIC * 16)
-COMM_TYPE_NEEDHELP	= 0x09 + (COMM_MAGIC * 16)
-COMM_TYPE_ULTFIRED	= 0x0a + (COMM_MAGIC * 16)
+COMM_TYPE_ULTFIRED	= 0x09 + (COMM_MAGIC * 16)
+COMM_TYPE_NEEDHELP	= 0x0a + (COMM_MAGIC * 16)
 
 COMM_ALL_PLAYERS	= 0
 
@@ -73,13 +74,14 @@ local function ult_fired()
     local delta = thistime - lasttime
     watch('ult_fired', 'lastult', lastult, 'lastpower', lastpower, 'thispower', thispower, 'delta', delta)
     if thispower ~= 0 and thispower >= lastpower or delta <= 10 then
+	watch('ult_fired', 'not sending', thispower, lastpower, delta)
 	lastult = 0
 	return 0
     end
     local n = lastult
+    lastult = 0
     lastpower = 0
     lasttime = thistime
-    lastult = 0
     if saved.UltNoise then
 	PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)
 	PlaySound(SOUNDS.NEW_TIMED_NOTIFICATION)

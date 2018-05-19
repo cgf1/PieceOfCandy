@@ -358,10 +358,8 @@ function Player:TimedOut(timestamp)
     local timedout = (timestamp - self.TimeStamp) > TIMEOUT
     if timedout then
 	self.HasTimedOut = true
-    else
-	if self.HasTimedOut then
-	    Comm.SendVersion()
-	end
+    elseif self.HasTimedOut then
+	Comm.SendVersion()
 	self.HasTimedOut = false
     end
     return timedout
@@ -544,7 +542,9 @@ function Col:Update(tick)
 		    show = saved.UltNumberShow
 		else
 		    -- reset order since we can't contribute
-		    player.Ults[apid] = 100
+		    if player.Ults[apid] > 100 then
+			player.Ults[apid] = 100
+		    end
 		    play_sound = true
 		    me.Because = "out of range or dead"
 		    show = false
@@ -787,7 +787,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	    return			-- hopefully an anomaly
 	end
     elseif not self.Visited then
-	timestamp = self.TimeStamp	-- coming from Player.Update - haven't seen yet
+	-- coming from Player.Update - haven't seen yet
     else
 	self.Visited = false
 	return self
@@ -816,8 +816,6 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	if changed then
 	    watch("need_to_fire", name, "changed timestamp", was_timedout)
 	end
-    end
-    if timestamp ~= self.TimeStamp then
 	self.TimeStamp = timestamp
     end
     if saved.AtNames and self.AtName == nil then
@@ -842,12 +840,12 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	end
 	if self.Ults[apid1] ~= pct1 then
 	    changed = true
-	    watch("need_to_fire", name, "apid1 different", apid1, pct1, self.Ults[apid1], '~=', pct1)
+	    watch("need_to_fire", name, "apid1 different", apid1, self.Ults[apid1], '~=', pct1)
 	    self.Ults[apid1] = pct1		-- Primary ult pct changed
 	end
 	if apid2 ~= nil and self.Ults[apid2] ~= pct2 then
 	    changed = true
-	    watch("need_to_fire", "apid2 different", self.Ults[apid2], '~=', pct2)
+	    watch("need_to_fire", name, "apid2 different", self.Ults[apid2], '~=', pct2)
 	    self.Ults[apid2] = pct2		-- secondary ult pct changed
 	end
     end
@@ -856,7 +854,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	player[n] = nil
 	if self[n] ~= v then
 	    changed = true
-	    watch("need_to_fire", 'player vs. self', self[n], '~=', v)
+	    watch("need_to_fire", name, 'player vs. self', n, self[n], '~=', v)
 	    self[n] = v
 	end
     end
