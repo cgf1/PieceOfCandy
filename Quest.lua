@@ -28,6 +28,11 @@ local numtoqname_lang = {
 	[KEEP_INDEX] = 'Capturez la bastille Chalman',
 	[RESOURCE_INDEX] = 'Capturez la mine de Chalman',
 	[KILL_INDEX] = 'Tuez les joueurs adverses'
+    },
+    de = {
+	[KEEP_INDEX] = 'Erobert die Burg Chalman',
+	[RESOURCE_INDEX] = 'Erobert die Chalman-Mine',
+	[KILL_INDEX] = 'Töte feindliche Spieler'
     }
 }
 
@@ -41,7 +46,7 @@ local need = {
 
 local tracked = {}
 
-local want
+local want = {}
 
 local myname = GetUnitName("player")
 

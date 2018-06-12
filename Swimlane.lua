@@ -824,9 +824,6 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
     end
 
     if apid1 ~= nil then
-	if apid2 == max_ping then
-	    apid2 = nil
-	end
 	-- Coming from on_map_ping
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
 	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
@@ -834,6 +831,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	-- Called from map ping
 	-- If either is nil then player changed their ultimate
 	if self.Ults[apid1] == nil or apid2 ~= nil and self.Ults[apid2] == nil then
+	    changed = true
 	    for n in pairs(self.Ults) do
 		self.Ults[n] = nil
 	    end
