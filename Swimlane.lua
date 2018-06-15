@@ -298,6 +298,7 @@ end
 --
 local gc = GARBAGECOLLECT
 local wasactive = false
+local tickdown = 20
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -324,6 +325,12 @@ function Cols:Update(x)
 	Comm.Unload()
     end
     watch("Cols:Update", x, 'refresh', refresh, 'wasactive', wasactive)
+
+    tickdown = tickdown - 1
+    if tickdown <= 0 then
+	tickdown = 20
+	refresh = true
+    end
 
     if refresh then
 	watch("refresh")

@@ -131,7 +131,6 @@ end
 
 local counter = 0
 local old_queue = 0
-local last_ult_ping = 0
 local function on_update()
     if not comm.active then
 	return
@@ -169,14 +168,6 @@ local function on_update()
     else
 	send = send + ultpct(myults[2])
 	cmd = COMM_TYPE_PCTULT
-	if send ~= last_ult_ping then
-	    last_ult_ping = send
-	elseif (counter % keepalive_ping) ~= 0 then
-	    return
-	elseif someday then
-	    cmd = COMM_TYPE_KEEPALIVE
-	    send = 0
-	end
     end
     watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
