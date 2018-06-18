@@ -22,8 +22,9 @@ COMM_TYPE_NEEDHELP	= 0x0a + (COMM_MAGIC * 16)
 COMM_ALL_PLAYERS	= 0
 
 local update_interval
+local update_interveal_per_sec
 
-local QUEST_PING = 4
+local QUEST_PING = 2
 local KEEPALIVE_PING_SECS = 6
 local keepalive_ping
 
@@ -130,6 +131,24 @@ local function ultpct(apid)
 end
 
 local counter = 0
+local lastupdate = 0
+local function sanity()
+    local now = GetTimeStamp()
+    local lu = now - lastupdate
+    local lmy = now - PingPipe.lastmytime
+    lastupdate = now
+    watch("sanity", string.format('last update secs %d, since last ping %d, counter %d', lu, lmy, counter))
+    if (lu > (3 * update_interval_per_sec)) or (lmy < 10) or (counter < 10) then
+	return
+    end
+    if PingPipe.lastmytime == 0 then
+	Error("Haven't ever heard from myself")
+    else
+	Error(string.format("Haven't heard from myself in %d seconds, last command: %02x", now - PingPipe.lastmytime, PingPipe.lastmycomm))
+    end
+    lastupdate = now
+end
+
 local old_queue = 0
 local function on_update()
     if not comm.active then
@@ -147,12 +166,13 @@ local function on_update()
     end
     local notify_when_not_grouped = true
     Swimlanes.Update("map update")
+    sanity()
 
+    counter = counter + 1
     if (counter % QUEST_PING) == 0 then
 	Quest.Ping()
     end
 
-    counter = counter + 1
     local apid1pct1 = ultpct(myults[1])
     local queue = campaign.QueuePosition(false)
     local send = COMM_ULTPCT_MUL1 * apid1pct1
@@ -167,6 +187,11 @@ local function on_update()
 	old_queue = queue
     else
 	send = send + ultpct(myults[2])
+	if send ~= last_ult_ping then
+	    last_ult_ping = send
+	elseif (counter % keepalive_ping) ~= 0 then
+	    return
+	end
 	cmd = COMM_TYPE_PCTULT
     end
     watch("on_update", myults[1], myults[2], tostring(send))
@@ -190,6 +215,7 @@ function Comm.Load(verbose)
 	lastult = 0
 	comm.Load()
 	EVENT_MANAGER:RegisterForUpdate('UltPing', update_interval, on_update)
+	update_interval_per_sec = update_interval / 1000
 	Comm.SendVersion()
 	say = "on"
     end
@@ -276,6 +302,7 @@ function Comm.Initialize(inmajor, inminor, inbeta)
 
     Slash("on", "Turn POC on",	function () Comm.Load(true) end)
     Slash("off", "Turn POC off",  function () Comm.Unload(true) end)
+    Slash("ka", "debugging: show keep alive interval", function () Info(string.format("keep alive is %d", keepalive_ping)) end)
     if false then
     Slash("comm", "change communication method (don't use)",function(x)
 	if string.len(x) ~= 0 then

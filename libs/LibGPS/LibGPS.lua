@@ -1,9 +1,9 @@
--- LibGPS2 & its files © sirinsidiator                          --
+-- LibGPS2 & its files © sirinsidiator                           --
 -- Distributed under The Artistic License 2.0 (see LICENSE)     --
 ------------------------------------------------------------------
 
 local LIB_NAME = "LibGPS2"
-local lib = LibStub:NewLibrary(LIB_NAME, 14)
+local lib = LibStub:NewLibrary(LIB_NAME, 15)
 
 if not lib then
     return
@@ -69,13 +69,13 @@ end
 local function FinalizeMeasurement()
     EVENT_MANAGER:UnregisterForUpdate(LIB_IDENTIFIER_FINALIZE)
     while lib.suppressCount > 0 do
-	LMP:UnsuppressPing(MAP_PIN_TYPE_PLAYER_WAYPOINT)
-	lib.suppressCount = lib.suppressCount - 1
+        LMP:UnsuppressPing(MAP_PIN_TYPE_PLAYER_WAYPOINT)
+        lib.suppressCount = lib.suppressCount - 1
     end
     if needWaypointRestore then
-	LogMessage(LOG_DEBUG, "Update waypoint pin", LMP:GetMapPing(MAP_PIN_TYPE_PLAYER_WAYPOINT))
-	LMP:RefreshMapPin(MAP_PIN_TYPE_PLAYER_WAYPOINT)
-	needWaypointRestore = false
+        LogMessage(LOG_DEBUG, "Update waypoint pin", LMP:GetMapPing(MAP_PIN_TYPE_PLAYER_WAYPOINT))
+        LMP:RefreshMapPin(MAP_PIN_TYPE_PLAYER_WAYPOINT)
+        needWaypointRestore = false
     end
     measuring = false
     CALLBACK_MANAGER:FireCallbacks(lib.LIB_EVENT_STATE_CHANGED, measuring)
@@ -124,17 +124,17 @@ end
 local function StoreTamrielMapMeasurements()
     -- no need to actually measure the world map
     if (orgSetMapToMapListIndex(TAMRIEL_MAP_INDEX) ~= SET_MAP_RESULT_FAILED) then
-	local measurement = {
-	    scaleX = 1,
-	    scaleY = 1,
-	    offsetX = 0,
-	    offsetY = 0,
-	    mapIndex = TAMRIEL_MAP_INDEX,
-	    zoneIndex = GetCurrentMapZoneIndex()
-	}
-	mapMeasurements[GetMapTileTexture()] = measurement
-	rootMaps[TAMRIEL_MAP_INDEX] = measurement
-	return true
+        local measurement = {
+            scaleX = 1,
+            scaleY = 1,
+            offsetX = 0,
+            offsetY = 0,
+            mapIndex = TAMRIEL_MAP_INDEX,
+            zoneIndex = GetCurrentMapZoneIndex()
+        }
+        mapMeasurements[GetMapTileTexture()] = measurement
+        rootMaps[TAMRIEL_MAP_INDEX] = measurement
+        return true
     end
 
     return false
@@ -157,10 +157,10 @@ local function CalculateMeasurements(mapId, localX, localY)
     -- switch to zone map in order to get the mapIndex for the current location
     local x1, y1, x2, y2
     while not(GetMapType() == MAPTYPE_ZONE and GetMapContentType() ~= MAP_CONTENT_DUNGEON) do
-	if (MapZoomOut() ~= SET_MAP_RESULT_MAP_CHANGED) then break end
-	-- collect measurements for all maps we come through on our way to the zone map
-	x1, y1, x2, y2 = GetReferencePoints()
-	table.insert(measurementPositions, { mapId = GetMapTileTexture(), pX = x1, pY = y1, wpX = x2, wpY = y2 })
+        if (MapZoomOut() ~= SET_MAP_RESULT_MAP_CHANGED) then break end
+        -- collect measurements for all maps we come through on our way to the zone map
+        x1, y1, x2, y2 = GetReferencePoints()
+        table.insert(measurementPositions, { mapId = GetMapTileTexture(), pX = x1, pY = y1, wpX = x2, wpY = y2 })
     end
 
     -- some non-zone maps like Eyevea zoom directly to the Tamriel map
@@ -169,9 +169,9 @@ local function CalculateMeasurements(mapId, localX, localY)
 
     -- switch to world map so we can calculate the global map scale and offset
     if orgSetMapToMapListIndex(TAMRIEL_MAP_INDEX) == SET_MAP_RESULT_FAILED then
-	-- failed to switch to the world map
-	LogMessage(LOG_NOTICE, "Could not switch to world map")
-	return
+        -- failed to switch to the world map
+        LogMessage(LOG_NOTICE, "Could not switch to world map")
+        return
     end
 
     -- get the two reference points on the world map
@@ -180,25 +180,25 @@ local function CalculateMeasurements(mapId, localX, localY)
     -- calculate scale and offset for all maps that we saw
     local scaleX, scaleY, offsetX, offsetY
     for _, m in ipairs(measurementPositions) do
-	if (mapMeasurements[m.mapId]) then break end -- we always go up in the hierarchy so we can stop once a measurement already exists
-	LogMessage(LOG_DEBUG, "Store map measurement for", m.mapId:sub(10, -7))
-	scaleX = (x2 - x1) / (m.wpX - m.pX)
-	scaleY = (y2 - y1) / (m.wpY - m.pY)
-	offsetX = x1 - m.pX * scaleX
-	offsetY = y1 - m.pY * scaleY
-	if (math.abs(scaleX - scaleY) > 1e-3) then
-	    LogMessage(LOG_WARNING, "Current map measurement might be wrong", m.mapId:sub(10, -7), mapIndex, m.pX, m.pY, m.wpX, m.wpY, x1, y1, x2, y2, offsetX, offsetY, scaleX, scaleY)
-	end
+        if (mapMeasurements[m.mapId]) then break end -- we always go up in the hierarchy so we can stop once a measurement already exists
+        LogMessage(LOG_DEBUG, "Store map measurement for", m.mapId:sub(10, -7))
+        scaleX = (x2 - x1) / (m.wpX - m.pX)
+        scaleY = (y2 - y1) / (m.wpY - m.pY)
+        offsetX = x1 - m.pX * scaleX
+        offsetY = y1 - m.pY * scaleY
+        if (math.abs(scaleX - scaleY) > 1e-3) then
+            LogMessage(LOG_WARNING, "Current map measurement might be wrong", m.mapId:sub(10, -7), mapIndex, m.pX, m.pY, m.wpX, m.wpY, x1, y1, x2, y2, offsetX, offsetY, scaleX, scaleY)
+        end
 
-	-- store measurements
-	mapMeasurements[m.mapId] = {
-	    scaleX = scaleX,
-	    scaleY = scaleY,
-	    offsetX = offsetX,
-	    offsetY = offsetY,
-	    mapIndex = mapIndex,
-	    zoneIndex = zoneIndex
-	}
+        -- store measurements
+        mapMeasurements[m.mapId] = {
+            scaleX = scaleX,
+            scaleY = scaleY,
+            offsetX = offsetX,
+            offsetY = offsetY,
+            mapIndex = mapIndex,
+            zoneIndex = zoneIndex
+        }
     end
     return mapIndex
 end
@@ -217,63 +217,63 @@ local function GetExtraMapMeasurement(extraMapIndex)
     orgSetMapToMapListIndex(extraMapIndex)
     local extraMapId = GetMapTileTexture()
     if(not IsMapMeasured(extraMapId)) then
-	-- calculate the measurements of map without worrying about the waypoint
-	local mapIndex = CalculateMeasurements(extraMapId, GetPlayerPosition())
-	if (mapIndex ~= extraMapIndex) then
-	    local name = GetMapInfo(extraMapIndex)
-	    name = zo_strformat("<<C:1>>", name)
-	    LogMessage(LOG_WARNING, "CalculateMeasurements returned different index while measuring ", name, " map. expected:", extraMapIndex, "actual:", mapIndex)
-	    if (not IsMapMeasured(extraMapId)) then
-		LogMessage(LOG_WARNING, "Failed to measure ", name, " map.")
-		return
-	    end
-	end
+        -- calculate the measurements of map without worrying about the waypoint
+        local mapIndex = CalculateMeasurements(extraMapId, GetPlayerPosition())
+        if (mapIndex ~= extraMapIndex) then
+            local name = GetMapInfo(extraMapIndex)
+            name = zo_strformat("<<C:1>>", name)
+            LogMessage(LOG_WARNING, "CalculateMeasurements returned different index while measuring ", name, " map. expected:", extraMapIndex, "actual:", mapIndex)
+            if (not IsMapMeasured(extraMapId)) then
+                LogMessage(LOG_WARNING, "Failed to measure ", name, " map.")
+                return
+            end
+        end
     end
     return mapMeasurements[extraMapId]
 end
 
 local function RestoreCurrentWaypoint()
     if(not currentWaypointMapId) then
-	LogMessage(LOG_DEBUG, "Called RestoreCurrentWaypoint without calling StoreCurrentWaypoint.")
-	return
+        LogMessage(LOG_DEBUG, "Called RestoreCurrentWaypoint without calling StoreCurrentWaypoint.")
+        return
     end
 
     local wasSet = false
     if (currentWaypointX ~= 0 or currentWaypointY ~= 0) then
-	-- calculate waypoint position on the worldmap
-	local measurements = mapMeasurements[currentWaypointMapId]
-	local x = currentWaypointX * measurements.scaleX + measurements.offsetX
-	local y = currentWaypointY * measurements.scaleY + measurements.offsetY
+        -- calculate waypoint position on the worldmap
+        local measurements = mapMeasurements[currentWaypointMapId]
+        local x = currentWaypointX * measurements.scaleX + measurements.offsetX
+        local y = currentWaypointY * measurements.scaleY + measurements.offsetY
 
-	for rootMapIndex, measurements in pairs(rootMaps) do
-	    if not measurements then
-		measurements = GetExtraMapMeasurement(rootMapIndex)
-		rootMaps[rootMapIndex] = measurements
-	    end
-	    if(measurements) then
-		if(x > measurements.offsetX and x < (measurements.offsetX + measurements.scaleX) and
-		    y > measurements.offsetY and y < (measurements.offsetY + measurements.scaleY)) then
-		    if(orgSetMapToMapListIndex(rootMapIndex) ~= SET_MAP_RESULT_FAILED) then
-			-- calculate waypoint coodinates within root map
-			x = (x - measurements.offsetX) / measurements.scaleX
-			y = (y - measurements.offsetY) / measurements.scaleY
-			SetPlayerWaypoint(x, y)
-			wasSet = true
-			break
-		    end
-		end
-	    end
-	end
-	if (not wasSet) then
-	    LogMessage(LOG_DEBUG, "Cannot reset waypoint because it was outside of our reach")
-	end
+        for rootMapIndex, measurements in pairs(rootMaps) do
+            if not measurements then
+                measurements = GetExtraMapMeasurement(rootMapIndex)
+                rootMaps[rootMapIndex] = measurements
+            end
+            if(measurements) then
+                if(x > measurements.offsetX and x < (measurements.offsetX + measurements.scaleX) and
+                    y > measurements.offsetY and y < (measurements.offsetY + measurements.scaleY)) then
+                    if(orgSetMapToMapListIndex(rootMapIndex) ~= SET_MAP_RESULT_FAILED) then
+                        -- calculate waypoint coodinates within root map
+                        x = (x - measurements.offsetX) / measurements.scaleX
+                        y = (y - measurements.offsetY) / measurements.scaleY
+                        SetPlayerWaypoint(x, y)
+                        wasSet = true
+                        break
+                    end
+                end
+            end
+        end
+        if (not wasSet) then
+            LogMessage(LOG_DEBUG, "Cannot reset waypoint because it was outside of our reach")
+        end
     end
 
     if(wasSet) then
-	LogMessage(LOG_DEBUG, "Waypoint was restored, request pin update")
-	needWaypointRestore = true -- we need to update the pin on the worldmap afterwards
+        LogMessage(LOG_DEBUG, "Waypoint was restored, request pin update")
+        needWaypointRestore = true -- we need to update the pin on the worldmap afterwards
     else
-	RemovePlayerWaypoint()
+        RemovePlayerWaypoint()
     end
     ClearCurrentWaypoint()
 end
@@ -290,18 +290,18 @@ local function HookSetMapToFunction(funcName)
     local orgFunction = _G[funcName]
     orgFunctions[funcName] = orgFunction
     local function NewFunction(...)
-	local result = orgFunction(...)
-	if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
-	    LogMessage(LOG_DEBUG, funcName)
+        local result = orgFunction(...)
+        if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
+            LogMessage(LOG_DEBUG, funcName)
 
-	    local success, mapResult = lib:CalculateMapMeasurements(false)
-	    if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
-		result = mapResult
-	    end
-	    orgFunction(...)
-	end
-	-- All stuff is done before anyone triggers an "OnWorldMapChanged" event due to this result
-	return result
+            local success, mapResult = lib:CalculateMapMeasurements(false)
+            if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
+                result = mapResult
+            end
+            orgFunction(...)
+        end
+        -- All stuff is done before anyone triggers an "OnWorldMapChanged" event due to this result
+        return result
     end
     _G[funcName] = NewFunction
 end
@@ -310,19 +310,19 @@ local function HookSetMapToPlayerLocation()
     orgSetMapToPlayerLocation = SetMapToPlayerLocation
     orgFunctions["SetMapToPlayerLocation"] = orgSetMapToPlayerLocation
     local function NewSetMapToPlayerLocation(...)
-	if not DoesUnitExist("player") then return SET_MAP_RESULT_MAP_FAILED end
-	local result = orgSetMapToPlayerLocation(...)
-	if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
-	    LogMessage(LOG_DEBUG, "SetMapToPlayerLocation")
+        if not DoesUnitExist("player") then return SET_MAP_RESULT_MAP_FAILED end
+        local result = orgSetMapToPlayerLocation(...)
+        if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
+            LogMessage(LOG_DEBUG, "SetMapToPlayerLocation")
 
-	    local success, mapResult = lib:CalculateMapMeasurements(false)
-	    if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
-		result = mapResult
-	    end
-	    orgSetMapToPlayerLocation(...)
-	end
-	-- All stuff is done before anyone triggers an "OnWorldMapChanged" event due to this result
-	return result
+            local success, mapResult = lib:CalculateMapMeasurements(false)
+            if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
+                result = mapResult
+            end
+            orgSetMapToPlayerLocation(...)
+        end
+        -- All stuff is done before anyone triggers an "OnWorldMapChanged" event due to this result
+        return result
     end
     SetMapToPlayerLocation = NewSetMapToPlayerLocation
 end
@@ -331,19 +331,19 @@ local function HookSetMapToMapListIndex()
     orgSetMapToMapListIndex = SetMapToMapListIndex
     orgFunctions["SetMapToMapListIndex"] = orgSetMapToMapListIndex
     local function NewSetMapToMapListIndex(mapIndex)
-	local result = orgSetMapToMapListIndex(mapIndex)
-	if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
-	    LogMessage(LOG_DEBUG, "SetMapToMapListIndex")
+        local result = orgSetMapToMapListIndex(mapIndex)
+        if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
+            LogMessage(LOG_DEBUG, "SetMapToMapListIndex")
 
-	    local success, mapResult = lib:CalculateMapMeasurements(false)
-	    if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
-		result = mapResult
-	    end
-	    orgSetMapToMapListIndex(mapIndex)
-	end
+            local success, mapResult = lib:CalculateMapMeasurements(false)
+            if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
+                result = mapResult
+            end
+            orgSetMapToMapListIndex(mapIndex)
+        end
 
-	-- All stuff is done before anyone triggers an "OnWorldMapChanged" event due to this result
-	return result
+        -- All stuff is done before anyone triggers an "OnWorldMapChanged" event due to this result
+        return result
     end
     SetMapToMapListIndex = NewSetMapToMapListIndex
 end
@@ -352,16 +352,16 @@ local function HookProcessMapClick()
     orgProcessMapClick = ProcessMapClick
     orgFunctions["ProcessMapClick"] = orgProcessMapClick
     local function NewProcessMapClick(...)
-	local result = orgProcessMapClick(...)
-	if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
-	    LogMessage(LOG_DEBUG, "ProcessMapClick")
-	    local success, mapResult = lib:CalculateMapMeasurements(true)
-	    if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
-		result = mapResult
-	    end
-	    -- Returning is done via clicking already
-	end
-	return result
+        local result = orgProcessMapClick(...)
+        if(result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured()) then
+            LogMessage(LOG_DEBUG, "ProcessMapClick")
+            local success, mapResult = lib:CalculateMapMeasurements(true)
+            if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
+                result = mapResult
+            end
+            -- Returning is done via clicking already
+        end
+        return result
     end
     ProcessMapClick = NewProcessMapClick
 end
@@ -370,16 +370,16 @@ local function HookSetMapFloor()
     orgSetMapFloor = SetMapFloor
     orgFunctions["SetMapFloor"] = orgSetMapFloor
     local function NewSetMapFloor(...)
-	local result = orgSetMapFloor(...)
-	if result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured() then
-	    LogMessage(LOG_DEBUG, "SetMapFloor")
-	    local success, mapResult = lib:CalculateMapMeasurements(true)
-	    if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
-		result = mapResult
-	    end
-	    orgSetMapFloor(...)
-	end
-	return result
+        local result = orgSetMapFloor(...)
+        if result ~= SET_MAP_RESULT_MAP_FAILED and not IsMapMeasured() then
+            LogMessage(LOG_DEBUG, "SetMapFloor")
+            local success, mapResult = lib:CalculateMapMeasurements(true)
+            if(mapResult ~= SET_MAP_RESULT_CURRENT_MAP_UNCHANGED) then
+                result = mapResult
+            end
+            orgSetMapFloor(...)
+        end
+        return result
     end
     SetMapFloor = NewSetMapFloor
 end
@@ -395,24 +395,24 @@ local function Initialize() -- wait until we have defined all functions
     EVENT_MANAGER:UnregisterForEvent(LIB_NAME .. "_UnmuteMapPing", EVENT_MAP_PING)
 
     if (lib.Unload) then
-	-- Undo action from older libGPS ( >= 5.2)
-	lib:Unload()
-	if (lib.suppressCount > 0) then
-	    if lib.debugMode then zo_callLater(function() LogMessage(LOG_WARNING, "There is a measure in progress before loading is completed.") end, 2000) end
-	    FinalizeMeasurement()
-	end
+        -- Undo action from older libGPS ( >= 5.2)
+        lib:Unload()
+        if (lib.suppressCount > 0) then
+            if lib.debugMode then zo_callLater(function() LogMessage(LOG_WARNING, "There is a measure in progress before loading is completed.") end, 2000) end
+            FinalizeMeasurement()
+        end
     end
 
     --- Register new Unload
     function lib:Unload()
-	for funcName, func in pairs(orgFunctions) do
-	    _G[funcName] = func
-	end
+        for funcName, func in pairs(orgFunctions) do
+            _G[funcName] = func
+        end
 
-	LMP:UnregisterCallback("AfterPingAdded", HandlePingEvent)
-	LMP:UnregisterCallback("AfterPingRemoved", HandlePingEvent)
+        LMP:UnregisterCallback("AfterPingAdded", HandlePingEvent)
+        LMP:UnregisterCallback("AfterPingRemoved", HandlePingEvent)
 
-	rootMaps, mapMeasurements, mapStack = nil, nil, nil
+        rootMaps, mapMeasurements, mapStack = nil, nil, nil
     end
 
     ConnectToWorldMap()
@@ -428,11 +428,14 @@ local function Initialize() -- wait until we have defined all functions
     StoreTamrielMapMeasurements()
 
     local function addRootMap(zoneId)
-	local mapIndex = GetMapIndexByZoneId(zoneId)
-	if mapIndex then rootMaps[mapIndex] = false end
+        local mapIndex = GetMapIndexByZoneId(zoneId)
+        if mapIndex then rootMaps[mapIndex] = false end
     end
     addRootMap(347) -- Coldhabour
     addRootMap(980) -- Clockwork City
+    if GetAPIVersion() >= 100023 then
+        addRootMap(1027) -- Artaeum
+    end
     -- Any future extra dimension map here
 
     SetMapToPlayerLocation() -- initial measurement so we can get back to where we are currently
@@ -472,8 +475,8 @@ end
 function lib:GetCurrentMapMeasurements()
     local mapId = GetMapTileTexture()
     if (not mapMeasurements[mapId]) then
-	-- try to calculate the measurements if they are not yet available
-	lib:CalculateMapMeasurements()
+        -- try to calculate the measurements if they are not yet available
+        lib:CalculateMapMeasurements()
     end
     return mapMeasurements[mapId]
 end
@@ -485,10 +488,10 @@ function lib:GetCurrentMapParentZoneIndices()
     local measurements = lib:GetCurrentMapMeasurements()
     local mapIndex = measurements.mapIndex
     if(not measurements.zoneIndex) then
-	lib:PushCurrentMap()
-	SetMapToMapListIndex(mapIndex)
-	measurements.zoneIndex = GetCurrentMapZoneIndex()
-	lib:PopCurrentMap()
+        lib:PushCurrentMap()
+        SetMapToMapListIndex(mapIndex)
+        measurements.zoneIndex = GetCurrentMapZoneIndex()
+        lib:PopCurrentMap()
     end
     local zoneIndex = measurements.zoneIndex
     return mapIndex, zoneIndex
@@ -507,14 +510,14 @@ function lib:CalculateMapMeasurements(returnToInitialMap)
     if (mapMeasurements[mapId] or mapId == "") then return false end
 
     if (lib.debugMode) then
-	LogMessage("Called from", GetAddon(), "for", mapId)
+        LogMessage("Called from", GetAddon(), "for", mapId)
     end
 
     -- get the player position on the current map
     local localX, localY = GetPlayerPosition()
     if (localX == 0 and localY == 0) then
-	-- cannot take measurements while player position is not initialized
-	return false, SET_MAP_RESULT_CURRENT_MAP_UNCHANGED
+        -- cannot take measurements while player position is not initialized
+        return false, SET_MAP_RESULT_CURRENT_MAP_UNCHANGED
     end
 
     returnToInitialMap = (returnToInitialMap ~= false)
@@ -525,7 +528,7 @@ function lib:CalculateMapMeasurements(returnToInitialMap)
     -- check some facts about the current map, so we can reset it later
     -- local oldMapIsZoneMap, oldMapFloor, oldMapFloorCount
     if returnToInitialMap then
-	lib:PushCurrentMap()
+        lib:PushCurrentMap()
     end
 
     local hasWaypoint = LMP:HasMapPing(MAP_PIN_TYPE_PLAYER_WAYPOINT)
@@ -535,14 +538,14 @@ function lib:CalculateMapMeasurements(returnToInitialMap)
 
     -- Until now, the waypoint was abused. Now the waypoint must be restored or removed again (not from Lua only).
     if(hasWaypoint) then
-	RestoreCurrentWaypoint()
+        RestoreCurrentWaypoint()
     else
-	RemovePlayerWaypoint()
+        RemovePlayerWaypoint()
     end
 
     if (returnToInitialMap) then
-	local result = lib:PopCurrentMap()
-	return true, result
+        local result = lib:PopCurrentMap()
+        return true, result
     end
 
     return true, (mapId == GetMapTileTexture()) and SET_MAP_RESULT_CURRENT_MAP_UNCHANGED or SET_MAP_RESULT_MAP_CHANGED
@@ -554,9 +557,9 @@ end
 function lib:LocalToGlobal(x, y)
     local measurements = lib:GetCurrentMapMeasurements()
     if (measurements) then
-	x = x * measurements.scaleX + measurements.offsetX
-	y = y * measurements.scaleY + measurements.offsetY
-	return x, y, measurements.mapIndex
+        x = x * measurements.scaleX + measurements.offsetX
+        y = y * measurements.scaleY + measurements.offsetY
+        return x, y, measurements.mapIndex
     end
 end
 
@@ -565,9 +568,9 @@ end
 function lib:GlobalToLocal(x, y)
     local measurements = lib:GetCurrentMapMeasurements()
     if (measurements) then
-	x = (x - measurements.offsetX) / measurements.scaleX
-	y = (y - measurements.offsetY) / measurements.scaleY
-	return x, y
+        x = (x - measurements.offsetX) / measurements.scaleX
+        y = (y - measurements.offsetY) / measurements.scaleY
+        return x, y
     end
 end
 
@@ -627,19 +630,19 @@ end
 function lib:SetMapToRootMap(x, y)
     local result = SET_MAP_RESULT_FAILED
     for rootMapIndex, measurements in pairs(rootMaps) do
-	if (not measurements) then
-	    measurements = GetExtraMapMeasurement(rootMapIndex)
-	    rootMaps[rootMapIndex] = measurements
-	    result = SET_MAP_RESULT_MAP_CHANGED
-	end
-	if (measurements) then
-	    if (x > measurements.offsetX and x < (measurements.offsetX + measurements.scaleX) and
-		y > measurements.offsetY and y < (measurements.offsetY + measurements.scaleY)) then
-		if (orgSetMapToMapListIndex(rootMapIndex) ~= SET_MAP_RESULT_FAILED) then
-		    return SET_MAP_RESULT_MAP_CHANGED
-		end
-	    end
-	end
+        if (not measurements) then
+            measurements = GetExtraMapMeasurement(rootMapIndex)
+            rootMaps[rootMapIndex] = measurements
+            result = SET_MAP_RESULT_MAP_CHANGED
+        end
+        if (measurements) then
+            if (x > measurements.offsetX and x < (measurements.offsetX + measurements.scaleX) and
+                y > measurements.offsetY and y < (measurements.offsetY + measurements.scaleY)) then
+                if (orgSetMapToMapListIndex(rootMapIndex) ~= SET_MAP_RESULT_FAILED) then
+                    return SET_MAP_RESULT_MAP_CHANGED
+                end
+            end
+        end
     end
     return result
 end
@@ -650,13 +653,13 @@ function lib:MapZoomInMax(x, y)
     local result = lib:SetMapToRootMap(x, y)
 
     if (result ~= SET_MAP_RESULT_FAILED) then
-	local localX, localY = lib:GlobalToLocal(x, y)
+        local localX, localY = lib:GlobalToLocal(x, y)
 
-	while WouldProcessMapClick(localX, localY) do
-	    result = orgProcessMapClick(localX, localY)
-	    if (result == SET_MAP_RESULT_FAILED) then break end
-	    localX, localY = lib:GlobalToLocal(x, y)
-	end
+        while WouldProcessMapClick(localX, localY) do
+            result = orgProcessMapClick(localX, localY)
+            if (result == SET_MAP_RESULT_FAILED) then break end
+            localX, localY = lib:GlobalToLocal(x, y)
+        end
     end
 
     return result
@@ -687,81 +690,81 @@ function lib:PopCurrentMap()
     local result = SET_MAP_RESULT_FAILED
     local data = table.remove(mapStack, #mapStack)
     if(not data) then
-	LogMessage(LOG_DEBUG, "PopCurrentMap failed. No data on map stack.")
-	return result
+        LogMessage(LOG_DEBUG, "PopCurrentMap failed. No data on map stack.")
+        return result
     end
 
     local wasPlayerLocation, targetMapTileTexture, currentMapFloor, currentMapFloorCount, currentMapIndex, zoom, offsetX, offsetY = unpack(data)
     local currentTileTexture = GetMapTileTexture()
     if(currentTileTexture ~= targetMapTileTexture) then
-	if(wasPlayerLocation) then
-	    result = orgSetMapToPlayerLocation()
+        if(wasPlayerLocation) then
+            result = orgSetMapToPlayerLocation()
 
-	elseif(currentMapIndex ~= nil and currentMapIndex > 0) then -- set to a zone map
-	    result = orgSetMapToMapListIndex(currentMapIndex)
+        elseif(currentMapIndex ~= nil and currentMapIndex > 0) then -- set to a zone map
+            result = orgSetMapToMapListIndex(currentMapIndex)
 
-	else -- here is where it gets tricky
-	    local target = mapMeasurements[targetMapTileTexture]
-	    if(not target) then -- always just return to player map if we cannot restore the previous map.
-		LogMessage(LOG_DEBUG, string.format("No measurement for \"%s\". Returning to player location.", targetMapTileTexture))
-		return orgSetMapToPlayerLocation()
-	    end
+        else -- here is where it gets tricky
+            local target = mapMeasurements[targetMapTileTexture]
+            if(not target) then -- always just return to player map if we cannot restore the previous map.
+                LogMessage(LOG_DEBUG, string.format("No measurement for \"%s\". Returning to player location.", targetMapTileTexture))
+                return orgSetMapToPlayerLocation()
+            end
 
-	    -- switch to the parent zone
-	    if(target.mapIndex == TAMRIEL_MAP_INDEX) then -- zone map has no mapIndex (e.g. Eyevea or Hew's Bane on first PTS patch for update 9)
-		-- switch to the tamriel map just in case
-		result = orgSetMapToMapListIndex(TAMRIEL_MAP_INDEX)
-		if(result == SET_MAP_RESULT_FAILED) then return result end
-		-- get global coordinates of target map center
-		local x = target.offsetX + (target.scaleX / 2)
-		local y = target.offsetY + (target.scaleY / 2)
-		if(not WouldProcessMapClick(x, y)) then
-		    LogMessage(LOG_DEBUG, string.format("Cannot process click at %s/%s on map \"%s\" in order to get to \"%s\". Returning to player location instead.", tostring(x), tostring(y), GetMapTileTexture(), targetMapTileTexture))
-		    return orgSetMapToPlayerLocation()
-		end
-		result = orgProcessMapClick(x, y)
-		if(result == SET_MAP_RESULT_FAILED) then return result end
-	    else
-		result = orgSetMapToMapListIndex(target.mapIndex)
-		if(result == SET_MAP_RESULT_FAILED) then return result end
-	    end
+            -- switch to the parent zone
+            if(target.mapIndex == TAMRIEL_MAP_INDEX) then -- zone map has no mapIndex (e.g. Eyevea or Hew's Bane on first PTS patch for update 9)
+                -- switch to the tamriel map just in case
+                result = orgSetMapToMapListIndex(TAMRIEL_MAP_INDEX)
+                if(result == SET_MAP_RESULT_FAILED) then return result end
+                -- get global coordinates of target map center
+                local x = target.offsetX + (target.scaleX / 2)
+                local y = target.offsetY + (target.scaleY / 2)
+                if(not WouldProcessMapClick(x, y)) then
+                    LogMessage(LOG_DEBUG, string.format("Cannot process click at %s/%s on map \"%s\" in order to get to \"%s\". Returning to player location instead.", tostring(x), tostring(y), GetMapTileTexture(), targetMapTileTexture))
+                    return orgSetMapToPlayerLocation()
+                end
+                result = orgProcessMapClick(x, y)
+                if(result == SET_MAP_RESULT_FAILED) then return result end
+            else
+                result = orgSetMapToMapListIndex(target.mapIndex)
+                if(result == SET_MAP_RESULT_FAILED) then return result end
+            end
 
-	    -- switch to the sub zone
-	    currentTileTexture = GetMapTileTexture()
-	    if(currentTileTexture ~= targetMapTileTexture) then
-		-- determine where on the zone map we have to click to get to the sub zone map
-		-- get global coordinates of target map center
-		local x = target.offsetX + (target.scaleX / 2)
-		local y = target.offsetY + (target.scaleY / 2)
-		-- transform to local coordinates
-		local current = mapMeasurements[currentTileTexture]
-		if(not current) then
-		    LogMessage(LOG_DEBUG, string.format("No measurement for \"%s\". Returning to player location.", currentTileTexture))
-		    return orgSetMapToPlayerLocation()
-		end
+            -- switch to the sub zone
+            currentTileTexture = GetMapTileTexture()
+            if(currentTileTexture ~= targetMapTileTexture) then
+                -- determine where on the zone map we have to click to get to the sub zone map
+                -- get global coordinates of target map center
+                local x = target.offsetX + (target.scaleX / 2)
+                local y = target.offsetY + (target.scaleY / 2)
+                -- transform to local coordinates
+                local current = mapMeasurements[currentTileTexture]
+                if(not current) then
+                    LogMessage(LOG_DEBUG, string.format("No measurement for \"%s\". Returning to player location.", currentTileTexture))
+                    return orgSetMapToPlayerLocation()
+                end
 
-		x = (x - current.offsetX) / current.scaleX
-		y = (y - current.offsetY) / current.scaleY
+                x = (x - current.offsetX) / current.scaleX
+                y = (y - current.offsetY) / current.scaleY
 
-		if(not WouldProcessMapClick(x, y)) then
-		    LogMessage(LOG_DEBUG, string.format("Cannot process click at %s/%s on map \"%s\" in order to get to \"%s\". Returning to player location instead.", tostring(x), tostring(y), GetMapTileTexture(), targetMapTileTexture))
-		    return orgSetMapToPlayerLocation()
-		end
-		result = orgProcessMapClick(x, y)
-		if(result == SET_MAP_RESULT_FAILED) then return result end
-	    end
+                if(not WouldProcessMapClick(x, y)) then
+                    LogMessage(LOG_DEBUG, string.format("Cannot process click at %s/%s on map \"%s\" in order to get to \"%s\". Returning to player location instead.", tostring(x), tostring(y), GetMapTileTexture(), targetMapTileTexture))
+                    return orgSetMapToPlayerLocation()
+                end
+                result = orgProcessMapClick(x, y)
+                if(result == SET_MAP_RESULT_FAILED) then return result end
+            end
 
-	    -- switch to the correct floor (e.g. Elden Root)
-	    if (currentMapFloorCount > 0) then
-		result = orgSetMapFloor(currentMapFloor)
-	    end
-	    if (result ~= SET_MAP_RESULT_FAILED) then
-		lib.panAndZoom:SetCurrentZoom(zoom)
-		lib.panAndZoom:SetCurrentOffset(offsetX, offsetY)
-	    end
-	end
+            -- switch to the correct floor (e.g. Elden Root)
+            if (currentMapFloorCount > 0) then
+                result = orgSetMapFloor(currentMapFloor)
+            end
+            if (result ~= SET_MAP_RESULT_FAILED) then
+                lib.panAndZoom:SetCurrentZoom(zoom)
+                lib.panAndZoom:SetCurrentOffset(offsetX, offsetY)
+            end
+        end
     else
-	result = SET_MAP_RESULT_CURRENT_MAP_UNCHANGED
+        result = SET_MAP_RESULT_CURRENT_MAP_UNCHANGED
     end
 
     return result

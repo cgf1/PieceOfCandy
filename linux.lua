@@ -89,6 +89,10 @@ function ZO_Object:Subclass()
     return {}
 end
 
+function GetAPIVersion()
+    return 100023
+end
+
 function d(...) end
 
 SCENE_MANAGER = {}
@@ -102,3 +106,4 @@ end
 
 function Slash() end
 SOUNDS = {}
+

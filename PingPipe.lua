@@ -10,29 +10,34 @@ local show_errors = false
 
 PingPipe = {
     Name = "POC-PingPipe",
-    active = false
+    active = false,
+    lastmycomm = 0,
+    lastmytime = 0
 }
 PingPipe.__index = PingPipe
 
+local PingPipe = PingPipe
+
 local max_ping
+
+local myname = GetUnitName("player")
 
 local saved
 local sendword
 
 -- LIFO!
+local napid1, npct1, npos, napid2, npct2
 local function unpack_ultpct(ctype, x)
     local lower = x % COMM_ULTPCT_MUL1
     local upper = math.floor(x / COMM_ULTPCT_MUL1)
-    pct1 = upper % 124
-    apid1 = math.floor(upper / 124) + 1
-    local apid2, pct2, pos
+    npct1 = upper % 124
+    napid1 = math.floor(upper / 124) + 1
     if ctype ~= COMM_TYPE_PCTULT then
-	pos = lower
+	npos = lower
     else
-	pct2 = lower % 124
-	apid2 = math.floor(lower / 124) + 1
+	npct2 = lower % 124
+	napid2 = math.floor(lower / 124) + 1
     end
-    return apid1, pct1, pos, apid2, pct2
 end
 
 local function mapop(func, ...)
@@ -59,11 +64,14 @@ local function on_map_ping(pingtype, pingtag)
     local bytes = Comm.ToBytes(input)
     local ctype = bytes[1]
     local timenow = GetTimeStamp()
+    local name = GetUnitName(pingtag)
+    if name == myname then
+	PingPipe.lastmytime = timenow
+	PingPipe.lastmycomm = ctype
+    end
     local data = math.floor(input / 256)
     watch('on_map_ping', string.format("0x%2x", ctype))
-    if ctype == COMM_TYPE_PCTULTOLD then
-	Player.New(pingtag, timenow, bytes[2], bytes[3])
-    elseif ctype == COMM_TYPE_COUNTDOWN then
+    if ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
     elseif ctype == COMM_TYPE_NEEDQUEST then
 	Quest.Process(bytes[2], bytes[3])
@@ -79,9 +87,9 @@ local function on_map_ping(pingtype, pingtag)
 	Alert.UltFired(pingtag, data)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	input = data
-	local apid1, pct1, pos, apid2, pct2 = unpack_ultpct(ctype, input)
-	Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
+	unpack_ultpct(ctype, input)
     end
+    Player.New(pingtag, timenow, napid1, npct1, npos, napid2, npct2)
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
 	LMP:SuppressPing(pingtype, pingtag)
     end
