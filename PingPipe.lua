@@ -26,7 +26,6 @@ local saved
 local sendword
 
 -- LIFO!
-local napid1, npct1, npos, napid2, npct2
 local function unpack_ultpct(ctype, x)
     local lower = x % COMM_ULTPCT_MUL1
     local upper = math.floor(x / COMM_ULTPCT_MUL1)
@@ -38,6 +37,7 @@ local function unpack_ultpct(ctype, x)
 	npct2 = lower % 124
 	napid2 = math.floor(lower / 124) + 1
     end
+    return napid1, npct1, npos, napid2, npct2
 end
 
 local function mapop(func, ...)
@@ -71,6 +71,7 @@ local function on_map_ping(pingtype, pingtag)
     end
     local data = math.floor(input / 256)
     watch('on_map_ping', string.format("0x%2x", ctype))
+    local napid1, npct1, npos, napid2, npct2
     if ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
     elseif ctype == COMM_TYPE_NEEDQUEST then
@@ -86,8 +87,7 @@ local function on_map_ping(pingtype, pingtag)
     elseif ctype == COMM_TYPE_ULTFIRED then
 	Alert.UltFired(pingtag, data)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
-	input = data
-	unpack_ultpct(ctype, input)
+	napid1, npct1, npos, napid2, npct2 =  unpack_ultpct(ctype, data)
     end
     Player.New(pingtag, timenow, napid1, npct1, npos, napid2, npct2)
     if not LMP:IsPingSuppressed(pingtype, pingtag) then

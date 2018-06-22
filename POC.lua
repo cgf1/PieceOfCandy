@@ -11,6 +11,7 @@ local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
 
 local addon_conflicts = {
+    GroupDamageShare = true,
     RaidNotifier = true,
     SanctsUltimateOrganiser = true,
     TaosGroupTools = true,

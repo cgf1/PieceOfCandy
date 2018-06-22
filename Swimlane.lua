@@ -22,7 +22,7 @@ local ZO_DeepTableCopy = ZO_DeepTableCopy
 
 SWIMLANES = 9
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
-local INRANGETIME = 90		-- Reset ultpct if not inrange for at least this long
+local INRANGETIME = 120		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
 local MAXPLAYSOUNDTIME = 60
 local GARBAGECOLLECT = 60 * 3

@@ -138,15 +138,15 @@ local function sanity()
     local lmy = now - PingPipe.lastmytime
     lastupdate = now
     watch("sanity", string.format('last update secs %d, since last ping %d, counter %d', lu, lmy, counter))
-    if (lu > (3 * update_interval_per_sec)) or (lmy < 10) or (counter < 10) then
+    local lx = 3 * update_interval_per_sec
+    if (lu > lx) or (lmy < 30) or (counter < 10) then
 	return
     end
     if PingPipe.lastmytime == 0 then
 	Error("Haven't ever heard from myself")
     else
-	Error(string.format("Haven't heard from myself in %d seconds, last command: %02x", now - PingPipe.lastmytime, PingPipe.lastmycomm))
+	Error(string.format("Haven't heard from myself in %d seconds, last command: %02x, last update %d/%d seconds", lmy, PingPipe.lastmycomm, lu, lx))
     end
-    lastupdate = now
 end
 
 local old_queue = 0
@@ -293,6 +293,7 @@ function Comm.Initialize(inmajor, inminor, inbeta)
 	saved.UpdateInterval = 2000
     end
     update_interval = saved.UpdateInterval
+    update_interval_per_sec = update_interval / 1000
     keepalive_ping = math.floor((KEEPALIVE_PING_SECS / (update_interval / 1000)) + .5)
     me = Me
     if load_later then
