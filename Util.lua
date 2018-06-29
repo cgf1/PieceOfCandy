@@ -20,10 +20,18 @@ function Error(x)
     d(string.format("POC error: |cff0000%s|r", x))
 end
 
+function myunpack(t, n, i)
+    if n == nil then
+	n = #t
+	i = 1
+    end
+    if i <= n then
+	return t[i], myunpack(t, n, i + 1)
+    end
+end
+
 function Info(...)
-    local args = {...}
-    args[1] = "|cffff00POC: " .. args[1]
-    xxx(unpack(args))
+    xxx("|cffff00POC:", ...)
 end
 
 function xxx(...)
@@ -37,8 +45,7 @@ function xxx(...)
 end
 
 function HERE(...)
-    local args = {"|c00ffffHERE", ...}
-    xxx(unpack(args))
+    xxx("|c00ffffHERE", ...)
 end
 
 local watchmen

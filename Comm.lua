@@ -133,6 +133,9 @@ end
 local counter = 0
 local lastupdate = 0
 local function sanity()
+    if not saved.CommSanity then
+	return
+    end
     local now = GetTimeStamp()
     local lu = now - lastupdate
     local lmy = now - PingPipe.lastmytime
@@ -331,5 +334,15 @@ function Comm.Initialize(inmajor, inminor, inbeta)
 	end
 	Info(string.format("update every %d seconds",  update_interval / 1000))
     end)
+    Slash("sanity", "debugging: do behind the scenes sanity-checking", function (x)
+	x = x:lower()
+	if x == 'on' or x == 'true' then
+	    saved.CommSanity = true
+	elseif x == 'off' or x == 'false' then
+	    saved.CommSanity = nil
+	end
+	Info('Sanity is: ', saved.CommSanity)
+    end)
+
     RegClear(clearernow)
 end

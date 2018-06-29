@@ -29,15 +29,16 @@ local sendword
 local function unpack_ultpct(ctype, x)
     local lower = x % COMM_ULTPCT_MUL1
     local upper = math.floor(x / COMM_ULTPCT_MUL1)
-    npct1 = upper % 124
-    napid1 = math.floor(upper / 124) + 1
+    local pct1 = upper % 124
+    local apid1 = math.floor(upper / 124) + 1
+    local apid2, pct2, pos
     if ctype ~= COMM_TYPE_PCTULT then
-	npos = lower
+	pos = lower
     else
-	npct2 = lower % 124
-	napid2 = math.floor(lower / 124) + 1
+	pct2 = lower % 124
+	apid2 = math.floor(lower / 124) + 1
     end
-    return napid1, npct1, npos, napid2, npct2
+    return apid1, pct1, pos, apid2, pct2
 end
 
 local function mapop(func, ...)
@@ -71,7 +72,7 @@ local function on_map_ping(pingtype, pingtag)
     end
     local data = math.floor(input / 256)
     watch('on_map_ping', string.format("0x%2x", ctype))
-    local napid1, npct1, npos, napid2, npct2
+    local apid1, pct1, pos, apid2, pct2
     if ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
     elseif ctype == COMM_TYPE_NEEDQUEST then
@@ -87,9 +88,9 @@ local function on_map_ping(pingtype, pingtag)
     elseif ctype == COMM_TYPE_ULTFIRED then
 	Alert.UltFired(pingtag, data)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
-	napid1, npct1, npos, napid2, npct2 =  unpack_ultpct(ctype, data)
+	apid1, pct1, pos, apid2, pct2 =	 unpack_ultpct(ctype, data)
     end
-    Player.New(pingtag, timenow, napid1, npct1, npos, napid2, npct2)
+    Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
 	LMP:SuppressPing(pingtype, pingtag)
     end
