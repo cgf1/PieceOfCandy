@@ -50,10 +50,10 @@ local want = {}
 
 local myname = GetUnitName("player")
 
-local getquest = true
+local sharequests = true
 
 local function question(id)
-    if not getquest then
+    if not sharequests then
 	return false
     else
 	return want[id]
@@ -100,9 +100,15 @@ end
 
 local function shared(eventcode, qid)
     local id = qidtonum[qid]
-    if id ~= nil then
+    if not id then
+	return
+    end
+    if question(id) then
 	AcceptSharedQuest(qid)
 	Info("Automatically accepted:", numtoqname[id])
+    else
+	DeclineSharedQuest(qid)
+	watch("Quest.shared", "Automatically accepted:", numtoqname[id])
     end
 end
 
@@ -142,7 +148,7 @@ function Quest.Process(player, numquest)
 	end
     end
     local qname = numtoqname[numquest]
-    if qname ~= nil then
+    if sharequests and qname ~= nil then
 	for i = 1, GetNumJournalQuests() do
 	    if GetJournalQuestName(i) == qname then
 		-- Info(zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
@@ -166,16 +172,21 @@ function Quest.Ping()
     end
 end
 
+function Quest.Share(x)
+    if x ~= '' and x == "on" then
+	sharequests = true
+    elseif x == false or x == "off" or x == "false" or x == "no" then
+	sharequests = false
+    end
+    saved.ShareQuests = sharequests
+end
+
 function Quest.Want(id, set)
     if set == nil then
 	return want[id]
     else
 	want[id] = set
     end
-end
-
-local function clearernow()
-    getquest = true
 end
 
 function Quest.Initialize()
@@ -198,6 +209,8 @@ function Quest.Initialize()
 	}
     end
 
+    sharequests = saved.ShareQuests
+
     want = saved.Quests
     for i = 1, GetNumJournalQuests() do
 	local id = ourquest(i)
@@ -206,13 +219,10 @@ function Quest.Initialize()
 	    need[id] = false
 	end
     end
-    Slash("quest", "temporarily turn off quest sharing", function (x)
-	if x == "off" or x == "false" or x == "no" then
-	    getquest = false
-	elseif x == "on" then
-	    getquest = true
+    Slash("quest", "turn off quest sharing", function (x)
+	if x ~= '' then
+	    Quest.Share(x)
 	end
-	Info("Quest retrieval:", getquest)
+	Info("Quest sharing:", sharequests)
     end)
-    RegClear(clearernow)
 end

@@ -111,11 +111,11 @@ local need_to_fire = true
 local msg = d
 local d = nil
 
-local function widget_visible()
+local function widget_should_be_visible()
     if not (Group.IsGrouped() and Comm.IsActive()) then
 	return false
     else
-	return (not saved.OnlyAva) or IsPlayerInAvAWorld()
+	return (not saved.OnlyAva) or IsInCampaign()
     end
 end
 
@@ -171,26 +171,24 @@ end
 --
 
 local fragment
-local fragstate = false
-local function hide_widget(hideit)
-    hideit = hideit or not widget_visible()
-    local sceneon = not hideit
-    if fragstate ~= sceneon then
-	fragstate = sceneon
-	if not sceneon then
+local function show_widget(showit)
+    showit = showit and widget_should_be_visible()
+    if scene_showing ~= showit then
+	scene_showing = showit
+	if not showit then
 	    SCENE_MANAGER:GetScene("hud"):RemoveFragment(fragment)
 	    SCENE_MANAGER:GetScene("hudui"):RemoveFragment(fragment)
 	    SCENE_MANAGER:GetScene("siegeBar"):RemoveFragment(fragment)
+	    -- SCENE_MANAGER:GetScene("worldMap"):RemoveFragment(fragment)
+	    -- widget:SetHidden(true)
 	else
 	    SCENE_MANAGER:GetScene("hud"):AddFragment(fragment)
 	    SCENE_MANAGER:GetScene("hudui"):AddFragment(fragment)
 	    SCENE_MANAGER:GetScene("siegeBar"):AddFragment(fragment)
-	    if not (SCENE_MANAGER:IsShowing("hudui") and SCENE_MANAGER:GetScene("siegeBar")) then
-		return
-	    end
+	    -- SCENE_MANAGER:GetScene("worldMap"):AddFragment(fragment)
+	    -- widget:SetHidden(false)
 	end
     end
-    widget:SetHidden(hideit)
 end
 
 -- restore_position sets widget position
@@ -299,6 +297,7 @@ end
 local gc = GARBAGECOLLECT
 local wasactive = false
 local tickdown = 20
+local scene_showing
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -315,22 +314,22 @@ function Cols:Update(x)
     elseif not wasactive then
 	refresh = false
     else
-	refresh = true	-- just get rid of everything
 	if not Group.IsGrouped() then
 	    msg("POC: No longer grouped")
 	end
 	clear(false)
-	hide_widget(true)
+	show_widget(false)
 	wasactive = false
 	Comm.Unload()
+	return
     end
-    watch("Cols:Update", x, 'refresh', refresh, 'wasactive', wasactive)
 
     tickdown = tickdown - 1
     if tickdown <= 0 then
 	tickdown = 20
 	refresh = true
     end
+    watch("Cols:Update", x, 'refresh', refresh, 'wasactive', wasactive)
 
     if refresh then
 	watch("refresh")
@@ -350,9 +349,12 @@ function Cols:Update(x)
 	if not wasactive then
 	    msg("POC: now grouped")
 	    Comm.Load()
-	    hide_widget(false)
 	end
 	wasactive = true
+    end
+    local show = widget_should_be_visible()
+    if show ~= scene_showing then
+	show_widget(show)
     end
 end
 
@@ -1129,6 +1131,16 @@ function swimlanes.Initialize(major, minor)
 
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
+if false then
+EVENT_MANAGER:RegisterForEvent('POC', EVENT_ACTION_LAYER_POPPED, function (_, x, y)
+    HERE(x, y)
+    HERE(GetActionLayerInfo(x))
+    HERE(GetActionLayerInfo(y))
+end)
+end
+    Slash("show", "debugging: show the widget", function()
+	widget:SetHidden(false)
+    end)
 
     Slash("clear", "clear POC memory, run game garbage collection", function()
 	clear(true)

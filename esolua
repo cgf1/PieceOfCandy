@@ -9,19 +9,20 @@ use File::Slurp qw{read_file};
 
 my $infile = shift;
 my @libs = ();
-my $infiledir = dirname $infile;
-for my $d (glob 'libs/*') {
-    my $b = basename($d);
-    next if $d eq $infiledir or $b eq 'LibAddonMenu-2';
-    my $p = $d . '/' . basename($d);
-    if ($b eq 'LibStub' || $b eq 'LibMapPing') {
-        unshift @libs, '-l', $p;
-    } else {
-        push @libs, '-l', $p;
+if ($infile ne 'linux.lua') {
+    my $infiledir = dirname $infile;
+    for my $d (glob 'libs/*') {
+        my $b = basename($d);
+        next if $d eq $infiledir or $b eq 'LibAddonMenu-2';
+        my $p = $d . '/' . basename($d);
+        if ($b eq 'LibStub' || $b eq 'LibMapPing') {
+            unshift @libs, '-l', $p;
+        } else {
+            push @libs, '-l', $p;
+        }
     }
+    unshift @libs, '-l', 'linux';
 }
-
-unshift @libs, '-l', 'linux';
 
 my @toexec = ('/usr/bin/lua', @libs, $infile);
 # warn "+ @toexec\n";

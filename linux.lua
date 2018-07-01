@@ -41,10 +41,11 @@ _G.MAP_PIN_TYPE_PING = 4
 _G.MAP_PIN_TYPE_RALLY_POINT = 5
 
 local base = {} base.__index = base
-_G.ZO_CallbackObject = {} ZO_CallbackObject.__index = ZO_CallbackObject
+ZO_CallbackObject = {} ZO_CallbackObject.__index = ZO_CallbackObject
 function ZO_CallbackObject:New()
     return base
 end
+_G.ZO_CallbackObject = ZO_CallbackObject
 
 function base:RegisterCallback()
 end
@@ -85,9 +86,19 @@ function ZO_DeepTableCopy()
 end
 
 ZO_Object = {} ZO_Object.__index = ZO_Object
-function ZO_Object:Subclass()
-    return {}
+function ZO_Object:New()
+    local base = setmetatable({}, ZO_Object)
+    return base
 end
+function ZO_Object:Initialize()
+    return
+end
+function ZO_Object:Subclass()
+    local base = {}
+    base.__index = ZO_Object
+    return base
+end
+_G.ZO_Object = ZO_Object
 
 function GetAPIVersion()
     return 100023
@@ -106,4 +117,3 @@ end
 
 function Slash() end
 SOUNDS = {}
-

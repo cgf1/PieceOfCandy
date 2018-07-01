@@ -11,14 +11,6 @@ Settings = {
 	ChalKeep = false,
 	ChalMine = false,
 	GroupMembers = {},
-	MIA = true,
-	MapIndex = 30,	-- Vvardenfell
-	MyUltId = {},
-	NeedsHelp = false,
-	OnlyAva = false,
-	Style = "Standard",
-	SwimlaneMax = 24,
-	SwimlaneMaxCols = 6,
 	LaneIds = {
 	    1,	-- Negate
 	    6,	-- Templar Heal
@@ -31,6 +23,15 @@ Settings = {
 	    12, -- Soul tether
 	    14	-- Warden heal
 	},
+	MIA = true,
+	MapIndex = 30,	-- Vvardenfell
+	MyUltId = {},
+	NeedsHelp = true,
+	OnlyAva = false,
+	ShareQuests = true,
+	Style = "Standard",
+	SwimlaneMax = 24,
+	SwimlaneMaxCols = 6,
 	UltAlert = true,
 	UltNoise = false,
 	UltNumberPos = nil,
@@ -58,14 +59,6 @@ end
 function Settings.SetMIA(what)
     saved.MIA = what
     Swimlanes.Redo()
-end
-
--- Control whether to only display in PVP setting
---
-function Settings.SetOnlyAvaSettings(onlyAva)
-    saved.OnlyAva = onlyAva
-
-    Swimlanes.Update("AVA")
 end
 
 -- Sets maximum number of cells in a swimlane
@@ -120,7 +113,8 @@ function Settings.InitializeWindow(version)
 	    return saved.OnlyAva
 	end,
 	setFunc = function(value)
-	    Settings.SetOnlyAvaSettings(value)
+	    saved.OnlyAva = value
+	    Swimlanes.Update("AVA")
 	end,
 	default = default.OnlyAva
     }
@@ -253,6 +247,16 @@ function Settings.InitializeWindow(version)
     }
     o[#o + 1] = {
 	type = "checkbox",
+	name = "Automatically share quests",
+	tooltip = "Automatically share Chalman and Kill Enemy players when needed/requested",
+	getFunc = function()
+	    return saved.ShareQuests
+	end,
+	setFunc = Quest.Share,
+	default = default.ShareQuests
+    }
+    o[#o + 1] = {
+	type = "checkbox",
 	name = "Automatically request Chalman Keep quest",
 	tooltip = "Notice when you're lacking the Chalman Keep quest and silently acquire it from other players in group",
 	getFunc = function()
@@ -275,14 +279,15 @@ function Settings.InitializeWindow(version)
     }
     o[#o + 1] = {
 	type = "checkbox",
-	name = "Accept \"Needs Help\" alerts from other group members",
+	name = 'Accept "Needs Help" alerts from group members',
 	tooltip = "Display a \"Needs Help\" message and a sound when someone in your group presses a key.  Requires setting a key in Controls",
 	getFunc = function()
 	    return saved.NeedsHelp
 	end,
 	setFunc = function(val)
 	    saved.NeedsHelp = true
-	end
+	end,
+	default = default.NeedsHelp
     }
     o[#o + 1] = {
 	type = "checkbox",
