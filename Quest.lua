@@ -108,7 +108,7 @@ local function shared(eventcode, qid)
 	Info("Automatically accepted:", numtoqname[id])
     else
 	DeclineSharedQuest(qid)
-	watch("Quest.shared", "Automatically accepted:", numtoqname[id])
+	watch("Quest.shared", "Automatically declined:", numtoqname[id])
     end
 end
 
@@ -212,6 +212,9 @@ function Quest.Initialize()
     sharequests = saved.ShareQuests
 
     want = saved.Quests
+    if want[KILL_INDEX] == nil then
+	want[KILL_INDEX] = true
+    end
     for i = 1, GetNumJournalQuests() do
 	local id = ourquest(i)
 	if id > 0 then
