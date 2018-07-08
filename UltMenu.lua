@@ -48,7 +48,8 @@ end
 -- 1 = On non-selected: Show primary/secondary
 -- 2 = On primary: Show secondary with "switch note"
 -- 3 = On secondary: Show secondary with red circle
-function UltMenu.ShowUltMenu(parent, id, apid)
+function UltMenu.Show(parent, id, apid)
+    watch("UltMenu.Show", id)
     curid = id
     curapid = apid
     if parent.data == nil then
@@ -126,5 +127,4 @@ end
 --
 function UltMenu.Initialize()
     myults = Settings.SavedVariables.MyUltId[ultix]
-    CALLBACK_MANAGER:RegisterCallback(SHOW_ULTIMATE_GROUP_MENU, UltMenu.ShowUltMenu)
 end

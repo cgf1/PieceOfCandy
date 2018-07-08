@@ -572,8 +572,8 @@ function Col:Update(tick)
 	    end
 	end
 	if not isMIA or displayed then
-	    local x, y, sizex, sizey = colstuff(self.Id, 0)
-	    max_x = x + sizex
+	    local x, y, sizex, sizey = colstuff(self.Id + 1, 0)
+	    max_x = x
 	end
     end
 
@@ -973,7 +973,7 @@ end
 -- Col:Click called on header clicked
 --
 function Col:Click()
-    CALLBACK_MANAGER:FireCallbacks(SHOW_ULTIMATE_GROUP_MENU, self.Button, self.Id, self.Apid)
+    UltMenu.Show(self.Button, self.Id, self.Apid)
 end
 
 -- Create icon/label at top of column
@@ -1005,10 +1005,12 @@ function Col.New(col, i)
     if i == MIAlane then
 	self.Compare = compare_mia
 	self.Plunk = plunk_mia
+	self.Button:SetMouseEnabled(false)
 	self.Button:SetHandler("OnClicked", nil)
     else
 	self.Compare = compare_not_mia
 	self.Plunk = plunk_not_mia
+	self.Button:SetMouseEnabled(true)
 	self.Button:SetHandler("OnClicked", function() self:Click() end)
     end
 
@@ -1055,6 +1057,8 @@ function Cols:New()
     end
     local oldMIAlane = MIAlane or saved.SwimlaneMaxCols + 1
     MIAlane = saved.SwimlaneMaxCols + 1
+    local x, y, sizex, sizey = colstuff(MIAlane + 1, 0)
+    widget:SetDimensions(x, 265)
     for i = 1, MIAlane do
 	self[i] = Col.New(self[i], i)
 	if redo then
@@ -1131,13 +1135,6 @@ function swimlanes.Initialize(major, minor)
 
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
-if false then
-EVENT_MANAGER:RegisterForEvent('POC', EVENT_ACTION_LAYER_POPPED, function (_, x, y)
-    HERE(x, y)
-    HERE(GetActionLayerInfo(x))
-    HERE(GetActionLayerInfo(y))
-end)
-end
     Slash("show", "debugging: show the widget", function()
 	widget:SetHidden(false)
     end)
