@@ -56,20 +56,31 @@ function Alert.NeedsHelp(tag)
     Alert.Show(string.format("%s needs help", name), 5000, true)
 end
 
+local your_fired = {}
 function Alert.UltFired(tag, aid)
-    if not saved.UltAlert then
-	return
+    local player = your_fired[tag]
+    local name = GetUnitName(tag)
+    if player == nil or name ~= player.Name then
+	player = {
+	    Name = name,
+	    LastTime = 0
+	}
+	your_fired[tag] = player
     end
-    local ult = Ult.ByPing(aid)
-    local duration = GetAbilityDuration(aid)
-    if duration < 10000 then
-	duration = 10000
+    local now = GetTimeStamp()
+    if saved.UltAlert and (now - player.LastTime) > 15 then
+	player.LastTime = now
+	local ult = Ult.ByPing(aid)
+	local duration = GetAbilityDuration(aid)
+	if duration < 10000 then
+	    duration = 10000
+	end
+	local name = player_name(tag)
+	watch('Alert.UltFired', tag, aid, name)
+	local ultname = GetAbilityName(aid)
+	local message = string.format("%s's %s", player_name(tag), ultname)
+	Alert.Show(message, duration)
     end
-    local name = player_name(tag)
-    watch('Alert.UltFired', tag, aid, name)
-    local ultname = GetAbilityName(aid)
-    local message = string.format("%s's %s", player_name(tag), ultname)
-    Alert.Show(message, duration)
 end
 
 function Alert.Show(text, total_duration, flash)
