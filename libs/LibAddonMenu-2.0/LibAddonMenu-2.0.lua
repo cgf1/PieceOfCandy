@@ -1,10 +1,10 @@
--- LibAddonMenu-2.0 & its files © Ryan Lakanen (Seerah)         --
--- Distributed under The Artistic License 2.0 (see LICENSE)     --
+-- LibAddonMenu-2.0 & its files © Ryan Lakanen (Seerah)	 --
+-- Distributed under The Artistic License 2.0 (see LICENSE)	--
 ------------------------------------------------------------------
 
 
 --Register LAM with LibStub
-local MAJOR, MINOR = "LibAddonMenu-2.0", 25
+local MAJOR, MINOR = "LibAddonMenu-2.0", 26
 local lam, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lam then return end --the same or newer version of this lib is already loaded into memory
 
@@ -12,15 +12,15 @@ local messages = {}
 local MESSAGE_PREFIX = "[LAM2] "
 local function PrintLater(msg)
     if CHAT_SYSTEM.primaryContainer then
-        d(MESSAGE_PREFIX .. msg)
+	d(MESSAGE_PREFIX .. msg)
     else
-        messages[#messages + 1] = msg
+	messages[#messages + 1] = msg
     end
 end
 
 local function FlushMessages()
     for i = 1, #messages do
-        d(MESSAGE_PREFIX .. messages[i])
+	d(MESSAGE_PREFIX .. messages[i])
     end
     messages = {}
 end
@@ -58,16 +58,16 @@ local controlsForReload = lam.controlsForReload
 
 local function GetDefaultValue(default)
     if type(default) == "function" then
-        return default()
+	return default()
     end
     return default
 end
 
 local function GetStringFromValue(value)
     if type(value) == "function" then
-        return value()
+	return value()
     elseif type(value) == "number" then
-        return GetString(value)
+	return GetString(value)
     end
     return value
 end
@@ -100,15 +100,15 @@ local function CreateLabelAndContainerControl(parent, controlData, controlName)
     control.label = label
 
     if control.isHalfWidth then
-        control:SetDimensions(width / 2, MIN_HEIGHT * 2 + HALF_WIDTH_LINE_SPACING)
-        label:SetAnchor(TOPLEFT, control, TOPLEFT, 0, 0)
-        label:SetAnchor(TOPRIGHT, control, TOPRIGHT, 0, 0)
-        container:SetAnchor(TOPRIGHT, control.label, BOTTOMRIGHT, 0, HALF_WIDTH_LINE_SPACING)
+	control:SetDimensions(width / 2, MIN_HEIGHT * 2 + HALF_WIDTH_LINE_SPACING)
+	label:SetAnchor(TOPLEFT, control, TOPLEFT, 0, 0)
+	label:SetAnchor(TOPRIGHT, control, TOPRIGHT, 0, 0)
+	container:SetAnchor(TOPRIGHT, control.label, BOTTOMRIGHT, 0, HALF_WIDTH_LINE_SPACING)
     else
-        control:SetDimensions(width, MIN_HEIGHT)
-        container:SetAnchor(TOPRIGHT, control, TOPRIGHT, 0, 0)
-        label:SetAnchor(TOPLEFT, control, TOPLEFT, 0, 0)
-        label:SetAnchor(TOPRIGHT, container, TOPLEFT, 5, 0)
+	control:SetDimensions(width, MIN_HEIGHT)
+	container:SetAnchor(TOPRIGHT, control, TOPRIGHT, 0, 0)
+	label:SetAnchor(TOPLEFT, control, TOPLEFT, 0, 0)
+	label:SetAnchor(TOPRIGHT, container, TOPLEFT, 5, 0)
     end
 
     control.data.tooltipText = GetStringFromValue(control.data.tooltip)
@@ -120,7 +120,7 @@ end
 
 local function GetTopPanel(panel)
     while panel.panel and panel.panel ~= panel do
-        panel = panel.panel
+	panel = panel.panel
     end
     return panel
 end
@@ -128,7 +128,7 @@ end
 local function IsSame(objA, objB)
     if #objA ~= #objB then return false end
     for i = 1, #objA do
-        if objA[i] ~= objB[i] then return false end
+	if objA[i] ~= objB[i] then return false end
     end
     return true
 end
@@ -137,11 +137,11 @@ local function RefreshReloadUIButton()
     lam.requiresReload = false
 
     for i = 1, #controlsForReload do
-        local reloadControl = controlsForReload[i]
-        if not IsSame(reloadControl.startValue, {reloadControl.data.getFunc()}) then
-            lam.requiresReload = true
-            break
-        end
+	local reloadControl = controlsForReload[i]
+	if not IsSame(reloadControl.startValue, {reloadControl.data.getFunc()}) then
+	    lam.requiresReload = true
+	    break
+	end
     end
 
     lam.applyButton:SetHidden(not lam.requiresReload)
@@ -152,7 +152,7 @@ local function RequestRefreshIfNeeded(control)
     local panel = GetTopPanel(control.panel)
     local panelData = panel.data
     if panelData.registerForRefresh then
-        cm:FireCallbacks("LAM-RefreshPanel", control)
+	cm:FireCallbacks("LAM-RefreshPanel", control)
     end
     RefreshReloadUIButton()
 end
@@ -162,37 +162,37 @@ local function RegisterForRefreshIfNeeded(control)
     local panel = GetTopPanel(control.panel)
     local panelData = panel.data
     if panelData.registerForRefresh or panelData.registerForDefaults then
-        tinsert(panel.controlsToRefresh or {}, control) -- prevent errors on custom panels
+	tinsert(panel.controlsToRefresh or {}, control) -- prevent errors on custom panels
     end
 end
 
 local function RegisterForReloadIfNeeded(control)
     if control.data.requiresReload then
-        tinsert(controlsForReload, control)
-        control.startValue = {control.data.getFunc()}
+	tinsert(controlsForReload, control)
+	control.startValue = {control.data.getFunc()}
     end
 end
 
 local function GetConfirmDialog()
     if(not ESO_Dialogs[LAM_CONFIRM_DIALOG]) then
-        ESO_Dialogs[LAM_CONFIRM_DIALOG] = {
-            canQueue = true,
-            title = {
-                text = "",
-            },
-            mainText = {
-                text = "",
-            },
-            buttons = {
-                [1] = {
-                    text = SI_DIALOG_CONFIRM,
-                    callback = function(dialog) end,
-                },
-                [2] = {
-                    text = SI_DIALOG_CANCEL,
-                }
-            }
-        }
+	ESO_Dialogs[LAM_CONFIRM_DIALOG] = {
+	    canQueue = true,
+	    title = {
+		text = "",
+	    },
+	    mainText = {
+		text = "",
+	    },
+	    buttons = {
+		[1] = {
+		    text = SI_DIALOG_CONFIRM,
+		    callback = function(dialog) end,
+		},
+		[2] = {
+		    text = SI_DIALOG_CANCEL,
+		}
+	    }
+	}
     end
     return ESO_Dialogs[LAM_CONFIRM_DIALOG]
 end
@@ -207,24 +207,24 @@ end
 
 local function GetDefaultsDialog()
     if(not ESO_Dialogs[LAM_DEFAULTS_DIALOG]) then
-        ESO_Dialogs[LAM_DEFAULTS_DIALOG] = {
-            canQueue = true,
-            title = {
-                text = SI_INTERFACE_OPTIONS_RESET_TO_DEFAULT_TOOLTIP,
-            },
-            mainText = {
-                text = SI_OPTIONS_RESET_PROMPT,
-            },
-            buttons = {
-                [1] = {
-                    text = SI_OPTIONS_RESET,
-                    callback = function(dialog) end,
-                },
-                [2] = {
-                    text = SI_DIALOG_CANCEL,
-                }
-            }
-        }
+	ESO_Dialogs[LAM_DEFAULTS_DIALOG] = {
+	    canQueue = true,
+	    title = {
+		text = SI_INTERFACE_OPTIONS_RESET_TO_DEFAULT_TOOLTIP,
+	    },
+	    mainText = {
+		text = SI_OPTIONS_RESET_PROMPT,
+	    },
+	    buttons = {
+		[1] = {
+		    text = SI_OPTIONS_RESET,
+		    callback = function(dialog) end,
+		},
+		[2] = {
+		    text = SI_DIALOG_CANCEL,
+		}
+	    }
+	}
     end
     return ESO_Dialogs[LAM_DEFAULTS_DIALOG]
 end
@@ -232,18 +232,18 @@ end
 local function ShowDefaultsDialog(panel)
     local dialog = GetDefaultsDialog()
     dialog.buttons[1].callback = function()
-        panel:ForceDefaults()
-        RefreshReloadUIButton()
+	panel:ForceDefaults()
+	RefreshReloadUIButton()
     end
     ZO_Dialogs_ShowDialog(LAM_DEFAULTS_DIALOG)
 end
 
 local function DiscardChangesOnReloadControls()
     for i = 1, #controlsForReload do
-        local reloadControl = controlsForReload[i]
-        if not IsSame(reloadControl.startValue, {reloadControl.data.getFunc()}) then
-            reloadControl:UpdateValue(false, unpack(reloadControl.startValue))
-        end
+	local reloadControl = controlsForReload[i]
+	if not IsSame(reloadControl.startValue, {reloadControl.data.getFunc()}) then
+	    reloadControl:UpdateValue(false, unpack(reloadControl.startValue))
+	end
     end
     lam.requiresReload = false
     lam.applyButton:SetHidden(true)
@@ -258,8 +258,8 @@ end
 local function RetrievePanelForReopening()
     local saveData = ZO_Ingame_SavedVariables["LAM"]
     if(saveData) then
-        ZO_Ingame_SavedVariables["LAM"] = nil
-        return _G[saveData.reopenPanel]
+	ZO_Ingame_SavedVariables["LAM"] = nil
+	return _G[saveData.reopenPanel]
     end
 end
 
@@ -274,144 +274,166 @@ end
 
 local function GetReloadDialog()
     if(not ESO_Dialogs[LAM_RELOAD_DIALOG]) then
-        ESO_Dialogs[LAM_RELOAD_DIALOG] = {
-            canQueue = true,
-            title = {
-                text = util.L["RELOAD_DIALOG_TITLE"],
-            },
-            mainText = {
-                text = util.L["RELOAD_DIALOG_TEXT"],
-            },
-            buttons = {
-                [1] = {
-                    text = util.L["RELOAD_DIALOG_RELOAD_BUTTON"],
-                    callback = function() ReloadUI() end,
-                },
-                [2] = {
-                    text = util.L["RELOAD_DIALOG_DISCARD_BUTTON"],
-                    callback = DiscardChangesOnReloadControls,
-                }
-            },
-            noChoiceCallback = DiscardChangesOnReloadControls,
-        }
+	ESO_Dialogs[LAM_RELOAD_DIALOG] = {
+	    canQueue = true,
+	    title = {
+		text = util.L["RELOAD_DIALOG_TITLE"],
+	    },
+	    mainText = {
+		text = util.L["RELOAD_DIALOG_TEXT"],
+	    },
+	    buttons = {
+		[1] = {
+		    text = util.L["RELOAD_DIALOG_RELOAD_BUTTON"],
+		    callback = function() ReloadUI() end,
+		},
+		[2] = {
+		    text = util.L["RELOAD_DIALOG_DISCARD_BUTTON"],
+		    callback = DiscardChangesOnReloadControls,
+		}
+	    },
+	    noChoiceCallback = DiscardChangesOnReloadControls,
+	}
     end
     return ESO_Dialogs[LAM_CONFIRM_DIALOG]
 end
 
 local function ShowReloadDialogIfNeeded()
     if lam.requiresReload then
-        local dialog = GetReloadDialog()
-        ZO_Dialogs_ShowDialog(LAM_RELOAD_DIALOG)
+	local dialog = GetReloadDialog()
+	ZO_Dialogs_ShowDialog(LAM_RELOAD_DIALOG)
     end
 end
 
 local function UpdateWarning(control)
     local warning
     if control.data.warning ~= nil then
-        warning = util.GetStringFromValue(control.data.warning)
+	warning = util.GetStringFromValue(control.data.warning)
     end
 
     if control.data.requiresReload then
-        if not warning then
-            warning = string.format("|cff0000%s", util.L["RELOAD_UI_WARNING"])
-        else
-            warning = string.format("%s\n\n|cff0000%s", warning, util.L["RELOAD_UI_WARNING"])
-        end
+	if not warning then
+	    warning = string.format("|cff0000%s", util.L["RELOAD_UI_WARNING"])
+	else
+	    warning = string.format("%s\n\n|cff0000%s", warning, util.L["RELOAD_UI_WARNING"])
+	end
     end
 
     if not warning then
-        control.warning:SetHidden(true)
+	control.warning:SetHidden(true)
     else
-        control.warning.data = {tooltipText = warning}
-        control.warning:SetHidden(false)
+	control.warning.data = {tooltipText = warning}
+	control.warning:SetHidden(false)
     end
 end
 
 local localization = {
     en = {
-        PANEL_NAME = "Addons",
-        AUTHOR = string.format("%s: <<X:1>>", GetString(SI_ADDON_MANAGER_AUTHOR)), -- "Author: <<X:1>>"
-        VERSION = "Version: <<X:1>>",
-        WEBSITE = "Visit Website",
-        PANEL_INFO_FONT = "$(CHAT_FONT)|14|soft-shadow-thin",
-        RELOAD_UI_WARNING = "Changes to this setting require an UI reload in order to take effect.",
-        RELOAD_DIALOG_TITLE = "UI Reload required",
-        RELOAD_DIALOG_TEXT = "Some changes require an UI reload in order to take effect. Do you want to reload now or discard the changes?",
-        RELOAD_DIALOG_RELOAD_BUTTON = "Reload",
-        RELOAD_DIALOG_DISCARD_BUTTON = "Discard",
+	PANEL_NAME = "Addons",
+	AUTHOR = string.format("%s: <<X:1>>", GetString(SI_ADDON_MANAGER_AUTHOR)), -- "Author: <<X:1>>"
+	VERSION = "Version: <<X:1>>",
+	WEBSITE = "Visit Website",
+	PANEL_INFO_FONT = "$(CHAT_FONT)|14|soft-shadow-thin",
+	RELOAD_UI_WARNING = "Changes to this setting require an UI reload in order to take effect.",
+	RELOAD_DIALOG_TITLE = "UI Reload required",
+	RELOAD_DIALOG_TEXT = "Some changes require an UI reload in order to take effect. Do you want to reload now or discard the changes?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Reload",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Discard",
     },
     it = { -- provided by JohnnyKing
-        PANEL_NAME = "Addon",
-        VERSION = "Versione: <<X:1>>",
-        WEBSITE = "Visita il Sitoweb",
-        RELOAD_UI_WARNING = "Cambiare questa impostazione richiede un Ricarica UI al fine che faccia effetto.",
-        RELOAD_DIALOG_TITLE = "Ricarica UI richiesto",
-        RELOAD_DIALOG_TEXT = "Alcune modifiche richiedono un Ricarica UI al fine che facciano effetto. Sei sicuro di voler ricaricare ora o di voler annullare le modifiche?",
-        RELOAD_DIALOG_RELOAD_BUTTON = "Ricarica",
-        RELOAD_DIALOG_DISCARD_BUTTON = "Annulla",
+	PANEL_NAME = "Addon",
+	VERSION = "Versione: <<X:1>>",
+	WEBSITE = "Visita il Sitoweb",
+	RELOAD_UI_WARNING = "Cambiare questa impostazione richiede un Ricarica UI al fine che faccia effetto.",
+	RELOAD_DIALOG_TITLE = "Ricarica UI richiesto",
+	RELOAD_DIALOG_TEXT = "Alcune modifiche richiedono un Ricarica UI al fine che facciano effetto. Sei sicuro di voler ricaricare ora o di voler annullare le modifiche?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Ricarica",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Annulla",
     },
     fr = { -- provided by Ayantir
-        PANEL_NAME = "Extensions",
-        WEBSITE = "Visiter le site Web",
-        RELOAD_UI_WARNING = "La modification de ce paramètre requiert un rechargement de l'UI pour qu'il soit pris en compte.",
-        RELOAD_DIALOG_TITLE = "Reload UI requis",
-        RELOAD_DIALOG_TEXT = "Certaines modifications requièrent un rechargement de l'UI pour qu'ils soient pris en compte. Souhaitez-vous recharger l'interface maintenant ou annuler les modifications ?",
-        RELOAD_DIALOG_RELOAD_BUTTON = "Recharger",
-        RELOAD_DIALOG_DISCARD_BUTTON = "Annuler",
+	PANEL_NAME = "Extensions",
+	WEBSITE = "Visiter le site Web",
+	RELOAD_UI_WARNING = "La modification de ce paramètre requiert un rechargement de l'UI pour qu'il soit pris en compte.",
+	RELOAD_DIALOG_TITLE = "Reload UI requis",
+	RELOAD_DIALOG_TEXT = "Certaines modifications requièrent un rechargement de l'UI pour qu'ils soient pris en compte. Souhaitez-vous recharger l'interface maintenant ou annuler les modifications ?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Recharger",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Annuler",
     },
     de = { -- provided by sirinsidiator
-        PANEL_NAME = "Erweiterungen",
-        WEBSITE = "Webseite besuchen",
-        RELOAD_UI_WARNING = "Änderungen an dieser Option werden erst übernommen nachdem die Benutzeroberfläche neu geladen wird.",
-        RELOAD_DIALOG_TITLE = "Neuladen benötigt",
-        RELOAD_DIALOG_TEXT = "Einige Änderungen werden erst übernommen nachdem die Benutzeroberfläche neu geladen wird. Wollt Ihr sie jetzt neu laden oder die Änderungen verwerfen?",
-        RELOAD_DIALOG_RELOAD_BUTTON = "Neu laden",
-        RELOAD_DIALOG_DISCARD_BUTTON = "Verwerfen",
+	PANEL_NAME = "Erweiterungen",
+	WEBSITE = "Webseite besuchen",
+	RELOAD_UI_WARNING = "Änderungen an dieser Option werden erst übernommen nachdem die Benutzeroberfläche neu geladen wird.",
+	RELOAD_DIALOG_TITLE = "Neuladen benötigt",
+	RELOAD_DIALOG_TEXT = "Einige Änderungen werden erst übernommen nachdem die Benutzeroberfläche neu geladen wird. Wollt Ihr sie jetzt neu laden oder die Änderungen verwerfen?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Neu laden",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Verwerfen",
     },
     ru = { -- provided by TERAB1T
-        PANEL_NAME = "Дополнения",
-        VERSION = "Версия: <<X:1>>",
-        WEBSITE = "Посетить сайт",
-        PANEL_INFO_FONT = "RuESO/fonts/Univers57.otf|14|soft-shadow-thin",
-        RELOAD_UI_WARNING = "Для применения этой настройки необходима перезагрузка интерфейса.",
-        RELOAD_DIALOG_TITLE = "Необходима перезагрузка интерфейса",
-        RELOAD_DIALOG_TEXT = "Для применения некоторых изменений необходима перезагрузка интерфейса. Перезагрузить интерфейс сейчас или отменить изменения?",
-        RELOAD_DIALOG_RELOAD_BUTTON = "Перезагрузить",
-        RELOAD_DIALOG_DISCARD_BUTTON = "Отменить изменения",
+	PANEL_NAME = "Дополнения",
+	VERSION = "Версия: <<X:1>>",
+	WEBSITE = "Посетить сайт",
+	PANEL_INFO_FONT = "RuESO/fonts/Univers57.otf|14|soft-shadow-thin",
+	RELOAD_UI_WARNING = "Для применения этой настройки необходима перезагрузка интерфейса.",
+	RELOAD_DIALOG_TITLE = "Необходима перезагрузка интерфейса",
+	RELOAD_DIALOG_TEXT = "Для применения некоторых изменений необходима перезагрузка интерфейса. Перезагрузить интерфейс сейчас или отменить изменения?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Перезагрузить",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Отменить изменения",
     },
     es = { -- provided by Morganlefai, checked by Kwisatz
-        PANEL_NAME = "Configuración",
-        VERSION = "Versión: <<X:1>>",
-        WEBSITE = "Visita la página web",
-        RELOAD_UI_WARNING = "Cambiar este ajuste recargará la interfaz del usuario.",
-        RELOAD_DIALOG_TITLE = "Requiere recargar la interfaz",
-        RELOAD_DIALOG_TEXT = "Algunos cambios requieren recargar la interfaz para poder aplicarse. Quieres aplicar los cambios y recargar la interfaz?",
-        RELOAD_DIALOG_RELOAD_BUTTON = "Recargar",
-        RELOAD_DIALOG_DISCARD_BUTTON = "Cancelar",
+	PANEL_NAME = "Configuración",
+	VERSION = "Versión: <<X:1>>",
+	WEBSITE = "Visita la página web",
+	RELOAD_UI_WARNING = "Cambiar este ajuste recargará la interfaz del usuario.",
+	RELOAD_DIALOG_TITLE = "Requiere recargar la interfaz",
+	RELOAD_DIALOG_TEXT = "Algunos cambios requieren recargar la interfaz para poder aplicarse. Quieres aplicar los cambios y recargar la interfaz?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Recargar",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Cancelar",
     },
     jp = { -- provided by k0ta0uchi
-        PANEL_NAME = "アドオン設定",
-        WEBSITE = "ウェブサイトを見る",
+	PANEL_NAME = "アドオン設定",
+	WEBSITE = "ウェブサイトを見る",
     },
     zh = { -- provided by bssthu
-        PANEL_NAME = "插件",
-        VERSION = "版本: <<X:1>>",
-        WEBSITE = "访问网站",
-        PANEL_INFO_FONT = "EsoZh/fonts/univers57.otf|14|soft-shadow-thin",
+	PANEL_NAME = "插件",
+	VERSION = "版本: <<X:1>>",
+	WEBSITE = "访问网站",
+	PANEL_INFO_FONT = "EsoZh/fonts/univers57.otf|14|soft-shadow-thin",
     },
     pl = { -- provided by EmiruTegryfon
-        PANEL_NAME = "Dodatki",
-        VERSION = "Wersja: <<X:1>>",
-        WEBSITE = "Odwiedź stronę",
-        RELOAD_UI_WARNING = "Zmiany będą widoczne po ponownym załadowaniu UI.",
-        RELOAD_DIALOG_TITLE = "Wymagane przeładowanie UI",
-        RELOAD_DIALOG_TEXT = "Niektóre zmiany wymagają ponownego załadowania UI. Czy chcesz teraz ponownie załadować, czy porzucić zmiany?",
-        RELOAD_DIALOG_RELOAD_BUTTON = "Przeładuj",
-        RELOAD_DIALOG_DISCARD_BUTTON = "Porzuć",
+	PANEL_NAME = "Dodatki",
+	VERSION = "Wersja: <<X:1>>",
+	WEBSITE = "Odwiedź stronę",
+	RELOAD_UI_WARNING = "Zmiany będą widoczne po ponownym załadowaniu UI.",
+	RELOAD_DIALOG_TITLE = "Wymagane przeładowanie UI",
+	RELOAD_DIALOG_TEXT = "Niektóre zmiany wymagają ponownego załadowania UI. Czy chcesz teraz ponownie załadować, czy porzucić zmiany?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Przeładuj",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Porzuć",
+    },
+    kr = { -- provided by p.walker
+	PANEL_NAME = "蝠盜蠨",
+	VERSION = "纄訄: <<X:1>>",
+	WEBSITE = "裹芬襴钸 縩紸",
+	PANEL_INFO_FONT = "EsoKR/fonts/Univers57.otf|14|soft-shadow-thin",
+	RELOAD_UI_WARNING = "襴 茤訕襄 绀溽靘籴 風滼筼 訁袩靘瀰褄靴 UI 苈穜滠遨襴 靄袔革瓈瓤.",
+	RELOAD_DIALOG_TITLE = "UI 苈穜滠遨 靄袔",
+	RELOAD_DIALOG_TEXT = "绀溽瘜 茤訕 謑 UI 苈穜滠遨襄 靄袔穜靘璔 芬靭襴 覈蒵瓈瓤. 诀瀈 苈穜滠遨靘蓜溠蒵瓈灌? 蝄瓈籴 绀溽襄 迨莌靘蓜溠蒵瓈灌?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "苈穜滠遨",
+	RELOAD_DIALOG_DISCARD_BUTTON = "绀溽迨莌",
+    },
+    br = { -- provided by mlsevero
+	PANEL_NAME = "Addons",
+	AUTHOR = string.format("%s: <<X:1>>", GetString(SI_ADDON_MANAGER_AUTHOR)), -- "Autor: <<X:1>>"
+	VERSION = "Versão: <<X:1>>",
+	WEBSITE = "Visite o Website",
+	RELOAD_UI_WARNING = "Mudanças nessa configuração requer a releitura da UI para ter efeito.",
+	RELOAD_DIALOG_TITLE = "Releitura da UI requerida",
+	RELOAD_DIALOG_TEXT = "Algumas mudanças requerem a releitura da UI para ter efeito. Você deseja reler agora ou descartar as mudanças?",
+	RELOAD_DIALOG_RELOAD_BUTTON = "Relê",
+	RELOAD_DIALOG_DISCARD_BUTTON = "Descarta",
     },
 }
 
-util.L = ZO_ShallowTableCopy(localization[GetCVar("Language.2")], localization["en"])
+util.L = ZO_ShallowTableCopy(localization[GetCVar("Language.2")] or {}, localization["en"])
 util.GetTooltipText = GetStringFromValue -- deprecated, use util.GetStringFromValue instead
 util.GetStringFromValue = GetStringFromValue
 util.GetDefaultValue = GetDefaultValue
@@ -447,14 +469,14 @@ local function ScrollDataIntoView(list, data)
     -- (libraries/zo_templates/scrolltemplates.lua/UpdateScrollFade)
 
     if targetMin < scrollTop then
-        ZO_ScrollList_ScrollAbsolute(list, zo_max(targetMin, scrollMin))
+	ZO_ScrollList_ScrollAbsolute(list, zo_max(targetMin, scrollMin))
     else
-        local listHeight = ZO_ScrollList_GetHeight(list)
-        local targetMax = controlHeight * targetIndex + 64 - listHeight
+	local listHeight = ZO_ScrollList_GetHeight(list)
+	local targetMax = controlHeight * targetIndex + 64 - listHeight
 
-        if targetMax > scrollTop then
-            ZO_ScrollList_ScrollAbsolute(list, zo_min(targetMax, scrollMax))
-        end
+	if targetMax > scrollTop then
+	    ZO_ScrollList_ScrollAbsolute(list, zo_min(targetMax, scrollMax))
+	end
     end
 end
 
@@ -471,7 +493,7 @@ local function GetSearchFilterFunc(searchEdit)
     local pattern = text:match("(%S+.-)%s*$")
 
     if not pattern then -- nothing but whitespace
-        return nil
+	return nil
     end
 
     -- escape metacharacters, e.g. "ESO-Datenbank.de" => "ESO%-Datenbank%.de"
@@ -481,7 +503,7 @@ local function GetSearchFilterFunc(searchEdit)
     pattern = pattern:gsub("%s+", ".-")
 
     return function(data)
-        return data.filterText:lower():find(pattern) ~= nil
+	return data.filterText:lower():find(pattern) ~= nil
     end
 end
 
@@ -499,36 +521,36 @@ local function PopulateAddonList(addonList, filter)
     ZO_ScrollList_Clear(addonList)
 
     for i, data in ipairs(addonsForList) do
-        if not filter or filter(data) then
-            local dataEntry = ZO_ScrollList_CreateDataEntry(ADDON_DATA_TYPE, data)
-            numEntries = numEntries + 1
-            data.sortIndex = numEntries
-            entryList[numEntries] = dataEntry
-            -- select the first panel passing the filter, or the currently
-            -- shown panel, but only if it passes the filter as well
-            if selectedData == nil or data.panel == lam.pendingAddonPanel or data.panel == lam.currentAddonPanel then
-                if not selectionIsFinal then
-                    selectedData = data
-                end
-                if data.panel == lam.pendingAddonPanel then
-                    lam.pendingAddonPanel = nil
-                    selectionIsFinal = true
-                end
-            end
-        else
-            data.sortIndex = nil
-        end
+	if not filter or filter(data) then
+	    local dataEntry = ZO_ScrollList_CreateDataEntry(ADDON_DATA_TYPE, data)
+	    numEntries = numEntries + 1
+	    data.sortIndex = numEntries
+	    entryList[numEntries] = dataEntry
+	    -- select the first panel passing the filter, or the currently
+	    -- shown panel, but only if it passes the filter as well
+	    if selectedData == nil or data.panel == lam.pendingAddonPanel or data.panel == lam.currentAddonPanel then
+		if not selectionIsFinal then
+		    selectedData = data
+		end
+		if data.panel == lam.pendingAddonPanel then
+		    lam.pendingAddonPanel = nil
+		    selectionIsFinal = true
+		end
+	    end
+	else
+	    data.sortIndex = nil
+	end
     end
 
     ZO_ScrollList_Commit(addonList)
 
     if selectedData then
-        if selectedData.panel == lam.currentAddonPanel then
-            ZO_ScrollList_SelectData(addonList, selectedData, nil, RESELECTING_DURING_REBUILD)
-        else
-            ZO_ScrollList_SelectData(addonList, selectedData, nil)
-        end
-        ScrollDataIntoView(addonList, selectedData)
+	if selectedData.panel == lam.currentAddonPanel then
+	    ZO_ScrollList_SelectData(addonList, selectedData, nil, RESELECTING_DURING_REBUILD)
+	else
+	    ZO_ScrollList_SelectData(addonList, selectedData, nil)
+	end
+	ScrollDataIntoView(addonList, selectedData)
     end
 end
 
@@ -544,50 +566,50 @@ local lamcc = LAMCreateControl
 
 function lam:RegisterWidget(widgetType, widgetVersion)
     if widgets[widgetType] and widgets[widgetType] >= widgetVersion then
-        return false
+	return false
     else
-        widgets[widgetType] = widgetVersion
-        return true
+	widgets[widgetType] = widgetVersion
+	return true
     end
 end
 
 -- INTERNAL METHOD: hijacks the handlers for the actions in the OptionsWindow layer if not already done
 local function InitKeybindActions()
     if not lam.keybindsInitialized then
-        lam.keybindsInitialized = true
-        ZO_PreHook(KEYBOARD_OPTIONS, "ApplySettings", function()
-            if lam.currentPanelOpened then
-                if not lam.applyButton:IsHidden() then
-                    HandleReloadUIPressed()
-                end
-                return true
-            end
-        end)
-        ZO_PreHook("ZO_Dialogs_ShowDialog", function(dialogName)
-            if lam.currentPanelOpened and dialogName == "OPTIONS_RESET_TO_DEFAULTS" then
-                if not lam.defaultButton:IsHidden() then
-                    HandleLoadDefaultsPressed()
-                end
-                return true
-            end
-        end)
+	lam.keybindsInitialized = true
+	ZO_PreHook(KEYBOARD_OPTIONS, "ApplySettings", function()
+	    if lam.currentPanelOpened then
+		if not lam.applyButton:IsHidden() then
+		    HandleReloadUIPressed()
+		end
+		return true
+	    end
+	end)
+	ZO_PreHook("ZO_Dialogs_ShowDialog", function(dialogName)
+	    if lam.currentPanelOpened and dialogName == "OPTIONS_RESET_TO_DEFAULTS" then
+		if not lam.defaultButton:IsHidden() then
+		    HandleLoadDefaultsPressed()
+		end
+		return true
+	    end
+	end)
     end
 end
 
 -- INTERNAL METHOD: fires the LAM-PanelOpened callback if not already done
 local function OpenCurrentPanel()
     if lam.currentAddonPanel and not lam.currentPanelOpened then
-        lam.currentPanelOpened = true
-        lam.defaultButton:SetHidden(not lam.currentAddonPanel.data.registerForDefaults)
-        cm:FireCallbacks("LAM-PanelOpened", lam.currentAddonPanel)
+	lam.currentPanelOpened = true
+	lam.defaultButton:SetHidden(not lam.currentAddonPanel.data.registerForDefaults)
+	cm:FireCallbacks("LAM-PanelOpened", lam.currentAddonPanel)
     end
 end
 
 -- INTERNAL METHOD: fires the LAM-PanelClosed callback if not already done
 local function CloseCurrentPanel()
     if lam.currentAddonPanel and lam.currentPanelOpened then
-        lam.currentPanelOpened = false
-        cm:FireCallbacks("LAM-PanelClosed", lam.currentAddonPanel)
+	lam.currentPanelOpened = false
+	cm:FireCallbacks("LAM-PanelClosed", lam.currentAddonPanel)
     end
 end
 
@@ -604,12 +626,12 @@ function lam:OpenToPanel(panel)
     local selectedData = nil
 
     for _, addonData in ipairs(addonsForList) do
-        if addonData.panel == panel then
-            selectedData = addonData
-            ScrollDataIntoView(addonList, selectedData)
-            lam.pendingAddonPanel = addonData.panel
-            break
-        end
+	if addonData.panel == panel then
+	    selectedData = addonData
+	    ScrollDataIntoView(addonList, selectedData)
+	    lam.pendingAddonPanel = addonData.panel
+	    break
+	end
     end
 
     ZO_ScrollList_SelectData(addonList, selectedData)
@@ -623,28 +645,28 @@ function lam:OpenToPanel(panel)
     -- "Addon Settings" menu entry is selected for the first time
 
     local function openAddonSettingsMenu()
-        local gameMenu = ZO_GameMenu_InGame.gameMenu
-        local settingsMenu = gameMenu.headerControls[locSettings]
+	local gameMenu = ZO_GameMenu_InGame.gameMenu
+	local settingsMenu = gameMenu.headerControls[locSettings]
 
-        if settingsMenu then -- an instance of ZO_TreeNode
-            local children = settingsMenu:GetChildren()
-            for i = 1, (children and #children or 0) do
-                local childNode = children[i]
-                local data = childNode:GetData()
-                if data and data.id == lam.panelId then
-                    -- found LAM "Addon Settings" node, yay!
-                    childNode:GetTree():SelectNode(childNode)
-                    break
-                end
-            end
-        end
+	if settingsMenu then -- an instance of ZO_TreeNode
+	    local children = settingsMenu:GetChildren()
+	    for i = 1, (children and #children or 0) do
+		local childNode = children[i]
+		local data = childNode:GetData()
+		if data and data.id == lam.panelId then
+		    -- found LAM "Addon Settings" node, yay!
+		    childNode:GetTree():SelectNode(childNode)
+		    break
+		end
+	    end
+	end
     end
 
     if sm:GetScene("gameMenuInGame"):GetState() == SCENE_SHOWN then
-        openAddonSettingsMenu()
+	openAddonSettingsMenu()
     else
-        sm:CallWhen("gameMenuInGame", SCENE_SHOWN, openAddonSettingsMenu)
-        sm:Show("gameMenuInGame")
+	sm:CallWhen("gameMenuInGame", SCENE_SHOWN, openAddonSettingsMenu)
+	sm:Show("gameMenuInGame")
     end
 end
 
@@ -654,7 +676,7 @@ local function TwinOptionsContainer(parent, leftWidget, rightWidget)
     local cParent = parent.scroll or parent
     local panel = parent.panel or cParent
     local container = wm:CreateControl("$(parent)TwinContainer" .. tostring(TwinOptionsContainer_Index),
-        cParent, CT_CONTROL)
+	cParent, CT_CONTROL)
     container:SetResizeToFitDescendents(true)
     container:SetAnchor(select(2, leftWidget:GetAnchor(0) ))
 
@@ -679,112 +701,112 @@ end
 local function CreateOptionsControls(panel)
     local addonID = panel:GetName()
     if(optionsState[addonID] == OPTIONS_CREATED) then
-        return false
+	return false
     elseif(optionsState[addonID] == OPTIONS_CREATION_RUNNING) then
-        return true
+	return true
     end
     optionsState[addonID] = OPTIONS_CREATION_RUNNING
 
     local function CreationFinished()
-        optionsState[addonID] = OPTIONS_CREATED
-        cm:FireCallbacks("LAM-PanelControlsCreated", panel)
-        OpenCurrentPanel()
+	optionsState[addonID] = OPTIONS_CREATED
+	cm:FireCallbacks("LAM-PanelControlsCreated", panel)
+	OpenCurrentPanel()
     end
 
     local optionsTable = addonToOptionsMap[addonID]
     if optionsTable then
-        local function CreateAndAnchorWidget(parent, widgetData, offsetX, offsetY, anchorTarget, wasHalf)
-            local widget
-            local status, err = pcall(function() widget = LAMCreateControl[widgetData.type](parent, widgetData) end)
-            if not status then
-                return err or true, offsetY, anchorTarget, wasHalf
-            else
-                local isHalf = (widgetData.width == "half")
-                if not anchorTarget then -- the first widget in a panel is just placed in the top left corner
-                    widget:SetAnchor(TOPLEFT)
-                    anchorTarget = widget
-                elseif wasHalf and isHalf then -- when the previous widget was only half width and this one is too, we place it on the right side
-                    widget.lineControl = anchorTarget
-                    isHalf = false
-                    offsetY = 0
-                    anchorTarget = TwinOptionsContainer(parent, anchorTarget, widget)
-                else -- otherwise we just put it below the previous one normally
-                    widget:SetAnchor(TOPLEFT, anchorTarget, BOTTOMLEFT, 0, 15)
-                    offsetY = 0
-                    anchorTarget = widget
-                end
-                return false, offsetY, anchorTarget, isHalf
-            end
-        end
+	local function CreateAndAnchorWidget(parent, widgetData, offsetX, offsetY, anchorTarget, wasHalf)
+	    local widget
+	    local status, err = pcall(function() widget = LAMCreateControl[widgetData.type](parent, widgetData) end)
+	    if not status then
+		return err or true, offsetY, anchorTarget, wasHalf
+	    else
+		local isHalf = (widgetData.width == "half")
+		if not anchorTarget then -- the first widget in a panel is just placed in the top left corner
+		    widget:SetAnchor(TOPLEFT)
+		    anchorTarget = widget
+		elseif wasHalf and isHalf then -- when the previous widget was only half width and this one is too, we place it on the right side
+		    widget.lineControl = anchorTarget
+		    isHalf = false
+		    offsetY = 0
+		    anchorTarget = TwinOptionsContainer(parent, anchorTarget, widget)
+		else -- otherwise we just put it below the previous one normally
+		    widget:SetAnchor(TOPLEFT, anchorTarget, BOTTOMLEFT, 0, 15)
+		    offsetY = 0
+		    anchorTarget = widget
+		end
+		return false, offsetY, anchorTarget, isHalf
+	    end
+	end
 
-        local THROTTLE_TIMEOUT, THROTTLE_COUNT = 10, 20
-        local fifo = {}
-        local anchorOffset, lastAddedControl, wasHalf
-        local CreateWidgetsInPanel, err
+	local THROTTLE_TIMEOUT, THROTTLE_COUNT = 10, 20
+	local fifo = {}
+	local anchorOffset, lastAddedControl, wasHalf
+	local CreateWidgetsInPanel, err
 
-        local function PrepareForNextPanel()
-            anchorOffset, lastAddedControl, wasHalf = 0, nil, false
-        end
+	local function PrepareForNextPanel()
+	    anchorOffset, lastAddedControl, wasHalf = 0, nil, false
+	end
 
-        local function SetupCreationCalls(parent, widgetDataTable)
-            fifo[#fifo + 1] = PrepareForNextPanel
-            local count = #widgetDataTable
-            for i = 1, count, THROTTLE_COUNT do
-                fifo[#fifo + 1] = function()
-                    CreateWidgetsInPanel(parent, widgetDataTable, i, zo_min(i + THROTTLE_COUNT - 1, count))
-                end
-            end
-            return count ~= NonContiguousCount(widgetDataTable)
-        end
+	local function SetupCreationCalls(parent, widgetDataTable)
+	    fifo[#fifo + 1] = PrepareForNextPanel
+	    local count = #widgetDataTable
+	    for i = 1, count, THROTTLE_COUNT do
+		fifo[#fifo + 1] = function()
+		    CreateWidgetsInPanel(parent, widgetDataTable, i, zo_min(i + THROTTLE_COUNT - 1, count))
+		end
+	    end
+	    return count ~= NonContiguousCount(widgetDataTable)
+	end
 
-        CreateWidgetsInPanel = function(parent, widgetDataTable, startIndex, endIndex)
-            for i=startIndex,endIndex do
-                local widgetData = widgetDataTable[i]
-                if not widgetData then
-                    PrintLater("Skipped creation of missing entry in the settings menu of " .. addonID .. ".")
-                else
-                    local widgetType = widgetData.type
-                    local offsetX = 0
-                    local isSubmenu = (widgetType == "submenu")
-                    if isSubmenu then
-                        wasHalf = false
-                        offsetX = 5
-                    end
+	CreateWidgetsInPanel = function(parent, widgetDataTable, startIndex, endIndex)
+	    for i=startIndex,endIndex do
+		local widgetData = widgetDataTable[i]
+		if not widgetData then
+		    PrintLater("Skipped creation of missing entry in the settings menu of " .. addonID .. ".")
+		else
+		    local widgetType = widgetData.type
+		    local offsetX = 0
+		    local isSubmenu = (widgetType == "submenu")
+		    if isSubmenu then
+			wasHalf = false
+			offsetX = 5
+		    end
 
-                    err, anchorOffset, lastAddedControl, wasHalf = CreateAndAnchorWidget(parent, widgetData, offsetX, anchorOffset, lastAddedControl, wasHalf)
-                    if err then
-                        PrintLater(("Could not create %s '%s' of %s."):format(widgetData.type, GetStringFromValue(widgetData.name or "unnamed"), addonID))
-                    end
+		    err, anchorOffset, lastAddedControl, wasHalf = CreateAndAnchorWidget(parent, widgetData, offsetX, anchorOffset, lastAddedControl, wasHalf)
+		    if err then
+			PrintLater(("Could not create %s '%s' of %s."):format(widgetData.type, GetStringFromValue(widgetData.name or "unnamed"), addonID))
+		    end
 
-                    if isSubmenu then
-                        if SetupCreationCalls(lastAddedControl, widgetData.controls) then
-                            PrintLater(("The sub menu '%s' of %s is missing some entries."):format(GetStringFromValue(widgetData.name or "unnamed"), addonID))
-                        end
-                    end
-                end
-            end
-        end
+		    if isSubmenu then
+			if SetupCreationCalls(lastAddedControl, widgetData.controls) then
+			    PrintLater(("The sub menu '%s' of %s is missing some entries."):format(GetStringFromValue(widgetData.name or "unnamed"), addonID))
+			end
+		    end
+		end
+	    end
+	end
 
-        local function DoCreateSettings()
-            if #fifo > 0 then
-                local nextCall = table.remove(fifo, 1)
-                nextCall()
-                if(nextCall == PrepareForNextPanel) then
-                    DoCreateSettings()
-                else
-                    zo_callLater(DoCreateSettings, THROTTLE_TIMEOUT)
-                end
-            else
-                CreationFinished()
-            end
-        end
+	local function DoCreateSettings()
+	    if #fifo > 0 then
+		local nextCall = table.remove(fifo, 1)
+		nextCall()
+		if(nextCall == PrepareForNextPanel) then
+		    DoCreateSettings()
+		else
+		    zo_callLater(DoCreateSettings, THROTTLE_TIMEOUT)
+		end
+	    else
+		CreationFinished()
+	    end
+	end
 
-        if SetupCreationCalls(panel, optionsTable) then
-            PrintLater(("The settings menu of %s is missing some entries."):format(addonID))
-        end
-        DoCreateSettings()
+	if SetupCreationCalls(panel, optionsTable) then
+	    PrintLater(("The settings menu of %s is missing some entries."):format(addonID))
+	end
+	DoCreateSettings()
     else
-        CreationFinished()
+	CreationFinished()
     end
 
     return true
@@ -795,8 +817,8 @@ end
 local function ToggleAddonPanels(panel) --called in OnShow of newly shown panel
     local currentlySelected = lam.currentAddonPanel
     if currentlySelected and currentlySelected ~= panel then
-        currentlySelected:SetHidden(true)
-        CloseCurrentPanel()
+	currentlySelected:SetHidden(true)
+	CloseCurrentPanel()
     end
     lam.currentAddonPanel = panel
 
@@ -804,7 +826,7 @@ local function ToggleAddonPanels(panel) --called in OnShow of newly shown panel
     ZO_ScrollList_RefreshVisible(lam.addonList)
 
     if not CreateOptionsControls(panel) then
-        OpenCurrentPanel()
+	OpenCurrentPanel()
     end
 
     cm:FireCallbacks("LAM-RefreshPanel", panel)
@@ -826,7 +848,7 @@ function lam:RegisterAddonPanel(addonID, panelData)
     panel:SetHandler("OnShow", ToggleAddonPanels)
 
     local function stripMarkup(str)
-        return str:gsub("|[Cc]%x%x%x%x%x%x", ""):gsub("|[Rr]", "")
+	return str:gsub("|[Cc]%x%x%x%x%x%x", ""):gsub("|[Rr]", "")
     end
 
     local filterParts = {panelData.name, nil, nil}
@@ -835,17 +857,17 @@ function lam:RegisterAddonPanel(addonID, panelData)
     filterParts[#filterParts + 1] = panelData.author
 
     local addonData = {
-        panel = panel,
-        name = stripMarkup(panelData.name),
-        filterText = stripMarkup(tconcat(filterParts, "\t")):lower(),
+	panel = panel,
+	name = stripMarkup(panelData.name),
+	filterText = stripMarkup(tconcat(filterParts, "\t")):lower(),
     }
 
     tinsert(addonsForList, addonData)
 
     if panelData.slashCommand then
-        SLASH_COMMANDS[panelData.slashCommand] = function()
-            lam:OpenToPanel(panel)
-        end
+	SLASH_COMMANDS[panelData.slashCommand] = function()
+	    lam:OpenToPanel(panel)
+	end
     end
 
     return panel --return for authors creating options manually
@@ -869,8 +891,8 @@ end
 --creates LAM's Addon Settings entry in ZO_GameMenu
 local function CreateAddonSettingsMenuEntry()
     local panelData = {
-        id = KEYBOARD_OPTIONS.currentPanelId,
-        name = util.L["PANEL_NAME"],
+	id = KEYBOARD_OPTIONS.currentPanelId,
+	name = util.L["PANEL_NAME"],
     }
 
     KEYBOARD_OPTIONS.currentPanelId = panelData.id + 1
@@ -881,26 +903,26 @@ local function CreateAddonSettingsMenuEntry()
     local addonListSorted = false
 
     function panelData.callback()
-        sm:AddFragment(lam:GetAddonSettingsFragment())
-        KEYBOARD_OPTIONS:ChangePanels(lam.panelId)
+	sm:AddFragment(lam:GetAddonSettingsFragment())
+	KEYBOARD_OPTIONS:ChangePanels(lam.panelId)
 
-        local title = LAMAddonSettingsWindow:GetNamedChild("Title")
-        title:SetText(panelData.name)
+	local title = LAMAddonSettingsWindow:GetNamedChild("Title")
+	title:SetText(panelData.name)
 
-        if not addonListSorted and #addonsForList > 0 then
-            local searchEdit = LAMAddonSettingsWindow:GetNamedChild("SearchFilterEdit")
-            --we're about to show our list for the first time - let's sort it
-            table.sort(addonsForList, function(a, b) return a.name < b.name end)
-            PopulateAddonList(lam.addonList, GetSearchFilterFunc(searchEdit))
-            addonListSorted = true
-        end
+	if not addonListSorted and #addonsForList > 0 then
+	    local searchEdit = LAMAddonSettingsWindow:GetNamedChild("SearchFilterEdit")
+	    --we're about to show our list for the first time - let's sort it
+	    table.sort(addonsForList, function(a, b) return a.name < b.name end)
+	    PopulateAddonList(lam.addonList, GetSearchFilterFunc(searchEdit))
+	    addonListSorted = true
+	end
     end
 
     function panelData.unselectedCallback()
-        sm:RemoveFragment(lam:GetAddonSettingsFragment())
-        if SetCameraOptionsPreviewModeEnabled then -- available since API version 100011
-            SetCameraOptionsPreviewModeEnabled(false)
-        end
+	sm:RemoveFragment(lam:GetAddonSettingsFragment())
+	if SetCameraOptionsPreviewModeEnabled then -- available since API version 100011
+	    SetCameraOptionsPreviewModeEnabled(false)
+	end
     end
 
     ZO_GameMenu_AddSettingPanel(panelData)
@@ -913,35 +935,35 @@ local function CreateAddonList(name, parent)
     local addonList = wm:CreateControlFromVirtual(name, parent, "ZO_ScrollList")
 
     local function addonListRow_OnMouseDown(control, button)
-        if button == 1 then
-            local data = ZO_ScrollList_GetData(control)
-            ZO_ScrollList_SelectData(addonList, data, control)
-        end
+	if button == 1 then
+	    local data = ZO_ScrollList_GetData(control)
+	    ZO_ScrollList_SelectData(addonList, data, control)
+	end
     end
 
     local function addonListRow_OnMouseEnter(control)
-        ZO_ScrollList_MouseEnter(addonList, control)
+	ZO_ScrollList_MouseEnter(addonList, control)
     end
 
     local function addonListRow_OnMouseExit(control)
-        ZO_ScrollList_MouseExit(addonList, control)
+	ZO_ScrollList_MouseExit(addonList, control)
     end
 
     local function addonListRow_Select(previouslySelectedData, selectedData, reselectingDuringRebuild)
-        if not reselectingDuringRebuild then
-            if previouslySelectedData then
-                previouslySelectedData.panel:SetHidden(true)
-            end
-            if selectedData then
-                selectedData.panel:SetHidden(false)
-                PlaySound(SOUNDS.MENU_SUBCATEGORY_SELECTION)
-            end
-        end
+	if not reselectingDuringRebuild then
+	    if previouslySelectedData then
+		previouslySelectedData.panel:SetHidden(true)
+	    end
+	    if selectedData then
+		selectedData.panel:SetHidden(false)
+		PlaySound(SOUNDS.MENU_SUBCATEGORY_SELECTION)
+	    end
+	end
     end
 
     local function addonListRow_Setup(control, data)
-        control:SetText(data.name)
-        control:SetSelected(not data.panel:IsHidden())
+	control:SetText(data.name)
+	control:SetSelected(not data.panel:IsHidden())
     end
 
     ZO_ScrollList_AddDataType(addonList, ADDON_DATA_TYPE, "ZO_SelectableLabel", 28, addonListRow_Setup)
@@ -954,16 +976,16 @@ local function CreateAddonList(name, parent)
     local addonListRow_CreateRaw = addonDataType.pool.m_Factory
 
     local function addonListRow_Create(pool)
-        local control = addonListRow_CreateRaw(pool)
-        control:SetHandler("OnMouseDown", addonListRow_OnMouseDown)
-        --control:SetHandler("OnMouseEnter", addonListRow_OnMouseEnter)
-        --control:SetHandler("OnMouseExit", addonListRow_OnMouseExit)
-        control:SetHeight(28)
-        control:SetFont("ZoFontHeader")
-        control:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
-        control:SetVerticalAlignment(TEXT_ALIGN_CENTER)
-        control:SetWrapMode(TEXT_WRAP_MODE_ELLIPSIS)
-        return control
+	local control = addonListRow_CreateRaw(pool)
+	control:SetHandler("OnMouseDown", addonListRow_OnMouseDown)
+	--control:SetHandler("OnMouseEnter", addonListRow_OnMouseEnter)
+	--control:SetHandler("OnMouseExit", addonListRow_OnMouseExit)
+	control:SetHeight(28)
+	control:SetFont("ZoFontHeader")
+	control:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
+	control:SetVerticalAlignment(TEXT_ALIGN_CENTER)
+	control:SetWrapMode(TEXT_WRAP_MODE_ELLIPSIS)
+	return control
     end
 
     addonDataType.pool.m_Factory = addonListRow_Create
@@ -976,7 +998,7 @@ end
 local function CreateSearchFilterBox(name, parent)
     local boxControl = wm:CreateControl(name, parent, CT_CONTROL)
 
-    local srchButton =  wm:CreateControl("$(parent)Button", boxControl, CT_BUTTON)
+    local srchButton =	wm:CreateControl("$(parent)Button", boxControl, CT_BUTTON)
     srchButton:SetDimensions(32, 32)
     srchButton:SetAnchor(LEFT, nil, LEFT, 2, 0)
     srchButton:SetNormalTexture("EsoUI/Art/LFG/LFG_tabIcon_groupTools_up.dds")
@@ -1004,21 +1026,21 @@ local function CreateSearchFilterBox(name, parent)
     local srchHover = false
 
     local function srchBgUpdateAlpha()
-        if srchActive or srchEdit:HasFocus() then
-            srchBg:SetAlpha(srchHover and 0.8 or 0.6)
-        else
-            srchBg:SetAlpha(srchHover and 0.6 or 0.0)
-        end
+	if srchActive or srchEdit:HasFocus() then
+	    srchBg:SetAlpha(srchHover and 0.8 or 0.6)
+	else
+	    srchBg:SetAlpha(srchHover and 0.6 or 0.0)
+	end
     end
 
     local function srchMouseEnter(control)
-        srchHover = true
-        srchBgUpdateAlpha()
+	srchHover = true
+	srchBgUpdateAlpha()
     end
 
     local function srchMouseExit(control)
-        srchHover = false
-        srchBgUpdateAlpha()
+	srchHover = false
+	srchBgUpdateAlpha()
     end
 
     boxControl:SetMouseEnabled(true)
@@ -1032,13 +1054,13 @@ local function CreateSearchFilterBox(name, parent)
     local focusLostTime = 0
 
     srchButton:SetHandler("OnClicked", function(self)
-        srchEdit:Clear()
-        if GetFrameTimeMilliseconds() - focusLostTime < 100 then
-            -- re-focus the edit box if it lost focus due to this
-            -- button click (note that this handler may run a few
-            -- frames later)
-            srchEdit:TakeFocus()
-        end
+	srchEdit:Clear()
+	if GetFrameTimeMilliseconds() - focusLostTime < 100 then
+	    -- re-focus the edit box if it lost focus due to this
+	    -- button click (note that this handler may run a few
+	    -- frames later)
+	    srchEdit:TakeFocus()
+	end
     end)
 
     srchEdit:SetHandler("OnMouseEnter", srchMouseEnter)
@@ -1046,29 +1068,29 @@ local function CreateSearchFilterBox(name, parent)
     srchEdit:SetHandler("OnFocusGained", srchBgUpdateAlpha)
 
     srchEdit:SetHandler("OnFocusLost", function()
-        focusLostTime = GetFrameTimeMilliseconds()
-        srchBgUpdateAlpha()
+	focusLostTime = GetFrameTimeMilliseconds()
+	srchBgUpdateAlpha()
     end)
 
     srchEdit:SetHandler("OnEscape", function(self)
-        self:Clear()
-        self:LoseFocus()
+	self:Clear()
+	self:LoseFocus()
     end)
 
     srchEdit:SetHandler("OnTextChanged", function(self)
-        local filterFunc = GetSearchFilterFunc(self)
-        if filterFunc then
-            srchActive = true
-            srchBg:SetEdgeColor(ZO_SECOND_CONTRAST_TEXT:UnpackRGBA())
-            srchButton:SetState(BSTATE_PRESSED)
-        else
-            srchActive = false
-            srchBg:SetEdgeColor(ZO_DISABLED_TEXT:UnpackRGBA())
-            srchButton:SetState(BSTATE_NORMAL)
-        end
-        srchBgUpdateAlpha()
-        PopulateAddonList(lam.addonList, filterFunc)
-        PlaySound(SOUNDS.SPINNER_DOWN)
+	local filterFunc = GetSearchFilterFunc(self)
+	if filterFunc then
+	    srchActive = true
+	    srchBg:SetEdgeColor(ZO_SECOND_CONTRAST_TEXT:UnpackRGBA())
+	    srchButton:SetState(BSTATE_PRESSED)
+	else
+	    srchActive = false
+	    srchBg:SetEdgeColor(ZO_DISABLED_TEXT:UnpackRGBA())
+	    srchButton:SetState(BSTATE_NORMAL)
+	end
+	srchBgUpdateAlpha()
+	PopulateAddonList(lam.addonList, filterFunc)
+	PlaySound(SOUNDS.SPINNER_DOWN)
     end)
 
     return boxControl
@@ -1179,18 +1201,18 @@ local function OnActivated(_, initial)
 
     local reopenPanel = RetrievePanelForReopening()
     if not initial and reopenPanel then
-        lam:OpenToPanel(reopenPanel)
+	lam:OpenToPanel(reopenPanel)
     end
 end
 em:RegisterForEvent(eventHandle, EVENT_PLAYER_ACTIVATED, OnActivated)
 
 function CheckSafetyAndInitialize(addonID)
     if not safeToInitialize then
-        local msg = string.format("The panel with id '%s' was registered before addon loading has completed. This might break the AddOn Settings menu.", addonID)
-        PrintLater(msg)
+	local msg = string.format("The panel with id '%s' was registered before addon loading has completed. This might break the AddOn Settings menu.", addonID)
+	PrintLater(msg)
     end
     if not hasInitialized then
-        hasInitialized = true
+	hasInitialized = true
     end
 end
 
@@ -1207,20 +1229,20 @@ end
 function lam:GetAddonSettingsFragment()
     assert(hasInitialized or safeToInitialize)
     if not LAMAddonSettingsFragment then
-        local window = CreateAddonSettingsWindow()
-        LAMAddonSettingsFragment = ZO_FadeSceneFragment:New(window, true, 100)
-        LAMAddonSettingsFragment:RegisterCallback("StateChange", function(oldState, newState)
-            if(newState == SCENE_FRAGMENT_SHOWN) then
-                InitKeybindActions()
-                PushActionLayerByName("OptionsWindow")
-                OpenCurrentPanel()
-            elseif(newState == SCENE_FRAGMENT_HIDDEN) then
-                CloseCurrentPanel()
-                RemoveActionLayerByName("OptionsWindow")
-                ShowReloadDialogIfNeeded()
-            end
-        end)
-        CreateAddonSettingsMenuEntry()
+	local window = CreateAddonSettingsWindow()
+	LAMAddonSettingsFragment = ZO_FadeSceneFragment:New(window, true, 100)
+	LAMAddonSettingsFragment:RegisterCallback("StateChange", function(oldState, newState)
+	    if(newState == SCENE_FRAGMENT_SHOWN) then
+		InitKeybindActions()
+		PushActionLayerByName("OptionsWindow")
+		OpenCurrentPanel()
+	    elseif(newState == SCENE_FRAGMENT_HIDDEN) then
+		CloseCurrentPanel()
+		RemoveActionLayerByName("OptionsWindow")
+		ShowReloadDialogIfNeeded()
+	    end
+	end)
+	CreateAddonSettingsMenuEntry()
     end
     return LAMAddonSettingsFragment
 end
