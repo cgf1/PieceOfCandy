@@ -99,6 +99,9 @@ local function quest_track(qname, id)
 end
 
 local function shared(eventcode, qid)
+    if not sharequests then
+	return
+    end
     local id = qidtonum[qid]
     if not id then
 	return
@@ -173,7 +176,7 @@ function Quest.Ping()
 end
 
 function Quest.Share(x)
-    if x ~= '' and x == "on" then
+    if x ~= nil and x == true or x == 'on' then
 	sharequests = true
     elseif x == false or x == "off" or x == "false" or x == "no" then
 	sharequests = false
