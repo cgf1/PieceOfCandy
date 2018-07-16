@@ -46,6 +46,10 @@ local function mapop(func, ...)
     LGPS:PushCurrentMap()
     SetMapToMapListIndex(saved.MapIndex)
     local x, y = func(unpack(args))
+    if x ~= nil and y ~= nil and not LMP:IsPositionOnMap(x, y) then
+	x = -1
+	y = -1
+    end
     LGPS:PopCurrentMap()
     return x, y
 end
@@ -58,6 +62,9 @@ local function on_map_ping(pingtype, pingtag)
 	return
     end
     x, y = mapop(LMP.GetMapPing, LMP, pingtype, pingtag)
+    if x < 0 then
+	return
+    end
 
     local input = math.floor((x + ROUND) * TWOBYTES) +
 		  (TWOBYTES * math.floor((y + ROUND) * TWOBYTES))
