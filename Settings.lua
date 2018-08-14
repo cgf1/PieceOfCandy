@@ -28,6 +28,7 @@ Settings = {
 	MyUltId = {},
 	NeedsHelp = true,
 	OnlyAva = false,
+	RelaxedCampaignAccept = false,
 	ShareQuests = true,
 	Style = "Standard",
 	SwimlaneMax = 24,
@@ -298,6 +299,17 @@ function Settings.InitializeWindow(version)
 	end,
 	setFunc = function(val)
 	    saved.AcceptPVP = true
+	end
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Only accept request for campaign specified via /poccampaign",
+	tooltip = "Accept all requests to enter campaign, regardless of whether they are for your main campaign",
+	getFunc = function()
+	    return saved.RelaxedCampaiginAccept
+	end,
+	setFunc = function(val)
+	    saved.RelaxedCampaignAccept = true
 	end
     }
     o[#o + 1] = {

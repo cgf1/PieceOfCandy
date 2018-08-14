@@ -57,7 +57,7 @@ end
 
 local function state_changed(_, id, isgroup, state)
     watch("state_changed", id, isgroup, state, id == campaign_id, state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING)
-    if id == campaign_id and state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING and saved.AcceptPVP then
+    if saved.AcceptPVP and state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING and (saved.RelaxedCampaignAccept or id == campaign_id) then
 	ConfirmCampaignEntry(id, isgroup, true)
     end
 end
