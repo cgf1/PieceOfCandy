@@ -8,8 +8,6 @@ Settings = {
     Default = {
 	AcceptPVP = false,
 	AtNames = false,
-	ChalKeep = false,
-	ChalMine = false,
 	GroupMembers = {},
 	LaneIds = {
 	    1,	-- Negate
@@ -28,6 +26,7 @@ Settings = {
 	MyUltId = {},
 	NeedsHelp = true,
 	OnlyAva = false,
+	Quests = {},
 	RelaxedCampaignAccept = false,
 	ShareQuests = true,
 	Style = "Standard",
@@ -253,29 +252,43 @@ function Settings.InitializeWindow(version)
 	getFunc = function()
 	    return saved.ShareQuests
 	end,
-	setFunc = Quest.Share,
+	setFunc = Quest.ShareThem,
 	default = default.ShareQuests
     }
     o[#o + 1] = {
-	type = "checkbox",
-	name = "Automatically request Chalman Keep quest",
-	tooltip = "Notice when you're lacking the Chalman Keep quest and silently acquire it from other players in group",
+	type = "dropdown",
+	name = "Automatically request/share keep quest",
+	tooltip = "Notice when you're lacking the specified quest and silently acquire it from other players in group",
+	choices = Quest.Choices('keep'),
 	getFunc = function()
-	    return Quest.Want(KEEP_INDEX)
+	    return Quest.Want('keep')
 	end,
 	setFunc = function(val)
-	    Quest.Want(KEEP_INDEX, val)
+	    Quest.Want('keep', val)
 	end
     }
     o[#o + 1] = {
-	type = "checkbox",
-	name = "Automatically request Chalman Mine quest",
-	tooltip = "Notice when you're lacking the Chalman Mine quest and silently acquire it from other players in group",
+	type = "dropdown",
+	name = 'Automatically request "Kill Enemy" quest',
+	tooltip = "Notice when you're lacking the specified \"Kill Enemy\" quest and silently acquire it from other players in group",
+	choices = Quest.Choices('kill'),
 	getFunc = function()
-	    return Quest.Want(RESOURCE_INDEX)
+	    return Quest.Want('kill')
 	end,
 	setFunc = function(val)
-	    Quest.Want(RESOURCE_INDEX, val)
+	    Quest.Want('kill', val)
+	end
+    }
+    o[#o + 1] = {
+	type = "dropdown",
+	name = "Automatically request resource quest",
+	tooltip = "Notice when you're lacking the specified resource quest and silently acquire it from other players in group",
+	choices = Quest.Choices('resource'),
+	getFunc = function()
+	    return Quest.Want('resource')
+	end,
+	setFunc = function(val)
+	    Quest.Want('resource', val)
 	end
     }
     o[#o + 1] = {
@@ -387,6 +400,10 @@ function Settings.Initialize()
     saved.IsLgsActive = nil
     saved.CountdownNumberPos = nil
     saved.Movable = nil
+    saved.KeepQuest = nil
+    saved.KillQuest = nil
+    saved.ResourceQuest = nil
+
     if saved.PosX ~= nil and saved.PosY ~= nil then
 	saved.WinPos = {
 	    X = saved.PosX,
