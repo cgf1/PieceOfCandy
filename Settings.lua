@@ -8,6 +8,7 @@ Settings = {
     Default = {
 	AcceptPVP = false,
 	AtNames = false,
+	CommOff = false,
 	GroupMembers = {},
 	LaneIds = {
 	    1,	-- Negate

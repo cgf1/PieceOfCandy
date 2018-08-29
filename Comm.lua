@@ -207,8 +207,9 @@ function Comm.IsActive()
 end
 
 function Comm.Load(verbose)
-    local say
-    if comm == nil then
+    if saved.CommOff then
+	return
+    elseif comm == nil then
 	load_later = true
     elseif comm.active then
 	say = "already on"
@@ -304,8 +305,14 @@ function Comm.Initialize(inmajor, inminor, inbeta)
 	load_later = false
     end
 
-    Slash("on", "Turn POC on",	function () Comm.Load(true) end)
-    Slash("off", "Turn POC off",  function () Comm.Unload(true) end)
+    Slash("on", "Turn POC on",	function ()
+	saved.CommOff = false
+	Comm.Load(true)
+    end)
+    Slash("off", "Turn POC off",  function ()
+	Comm.Unload(true)
+	saved.CommOff = true
+    end)
     Slash("ka", "debugging: show keep alive interval", function () Info(string.format("keep alive is %d", keepalive_ping)) end)
     if false then
     Slash("comm", "change communication method (don't use)",function(x)
