@@ -14,6 +14,9 @@ function LGS:RegisterHandler(x, y)
     return {{}, 1}
 end
 
+function HERE()
+end
+
 function ZO_CreateStringId(x)
     return
 end
