@@ -96,6 +96,23 @@ function Group.IsGrouped()
     return IsUnitGrouped("player")
 end
 
+function Group.AutoAccept(val)
+    if val ~= nil then
+	local t = {}
+	for line in val:gmatch("[^\r\n]+") do
+	    t[line] = true
+	end
+	saved.AutoAccept = t
+    else
+	local t = {}
+	for x in pairs(saved.AutoAccept) do
+	    t[#t + 1] = x
+	end
+	table.sort(t)
+	return table.concat(t, "\n")
+    end
+end
+
 -- Initialize Group
 --
 function Group.Initialize(insaved)

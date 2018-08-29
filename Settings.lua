@@ -359,6 +359,19 @@ function Settings.InitializeWindow(version)
 	    saved.WarnConflict = val
 	end
     }
+    o[#o + 1] = {
+	type = "editbox",
+	name = "Automatically accept group invite requests from:",
+	tooltip = "List of @names or character names from whom quests will be accepted without displaying a confirmation dialog",
+	isMultiline = true,
+	isExtraWide = true,
+	getFunc = function()
+	    return Group.AutoAccept()
+	end,
+	setFunc = function(val)
+	    Group.AutoAccept(val)
+	end
+    }
 
     local LAM = LibStub("LibAddonMenu-2.0")
     local manager = GetAddOnManager()
