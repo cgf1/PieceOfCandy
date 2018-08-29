@@ -7,11 +7,6 @@ Quest.__index = Quest
 local OLDKEEP_IX = 1
 local OLDRESOURCE_IX = 2
 local OLDKILL_IX = 3
-local oldquests = {
-    [OLDKEEP_IX] = 3218,
-    [OLDRESOURCE_IX] = 3256,
-    [OLDKILL_IX] = 3157
-}
 
 local AcceptSharedQuest = AcceptSharedQuest
 local GetJournalQuestName = GetJournalQuestName
@@ -31,7 +26,10 @@ local saved
 
 local sharequests = false
 
-local function havequest(what)
+local function havequest(what, qid)
+    if qid <= 0 then
+	return true
+    end
     for i = 1, GetNumJournalQuests() do
 	local qname = GetJournalQuestName(i)
 	if nametocat[qname] == what then
@@ -48,6 +46,9 @@ local function _init()
 	    {3218, "keep", "Capture Chalman Keep"},
 	    {3256, "resource", "Capture Chalman Mine"},
 	    {3157, "kill", "Kill Enemy Players"},
+	    {-1, "keep", "-- don't share keep quest --"},
+	    {-2, "resource", "-- don't share resource quest --"},
+	    {-3, "kill", "-- don't share kill enemy quest --"},
 	    {2759, "kill", "Kill Enemy Players"},
 	    {2915, "keep", "Capture Fort Warden"},
 	    {2916, "keep", "Capture Fort Rayles"},
@@ -287,6 +288,9 @@ local function _init()
 	    {3218, "keep", "Capturez la bastille Chalman"},
 	    {3256, "resource", "Capturez la mine de Chalman"},
 	    {3157, "kill", "Tuez les joueurs adverses"},
+	    {-1, "keep", "-- ne partagez la quête du châteaui --"},
+	    {-2, "resource", "-- ne partagez la quête de ressources --"},
+	    {-3, "kill", "-- ne partagez la quête de tuer l'ennemi --"},
 	    {2759, "kill", "Tuez les joueurs adverses"},
 	    {2915, "keep", "Capturez fort Bayle"},
 	    {2916, "keep", "Capturez fort Rayles"},
@@ -526,6 +530,9 @@ local function _init()
 	    {3218, "keep", "Erobert die Burg Chalman"},
 	    {3256, "resource", "Erobert die Chalman-Mine"},
 	    {3157, "kill", "Tötet feindliche Spieler"},
+	    {-1, "keep", "-- nicht Kasten Quest teilen --"},
+	    {-2, "resource", "-- nicht Ressource Quest teilen --"},
+	    {-3, "kill", "-- nicht töten Feind Quest teilen--"},
 	    {2759, "kill", "Tötet feindliche Spieler"},
 	    {2915, "keep", "Erobert die Feste Obhut"},
 	    {2916, "keep", "Erobert die Feste Rayles"},
@@ -785,24 +792,24 @@ local function _init()
 	qidtoname[qid] = qname
     end
 
-    local default = #saved.Quests == 0
+    local default = next(saved.Quests) == nil
     if default or saved.Quests[OLDKEEP_IX] then
-	saved.Quests['keep'] = oldquests[OLDKEEP_IX]
+	saved.Quests['keep'] = quests[OLDKEEP_IX][1]
 	saved.Quests[OLDKEEP_IX] = nil
     end
     if default or saved.Quests[OLDKILL_IX] then
-	saved.Quests['kill'] = oldquests[OLDKILL_IX]
+	saved.Quests['kill'] = quests[OLDKILL_IX][1]
 	saved.Quests[OLDKILL_IX] = nil
     end
     if default or saved.Quests[OLDRESOURCE_IX] then
-	saved.Quests['resource'] = oldquests[OLDRESOURCE_IX]
+	saved.Quests['resource'] = quests[OLDRESOURCE_IX][1]
 	saved.Quests[OLDRESOURCE_IX] = nil
     end
 
     want = {}
     for what, qid in pairs(saved.Quests) do
 	want[qidtoname[qid]] = qid
-	have[what] = havequest(what)
+	have[what] = havequest(what, qid)
     end
     _init = function() end
 end
@@ -838,6 +845,10 @@ end
 
 function Quest.Process(player, ix)
     watch("Quest.Process", player, ix)
+    if ix <= 0 then
+	watch("Quest.Process", "zero quest ix?	shouldn't happen")
+	return
+    end
     if player == COMM_ALL_PLAYERS then
 	-- everyone plays
     else
@@ -864,9 +875,13 @@ function Quest.Ping()
 	    watch("Quest.Ping", "already have", cat)
 	else
 	    local qid = saved.Quests[cat]
-	    local ix = qidtoix[qid]
-	    watch("Quest.Ping", "need", qid, ix)
-	    Comm.Send(COMM_TYPE_NEEDQUEST, COMM_ALL_PLAYERS, ix)
+	    if qid <= 0 then
+		watch("Quest.Ping", "ignoring", cat)
+	    else
+		local ix = qidtoix[qid]
+		watch("Quest.Ping", "need", cat, qid, ix)
+		Comm.Send(COMM_TYPE_NEEDQUEST, COMM_ALL_PLAYERS, ix)
+	    end
 	end
     end
 end
@@ -882,8 +897,8 @@ end
 
 function Quest.Choices(incat)
     _init()
+    local t = {}
     local seen = {}
-    local t = {'-- none --'}
     for qname, cat in pairs(nametocat) do
 	if cat == incat and not seen[qname] then
 	    t[#t + 1] = qname
@@ -910,7 +925,7 @@ function Quest.Want(what, val)
 	end
 	saved.Quests[what] = qid
 	want[val] = qid
-	have[what] = havequest(what)
+	have[what] = havequest(what, qid)
     end
 end
 
