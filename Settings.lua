@@ -292,6 +292,18 @@ function Settings.InitializeWindow(version)
 	end
     }
     o[#o + 1] = {
+	type = "dropdown",
+	name = "Automatically request conquest quest",
+	tooltip = "Notice when you're lacking the specified conquest quest and silently acquire it from other players in group",
+	choices = Quest.Choices('conquest'),
+	getFunc = function()
+	    return Quest.Want('conquest')
+	end,
+	setFunc = function(val)
+	    Quest.Want('conquest', val)
+	end
+    }
+    o[#o + 1] = {
 	type = "checkbox",
 	name = 'Accept "Needs Help" alerts from group members',
 	tooltip = "Display a \"Needs Help\" message and a sound when someone in your group presses a key.  Requires setting a key in Controls",

@@ -282,7 +282,11 @@ local function _init()
 	    {5234, "kill", "Kill Enemy Sorcerers"},
 	    {6010, "kill", "Kill Enemy Wardens"},
 	    {6011, "kill", "Kill Enemy Wardens"},
-	    {6012, "kill", "Kill Enemy Wardens"}
+	    {6012, "kill", "Kill Enemy Wardens"},
+	    {3185, "conquest", "Capture Any Nine Resources"},
+	    {3186, "conquest", "Capture All 3 Towns"},
+	    {3188, "conquest", "Capture Any Three Keeps"},
+	    {3205, "conquest", "Kill 40 Enemy Players"}
 	},
 	fr = {
 	    {3218, "keep", "Capturez la bastille Chalman"},
@@ -524,7 +528,11 @@ local function _init()
 	    {5234, "kill", "Tuez des Sorciers ennemis"},
 	    {6010, "kill", "Tuez les gardiens ennemis"},
 	    {6011, "kill", "Tuez les gardiens ennemis"},
-	    {6012, "kill", "Tuez les gardiens ennemis"}
+	    {6012, "kill", "Tuez les gardiens ennemis"},
+	    {3185, "conquest", "Capturez neuf ressources différentes"},
+	    {3186, "conquest", "Capturez les 3 villes"},
+	    {3188, "conquest", "Capturez trois forts différents"},
+	    {3205, "conquest", "Tuez 40 joueurs adverses"}
 	},
 	de = {
 	    {3218, "keep", "Erobert die Burg Chalman"},
@@ -766,7 +774,11 @@ local function _init()
 	    {5234, "kill", "Tötet feindliche Zauberer"},
 	    {6010, "kill", "Tötet gegnerische Hüter"},
 	    {6011, "kill", "Tötet gegnerische Hüter"},
-	    {6012, "kill", "Tötet gegnerische Hüter"}
+	    {6012, "kill", "Tötet gegnerische Hüter"},
+	    {3185, "conquest", "Nehmt neun beliebige Betriebe ein"},
+	    {3186, "conquest", "Nehmt alle 3 Siedlungen ein"},
+	    {3188, "conquest", "Erobert drei beliebige Burgen"},
+	    {3205, "conquest", "Tötet 40 feindliche Spieler"}
 	}
     }
 
@@ -815,7 +827,7 @@ local function _init()
 end
 
 local function quest_shared(eventcode, qid)
-    local qname = qidtoname[qid]
+    local qname = GetOfferedQuestShareInfo(qid)
     watch('quest_shared', qid, '=', qname, want[qname])
 
     if sharequests and qname and want[qname] then
