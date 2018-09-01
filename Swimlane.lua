@@ -945,6 +945,24 @@ function Swimlanes:OnMove(stop)
     end
 end
 
+function Col:SetHeader(ult)
+    self.Apid = ult.Ping
+    self.Icon:SetTexture(ult.Icon)
+    if not self.Button.data then
+	self.Button.data = {}
+    end
+    self.Button.data.tooltipText = ult.Desc
+    if not self.Label.data then
+	self.Label.data = {}
+    end
+    self.Label.data.tooltipText = ult.Desc
+    if saved.Style == 'Standard' then
+	self.Label:SetText(ult.Name)
+    else
+	self.Label:SetText('')
+    end
+end
+
 -- Called when header clicked to change column identifier
 --
 function Cols:SetLaneUlt(id, apid)
@@ -959,15 +977,7 @@ function Cols:SetLaneUlt(id, apid)
 	end
     end
     saved.LaneIds[id] = apid		-- Remember what's here
-    local ult = Ult.ByPing(apid)
-    local col = self[id]
-    col.Apid = ult.Ping
-    col.Icon:SetTexture(ult.Icon)
-    if saved.Style == 'Standard' then
-	col.Label:SetText(ult.Name)
-    else
-	col.Label:SetText('')
-    end
+    self[id]:SetHeader(Ult.ByPing(apid))
 end
 
 -- Col:Click called on header clicked
@@ -988,7 +998,6 @@ function Col.New(col, i)
     end
     local ult = Ult.ByPing(apid)
     apid = ult.Ping
-    self.Apid = apid
 
     local control = self.Control
     if not control then
@@ -1013,13 +1022,12 @@ function Col.New(col, i)
 	self.Button:SetMouseEnabled(true)
 	self.Button:SetHandler("OnClicked", function() self:Click() end)
     end
+    self.Button:SetHandler("OnMouseEnter", ZO_Options_OnMouseEnter)
+    self.Button:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
+    self.Label:SetHandler("OnMouseEnter", ZO_Options_OnMouseEnter)
+    self.Label:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
 
-    self.Icon:SetTexture(ult.Icon)
-    if saved.Style == 'Standard' then
-	self.Label:SetText(ult.Name)
-    else
-	self.Label:SetText('')
-    end
+    self:SetHeader(ult)
 
     self:Hide(true)
 
