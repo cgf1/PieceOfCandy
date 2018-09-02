@@ -25,7 +25,8 @@ local conflicts = {}
 local function initialize()
     LuaErrors.Initialize()
     -- Initialize logging
-    df("Piece of Candy! v%s", version)
+    df("Piece of Candy v%s", version)
+    df('Type "/poc" for the settings menu.  Type "/poc help" to see available slash commands.')
 
     local strings = {
 	OPTIONS_HEADER =		 "Options",

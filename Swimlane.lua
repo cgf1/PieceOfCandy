@@ -449,14 +449,47 @@ local function compare_not_mia(key1, key2)
    end
 end
 
+local function onmouse_cell(button, t)
+    local tooltip
+    local player, playername = unpack(t.PlayerInfo)
+    if not player or not playername then
+	tooltip = ''
+    else
+	local class = GetUnitClass(player.PingTag)
+	local version = player.Version
+	if not version then
+	    version = "Unknown version"
+	end
+	local seconds
+	if player.TimeStamp then
+	    seconds = string.format("%d seconds", GetTimeStamp() - player.TimeStamp, ' seconds')
+	else
+	    seconds = "hasn't pinged yet"
+	end
+
+	tooltip = string.format("%s\n%s\n%s\n%s", playername, class, version, seconds)
+    end
+    if not button.data then
+	button.data = {}
+    end
+    button.data.tooltipText = tooltip
+    ZO_Options_OnMouseEnter(button)
+end
+
 local function create_cell(pool)
     local control = ZO_ObjectPool_CreateControl('POC_Cell', pool, widget)
-    return {
+    local button = control:GetNamedChild("Button")
+    local t = {
+	Backdrop = control:GetNamedChild("Backdrop"),
+	Button = button,
 	Control = control,
 	Name = control:GetNamedChild("PlayerName"),
-	Backdrop = control:GetNamedChild("Backdrop"),
+	PlayerInfo = {},
 	UltPct = control:GetNamedChild("UltPct")
     }
+    button:SetHandler("OnMouseEnter", function () onmouse_cell(button, t) end)
+    button:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
+    return t
 end
 
 local function reset_cell(tbl)
@@ -651,13 +684,20 @@ end
 function Col:UpdateCell(i, player, playername, priult)
     rowtbl, key = cellpool:AcquireObject(self[i])
     local row = rowtbl.Control
-    local namecell = rowtbl.Name
     local bgcell = rowtbl.Backdrop
+    local button = rowtbl.Button
+    local namecell = rowtbl.Name
     local ultcell = rowtbl.UltPct
+    if rowtbl.PlayerInfo.playername ~= playername then
+	rowtbl.PlayerInfo[1] = player
+	rowtbl.PlayerInfo[2] = playername
+    end
+
     local x, y, sizex, sizey = colstuff(self.Id, i)
     if not self[i] then
 	row:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 	row:SetWidth(sizex)
+	button:SetWidth(sizex)
 	bgcell:SetWidth(sizex)
 	ultcell:SetWidth(sizex)
 	self[i] = key
@@ -1024,8 +1064,6 @@ function Col.New(col, i)
     end
     self.Button:SetHandler("OnMouseEnter", ZO_Options_OnMouseEnter)
     self.Button:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
-    self.Label:SetHandler("OnMouseEnter", ZO_Options_OnMouseEnter)
-    self.Label:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
 
     self:SetHeader(ult)
 

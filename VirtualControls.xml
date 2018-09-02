@@ -88,6 +88,11 @@
         <Control name="POC_Cell" virtual="true">
             <Dimensions x="100" y="30" />
             <Controls>
+                <Button name="$(parent)Button">
+                    <Dimensions x="102" y="28" />
+                    <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+                    <Dimensions x="100" y="30" />
+                </Button>
                 <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
                     <Dimensions x="102" y="28" />
                     <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
