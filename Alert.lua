@@ -16,6 +16,8 @@ local screenx, screeny
 
 local MAX = 24
 local ix = MAX / 2
+local alert_font
+local flash_font
 local fontsize = 50
 local above = MAX / 2
 local last_alert = 0

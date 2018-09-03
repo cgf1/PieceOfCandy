@@ -169,7 +169,6 @@ end
 
 -- Set hidden on control
 --
-
 local fragment
 local function show_widget(showit)
     showit = showit and widget_should_be_visible()
@@ -449,46 +448,76 @@ local function compare_not_mia(key1, key2)
    end
 end
 
-local function onmouse_cell(button, t)
+local fmt
+local function onmouse_cell(t)
     local tooltip
     local player, playername = unpack(t.PlayerInfo)
     if not player or not playername then
 	tooltip = ''
     else
-	local class = GetUnitClass(player.PingTag)
 	local version = player.Version
 	if not version then
 	    version = "Unknown version"
 	end
 	local seconds
 	if player.TimeStamp then
-	    seconds = string.format("%d seconds", GetTimeStamp() - player.TimeStamp, ' seconds')
+	    seconds = string.format("%d seconds ago", GetTimeStamp() - player.TimeStamp, ' seconds')
 	else
 	    seconds = "hasn't pinged yet"
 	end
+	local pos
+	if not player.Pos then
+	    pos = 0
+	else
+	    pos = player.Pos
+	end
+	local disp = {
+	    'Name', playername,
+	    'Display Name', GetDisplayName(player.PingTag),
+	    'Class', GetUnitClass(player.PingTag),
+	    'Version', version,
+	    'Last Seen', seconds,
+	    'Queue', player.Pos
+	}
+	if fmt == nil then
+	    local fmtlen = 0
+	    for i = 1, #disp, 2 do
+		disp[i] = disp[i] .. ':'
+		if disp[i]:len() > fmtlen then
+		    fmtlen = disp[i]:len()
+		end
+	    end
+	    fmt = ''
+	    for i = 1, #disp, 2 do
+		fmt = fmt .. "%-" .. fmtlen .. "s %s\n"
+	    end
+	    fmt = fmt:sub(1, -2)
+	end
+	tooltip = string.format(fmt, unpack(disp))
+    end
+    local control = t.Control
+    if not control.data then
+	control.data = {}
+    end
 
-	tooltip = string.format("%s\n%s\n%s\n%s", playername, class, version, seconds)
-    end
-    if not button.data then
-	button.data = {}
-    end
-    button.data.tooltipText = tooltip
-    ZO_Options_OnMouseEnter(button)
+    -- control.data.tooltipText = tooltip
+    -- ZO_Options_OnMouseEnter(control)
+    InitializeTooltip(InformationTooltip, control, LEFT, -2, 0, RIGHT)
+    InformationTooltip:AddLine(tooltip, "EsoUI/Common/Fonts/consola.ttf|14")
 end
 
 local function create_cell(pool)
     local control = ZO_ObjectPool_CreateControl('POC_Cell', pool, widget)
-    local button = control:GetNamedChild("Button")
+    control:SetMouseEnabled(true)
     local t = {
 	Backdrop = control:GetNamedChild("Backdrop"),
-	Button = button,
 	Control = control,
 	Name = control:GetNamedChild("PlayerName"),
 	PlayerInfo = {},
 	UltPct = control:GetNamedChild("UltPct")
     }
-    button:SetHandler("OnMouseEnter", function () onmouse_cell(button, t) end)
-    button:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
+    control:SetHandler("OnMouseEnter", function () onmouse_cell(t) end)
+    control:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
     return t
 end
 
@@ -685,7 +714,6 @@ function Col:UpdateCell(i, player, playername, priult)
     rowtbl, key = cellpool:AcquireObject(self[i])
     local row = rowtbl.Control
     local bgcell = rowtbl.Backdrop
-    local button = rowtbl.Button
     local namecell = rowtbl.Name
     local ultcell = rowtbl.UltPct
     if rowtbl.PlayerInfo.playername ~= playername then
@@ -697,7 +725,6 @@ function Col:UpdateCell(i, player, playername, priult)
     if not self[i] then
 	row:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 	row:SetWidth(sizex)
-	button:SetWidth(sizex)
 	bgcell:SetWidth(sizex)
 	ultcell:SetWidth(sizex)
 	self[i] = key
