@@ -85,7 +85,7 @@ local function on_map_ping(pingtype, pingtag)
     elseif ctype == COMM_TYPE_NEEDQUEST then
 	Quest.Process(bytes[2], bytes[3])
     elseif ctype == COMM_TYPE_MYVERSION then
-	Player.Version(pingtag, bytes[2], bytes[3], bytes[4])
+	Player.SetVersion(pingtag, bytes[2], bytes[3], bytes[4])
     elseif ctype == COMM_TYPE_KEEPALIVE then
 	Player.New(pingtag, timenow)
     elseif ctype == COMM_TYPE_MAKEMELEADER then

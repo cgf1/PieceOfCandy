@@ -457,10 +457,10 @@ local function onmouse_cell(t)
     else
 	local version = player.Version
 	if not version then
-	    version = "Unknown version"
+	    version = "unknown"
 	end
 	local seconds
-	if player.TimeStamp then
+	if player.TimeStamp and player.TimeStamp ~= 0 then
 	    seconds = string.format("%d seconds ago", GetTimeStamp() - player.TimeStamp, ' seconds')
 	else
 	    seconds = "hasn't pinged yet"
@@ -477,10 +477,11 @@ local function onmouse_cell(t)
 	    'Class', GetUnitClass(player.PingTag),
 	    'Version', version,
 	    'Last Seen', seconds,
-	    'Queue', player.Pos
+	    'Queue', pos
 	}
 	if fmt == nil then
 	    local fmtlen = 0
+
 	    for i = 1, #disp, 2 do
 		disp[i] = disp[i] .. ':'
 		if disp[i]:len() > fmtlen then
@@ -813,7 +814,7 @@ function Player.MakeLeader(pingtag)
 end
 
 local newversion_alert = 5
-function Player.Version(pingtag, major, minor, beta)
+function Player.SetVersion(pingtag, major, minor, beta)
     if beta == 0 then
 	beta = ''
     else
@@ -852,6 +853,7 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 		Ults = {
 		    [max_ping] = 0
 		},
+		Version = 'unknown',
 		Visited = false
 	    }
 	end
