@@ -13,5 +13,12 @@
 		</Control>
 	    </Controls>
 	</TopLevelControl>
+        <TopLevelControl name="POC_CharTooltipTopLevel" inherits="TooltipTopLevel">
+            <Controls>
+                <Tooltip name="POC_CharTooltip"  inherits="ZO_BaseTooltip">
+		    <DimensionConstraints minX="10" maxX="4000" />
+                </Tooltip>
+            </Controls>
+        </TopLevelControl>
     </Controls>
 </GuiXml>

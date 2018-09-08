@@ -7,6 +7,7 @@ local GetGroupSize = GetGroupSize
 local GetTimeStamp = GetTimeStamp
 local GetUnitDisplayName = GetUnitDisplayName
 local GetUnitName = GetUnitName
+local InitializeTooltip = InitializeTooltip
 local IsUnitDead = IsUnitDead
 local IsUnitGroupLeader = IsUnitGroupLeader
 local IsUnitGrouped = IsUnitGrouped
@@ -19,6 +20,8 @@ local SOUNDS = SOUNDS
 local table = table
 local ZO_ObjectPool_CreateControl = ZO_ObjectPool_CreateControl
 local ZO_DeepTableCopy = ZO_DeepTableCopy
+
+local tt = POC_CharTooltip
 
 SWIMLANES = 9
 local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
@@ -448,13 +451,11 @@ local function compare_not_mia(key1, key2)
    end
 end
 
-local fmt
 local function onmouse_cell(t)
     local tooltip
     local player, playername = unpack(t.PlayerInfo)
-    if not player or not playername then
-	tooltip = ''
-    else
+    local tooltip = {}
+    if player and playername then
 	local version = player.Version
 	if not version then
 	    version = "unknown"
@@ -465,11 +466,11 @@ local function onmouse_cell(t)
 	else
 	    seconds = "hasn't pinged yet"
 	end
-	local pos
-	if not player.Pos then
-	    pos = 0
+	local inrange
+	if player:IsInRange() then
+	    inrange = 'yes'
 	else
-	    pos = player.Pos
+	    inrange = 'no'
 	end
 	local disp = {
 	    'Name', playername,
@@ -477,24 +478,48 @@ local function onmouse_cell(t)
 	    'Class', GetUnitClass(player.PingTag),
 	    'Version', version,
 	    'Last Seen', seconds,
-	    'Queue', pos
+	    'In Range', inrange,
+	    'Zone', GetUnitZone(player.PingTag)
 	}
-	if fmt == nil then
-	    local fmtlen = 0
-
-	    for i = 1, #disp, 2 do
-		disp[i] = disp[i] .. ':'
-		if disp[i]:len() > fmtlen then
-		    fmtlen = disp[i]:len()
-		end
+	local ultn = #disp + 1
+	for n, v in pairs(player.Ults) do
+	    local tag
+	    local ix
+	    if n == player.UltMain then
+		ix = ultn
+		tag = 'Ultimate #1'
+	    else
+		ix = ultn + 2
+		tag = 'Ultimate #2'
 	    end
-	    fmt = ''
-	    for i = 1, #disp, 2 do
-		fmt = fmt .. "%-" .. fmtlen .. "s %s\n"
+	    disp[ix] = tag
+	    if n == 0 or n == max_ping or n == 'MIA' then
+		disp[ix + 1] = 'not set'
+	    else
+		disp[ix + 1] = string.format("%s (%d%%)", Ult.ByPing(n).Desc, v)
 	    end
-	    fmt = fmt:sub(1, -2)
 	end
-	tooltip = string.format(fmt, unpack(disp))
+	if ultn > #disp then
+	    disp[ultn] = 'Ultimate #1'
+	    disp[ultn + 1] = 'not set'
+	end
+	if  not Player.Pos and Player.Pos ~= 0 then
+	    disp[#disp + 1] = 'Queue'
+	    disp[#disp + 1] = Player.Pos
+	end
+
+	local fmtlen = 0
+	for i = 1, #disp, 2 do
+	    disp[i] = disp[i] .. ':'
+	    if disp[i]:len() > fmtlen then
+		fmtlen = disp[i]:len()
+	    end
+	    local linelen = 1 + disp[i]:len() + disp[i + 1]:len()
+	end
+	local fmt = '%-' .. fmtlen .. 's %s'
+	for i = 1, #disp, 2 do
+	    tooltip[#tooltip + 1] = string.format(fmt, disp[i], disp[i + 1]);
+	end
     end
     local control = t.Control
     if not control.data then
@@ -503,8 +528,9 @@ local function onmouse_cell(t)
 
     -- control.data.tooltipText = tooltip
     -- ZO_Options_OnMouseEnter(control)
-    InitializeTooltip(InformationTooltip, control, LEFT, -2, 0, RIGHT)
-    InformationTooltip:AddLine(tooltip, "EsoUI/Common/Fonts/consola.ttf|14")
+    InitializeTooltip(tt, control, LEFT, -2, 0, RIGHT)
+    -- tt:AddLine(table.concat(tooltip, "\n"), "EsoUI/Common/Fonts/consola.ttf|14|soft-shadow-thin", 1, 1, 1, LEFT, MODIFY_TEXT_TYPE_NONE, TEXT_ALIGN_LEFT, true)
+    tt:AddLine(table.concat(tooltip, "\n"), "EsoUI/Common/Fonts/consola.ttf|14|thin-outline", 1, 1, 1)
 end
 
 local function create_cell(pool)
@@ -518,7 +544,7 @@ local function create_cell(pool)
 	UltPct = control:GetNamedChild("UltPct")
     }
     control:SetHandler("OnMouseEnter", function () onmouse_cell(t) end)
-    control:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
+    control:SetHandler("OnMouseExit", function () ClearTooltip(tt) end)
     return t
 end
 
