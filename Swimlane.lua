@@ -481,6 +481,10 @@ local function onmouse_cell(t)
 	    'In Range', inrange,
 	    'Zone', GetUnitZone(player.PingTag)
 	}
+	if player.Pos and player.Pos ~= 0 then
+	    disp[#disp + 1] = 'Queue Position'
+	    disp[#disp + 1] = player.Pos
+	end
 	local ultn = #disp + 1
 	for n, v in pairs(player.Ults) do
 	    local tag
@@ -503,10 +507,6 @@ local function onmouse_cell(t)
 	    disp[ultn] = 'Ultimate #1'
 	    disp[ultn + 1] = 'not set'
 	end
-	if  not Player.Pos and Player.Pos ~= 0 then
-	    disp[#disp + 1] = 'Queue'
-	    disp[#disp + 1] = Player.Pos
-	end
 
 	local fmtlen = 0
 	for i = 1, #disp, 2 do
@@ -514,7 +514,6 @@ local function onmouse_cell(t)
 	    if disp[i]:len() > fmtlen then
 		fmtlen = disp[i]:len()
 	    end
-	    local linelen = 1 + disp[i]:len() + disp[i + 1]:len()
 	end
 	local fmt = '%-' .. fmtlen .. 's %s'
 	for i = 1, #disp, 2 do
@@ -543,8 +542,10 @@ local function create_cell(pool)
 	PlayerInfo = {},
 	UltPct = control:GetNamedChild("UltPct")
     }
-    control:SetHandler("OnMouseEnter", function () onmouse_cell(t) end)
-    control:SetHandler("OnMouseExit", function () ClearTooltip(tt) end)
+    if saved.Tooltips then
+	control:SetHandler("OnMouseEnter", function () onmouse_cell(t) end)
+	control:SetHandler("OnMouseExit", function () ClearTooltip(tt) end)
+    end
     return t
 end
 
@@ -1046,7 +1047,9 @@ function Col:SetHeader(ult)
     if not self.Button.data then
 	self.Button.data = {}
     end
-    self.Button.data.tooltipText = ult.Desc
+    if saved.Tooltips then
+	self.Button.data.tooltipText = ult.Desc
+    end
     if not self.Label.data then
 	self.Label.data = {}
     end

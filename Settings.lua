@@ -33,6 +33,7 @@ Settings = {
 	Style = "Standard",
 	SwimlaneMax = 24,
 	SwimlaneMaxCols = 6,
+	Tooltips = true,
 	UltAlert = true,
 	UltNoise = false,
 	UltNumberPos = nil,
@@ -346,8 +347,20 @@ function Settings.InitializeWindow(version)
 	    return saved.UltNoise
 	end,
 	setFunc = function(val)
-	    saved.UltNoise = true
+	    saved.UltNoise = val
 	end
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Show tooltips",
+	tooltip = "Show descriptive tooltip information when mousing over header or player display cells",
+	getFunc = function()
+	    return saved.Tooltips
+	end,
+	setFunc = function(val)
+	    saved.Tooltips = val
+	end,
+	requiresReload = true,
     }
     o[#o + 1] = {
 	type = "checkbox",
