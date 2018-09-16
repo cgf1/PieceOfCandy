@@ -474,13 +474,17 @@ local function onmouse_cell(t)
 	end
 	local disp = {
 	    'Name', playername,
-	    'Display Name', GetDisplayName(player.PingTag),
+	    'Display Name', GetUnitDisplayName(player.PingTag),
 	    'Class', GetUnitClass(player.PingTag),
 	    'Version', version,
 	    'Last Seen', seconds,
 	    'In Range', inrange,
 	    'Zone', GetUnitZone(player.PingTag)
 	}
+	if player.FwCampTimer then
+	    disp[#disp + 1] = 'Camp Avail'
+	    disp[#disp + 1] = player.FwCampTimer .. ' seconds'
+	end
 	if player.Pos and player.Pos ~= 0 then
 	    disp[#disp + 1] = 'Queue Position'
 	    disp[#disp + 1] = player.Pos
@@ -791,15 +795,15 @@ function Col:UpdateCell(i, player, playername, priult)
     end
 
     if not sldebug and not player.DispName then
-	local bdlength = sizex - 4
+	local bdlength = sizex - 2
 	-- laboriously calculate length
-	local lensub = -2
+	local lensub = playername:len() - 1
 	local i = 1
 	namecell:SetText(playername)
 	while namecell:GetWidth() > bdlength do
-	    playername = string.sub(playername, 1, lensub) .. '..'
+	    playername = string.sub(playername, 1, lensub) .. '›'
 	    namecell:SetText(playername)
-	    lensub = -4
+	    lensub = lensub - 1
 	    i = i + 1
 	    if i > 100 then
 		break
@@ -863,7 +867,7 @@ function Player.SetVersion(pingtag, major, minor, beta)
 end
 
 local tmp_player = {}
-function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
+function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
     local name = GetUnitName(pingtag)
     local self = group_members[name]
     watch("Player.New", name, pingtag, timestamp, apid1, pct1, apid2, pct2, pos, self)
@@ -928,6 +932,9 @@ function Player.New(pingtag, timestamp, apid1, pct1, pos, apid2, pct2)
 	player.DispName = nil
     end
 
+    if fwctimer ~= nil then
+	player.FwCampTimer = fwctimer
+    end
     if apid1 ~= nil then
 	-- Coming from on_map_ping
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
@@ -1289,4 +1296,8 @@ function swimlanes.Initialize(major, minor)
     Slash("leader", "make me group leader or record name to allow as leader", function(n)
 	Comm.Send(COMM_TYPE_MAKEMELEADER)
     end)
+    for i = 1, 32 do
+	local n = GetSlotBoundId(i)
+	msg(string.format("%2d %s", i, GetAbilityName(n)))
+    end
 end

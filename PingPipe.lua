@@ -80,6 +80,7 @@ local function on_map_ping(pingtype, pingtag)
     local data = math.floor(input / 256)
     watch('on_map_ping', string.format("0x%2x", ctype))
     local apid1, pct1, pos, apid2, pct2
+    local fwctimer = 0
     if ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
     elseif ctype == COMM_TYPE_NEEDQUEST then
@@ -96,8 +97,10 @@ local function on_map_ping(pingtype, pingtag)
 	Alert.UltFired(pingtag, data)
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	apid1, pct1, pos, apid2, pct2 =	 unpack_ultpct(ctype, data)
+    elseif ctype == COMM_TYPE_FWCAMPTIMER then
+	fwctimer = data
     end
-    Player.New(pingtag, timenow, apid1, pct1, pos, apid2, pct2)
+    Player.New(pingtag, timenow, fwctimer, apid1, pct1, pos, apid2, pct2)
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
 	LMP:SuppressPing(pingtype, pingtag)
     end

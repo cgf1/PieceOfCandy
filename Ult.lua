@@ -452,4 +452,13 @@ function Ult.Initialize()
 	    Comm.UltFired(x, 9999)
 	end
     end)
+    Slash('npc', 'set NPC on/off', function(x)
+	local onoff
+	if x ==	 'on' then
+	    onoff = true
+	else
+	    onoff = false
+	end
+	SetCrownCrateNPCVisible(onoff)
+    end)
 end

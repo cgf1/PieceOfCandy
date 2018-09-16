@@ -8,7 +8,7 @@ local Swimlanes = Swimlanes
 local SOUNDS = SOUNDS
 
 COMM_MAGIC		= 0x0c
-COMM_TYPE_PCTULTOLD	= 0x01 + (COMM_MAGIC * 16)
+COMM_TYPE_FWCAMPTIMER	= 0x01 + (COMM_MAGIC * 16)
 COMM_TYPE_COUNTDOWN	= 0x02 + (COMM_MAGIC * 16)
 COMM_TYPE_PCTULT	= 0x03 + (COMM_MAGIC * 16)
 COMM_TYPE_NEEDQUEST	= 0x04 + (COMM_MAGIC * 16)
@@ -181,7 +181,11 @@ local function on_update()
     local send = COMM_ULTPCT_MUL1 * apid1pct1
     local ultf = ult_fired()
     local cmd
-    if ultf ~= 0 then
+    local fwcooldown = (GetNextForwardCampRespawnTime() / 1000) - GetFrameTimeSeconds()
+    if IsUnitDead("player") and fwcooldown > 0 then
+	cmd = COMM_TYPE_FWCAMPTIMER
+	send = math.floor(fwcooldown)
+    elseif ultf ~= 0 then
 	cmd = COMM_TYPE_ULTFIRED
 	send = ultf
     elseif queue ~= old_queue then
