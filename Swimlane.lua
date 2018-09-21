@@ -481,7 +481,7 @@ local function onmouse_cell(t)
 	    'In Range', inrange,
 	    'Zone', GetUnitZone(player.PingTag)
 	}
-	if player.FwCampTimer then
+	if player.FwCampTimer and player.FwCampTimer ~= 0 then
 	    disp[#disp + 1] = 'Camp Avail'
 	    disp[#disp + 1] = player.FwCampTimer .. ' seconds'
 	end
@@ -1296,8 +1296,4 @@ function swimlanes.Initialize(major, minor)
     Slash("leader", "make me group leader or record name to allow as leader", function(n)
 	Comm.Send(COMM_TYPE_MAKEMELEADER)
     end)
-    for i = 1, 32 do
-	local n = GetSlotBoundId(i)
-	msg(string.format("%2d %s", i, GetAbilityName(n)))
-    end
 end

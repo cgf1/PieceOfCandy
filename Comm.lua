@@ -181,10 +181,10 @@ local function on_update()
     local send = COMM_ULTPCT_MUL1 * apid1pct1
     local ultf = ult_fired()
     local cmd
-    local fwcooldown = (GetNextForwardCampRespawnTime() / 1000) - GetFrameTimeSeconds()
-    if IsUnitDead("player") and fwcooldown > 0 then
+    local fwctimer = (GetNextForwardCampRespawnTime() / 1000) - GetFrameTimeSeconds()
+    if IsUnitDead("player") and fwctimer > 0 then
 	cmd = COMM_TYPE_FWCAMPTIMER
-	send = math.floor(fwcooldown)
+	send = math.floor(fwctimer)
     elseif ultf ~= 0 then
 	cmd = COMM_TYPE_ULTFIRED
 	send = ultf
