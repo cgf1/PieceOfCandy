@@ -1,0 +1,295 @@
+018-09-10 (v3.26)
+
+- Allow automatic sharing of any PVP keep/resource/player quest via settings menu.
+
+- Add mouse-over tooltip information when moving mouse over the window.
+
+- Add list of people for which to automatically accept invites to settings menu (same as /pocgaccept).
+
+- Make "/pocoff" (or "/poc off" if you prefer) permanent. It will stay turned off over /reloadui or login/logout.
+This turns off ultimate sharing and automatic quest sharing but will still automatically accept offered quests as per your preference.
+
+2018-08-13 (v3.25)
+
+- Bump API version for Wolfhunter.
+
+- Add menu option to always allow acceptance of any Cyrodiil queue.
+
+2018-08-05 (v3.24)
+
+- Make a minor change to attempt to cut down on crosstalk with other addons that use map pings for communication.
+
+2018-07-13 (v3.23)
+
+- YA try at removing duplicate ult notifications.
+
+- Fix bug which didn't allow turning quest sharing back on via the menu (/pocquest on still worked).
+
+- Make it so that if you turn off quest sharing then nothing automatic happens wrt quests.
+
+- Update LibAddonMenu to v26.
+
+2018-07-06 (v3.22)
+
+- Add option to turn off quest sharing.
+
+- Deny share requests for Chalman Mine/Keep if you've turned off that feature.
+
+- Try harder to display POC screen when entering Cyrodiil when using "only display in AVA" option.
+
+2018-06-29 (v3.21)
+
+- Fix countdown hotkey (apparently no one uses this).
+
+- Reinstate method for only sending ult percentages when they change. It's needed to send quest requests.
+
+- Consider player "live" whenever they ping rather than whenever there is a ping for ultimate. Should help with players
+getting "greyed out".
+
+- Consider a player out of range after two minutes rather than one minute. Hopefully will help with lane resorting.
+
+- Update LibGPS and LibSocket.
+
+2018-06-14 (v3.20)
+
+- Attempt to fix bug where ultimates are sporadically not communicated.
+
+2018-06-11 (v3.19)
+
+- Fix failure to communicate ultimate data when language is unknown.
+
+- Warn when conflicting addons are detected (this behavior can be turned off if desired).
+
+- Fix inability to clear secondary ultimate.
+
+2018-05-19 (v3.18)
+
+- Eliminate YA unnecessary screen update/map ping.
+
+- Fix strange problem where ultimate seems to fire twice.
+
+
+2018-05-16 (v3.17)
+
+- Fix minor problem with group member sorting in swimlanes
+
+- "/pocpvp group" queues the group if you're the group leader
+
+- Implement a "Need Help!" panic button to alert other members in group when you need help. Sending always works but you have to opt-in to see the alerts
+
+- When moving the add-on display window, only bound the part that is visible in red, and allow moving partially off screen if desired
+
+- Make ultimate alerts display the actual ultimate fired rather than the main one selected
+
+- Fix a minor memory leak
+
+- Reduce number of screen refreshes, limiting to only when something changes like "in combat" or "ultimate percent changed".
+
+2018-04-23 (v3.16)
+
+- Get non-English clients working on Summerset.
+
+2018-04-21 (v3.15)
+
+- Get working on Summerset (only for English currently)
+
+- Fix issue with /pocpvp.
+
+2018-04-16 (v3.14)
+
+(v3.12 and v3.13 were unreleased testing versions)
+
+- Fix memory leak with ultimate animations.
+
+- Reduce memory footprint.
+
+- Reduce map ping overhead.
+
+- Reduce number of times stuff is redrawn.
+
+- Delete remaining legacy Taos Group Ultimate code.
+
+- Make visible when sieging.
+
+- New commands:
+/poccampaign X sets your preferred campaign to X (defaults to Vivec).
+
+/pocqueue shows position in queue along with usually bogus
+ESO approximation of wait time.
+
+/pocpvp queues you for specified campaign.
+
+2018-04-07 (v3.11)
+
+- Attempt to fix problem with multiple ultimates showing in columns.
+
+2018-04-05 (v3.10)
+
+- Fix YA lua error.
+
+2018-04-05 (v3.9)
+
+- Remove buggy attempt to increase max swimlanes to 8.
+
+- Fix ability to set fewer swimlanes if needed.
+
+2018-04-05 (v3.8)
+
+- Decrease ping frequency to 2 seconds to be a little less resource intensive. Changeable with /pocupdate n.
+
+- Increase max swimlanes to 8.
+
+- Fix arithmetic error when decoding map pings.
+
+- /pochelp only reports on non-debuggng options now. Use /pochelp debug to see everything.
+
+2018-03-29 (v3.7)
+
+- Fix addon not working.
+
+2018-03-29 (v3.6)
+
+- Attempt to fix lua error when primary ultimate has not been selected.
+
+2018-03-26 (v3.5)
+
+- Another potential fix for lua errors
+
+- New command: /pocgaccept <name>
+Always accept group invites from name
+
+- Fix display of @names.
+
+- More attempts to minimize memory use.
+
+2018-03-18 (v3.4)
+
+- Potential fix for lua errors.
+
+2018-03-18 (v3.3)
+
+- Emergency fix for swimlane madness.
+
+2018-03-17 (v3.2)
+
+- Add ability to turn off ultimate alerts.
+
+- More slight performance tweaks.
+
+- Try to minimize bouncing in columns when out of range.
+
+2018-03-16 (v3.1)
+
+- Try to future proof map pings slightly.
+
+- Fix condition where old group members show up after reloading.
+
+- Be less verbose on leaving group.
+
+2018-03-16 (v3.0)
+
+- Optimize LUA code to avoid potential excess memory use.
+
+- The ultimate control will now always be movable. That red background thing will show up briefly when you drag the window to a new location. Type "/pocmovable off" if this behavior is not to your liking.
+
+- When someone fires an ultimate it will show up onscreen for everyone as, e.g., "Valandil Tiwele's FREEZE".
+
+- You'll be able to specify a second ultimate by selecting the thumbs-up with a "2" on it. That cause that ultimate to show up as a different color in that column.
+
+(I'm still tinkering with this so some things may not work right. Most notably - if I put meteor on my bar and then use the ultimate, the on-screen message will say "Valandil's FREEZE" rather than "Valandil's METEOR".
+
+Also, the sorting for secondary ultimates in columns will be different. It will be more like the way the old Taos add-on sorted things. I don't think this should be a big problem since secondary ultimates are either supposed to be temporary or just there for informational purposes like when someone has both Dawnbreaker and Permafrost available)
+
+- It will be possible to automatically share the Chalman mine and keep quests. When you turn in your chal quest, you'll get it back almost immediately if anyone else in the group has it. This feature is controlled in the settings window and via the "/pocquest off" command.
+
+- The add-on notifies when someone is running a new version. Then you'll know it's time to update.
+
+2018-02-25 (v2.3.3)
+
+- Hopefully fix real problem with non-English client.s
+
+2018-02-21 (v2.3.2)
+
+- Overwrite (temporarily?) French translations with English to avoid lua errors.
+
+2018-02-19 (v2.3.1)
+
+- On second thought, only allow group leader to set countdown key.
+
+2018-02-19 (v2.3.0)
+
+- Add ability to send a 3 second countdown timer to all players via slash command (/pocn N) or keybinding.
+- Eliminate need for everyone to be in the same map/zone.
+- Eliminate misbehaving LibGroupSocket (for now?).
+- Save group content over /reloadui.
+- Fix a few bugs related to screen refresh when players go offline and back online.
+
+2018-02-12 (v2.2.0)
+
+- Updated supported API to include Dragon Bones, update 17
+- Added new method for selecting your ultimate: Click on one of the column (swimlane) icons and then click on the thumbs-up to switch your ultimate to that lane. Use icons to select columns rather than words.
+- Added back ability to use libgroupsocket, currently only available via the command "/pocping false"
+- Tinkered more with the number notifier and sound notifier to try to make it actually accurate.
+- Added ability to display @names rather than character names.
+- General bug fixes.
+
+2018-02-09 (v2.1.9)
+
+- Attempt to fix incorrect #n showing up on screen when it shouldn't.
+
+2018-02-08 (v2.1.7)
+
+- Try again to get rid of incorrect reporting of people using wrong addon (yellow cells in MIA lane)
+
+2018-02-08 (v2.1.5)
+
+- Hopefully fix rare case where out-of-contact player would incorrectly assume another player's group ultimate.
+
+2018-02-08 (v2.1.4)
+
+- Temporarily remove detection of out-of-date clients in group. This should stop people from showing up in MIA in yellow.
+
+2018-02-07 (v2.1.3)
+
+- Fix reported issue of lua error when changing group icon in compact mode.
+
+2018-02-06 (v2.1.2)
+
+NOTE: This needs testing. Please make sure that you know how to drop back to the previous version before updating.
+
+- Avoid spurious errors when going in and out of same zone as other players.
+
+2018-02-06 (v2.1.1)
+
+NOTE: This needs testing. Please make sure that you know how to drop back to the previous version before updating.
+
+- Fix lua errors when moving compact swimlane.
+- Fix a typo in ultimate name.
+
+2018-02-06 (v2.1.0)
+
+NOTE: This needs testing. Please make sure that you know how to drop back to the previous version before updating.
+
+- Hundreds of lines of code deleted and refactored.
+- Attempt to make ultimate numbering more consistent so that everyone sees the same ordering.
+- Move ultimate selection moved to settings menu.
+- Remember the last ultimate you used on a particular character.
+- Detect when a player goes out of range and may not be available to drop an ultimate.
+- Detect when a player is in loading screen (their menu bar will be grey).
+- Show more compact rows for the standard setting.
+- Select the number of "swimlanes" available, from 1 to 6.
+- Detect when a player is in group but is not in range or is not using the add-on. These players show up in a "MIA" column.
+- Attempt to minimize the amount of screen redrawing happening every second. Should be optimized to only update the screen when something changes.
+
+2018-01-21 (v2.0.2)
+
+* Hopefully fix confusion with player numbering when group membership changes. This may fix the issue seen where numbers displayed are incorrect.
+* There is still an issue with numbering disparity between different players after zoning. Numbers should sync eventually after users cycle their ultimates as long as they are in the same map.
+
+2018-01-19 (v2.0.1)
+
+* Add back "Compact" mode
+* Remove ultimate number when dead
+* Color ultimate number green when #1, red when not #1
+* Remove other languages since they no longer reflect current state of add-on
+* Various minor speed tweaks
