@@ -76,6 +76,7 @@ Player = {
 Player.__index = Player
 
 local me = setmetatable({
+    DispName = {},
     InRangeTime = 0,
     IsDead = false,
     IsMe = true,
@@ -209,7 +210,8 @@ function swimlanes.Sched(clear_dispname)
     watch("need_to_fire", "swimlanes.Sched")
     if clear_dispname then
 	for _, v in pairs(group_members) do
-	    v.DispName = nil
+	    v.DispName[true] = nil
+	    v.DispName[false] = nil
 	end
     end
 end
@@ -759,11 +761,10 @@ function Col:UpdateCell(i, player, playername, priult)
 	row:SetWidth(sizex)
 	bgcell:SetWidth(sizex)
 	ultcell:SetWidth(sizex)
+	namecell:SetWidth(sizex)
 	self[i] = key
     end
-    if player.DispName then
-	playername = player.DispName
-    elseif saved.AtNames and player.AtName then
+    if saved.AtNames and player.AtName then
 	playername = string.sub(player.AtName, 2)
     end
 
@@ -782,34 +783,12 @@ function Col:UpdateCell(i, player, playername, priult)
 	apid = self.Apid
     end
 
-    if sldebug then
-	playername = playername .. "   " .. player.Ults[apid] .. "%"
-    end
-
     if player.Ults[apid] == nil then
 	ultpct = 0
     elseif player.Ults[apid] > 100 then
 	ultpct = 100
     else
 	ultpct = player.Ults[apid]
-    end
-
-    if not sldebug and not player.DispName then
-	local bdlength = sizex - 2
-	-- laboriously calculate length
-	local lensub = playername:len() - 1
-	local i = 1
-	namecell:SetText(playername)
-	while namecell:GetWidth() > bdlength do
-	    playername = string.sub(playername, 1, lensub) .. '›'
-	    namecell:SetText(playername)
-	    lensub = lensub - 1
-	    i = i + 1
-	    if i > 100 then
-		break
-	    end
-	end
-	player.DispName = playername
     end
 
     local values
@@ -827,6 +806,31 @@ function Col:UpdateCell(i, player, playername, priult)
     ultcell:SetValue(ultpct)
     local inrange = player:IsInRange()
     bgcell:SetCenterColor(colors(inrange, values.center))
+    local font
+    local stealthed = player.StealthState ~= 0
+    local lastfont = namecell.Font
+    if not stealthed then
+	namecell.Font = "$(MEDIUM_FONT)|16|soft-shadow-thin"
+    else
+	namecell.Font = "$(GAMEPAD_MEDIUM_FONT)|16|thick-outline"
+    end
+    if lastfont ~= namecell.Font then
+	namecell:SetFont(namecell.Font)
+    end
+    if not player.DispName[stealthed] then
+	local toobig = false
+	while namecell:GetStringWidth(playername) > sizex do
+	    toobig = true
+	    playername = playername:sub(1, -2)
+	end
+
+	if toobig then
+	    local c = '·'
+	    playername = playername:sub(1, -2) .. '|cffff00' .. c .. '|r'
+	end
+	player.DispName[stealthed] = playername
+    end
+    playername = player.DispName[stealthed]
     namecell:SetText(prefix .. playername)
     namecell:SetColor(colors(inrange, values.name))
     ultcell:SetColor(colors(inrange, values.ult))
@@ -876,6 +880,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	    self = me
 	else
 	    self = {
+		DispName = {},
 		IsMe = false,
 		Pos = 0,
 		Tick = 0,
@@ -906,6 +911,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
     player.InCombat = IsUnitInCombat(pingtag)
     player.InRange = IsUnitInGroupSupportRange(pingtag)
     player.IsLeader = IsUnitGroupLeader(pingtag)
+    player.StealthState = GetUnitStealthState(pingtag)
     if player.IsLeader then
 	player.HasBeenLeader = true
     end
@@ -929,7 +935,8 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
     end
     if saved.AtNames and self.AtName == nil then
 	player.AtName = GetUnitDisplayName(pingtag)
-	player.DispName = nil
+	self.DispName[true] = nil
+	self.DispName[false] = nil
     end
 
     if fwctimer ~= nil then
@@ -1119,14 +1126,13 @@ function Col.New(col, i)
     if i == MIAlane then
 	self.Compare = compare_mia
 	self.Plunk = plunk_mia
-	self.Button:SetMouseEnabled(false)
 	self.Button:SetHandler("OnClicked", nil)
     else
 	self.Compare = compare_not_mia
 	self.Plunk = plunk_not_mia
-	self.Button:SetMouseEnabled(true)
 	self.Button:SetHandler("OnClicked", function() self:Click() end)
     end
+    self.Button:SetMouseEnabled(true)
     self.Button:SetHandler("OnMouseEnter", ZO_Options_OnMouseEnter)
     self.Button:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
 
@@ -1154,7 +1160,8 @@ end
 function Cols:Redo()
     self:New()
     for _, v in pairs(group_members) do
-	v.DispName = nil
+	v.DispName[true] = nil
+	v.DispName[false] = nil
     end
     need_to_fire = true
     watch("need_to_fire", "Cols:Redo")
@@ -1216,7 +1223,13 @@ function swimlanes.Initialize(major, minor)
 	if v.Pos == nil then
 	    v.Pos = 0
 	end
-	v.DispName = nil
+	if not v.DispName or v.DispName ~= 'table' then
+	    v.DispName = {}
+	else
+	    v.DispName[true] = nil
+	    v.DispName[false] = nil
+	end
+
 	group_members[n] = v
     end
     me.UltMain = myults[1]

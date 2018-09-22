@@ -1,6 +1,6 @@
 <GuiXml>
     <Font name="MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin"/>
-    <Font name="SwimlaneListFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
+    <Font name="CellFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
     <Font name="SwimlaneListHeaderFont" font="$(BOLD_FONT)|21|soft-shadow-thin"/>
     <Font name="UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
     <Font name="UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
@@ -25,10 +25,10 @@
         />
 
         <Label
-            name="SwimlaneListLabel"
+            name="CellLabel"
             width="90"
             height="16"
-            font="SwimlaneListFont"
+            font="CellFont"
             inheritAlpha="true"
             color="FFFFFF"
             verticalAlignment="CENTER"
@@ -98,8 +98,9 @@
                     <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="0"/>
                     <Limits min="0" max="100" />
                 </StatusBar>
-                <Label name="$(parent)PlayerName" inherits="SwimlaneListLabel">
-                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="2" offsetY="2"/>
+                <Label name="$(parent)PlayerName" inherits="CellLabel"  wrapMode="TRUNCATE" verticalAlignment="CENTER">
+                    <Dimensions x="100" y="30" />
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="2"/>
                 </Label>
             </Controls>
         </Control>
