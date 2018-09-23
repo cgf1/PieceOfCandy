@@ -222,7 +222,9 @@ function Comm.Load(verbose)
 	lastpower = 0
 	lastult = 0
 	comm.Load()
-	EVENT_MANAGER:RegisterForUpdate('UltPing', update_interval, on_update)
+	EVENT_MANAGER:RegisterForUpdate(Comm.Name, update_interval, on_update)
+	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED, on_update)
+	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE, on_update)
 	update_interval_per_sec = update_interval / 1000
 	Comm.SendVersion()
 	say = "on"
@@ -240,7 +242,9 @@ function Comm.Unload(verbose)
 	say = "already off"
     else
 	comm.Unload()
-	EVENT_MANAGER:UnregisterForUpdate('UltPing')
+	EVENT_MANAGER:UnregisterForUpdate(Comm.Name)
+	EVENT_MANAGER:UnregisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED)
+	EVENT_MANAGER:UnregisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE)
 	Swimlanes.Update("off")
 	say = "off"
     end
