@@ -1,4 +1,14 @@
-018-09-10 (v3.26)
+2018-09-23 (v3.26)
+
+- Report forward camp timer information in tooltip for dead characters.
+
+- Fix display name character reporting in mouse over.
+
+- Display stealthed characters in different font for easy identification of who is stealthed and who isn't.
+
+- Report stealthed and combat changes immediately rather than waiting for N seconds in next status tick.
+
+2018-09-10 (v3.26)
 
 - Allow automatic sharing of any PVP keep/resource/player quest via settings menu.
 
