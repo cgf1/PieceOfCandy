@@ -13,6 +13,11 @@
                     POC.Comm.Send(POC.COMM_TYPE_NEEDHELP)
 		</Down>
 	    </Action>
+	    <Action name="POC_TEXTUREHACK_KEY">
+		<Down>
+                    POC.Texture(true)
+		</Down>
+	    </Action>
 	</Category>
     </Layer>
 </Bindings>

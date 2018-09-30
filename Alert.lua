@@ -159,6 +159,15 @@ local function clearernow()
     pool:ReleaseAllObjects()
 end
 
+function Texture(what)
+    if not what then
+	SetCrownCrateNPCVisible(false)
+    else
+	SetCrownCrateNPCVisible(true)
+	zo_callLater(function () Texture(false) end, 5000)
+    end
+end
+
 function Alert.Initialize()
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
     tlw = WM:CreateTopLevelWindow()
@@ -169,6 +178,7 @@ function Alert.Initialize()
     tlw:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 0, 0)
     pool = ZO_ObjectPool:New(create, reset)
     ZO_CreateStringId("SI_BINDING_NAME_POC_NEEDHELP_KEY", "Key to notify raid that you need help")
+    ZO_CreateStringId("SI_BINDING_NAME_POC_TEXTUREHACK_KEY", "Key to hit to hack your way out of a texture bug")
     RegClear(clearernow)
     Slash("fire", "debugging: test ultimate display", function()
 	for i = 1, 24 do
