@@ -439,7 +439,12 @@ function Ult.Initialize()
     for n, v in pairs(saved.MyUltId) do
 	if type(v) ~= 'table' then
 	    if v > Ult.MaxPing then
-		v = Ult.ByAid(v).Ping
+		local x = Ult.ByAid(v)
+		if x then
+		    v = x.Ping
+		else
+		    v = nil
+		end
 	    end
 	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
 	end
@@ -461,4 +466,10 @@ function Ult.Initialize()
 	end
 	SetCrownCrateNPCVisible(onoff)
     end)
+    if false then
+        for i = 1, 8 do
+           local n = GetSlotBoundId(i)
+           d(string.format("%2d %s", i, GetAbilityName(n)))
+        end
+    end
 end

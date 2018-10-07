@@ -223,8 +223,16 @@ function Comm.Load(verbose)
 	lastult = 0
 	comm.Load()
 	EVENT_MANAGER:RegisterForUpdate(Comm.Name, update_interval, on_update)
-	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED, on_update)
-	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE, on_update)
+	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED, function(_, unittag, y)
+	    if unittag == "player" then
+		watch("stealth", "changed", unittag, y)
+		on_update()
+	    end
+	end)
+	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE, function(_, x)
+	    watch("combat", "changed", x)
+	    on_update()
+	end)
 	update_interval_per_sec = update_interval / 1000
 	Comm.SendVersion()
 	say = "on"

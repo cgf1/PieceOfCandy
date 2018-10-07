@@ -61,7 +61,7 @@ local function on_map_ping(pingtype, pingtag)
     if pingtype ~= MAP_PIN_TYPE_PING then
 	return
     end
-    x, y = mapop(LMP.GetMapPing, LMP, pingtype, pingtag)
+    local x, y = mapop(LMP.GetMapPing, LMP, pingtype, pingtag)
     if x < 0 then
 	return
     end
