@@ -208,7 +208,7 @@ end
 function swimlanes.Sched(clear_dispname)
     need_to_fire = true
     watch("need_to_fire", "swimlanes.Sched")
-    if clear_dispname then
+    if clear_dispname and group_members then
 	for _, v in pairs(group_members) do
 	    v.DispName[true] = nil
 	    v.DispName[false] = nil
@@ -1072,6 +1072,25 @@ function Col:SetHeader(ult)
 	self.Label:SetText(ult.Name)
     else
 	self.Label:SetText('')
+    end
+end
+
+function Player.SetUlt()
+    if GetActiveWeaponPairInfo() ~= 1 then
+	return
+    end
+    if not myults then
+	myults = Settings.SavedVariables.MyUltId[ultix]
+    end
+    local aid = GetSlotBoundId(8)
+    local pid = Ult.ByAid(aid).Ping
+    if pid ~= myults[1] then
+	for n in pairs(me.Ults) do
+	    me.Ults[n] = nil
+	end
+	me.UltMain = pid
+	myults[1] = pid
+	swimlanes.Sched(true)
     end
 end
 

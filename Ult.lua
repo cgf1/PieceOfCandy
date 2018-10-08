@@ -11,6 +11,7 @@ Ult = {
     MaxPing = 0,
     Me = 0
 }
+local Ult = Ult
 Ult.__index = Ult
 
 local ultix = GetUnitName("player")
@@ -35,12 +36,17 @@ end
 -- ByAid gets the ultimate group from given ability ID
 --
 function Ult.ByAid(aid)
-    if byids[aid] ~= nil then
+    if byids[aid] then
 	return byids[aid]
+    end
+    local skillType, skillLineIndex, skillIndex, _, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(aid)
+    local base_aid = GetSpecificSkillAbilityInfo(skillType, skillLineIndex, skillIndex, 0, rankIndex)
+    if byids[base_aid] then
+	return byids[base_aid]
     end
 
     -- not found
-    Error(string.format("AbilityId not found %s", tostring(aid)))
+    Error(string.format("AbilityId not found %d/%d %s", aid, base_aid, GetAbilityIcon(base_aid)))
 
     return nil
 end
@@ -204,17 +210,18 @@ local function create_ults()
 	    {
 		Ping = 15,
 		Name = 'ICE',
-		Icon = '/esoui/art/icons/ability_destructionstaff_014_a.dds'
+
+		Icon = '/esoui/art/icons/ability_destructionstaff_012.dds'
 	    },
 	    {
 		Ping = 16,
 		Name = 'FIRE',
-		Icon = '/esoui/art/icons/ability_destructionstaff_013_a.dds'
+		Icon = '/esoui/art/icons/ability_destructionstaff_013.dds'
 	    },
 	    {
 		Ping = 17,
 		Name = 'LIGHT',
-		Icon = '/esoui/art/icons/ability_destructionstaff_015_a.dds'
+		Icon = '/esoui/art/icons/ability_destructionstaff_015.dds'
 	    }
 	},
 	['Restoration Staff'] = {
@@ -405,12 +412,26 @@ local function ability_used(slotnum, power)
     end
 end
 
+local function ability_updated(n)
+    watch("ability_updated", n)
+    Player.SetUlt()
+end
+
 -- Initialize Ult
 --
 function Ult.Initialize()
     saved = Settings.SavedVariables
     create_ults()
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, function (_, x) ability_used(x) end)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, function (_, n) ability_used(n) end)
+    -- EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_SLOTTED, function () ability_updated('ability slotted') end)
+    -- EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOTS_FULL_UPDATE, function () ability_updated('full update') end)
+    -- EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_UPDATED, function () ability_updated('slot update') end)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_STATE_UPDATED, function (_, n)
+        if n == 8 then
+            ability_updated('slot state update')
+        end
+    end)
+    
 
     local ids
     if saved.SwimlaneUltIds == nil then
@@ -449,6 +470,9 @@ function Ult.Initialize()
 	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
 	end
     end
+    if saved.AutUlt then
+	Player.SetUlt()
+    end
     Slash('sendult', 'debugging: pretend that an ultimate fired', function(x)
 	x = tonumber(x)
 	if not x or x <= 0 then
@@ -467,9 +491,11 @@ function Ult.Initialize()
 	SetCrownCrateNPCVisible(onoff)
     end)
     if false then
-        for i = 1, 8 do
-           local n = GetSlotBoundId(i)
-           d(string.format("%2d %s", i, GetAbilityName(n)))
-        end
+	for i = 1, 8 do
+	    local aid = GetSlotBoundId(i)
+	    local skillType, skillLineIndex, skillIndex, _, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(aid)
+	    local base_aid = GetSpecificSkillAbilityInfo(skillType, skillLineIndex, skillIndex, 0, rankIndex)
+	    d(string.format("%2d %5d/%d %s/%s", i, aid, base_aid, GetAbilityName(aid), GetAbilityName(base_aid)))
+	end
     end
 end

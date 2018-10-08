@@ -8,6 +8,7 @@ Settings = {
     Default = {
 	AcceptPVP = false,
 	AtNames = false,
+	AutUlt = true,
 	CommOff = false,
 	GroupMembers = {},
 	LaneIds = {
@@ -122,6 +123,7 @@ function Settings.InitializeWindow(version)
     }
     o[#o + 1] = {
 	type = "iconpicker",
+	disabled = function () return saved.AutUlt end,
 	name = "Choose your primary ultimate",
 	choices = Ult.Icons(),
 	choicesTooltips = Ult.Descriptions(),
@@ -134,6 +136,21 @@ function Settings.InitializeWindow(version)
 	maxColumns = 7,
 	visibleRows = 5,
 	iconSize = 32
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Choose main ultimate automatically",
+	tooltip = "Use whatever is in main ultimate slot as your ultimate",
+	getFunc = function()
+	    return saved.AutUlt
+	end,
+	setFunc = function(x)
+	    if x ~= saved.AutUlt then
+		Player.SetUlt()
+		saved.AutUlt = x
+	    end
+	end,
+	default = default.AtNames
     }
     if false then
     o[#o + 1] = {
@@ -404,7 +421,8 @@ function Settings.InitializeWindow(version)
 	    author = author,
 	    description = description,
 	    version = version,
-	    registerForDefaults = true
+	    registerForDefaults = true,
+	    registerForRefresh = true
     }
     Panel = LAM:RegisterAddonPanel("POCSettingsMainMenu", paneldata)
     LAM:RegisterOptionControls("POCSettingsMainMenu", o)
