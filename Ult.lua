@@ -86,6 +86,7 @@ end
 
 local function mkulttbl()
     local tbl = {}
+    local nametbl = {}
     for aid = 1, 99999 do
 	if DoesAbilityExist(aid) then
 	    local cost, mechanic = GetAbilityCost(aid)
@@ -93,11 +94,16 @@ local function mkulttbl()
 		local _, _, _, morphChoice = GetSpecificSkillAbilityKeysByAbilityId(aid)
 		if morphChoice == 0 then
 		    tbl[GetAbilityIcon(aid)] = aid
+		    local name = GetAbilityName(aid)
+		    if nametbl[name] == nil then
+			nametbl[name] = {}
+		    end
+		    table.insert(nametbl[name], aid)
 		end
 	    end
 	end
     end
-    return tbl
+    return tbl, nametbl
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
@@ -318,10 +324,12 @@ local function create_ults()
     }
 
     -- Create tables indexed by different things
-    local xltults = mkulttbl()
+    local xltults, nametbl = mkulttbl()
     for class, x in pairs(ults) do
 	for _, group in pairs(x) do
-	    if not group.Aid then
+	    if group.Aid then
+		byids[group.Aid] = group
+	    else
 		local aid = xltults[group.Icon]
 		if not aid then
 		    Error(string.format('no icon found for: %s', group.Name))
@@ -329,8 +337,11 @@ local function create_ults()
 		    group.Aid = aid
 		    group.Desc = string.format('%s: %s', class, GetAbilityName(aid))
 		end
+		local name = GetAbilityName(aid)
+		for _, aid in pairs(nametbl[name]) do
+		    byids[aid] = group
+		end
 	    end
-	    byids[group.Aid] = group
 	    bypings[group.Ping] = group
 	    if group.Ping > Ult.MaxPing then
 		Ult.MaxPing = group.Ping
@@ -413,7 +424,7 @@ local function ability_used(slotnum, power)
 end
 
 local function ability_updated(n)
-    watch("ability_updated", n)
+    watch("ability_updated", n,)
     Player.SetUlt()
 end
 
@@ -423,15 +434,7 @@ function Ult.Initialize()
     saved = Settings.SavedVariables
     create_ults()
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, function (_, n) ability_used(n) end)
-    -- EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_SLOTTED, function () ability_updated('ability slotted') end)
-    -- EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOTS_FULL_UPDATE, function () ability_updated('full update') end)
-    -- EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_UPDATED, function () ability_updated('slot update') end)
-    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_STATE_UPDATED, function (_, n)
-        if n == 8 then
-            ability_updated('slot state update')
-        end
-    end)
-    
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_SKILL_RESPEC_RESULT, function () ability_updated('respec') end)
 
     local ids
     if saved.SwimlaneUltIds == nil then

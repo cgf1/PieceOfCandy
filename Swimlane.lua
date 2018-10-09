@@ -1252,7 +1252,13 @@ function swimlanes.Initialize(major, minor)
 	group_members[n] = v
     end
     me.UltMain = myults[1]
-    me.Ults[myults[1]] = 0
+    for n in pairs(me.Ults) do
+	if n == myults[1] or n == myults[2] then
+	    me.Ults[n] = 0
+	else
+	    me.Ults[n] = nil
+	end
+    end
 
     cellpool = ZO_ObjectPool:New(create_cell, reset_cell)
 
