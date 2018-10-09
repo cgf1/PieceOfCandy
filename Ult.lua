@@ -424,7 +424,7 @@ local function ability_used(slotnum, power)
 end
 
 local function ability_updated(n)
-    watch("ability_updated", n,)
+    watch("ability_updated", n)
     Player.SetUlt()
 end
 
