@@ -24,6 +24,8 @@ local saved
 local mia
 local MIAicon = "/POC/icons/mia.dds"
 
+local myults
+
 -- ByPing gets the ultimate group from given ability ping
 --
 function Ult.ByPing(pid)
@@ -352,13 +354,6 @@ local function create_ults()
     mia.IsMIA = true
     local i = 0
     i = insert_group_table(bynames, ults, class, i)
-    if saved.MyUltId[ultix] == nil then
-	for v in idpairs(bynames, 'Id', tmp) do
-	    Ult.SetSavedId(v.Aid, 1)
-	    Ult.SetSavedId('MIA', 2)
-	    break
-	end
-    end
     i = insert_group_table(bynames, ults, "Destruction Staff", i)
     i = insert_group_table(bynames, ults, "Restoration Staff", i)
     i = insert_group_table(bynames, ults, "Two Handed", i)
@@ -379,9 +374,9 @@ local function create_ults()
 end
 
 function Ult.GetSaved(n)
-    if saved.MyUltId[ultix][n] ~= nil then
+    if myults[n] ~= nil then
 	-- should never be non-nil, but...
-	local ult = Ult.ByPing(saved.MyUltId[ultix][n])
+	local ult = Ult.ByPing(myults[n])
 	return ult.Icon
     end
 end
@@ -396,15 +391,16 @@ function Ult.UltApidFromIcon(icon)
 end
 
 function Ult.SetSavedId(apid, n)
+    saved.AutUlt = false;
     if apid == nil then
-	local one = saved.MyUltId[ultix][1]
-	saved.MyUltId[ultix][1] = saved.MyUltId[ultix][2]
-	saved.MyUltId[ultix][2] = one
+	local one = myults[1]
+	myults[1] = myults[2]
+	myults[2] = one
     else
-	if saved.MyUltId[ultix] == nil then
-	    saved.MyUltId[ultix] = {}
+	if myults == nil then
+	    myults = {}
 	end
-	saved.MyUltId[ultix][n] = apid
+	myults[n] = apid
     end
 end
 
@@ -432,7 +428,11 @@ end
 --
 function Ult.Initialize()
     saved = Settings.SavedVariables
+    myults = saved.MyUltId[ultix]
     create_ults()
+    if saved.AutUlt then
+	Player.SetUlt()
+    end
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, function (_, n) ability_used(n) end)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_SKILL_RESPEC_RESULT, function () ability_updated('respec') end)
 
@@ -472,9 +472,6 @@ function Ult.Initialize()
 	    end
 	    saved.MyUltId[n] = {[1] = v, [2] = 'MIA'}
 	end
-    end
-    if saved.AutUlt then
-	Player.SetUlt()
     end
     Slash('sendult', 'debugging: pretend that an ultimate fired', function(x)
 	x = tonumber(x)
