@@ -1,51 +1,54 @@
 setfenv(1, POC)
 local SETTINGS_VERSION = 5
 
+local ultix = GetUnitName("player")
+
+local default = {
+    AcceptPVP = false,
+    AtNames = false,
+    AutUlt = true,
+    CommOff = false,
+    GroupMembers = {},
+    LaneIds = {
+	1,	-- Negate
+	6,	-- Templar Heal
+	16,	-- Destro fire ultimate
+	13,	-- Warden Permafrost
+	27,	-- Dawnbreaker
+	26,	-- Meteor
+	28,	-- Barrier
+	29,	-- War horn
+	12,	-- Soul tether
+	14	-- Warden heal
+    },
+    MIA = true,
+    MapIndex = 30,	-- Vvardenfell
+    MyUltId = {
+	[ultix] = {}
+    },
+    NeedsHelp = true,
+    OnlyAva = false,
+    Quests = {},
+    RelaxedCampaignAccept = false,
+    ShareQuests = true,
+    Style = "Standard",
+    SwimlaneMax = 24,
+    SwimlaneMaxCols = 6,
+    Tooltips = true,
+    UltAlert = true,
+    UltNoise = false,
+    UltNumberPos = nil,
+    UltNumberShow = true,
+    WarnConflict = true,
+    WereNumberOne = true
+}
+
 Settings = {
     Name = "POC-Settings",
-    SettingsName = "POCSettings",
-    SavedVariables = nil,
-    Default = {
-	AcceptPVP = false,
-	AtNames = false,
-	AutUlt = true,
-	CommOff = false,
-	GroupMembers = {},
-	LaneIds = {
-	    1,	-- Negate
-	    6,	-- Templar Heal
-	    16, -- Destro fire ultimate
-	    13, -- Warden Permafrost
-	    27, -- Dawnbreaker
-	    26, -- Meteor
-	    28, -- Barrier
-	    29, -- War horn
-	    12, -- Soul tether
-	    14	-- Warden heal
-	},
-	MIA = true,
-	MapIndex = 30,	-- Vvardenfell
-	MyUltId = {},
-	NeedsHelp = true,
-	OnlyAva = false,
-	Quests = {},
-	RelaxedCampaignAccept = false,
-	ShareQuests = true,
-	Style = "Standard",
-	SwimlaneMax = 24,
-	SwimlaneMaxCols = 6,
-	Tooltips = true,
-	UltAlert = true,
-	UltNoise = false,
-	UltNumberPos = nil,
-	UltNumberShow = true,
-	WarnConflict = true,
-	WereNumberOne = true
-    }
+    Name = "POCSettings",
+    SavedVariables = nil
 }
 Settings.__index = Settings
-
-local ultix = GetUnitName("player")
 local saved
 
 -- Sets SetStyleSettings and fires POC-StyleChanged callbacks
@@ -98,7 +101,7 @@ end
 -- Initialize/create settings window
 --
 function Settings.InitializeWindow(version)
-    local default = Settings.Default
+    local default = default
     local styleChoices = {
 	[1] = GetString(OPTIONS_STYLE_SWIM),
 	[2] = GetString(OPTIONS_STYLE_SHORT_SWIM)
@@ -447,7 +450,7 @@ end
 -- Load SavedVariables
 --
 function Settings.Initialize()
-    saved = ZO_SavedVars:NewAccountWide(Settings.SettingsName, SETTINGS_VERSION, nil, Settings.Default)
+    saved = ZO_SavedVars:NewAccountWide(Settings.Name, SETTINGS_VERSION, nil, default)
     Settings.SavedVariables = saved
 
     --	Obsolete variables

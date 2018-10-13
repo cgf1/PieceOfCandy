@@ -3,11 +3,10 @@ setmetatable(POC, {__index = _G})
 local IsLinux = true
 LGS={} LGS.__index = LGS
 setmetatable(LGS, LGS)
-function GetUnitName(x) end 
+function GetUnitName(x) return "foo" end 
 _G.EVENT_MANAGER = {}
 function EVENT_MANAGER:RegisterForEvent() end
-function GetUnitClass(x) end
-function GetUnitName(x) end
+function GetUnitClass(x) return "foo" end
 LGS = { saveData = 0 }
 LGS.__index = LGS
 function LGS:RegisterHandler(x, y)

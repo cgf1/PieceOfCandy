@@ -1,3 +1,20 @@
+2018-10-13 (v3.28)
+
+- Update for Murkmire.
+
+- Set ultimate automatically if it is not specified.
+
+- Add ability to track ultimate (on by default) so that, if you change your
+ultimate, other players will see it on next map tick.
+
+- Allow turning off conquest quest sharing after it has been turned on.
+
+- Fix LUA error after upgrading from some older versions.
+
+- Upgrade LibGPS for Murkmire.
+
+- Decrease chatter when someone stealths.
+
 2018-09-23 (v3.27)
 
 - Report forward camp timer information in tooltip for dead characters.
