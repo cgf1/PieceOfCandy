@@ -1075,6 +1075,7 @@ function Col:SetHeader(ult)
     end
 end
 
+local warned_ult = false
 function Player.SetUlt()
     if GetActiveWeaponPairInfo() ~= 1 then
 	return
@@ -1083,7 +1084,15 @@ function Player.SetUlt()
 	myults = Settings.SavedVariables.MyUltId[ultix]
     end
     local aid = GetSlotBoundId(8)
-    local pid = Ult.ByAid(aid).Ping
+    local ult = Ult.ByAid(aid)
+    if ult == nil then
+	if not warned_ult then
+	    Error(string.format("Can't translate ultimate '%s' to base ultimate.  Please report to esoui.com", GetAbilityName(aid)))
+	    warned_ult = true
+	end
+	return
+    end
+    local pid = ult.Ping
     if pid ~= myults[1] then
 	for n in pairs(me.Ults) do
 	    me.Ults[n] = nil

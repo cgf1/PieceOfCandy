@@ -88,24 +88,34 @@ end
 
 local function mkulttbl()
     local tbl = {}
-    local nametbl = {}
+    local iconlist = {}
     for aid = 1, 99999 do
 	if DoesAbilityExist(aid) then
 	    local cost, mechanic = GetAbilityCost(aid)
 	    if cost ~= 0 and mechanic == POWERTYPE_ULTIMATE then
 		local _, _, _, morphChoice = GetSpecificSkillAbilityKeysByAbilityId(aid)
 		if morphChoice == 0 then
-		    tbl[GetAbilityIcon(aid)] = aid
-		    local name = GetAbilityName(aid)
-		    if nametbl[name] == nil then
-			nametbl[name] = {}
+		    local icon = GetAbilityIcon(aid)
+		    tbl[icon] = aid
+		    local icon1
+		    if icon:find("destructionstaff_013") then
+			icon1 = "/esoui/art/icons/ability_destructionstaff_013_a.dds"
+		    elseif icon:find("destructionstaff_014") then
+			icon1 = "/esoui/art/icons/ability_destructionstaff_014_a.dds"
+		    elseif icon:find("destructionstaff_015") then
+			icon1 = "/esoui/art/icons/ability_destructionstaff_015_a.dds"
+		    else
+			icon1 = icon
 		    end
-		    table.insert(nametbl[name], aid)
+		    if not iconlist[icon1] then
+			iconlist[icon1] = {}
+		    end
+		    table.insert(iconlist[icon1], aid)
 		end
 	    end
 	end
     end
-    return tbl, nametbl
+    return tbl, iconlist
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
@@ -218,18 +228,17 @@ local function create_ults()
 	    {
 		Ping = 15,
 		Name = 'ICE',
-
-		Icon = '/esoui/art/icons/ability_destructionstaff_012.dds'
+		Icon = '/esoui/art/icons/ability_destructionstaff_014_a.dds'
 	    },
 	    {
 		Ping = 16,
 		Name = 'FIRE',
-		Icon = '/esoui/art/icons/ability_destructionstaff_013.dds'
+		Icon = '/esoui/art/icons/ability_destructionstaff_013_a.dds'
 	    },
 	    {
 		Ping = 17,
 		Name = 'LIGHT',
-		Icon = '/esoui/art/icons/ability_destructionstaff_015.dds'
+		Icon = '/esoui/art/icons/ability_destructionstaff_015_a.dds'
 	    }
 	},
 	['Restoration Staff'] = {
@@ -326,13 +335,14 @@ local function create_ults()
     }
 
     -- Create tables indexed by different things
-    local xltults, nametbl = mkulttbl()
+    local xltults, iconlist = mkulttbl()
     for class, x in pairs(ults) do
 	for _, group in pairs(x) do
 	    if group.Aid then
 		byids[group.Aid] = group
 	    else
-		local aid = xltults[group.Icon]
+		local icon = group.Icon
+		local aid = xltults[icon]
 		if not aid then
 		    Error(string.format('no icon found for: %s', group.Name))
 		else
@@ -340,7 +350,7 @@ local function create_ults()
 		    group.Desc = string.format('%s: %s', class, GetAbilityName(aid))
 		end
 		local name = GetAbilityName(aid)
-		for _, aid in pairs(nametbl[name]) do
+		for _, aid in pairs(iconlist[icon]) do
 		    byids[aid] = group
 		end
 	    end
@@ -435,6 +445,7 @@ function Ult.Initialize()
     end
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ACTION_SLOT_ABILITY_USED, function (_, n) ability_used(n) end)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_SKILL_RESPEC_RESULT, function () ability_updated('respec') end)
+    EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ABILITY_LIST_CHANGED, function () ability_updated('ability list changed') end)
 
     local ids
     if saved.SwimlaneUltIds == nil then
