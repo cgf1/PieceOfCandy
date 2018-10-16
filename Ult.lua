@@ -431,7 +431,9 @@ end
 
 local function ability_updated(n)
     watch("ability_updated", n)
-    Player.SetUlt()
+    if saved.AutUlt and GetActiveWeaponPairInfo() == 1 then
+	Player.SetUlt()
+    end
 end
 
 -- Initialize Ult

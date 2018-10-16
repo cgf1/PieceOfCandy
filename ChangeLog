@@ -1,3 +1,7 @@
+2018-10-14 (v3.30)
+
+- Don't recalculate ultimate on weapon swap or new ultimate setting if automatic ultimate calculation is off.
+
 2018-10-14 (v3.29)
 
 - Fix lua error when destruction staff equipped.
