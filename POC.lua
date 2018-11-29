@@ -52,26 +52,24 @@ local function initialize()
 
     WM = GetWindowManager()
 
-    -- Initialize settings
-    Settings.Initialize()
+    saved = Settings.GetSaved()
 
-    saved = Settings.SavedVariables	-- convenience
+    -- Initialize available ultimates
+    Ult.Initialize(saved)
 
-    Ult.Initialize()
+    UltMenu.Initialize(saved)
 
-    -- Initialize ui
-    Settings.InitializeWindow(version)
-
-    UltMenu.Initialize()
-
-    Swimlanes.Initialize(major, minor)
+    Swimlanes.Initialize(major, minor, saved)
     Group.Initialize(saved)
-    Quest.Initialize()
-    Alert.Initialize()
-    Campaign.Initialize()
+    Quest.Initialize(saved)
+    Alert.Initialize(saved)
+    Campaign.Initialize(saved)
 
     -- Start talking, see?
-    Comm.Initialize(major, minor, beta)
+    Comm.Initialize(major, minor, beta, saved)
+
+    -- Initialize settings
+    Settings.Initialize(version)
 end
 
 -- OnAddOnLoaded if POC is loaded, initialize

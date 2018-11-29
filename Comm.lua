@@ -292,8 +292,8 @@ function clearernow()
     counter = 0
 end
 
-function Comm.Initialize(inmajor, inminor, inbeta)
-    saved = Settings.SavedVariables
+function Comm.Initialize(inmajor, inminor, inbeta, _saved)
+    saved = saved
     saved.MapPing = nil
     Swimlanes = POC.Swimlanes
     myults = saved.MyUltId[ultix]

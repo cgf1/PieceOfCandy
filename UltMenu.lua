@@ -44,6 +44,13 @@ local function get_ult()
     return ult.Icon
 end
 
+local iconPicker
+function UltMenu.IsActive()
+    local res = iconPicker and not iconPicker.control:IsHidden()
+    watch("UltMenu.IsActive", 'returning', res, "ishidden", iconPicker and iconPicker.control:IsHidden())
+    return res
+end
+
 -- Show an appropriate "menu" for selecting ultimates
 -- 1 = On non-selected: Show primary/secondary
 -- 2 = On primary: Show secondary with "switch note"
@@ -113,6 +120,9 @@ function UltMenu.Show(parent, id, apid)
 	    [4] = lam.dropdown:GetHandler("OnMouseUp"),
 	    [5] = switch
 	}
+	if not iconPicker then
+	    iconPicker = LAM.util.GetIconPickerMenu()
+	end
     end
     lam, container, dropdown, showicons, switch = unpack(lams[n])
     dropdown:SetParent(parent)

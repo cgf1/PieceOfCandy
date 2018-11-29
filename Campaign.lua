@@ -91,8 +91,8 @@ local function get_campaign_id(name)
     end
 end
 
-function Campaign.Initialize()
-    saved = Settings.SavedVariables
+function Campaign.Initialize(_saved)
+    saved = _saved
 
     local name
     if saved.Campaign and saved.Campaign.Name then

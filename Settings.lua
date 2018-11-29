@@ -31,6 +31,7 @@ local default = {
     Quests = {},
     RelaxedCampaignAccept = false,
     ShareQuests = true,
+    ShowUnusedCols = false,
     Style = "Standard",
     SwimlaneMax = 24,
     SwimlaneMaxCols = 6,
@@ -44,7 +45,6 @@ local default = {
 }
 
 Settings = {
-    Name = "POC-Settings",
     Name = "POCSettings",
     SavedVariables = nil
 }
@@ -53,7 +53,7 @@ local saved
 
 -- Sets SetStyleSettings and fires POC-StyleChanged callbacks
 --
-function Settings.SetStyleSettings(style)
+local function set_style(style)
     if style ~= saved.Style then
 	saved.Style = style
 	Swimlanes.Redo()
@@ -62,14 +62,10 @@ end
 
 -- Control whether or not to show MIA lane
 --
-function Settings.SetMIA(what)
-    saved.MIA = what
-    Swimlanes.Redo()
-end
 
 -- Sets maximum number of cells in a swimlane
 --
-function Settings.SetSwimlaneMax(max)
+local function set_max_swimlane(max)
     if type(max) ~= 'number' then
 	max = tonumber(max)
     end
@@ -78,7 +74,7 @@ end
 
 -- Sets maximum number of swimlanes
 --
-function Settings.SetSwimlaneMaxCols(max)
+local function set_max_swimlaneCols(max)
     if type(max) ~= 'number' then
 	max = tonumber(max)
     end
@@ -88,19 +84,19 @@ end
 
 -- Set whether to show ultimate number on screen
 --
-function Settings.SetUltNumberShow(show)
+local function show_ult_number(show)
     saved.UltNumberShow = show
 end
 
 -- Set whether to play a sound when you hit #1 in ultimate order
 --
-function Settings.SetWereNumberOne(val)
+local function were_number_one(val)
     saved.WereNumberOne = val
 end
 
 -- Initialize/create settings window
 --
-function Settings.InitializeWindow(version)
+local function initialize_window(version)
     local default = default
     local styleChoices = {
 	[1] = GetString(OPTIONS_STYLE_SWIM),
@@ -185,7 +181,7 @@ function Settings.InitializeWindow(version)
 	    return saved.Style
 	end,
 	setFunc = function(value)
-	    Settings.SetStyleSettings(value)
+	    set_style(value)
 	end,
 	default = default.Style
     }
@@ -195,16 +191,16 @@ function Settings.InitializeWindow(version)
 	min = 1, max = 24, step = 1,
 	getFunc = function() return saved.SwimlaneMax end,
 	width = "full",
-	setFunc = function(value) Settings.SetSwimlaneMax(value) end,
+	setFunc = function(value) set_max_swimlane(value) end,
 	default = 24,
     }
     o[#o + 1] = {
 	type = "slider",
 	name = "Max number of swimlanes to display",
-	min = 1, max = SWIMLANES, step = 1,
+	min = 1, max = Ult.MaxPing - 1, step = 1,
 	getFunc = function() return saved.SwimlaneMaxCols end,
 	width = "full",
-	setFunc = function(value) Settings.SetSwimlaneMaxCols(value) end,
+	setFunc = function(value) set_max_swimlaneCols(value) end,
 	default = 6,
     }
     o[#o + 1] = {
@@ -240,7 +236,7 @@ function Settings.InitializeWindow(version)
 	getFunc = function()
 	    return saved.UltNumberShow
 	end,
-	setFunc = function(val) Settings.SetUltNumberShow(val) end,
+	setFunc = function(val) show_ult_number(val) end,
 	default = default.UltNumberShow
     }
     o[#o + 1] = {
@@ -250,18 +246,34 @@ function Settings.InitializeWindow(version)
 	getFunc = function()
 	    return saved.WereNumberOne
 	end,
-	setFunc = function(val) Settings.SetWereNumberOne(val) end,
+	setFunc = function(val) were_number_one(val) end,
 	default = default.WereNumberOne
     }
     o[#o + 1] = {
 	type = "checkbox",
 	name = "Show MIA swimlane",
-	tooltip = "Show/hide swimlane containing players who are not in zone or not displayed on any other swimlane",
+	tooltip = "Show/hide swimlane containing players who are not using this addon or are not displayed on any other swimlane",
 	getFunc = function()
 	    return saved.MIA
 	end,
-	setFunc = function(val) Settings.SetMIA(val) end,
+	setFunc = function (what)
+	    saved.MIA = what
+	    Swimlanes.Redo()
+	end,
 	default = default.MIA
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Show unused swimlanes",
+	tooltip = "Show/hide swimlane whose ultimate is currently unused by any player",
+	getFunc = function()
+	    return saved.ShowUnusedCols
+	end,
+	setFunc = function (what)
+	    saved.ShowUnusedCols = what
+	    Swimlanes.Update("unused columns toggled")
+	end,
+	default = default.ShowUnusedCols
     }
     o[#o + 1] = {
 	type = "divider",
@@ -447,22 +459,24 @@ local function getmapindex(name)
     Error("unknown map - " .. name)
 end
 
--- Load SavedVariables
---
-function Settings.Initialize()
+function Settings.GetSaved()
     saved = ZO_SavedVars:NewAccountWide(Settings.Name, SETTINGS_VERSION, nil, default)
     Settings.SavedVariables = saved
+    return saved
+end
 
-    --	Obsolete variables
+function Settings.Initialize(version)
+    -- Obsolete variables
     saved.SwimlaneUltimateGroupIds = nil
     saved.StaticUltimateID = nil
     saved.SwimlaneUltGrpIds = nil
     saved.IsLgsActive = nil
     saved.CountdownNumberPos = nil
-    saved.Movable = nil
+    saved.Movable = false
     saved.KeepQuest = nil
     saved.KillQuest = nil
     saved.ResourceQuest = nil
+    saved.DELETEME = nil
 
     if saved.PosX ~= nil and saved.PosY ~= nil then
 	saved.WinPos = {
@@ -472,18 +486,16 @@ function Settings.Initialize()
     end
     saved.PosX = nil
     saved.PosY = nil
-    if saved.SwimlaneMaxCols > SWIMLANES then
-	saved.SwimlaneMaxCols = SWIMLANES
-    end
+    initialize_window(version)
 
     Slash("style", 'set display style: "standard" or "compact"', function(style)
 	style = string.lower(style):gsub("^%l", string.upper)
 	if (style ~= "Compact" and style ~= "Standard") then
 	    d("POC: *** unknown style: " .. style)
 	else
-	    Settings.SetStyleSettings(style)
+	    set_style(style)
 	end
     end)
     Slash("map", "set map to use for communication", getmapindex)
-    Slash("cols", "set max number of columns to display", Settings.SetSwimlaneMaxCols)
+    Slash("cols", "set max number of columns to display", set_max_swimlaneCols)
 end

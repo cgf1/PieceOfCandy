@@ -45,8 +45,8 @@ local function havequest(cat)
     return false
 end
 
-local function _init()
-    saved = Settings.SavedVariables
+local function _init(_saved)
+    saved = _saved
     local ref = {
 	en = {
 	    {"keep", "Capture Chalman Keep"},
@@ -448,7 +448,7 @@ function Quest.ShareThem(x)
 end
 
 function Quest.Choices(incat)
-    _init()
+    _init(Settings.SavedVariables)
     local t = {}
     local seen = {}
     for qname, cat in pairs(nametocat) do
@@ -462,7 +462,7 @@ function Quest.Choices(incat)
 end
 
 function Quest.Want(cat, qname)
-    _init()
+    _init(Settings.SavedVariables)
 
     if not qname then
 	local name = ixtoname[want[cat]]
@@ -474,8 +474,9 @@ function Quest.Want(cat, qname)
     end
 end
 
-function Quest.Initialize()
-    _init()
+function Quest.Initialize(_saved)
+    saved = _saved
+    _init(_saved)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_REMOVED, quest_gone)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_SHARED, quest_shared)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_ADDED, quest_added)

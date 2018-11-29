@@ -115,8 +115,8 @@ end
 
 -- Initialize Group
 --
-function Group.Initialize(insaved)
-    saved = insaved
+function Group.Initialize(_saved)
+    saved = _saved
     if not saved.AutoAccept then
 	saved.AutoAccept = {}
     else

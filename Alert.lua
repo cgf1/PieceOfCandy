@@ -47,45 +47,7 @@ local function reset(this)
     -- nothing to do really
 end
 
-function Alert.NeedsHelp(tag)
-    if not saved.NeedsHelp then
-	return
-    end
-    local name = player_name(tag)
-    for i = 1, 10 do
-       PlaySound(SOUNDS.DUEL_BOUNDARY_WARNING)
-    end
-    Alert.Show(string.format("%s needs help", name), 5000, true)
-end
-
-local your_fired = {}
-function Alert.UltFired(tag, aid)
-    local player = your_fired[tag]
-    local name = GetUnitName(tag)
-    if player == nil or name ~= player.Name then
-	player = {
-	    Name = name,
-	    LastTime = 0
-	}
-	your_fired[tag] = player
-    end
-    local now = GetTimeStamp()
-    if saved.UltAlert and (now - player.LastTime) > 15 then
-	player.LastTime = now
-	local ult = Ult.ByPing(aid)
-	local duration = GetAbilityDuration(aid)
-	if duration < 10000 then
-	    duration = 10000
-	end
-	local name = player_name(tag)
-	watch('Alert.UltFired', tag, aid, name)
-	local ultname = GetAbilityName(aid)
-	local message = string.format("%s's %s", player_name(tag), ultname)
-	Alert.Show(message, duration)
-    end
-end
-
-function Alert.Show(text, total_duration, flash)
+local function alert_show(text, total_duration, flash)
     if (GetTimeStamp() - last_alert) > 8 then
 	ix = MAX / 2
     else
@@ -154,6 +116,44 @@ function Alert.Show(text, total_duration, flash)
     last_alert = GetTimeStamp()
 end
 
+function Alert.NeedsHelp(tag)
+    if not saved.NeedsHelp then
+	return
+    end
+    local name = player_name(tag)
+    for i = 1, 10 do
+       PlaySound(SOUNDS.DUEL_BOUNDARY_WARNING)
+    end
+    alert_show(string.format("%s needs help", name), 5000, true)
+end
+
+local your_fired = {}
+function Alert.UltFired(tag, aid)
+    local player = your_fired[tag]
+    local name = GetUnitName(tag)
+    if player == nil or name ~= player.Name then
+	player = {
+	    Name = name,
+	    LastTime = 0
+	}
+	your_fired[tag] = player
+    end
+    local now = GetTimeStamp()
+    if saved.UltAlert and (now - player.LastTime) > 15 then
+	player.LastTime = now
+	local ult = Ult.ByPing(aid)
+	local duration = GetAbilityDuration(aid)
+	if duration < 10000 then
+	    duration = 10000
+	end
+	local name = player_name(tag)
+	watch('Alert.UltFired', tag, aid, name)
+	local ultname = GetAbilityName(aid)
+	local message = string.format("%s's %s", player_name(tag), ultname)
+	alert_show(message, duration)
+    end
+end
+
 local function clearernow()
     last_alert = 0
     pool:ReleaseAllObjects()
@@ -168,8 +168,8 @@ function Texture(what)
     end
 end
 
-function Alert.Initialize()
-    CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, Alert.Show)
+function Alert.Initialize(_saved)
+    CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, alert_show)
     tlw = WM:CreateTopLevelWindow()
     alert_font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
     flash_font = "$(BOLD_FONT)|" .. tostring(fontsize) .. "|soft-shadow-thick"
@@ -182,7 +182,7 @@ function Alert.Initialize()
     RegClear(clearernow)
     Slash("fire", "debugging: test ultimate display", function()
 	for i = 1, 24 do
-	    Alert.Show("Fireworks!", 5000, false)
+	    alert_show("Fireworks!", 5000, false)
 	end
     end)
 end

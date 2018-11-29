@@ -438,8 +438,8 @@ end
 
 -- Initialize Ult
 --
-function Ult.Initialize()
-    saved = Settings.SavedVariables
+function Ult.Initialize(_saved)
+    saved = _saved
     myults = saved.MyUltId[ultix]
     create_ults()
     if saved.AutUlt then

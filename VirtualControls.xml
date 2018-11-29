@@ -123,13 +123,5 @@
                 </Label>
             </Controls>
         </Control>
-        <Control name="UltSwimlane" virtual="true">
-            <Dimensions x="100" y="300"/>
-            <Controls>
-                <Control name="$(parent)Header" inherits="POC_Header">
-                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
-                </Control>
-            </Controls>
-        </Control>
     </Controls>
 </GuiXml>
