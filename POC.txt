@@ -13,6 +13,8 @@
 ## OptionalDependsOn: tom
 ## OptionalDependsOn: pChat
 
+POCstats/POCstats.txt
+
 libs/LibStub/LibStub.lua
 
 icons/ok.dds

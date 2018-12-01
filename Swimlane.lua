@@ -67,6 +67,8 @@ local MIA = {}
 
 local ultn
 
+local stats
+
 local play_sound = false
 local last_played = 0
 Player = {
@@ -685,7 +687,7 @@ function Col:Update(tick, col, moused, maxcol)
     end
 
     displayed = displayed or moused
-    self:Hide(displayed)
+    self:Hide(displayed and col)
 
     return displayed
 end
@@ -880,6 +882,69 @@ function Player.SetVersion(pingtag, major, minor, beta)
     end
 end
 
+local lrecord = {}
+function Player:Record(name, what, newval, oldval)
+    if not saved.RecordStats then
+	return
+    end
+    lrecord[name] = lrecord[name] or {}
+    local rtmp = lrecord[name]
+    stats[name] = stats[name] or {}
+    local srecord = stats[name]
+    local now = GetTimeStamp()
+    if what == 'InRange' and (self.IsMe or me:IsInRange()) then
+	local other
+	if  newval then
+	    other = 'OutOfRange'
+	else
+	    what = 'OutOfRange'
+	    other = 'InRange'
+	end
+	srecord[what] = srecord[what] or {}
+	local swhat = srecord[what]
+	local start = rtmp[other]
+	rtmp[other] = nil
+	if start then
+	    swhat[other] = swhat[other] or {}
+	    swhat[other][start] = now - start
+	end
+	rtmp[what] = rtmp[what] or now
+	return
+    end
+    if what == 'IsDead' then
+	srecord[what] = srecord[what] or {}
+	local swhat = srecord[what]
+	if self.IsDead == newval then
+	    return -- shouldn't happen
+	end
+	if not self.IsDead then
+	    rtmp['is-dead'] = now
+	else
+	    local start = rtmp['is-dead']
+	    rtmp['is-dead'] = nil
+	    if start ~= nil then
+		swhat[start] = now - start
+	    end
+	end
+	return
+    end
+    if what == 'Primary Ult' then
+	srecord[what] = srecord[what] or {}
+	local swhat = srecord[what]
+	oldval = oldval or 0
+	if not rtmp['ult-start'] then
+	    rtmp['ult-start'] = now
+	elseif oldval < 100 and newval >= 100 then
+	    local start = rtmp['ult-start']
+	    rtmp['ult-start'] = nil
+	    if start ~= nil then
+		swhat[start] = now - start
+	    end
+	end
+	return
+    end
+end
+
 local tmp_player = {}
 function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
     local name = GetUnitName(pingtag)
@@ -968,6 +1033,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	if self.Ults[apid1] ~= pct1 then
 	    changed = true
 	    watch("need_to_fire", name, "apid1 different", apid1, self.Ults[apid1], '~=', pct1)
+	    self:Record(name, 'Primary Ult', pct1, self.Ults[apid1])
 	    self.Ults[apid1] = pct1		-- Primary ult pct changed
 	end
 	if apid2 ~= nil and self.Ults[apid2] ~= pct2 then
@@ -982,6 +1048,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	if self[n] ~= v then
 	    changed = true
 	    watch("need_to_fire", name, 'player vs. self', n, self[n], '~=', v)
+	    self:Record(name, n, v)
 	    self[n] = v
 	end
     end
@@ -1002,7 +1069,7 @@ local unitnames = {
     'group17', 'group18', 'group19', 'group20', 'group21', 'group22', 'group23', 'group24'
 }
 
--- Updates player (potentially) in the swimlane
+-- Updates player in-range info
 --
 function Player.Update(clear_need_to_fire)
     local nmembers = 0
@@ -1233,6 +1300,12 @@ function Cols:New()
     return self
 end
 
+local function getstats()
+    if not stats and saved.RecordStats then
+	stats = ZO_SavedVars:NewAccountWide('POCstats', 1, nil, {Version = 1})
+    end
+end
+
 -- Initialize Swimlanes
 --
 swimlanes.Update = function(x) Cols:Update(x) end
@@ -1325,6 +1398,8 @@ function swimlanes.Initialize(major, minor, _saved)
     ultn:SetMouseEnabled(true)
     ultn_hide(true)
 
+    getstats()
+
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
     Slash("show", "debugging: show the widget", function()
@@ -1368,7 +1443,7 @@ function swimlanes.Initialize(major, minor, _saved)
 	    saved.AllowMove = movable
 	    set_widget_movable()
 	end
-	Info("movable state is:", movable)
+	Info("movable state is:", saved.AllowMove)
     end)
     Slash("sendver", "debugging: send POC add-on version to others in your group", function(x)
 	Comm.SendVersion()
@@ -1376,5 +1451,26 @@ function swimlanes.Initialize(major, minor, _saved)
     Slash("dump", "debugging: show collected information for specified player", function(x) dumpme = x end)
     Slash("leader", "make me group leader", function()
 	Comm.Send(COMM_TYPE_MAKEMELEADER)
+    end)
+    Slash("record", "turn recording of interesting statistics on/off", function(x)
+	local record
+	if x == "no" or x == "false" or x == "off" then
+	    record = false
+	elseif x == "yes" or x == "true" or x == "on" then
+	    record = true
+            getstats()
+	elseif x == "clear" then
+	    for k in pairs(stats) do
+		stats[k] = nil
+	    end
+	    Info("records cleared")
+	elseif x ~= "" then
+	    Error("Huh?")
+	    return
+	end
+	if record ~= nil then
+	    saved.RecordStats = record
+	end
+	Info("record state is:", saved.RecordStats)
     end)
 end
