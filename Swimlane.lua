@@ -900,13 +900,12 @@ function Player:Record(name, what, newval, oldval)
 	    what = 'OutOfRange'
 	    other = 'InRange'
 	end
-	srecord[what] = srecord[what] or {}
-	local swhat = srecord[what]
+	srecord[other] = srecord[other] or {}
+	local swhat = srecord[other]
 	local start = rtmp[other]
 	rtmp[other] = nil
 	if start then
-	    swhat[other] = swhat[other] or {}
-	    swhat[other][start] = now - start
+	    swhat[start] = now - start
 	end
 	rtmp[what] = rtmp[what] or now
 	return
@@ -1262,7 +1261,7 @@ function Col:Hide(col)
 	if self.X ~= x then
 	    control:ClearAnchors()
 	    control:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
-	    self.X = x 
+	    self.X = x
 	end
     end
     control:SetHidden(hide)
@@ -1453,12 +1452,11 @@ function swimlanes.Initialize(major, minor, _saved)
 	Comm.Send(COMM_TYPE_MAKEMELEADER)
     end)
     Slash("record", "turn recording of interesting statistics on/off", function(x)
-	local record
 	if x == "no" or x == "false" or x == "off" then
-	    record = false
+	    saved.RecordStats = false
 	elseif x == "yes" or x == "true" or x == "on" then
-	    record = true
-            getstats()
+	    saved.RecordStats = true
+	    getstats()
 	elseif x == "clear" then
 	    for k in pairs(stats) do
 		stats[k] = nil
@@ -1467,9 +1465,6 @@ function swimlanes.Initialize(major, minor, _saved)
 	elseif x ~= "" then
 	    Error("Huh?")
 	    return
-	end
-	if record ~= nil then
-	    saved.RecordStats = record
 	end
 	Info("record state is:", saved.RecordStats)
     end)
