@@ -1,5 +1,7 @@
 setfenv(1, POC)
 
+local SLASH_COMMANDS = SLASH_COMMANDS
+
 LuaErrors = {
     Name = 'POC-LuaErrors'
 }

@@ -372,7 +372,7 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
 	if x == 'on' or x == 'true' then
 	    saved.CommSanity = true
 	elseif x == 'off' or x == 'false' then
-	    saved.CommSanity = nil
+	    saved.CommSanity = false
 	end
 	Info('Sanity is: ', saved.CommSanity)
     end)

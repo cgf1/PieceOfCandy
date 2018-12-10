@@ -63,4 +63,6 @@ Quest.lua
 Alert.lua
 Campaign.lua
 
+Test.lua
+
 POC.lua

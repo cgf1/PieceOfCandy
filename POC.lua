@@ -1,7 +1,5 @@
 setfenv(1, POC)
 Name = "POC"
--- Callbacks
-SHOW_ULTIMATE_GROUP_MENU = "POC-ShowUltMenu"
 
 LANG = GetCVar("Language.2")
 
@@ -67,6 +65,10 @@ local function initialize()
 
     -- Start talking, see?
     Comm.Initialize(major, minor, beta, saved)
+
+    if type(Test) == 'table' then
+	Test.Initialize(saved)
+    end
 
     -- Initialize settings
     Settings.Initialize(version)

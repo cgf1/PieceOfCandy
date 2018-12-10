@@ -12,6 +12,63 @@ POC.POC = POC
 
 setfenv(1, POC)
 
+local SLASH_COMMANDS = SLASH_COMMANDS
+
+local localized = {
+    'DoesUnitExist',
+    'GetGroupUnitTagByIndex',
+    'GetUnitClass',
+    'GetUnitClassId',
+    'GetUnitDisplayName',
+    'GetUnitName',
+    'GetUnitPower',
+    'GetUnitStealthState',
+    'GetUnitZone',
+    'IsUnitDead',
+    'IsUnitGrouped',
+    'IsUnitGroupLeader',
+    'IsUnitInCombat',
+    'IsUnitInGroupSupportRange',
+    'IsUnitOnline'
+}
+
+local real = {}
+
+local execstring = SLASH_COMMANDS['/script']
+
+function Localize(prefix)
+    local doit = ''
+    for _, n in ipairs(localized) do
+	local func = prefix .. n
+	if _G[func] then
+	    doit = doit .. string.format("POC.%s = %s%s ", n, prefix, n)
+	end
+    end
+    execstring(doit)
+end
+
+function Unlocalize()
+    local doit = ''
+    for _, n in ipairs(localized) do
+	doit = doit .. string.format("POC.%s = _G['%s'] ", n, n)
+    end
+    execstring(doit)
+end
+
+local function POCize()
+    local doit = ''
+    Unlocalize('')
+    for _, n in pairs(localized) do
+	if _G["POC." .. n] then
+	    doit = doit .. string.format("%s = POC.%s ", n, n)
+	end
+    end
+    execstring(doit)
+end
+
+Localize('')
+POCize = nil
+
 local cmds = {}
 local keys = {}
 

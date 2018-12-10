@@ -76,6 +76,10 @@ function DoesUnitExist()
 end
 
 SLASH_COMMANDS = {}
+SLASH_COMMANDS['/script'] = function(...)
+    x = assert(loadstring(...))
+    x()
+end
 
 EVENT_MANAGER = {} EVENT_MANAGER.__index = EVENT_MANAGER
 function EVENT_MANAGER:UnregisterForEvent()
@@ -106,7 +110,7 @@ function GetAPIVersion()
     return 100023
 end
 
-function d(...) end
+function d(...) print(...) end
 
 SCENE_MANAGER = {}
 SCENE_MANAGER.__index = SCENE_MANAGER
@@ -119,3 +123,24 @@ end
 
 function Slash() end
 SOUNDS = {}
+
+local define = {
+    'GetGroupUnitTagByIndex',
+    'GetUnitClassId',
+    'GetUnitDisplayName',
+    'GetUnitPower',
+    'GetUnitStealthState',
+    'GetUnitZone',
+    'IsUnitDead',
+    'IsUnitGrouped',
+    'IsUnitGroupLeader',
+    'IsUnitInCombat',
+    'IsUnitInGroupSupportRange',
+    'IsUnitOnline'
+}
+
+for _, fn in pairs(define) do
+    local doit = string.format("function %s(...) end", fn)
+    f=assert(loadstring(doit))
+    f()
+end

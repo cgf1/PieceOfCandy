@@ -300,7 +300,7 @@ local gc = GARBAGECOLLECT
 local wasactive = false
 local tickdown = 20
 local scene_showing
-local moused
+local wasmaxed
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -334,6 +334,7 @@ function Cols:Update(x)
 	refresh = true
     end
     watch("Cols:Update", x, 'refresh', refresh, 'wasactive', wasactive)
+    local moused
     if showall() then
 	moused = true
     else
@@ -348,22 +349,20 @@ function Cols:Update(x)
 	max_x = 0
 	max_y = 60
 	local col = 1
-	for i, v in ipairs(self) do
+	for _, v in ipairs(self) do
 	    if v:Update(tick, col, moused, saved.SwimlaneMax) then
 		displayed = true
 		col = col + 1
 	    end
-	    if col > maxcols then
+	    if not wasmaxed and not moused and col > maxcols then
 		break
 	    end
 	end
+	wasmaxed = moused
 	if saved.MIA then
 	    for i=1, 3 do
-		if MIA[i]:Update(tick, col, moused, 8) then
-		    col = col + 1
-		else
-		    break
-		end
+		MIA[i]:Update(tick, col, false, 8)
+		col = col + 1
 	    end
 	end
     end
@@ -578,10 +577,10 @@ local function reset_cell(tbl)
 end
 
 
-local function colstuff(col, row)
+function Col:Info(col, row)
     local sizex = icon_size[1]
     local sizey = icon_size[2]
-    if saved.Style == 'Standard' then
+    if saved.Style == 'Standard' and not self.Moused then
 	sizex = sizex + 75	-- room for text
     else
 	sizex = sizex + 27
@@ -596,10 +595,12 @@ end
 --
 local keys = {}
 function Col:Update(tick, col, moused, maxcol)
-    local displayed = false
+    local displayed = moused
     local apid = self.Apid
     local isMIA = apid == maxping
     lane_apid = apid
+    self.Moused = moused
+    self.Col = col
 
     local plunk = self.Plunk
     local keys = keys
@@ -636,7 +637,7 @@ function Col:Update(tick, col, moused, maxcol)
 	displayed = true
 	local y
 	if not player.IsMe or not priult or isMIA then
-	    y = self:UpdateCell(n, player, playername, isMIA or priult, col)
+	    y = self:UpdateCell(n, player, playername, isMIA or priult)
 	    if not isMIA and player.Ults[apid] and player.Ults[apid] > 100 then
 		gt100 = player.Ults[apid]
 	    end
@@ -662,7 +663,7 @@ function Col:Update(tick, col, moused, maxcol)
 		me.Because = "out of range or dead"
 		show = false
 	    end
-	    y = self:UpdateCell(n, player, playername, priult, col)
+	    y = self:UpdateCell(n, player, playername, priult)
 	    if show then
 		ultn_show(n)
 	    else
@@ -677,7 +678,7 @@ function Col:Update(tick, col, moused, maxcol)
     end
 
     if displayed or moused then
-	local x, y, sizex, sizey = colstuff(col + 1, 0)
+	local x, y, sizex, sizey = self:Info(col + 1, 0)
 	max_x = x
     end
 
@@ -686,9 +687,9 @@ function Col:Update(tick, col, moused, maxcol)
 	cellpool:ReleaseObject(table.remove(self, n))
     end
 
-    displayed = displayed or moused
-    self:Hide(displayed and col)
+    self:SetHeader(displayed and col)
 
+    self.Moused = false
     return displayed
 end
 
@@ -753,7 +754,8 @@ end
 
 -- Update a cell
 --
-function Col:UpdateCell(i, player, playername, priult, col)
+function Col:UpdateCell(i, player, playername, priult)
+    local col = self.Col
     rowtbl, key = cellpool:AcquireObject(self[i])
     local row = rowtbl.Control
     local bgcell = rowtbl.Backdrop
@@ -764,7 +766,7 @@ function Col:UpdateCell(i, player, playername, priult, col)
 	rowtbl.PlayerInfo[2] = playername
     end
 
-    local x, y, sizex, sizey = colstuff(col, i)
+    local x, y, sizex, sizey = self:Info(col, i)
     if not self[ix] then
 	row:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 	row:SetWidth(sizex)
@@ -990,7 +992,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	player.HasBeenLeader = true
     end
     player.IsDead = IsUnitDead(pingtag)
-    player.Online = IsUnitOnline(pingtag)
+    player.IsOnline = IsUnitOnline(pingtag)
     player.PingTag = pingtag
     player.UltMain = apid1
     player.Pos = pos
@@ -1127,15 +1129,37 @@ function swimlanes:OnMove(stop)
     end
 end
 
-function Col:SetHeader(ult)
-    self.Apid = ult.Ping
-    self.Icon:SetTexture(ult.Icon)
-    self.Control.data.tooltipText = ult.Desc
-    if saved.Style == 'Standard' then
-	self.Label:SetText(ult.Name)
+function Col:SetHeader(what)
+    local moused = self.Moused
+    local twhat = type(what)
+    local hide
+    if type(what) == 'table' then
+	self.Apid = what.Ping
+	self.Icon:SetTexture(what.Icon)
+	self.Control.data.tooltipText = what.Desc
+	self.Name = what.Name
+    elseif twhat == 'number' then
+	local x, y = self:Info(what, 0)
+	if self.X ~= x then
+	    local control = self.Control
+	    control:ClearAnchors()
+	    control:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
+	    self.X = x
+	end
+	hide = false
     else
-	self.Label:SetText('')
+	hide = true
     end
+    local text
+    if saved.Style == 'Standard' and not moused then
+	text = self.Name
+    else
+	text = ''
+    end
+    if text ~= self.LastText then
+	self.Label:SetText(text)
+    end
+    self.Control:SetHidden(hide)
 end
 
 local warned_ult = false
@@ -1243,30 +1267,8 @@ function Col.New(apid, i)
 
     self:SetHeader(ult)
 
-    self:Hide(false)
-
-    -- Start fresh with any existing cells
-    while self[1] do
-	cellpool:ReleaseObject(table.remove(self, 1))
-    end
-
     return self
 end
-
-function Col:Hide(col)
-    local hide = not col -- or (self.Id > MIAlane or (self.Id == MIAlane and col ~= false)
-    local control = self.Control
-    if not hide then
-	local x, y = colstuff(col, 0)
-	if self.X ~= x then
-	    control:ClearAnchors()
-	    control:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
-	    self.X = x
-	end
-    end
-    control:SetHidden(hide)
-end
-
 
 function Cols:Redo()
     -- Fill in any nil values
@@ -1274,27 +1276,26 @@ function Cols:Redo()
 	v.DispName[true] = nil
 	v.DispName[false] = nil
     end
+    for _, v in ipairs(self) do
+	v:SetHeader()
+	-- Start fresh with any existing cells
+	while v[1] do
+	    cellpool:ReleaseObject(table.remove(v, 1))
+	end
+    end
+    maxcols = saved.SwimlaneMaxCols
     need_to_fire = true
     watch("need_to_fire", "Cols:Redo")
     swimlanes.Sched(true)
 end
 
 function Cols:New()
-    local omaxcols = maxcols
     maxcols = saved.SwimlaneMaxCols
-    local x, y, sizex, sizey = colstuff(maxcols + 1, 0)
     for i, apid in ipairs(saved.LaneIds) do
 	self[i] = Col.New(apid, i)
     end
-    for i = 1, 3 do
-	MIA[i] = Col.New(maxping, maxping + i - 1)
-    end
-    for i = maxcols + 1, omaxcols do
-	self[i].Control:SetHidden(true)
-	-- Clear any left-over cells
-	while self[i][1] do
-	    cellpool:ReleaseObject(table.remove(self[i], 1))
-	end
+    for i = 0, 2 do
+	MIA[i + 1] = Col.New(maxping, maxping + i)
     end
     return self
 end
@@ -1381,9 +1382,9 @@ function swimlanes.Initialize(major, minor, _saved)
     restore_position()
 
     ultn = WM:CreateControl(nil, widget, CT_LABEL)
-    ultn:SetDimensions(100, 100)
+    -- ultn:SetDimensions(100, 100)
     ultn:SetHandler('OnMoveStop', ultn_save_pos)
-    ultn:SetFont('ZoFontWinH1')
+    ultn:SetFont('$(BOLD_FONT)|40|soft-shadow-thick')
     ultn:ClearAnchors()
 
     if saved.UltNumberPos == nil then
