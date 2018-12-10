@@ -18,6 +18,7 @@ local PlaySound = PlaySound
 local SCENE_MANAGER = SCENE_MANAGER
 local SOUNDS = SOUNDS
 local table = table
+local WINDOW_MANAGER = WINDOW_MANAGER
 local ZO_ObjectPool_CreateControl = ZO_ObjectPool_CreateControl
 local ZO_DeepTableCopy = ZO_DeepTableCopy
 
@@ -151,15 +152,24 @@ local function ultn_hide(x)
     end
 end
 
-local function ultn_show(n)
+local function ultn_show(n, ready)
+    if not saved.UltNumberShow then
+	ultn:SetHidden(true)
+	return
+    end
     local color
-    if n == 1 then
+    if not ready then
+	color = "6F6F6F"
+    elseif n == 1 then
 	color = "00ff00"
     else
 	color = "ff0000"
     end
     ultn:SetText(string.format("|c%s#%s|r", color, tostring(n)))
-    ultn_hide(false)
+    ultn:SetHidden(false)
+    if not ready then
+	return
+    end
     local timenow = GetTimeStamp()
     if ((GetTimeStamp() - last_played) < MAXPLAYSOUNDTIME) then
 	play_sound = false
@@ -291,7 +301,10 @@ local function dump(name)
 end
 
 local function showall()
-    return saved.ShowUnusedCols or MouseIsOver(widget) or UltMenu.IsActive()
+    -- local control = WINDOW_MANAGER:GetMouseOverControl()
+--  HERE(control:GetName())
+    -- return saved.ShowUnusedCols or MouseIsOver(widget) or UltMenu.IsActive()
+    return saved.ShowUnusedCols or UltMenu.IsActive()
 end
 
 -- Sets visibility of labels
@@ -642,18 +655,18 @@ function Col:Update(tick, col, moused, maxcol)
 		gt100 = player.Ults[apid]
 	    end
 	else
-	    local show
+	    local ready
 	    if forcepct ~= nil then
 		player.Ults[apid] = forcepct
 	    end
 	    if player.Ults[apid]  < 100 then
 		play_sound = true
 		me.Because = "ultpct < 100"
-		show = false
+		ready = false
 	    elseif priult and not player.IsDead and player:IsInRange() then
 		player.Ults[apid] = gt100 - 1
 		me.Because = "ultpct == 100"
-		show = saved.UltNumberShow
+		ready = true
 	    else
 		-- reset order since we can't contribute
 		if player.Ults[apid] > 100 then
@@ -661,15 +674,10 @@ function Col:Update(tick, col, moused, maxcol)
 		end
 		play_sound = true
 		me.Because = "out of range or dead"
-		show = false
+		ready = false
 	    end
 	    y = self:UpdateCell(n, player, playername, priult)
-	    if show then
-		ultn_show(n)
-	    else
-		ultn_hide(true)
-		ultn:SetText("")
-	    end
+	    ultn_show(n, ready)
 	end
 	n = n + 1
 	if y > max_y then
