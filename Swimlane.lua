@@ -313,7 +313,7 @@ local gc = GARBAGECOLLECT
 local wasactive = false
 local tickdown = 20
 local scene_showing
-local wasmaxed
+local lastcolseen = 0
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -363,21 +363,25 @@ function Cols:Update(x)
 	max_y = 60
 	local col = 1
 	for _, v in ipairs(self) do
-	    if v:Update(tick, col, moused, saved.SwimlaneMax) then
+	    local didit, finished = v:Update(tick, col, moused, saved.SwimlaneMax)
+	    if didit then
 		displayed = true
 		col = col + 1
 	    end
-	    if not wasmaxed and not moused and col > maxcols then
+	    if col >= lastcolseen and not moused and (finished or col > maxcols) then
 		break
 	    end
 	end
 	wasmaxed = moused
-	if saved.MIA then
-	    for i=1, 3 do
-		MIA[i]:Update(tick, col, false, 8)
+	if not moused and saved.MIA then
+	    for i,v in ipairs(MIA) do
+		if not v:Update(tick, col, false, 8) and col >= lastcolseen then
+		    break
+		end
 		col = col + 1
 	    end
 	end
+	lastcolseen = col
     end
 
     if displayed then
@@ -461,18 +465,8 @@ local function sortval_not_mia(key)
     return a, player
 end
 
-local function sortval_mia(key)
-    local player = group_members[key]
-    if player.Pos ~= 0 then
-	return player.Pos
-    end
-    return 1000 + tonumber(player.PingTag:match('(%d+)$'))
-end
-
 local function compare_mia(key1, key2)
-    local a = sortval_mia(key1)
-    local b = sortval_mia(key2)
-    return a < b
+    return key1 < key2
 end
 
 local function compare_not_mia(key1, key2)
@@ -612,19 +606,29 @@ function Col:Update(tick, col, moused, maxcol)
     local apid = self.Apid
     local isMIA = apid == maxping
     lane_apid = apid
+
     self.Moused = moused
     self.Col = col
 
     local plunk = self.Plunk
     local keys = keys
+    local ticked = 0
+    local grouped = 0
     for name, player in pairs(group_members) do
 	local pingtag = player.PingTag
 	if (not IsUnitGrouped(pingtag)) or GetUnitName(pingtag) ~= name then
 	    group_members[name] = nil
-	elseif plunk(player, apid, tick) then
-	    keys[#keys + 1] = name
+	else
+	    grouped = grouped + 1
+	    if player.Tick == tick then
+		ticked = ticked + 1
+	    elseif plunk(player, apid, tick) then
+		keys[#keys + 1] = name
+	    end
 	end
     end
+
+    local finished = grouped == ticked
 
     if #keys > 1 then
 	table.sort(keys, self.Compare)
@@ -685,7 +689,7 @@ function Col:Update(tick, col, moused, maxcol)
 	end
     end
 
-    if displayed or moused then
+    if displayed then
 	local x, y, sizex, sizey = self:Info(col + 1, 0)
 	max_x = x
     end
@@ -698,7 +702,7 @@ function Col:Update(tick, col, moused, maxcol)
     self:SetHeader(displayed and col)
 
     self.Moused = false
-    return displayed
+    return displayed, finished
 end
 
 local alivealpha = 1.0
