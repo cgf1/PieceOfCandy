@@ -620,10 +620,10 @@ function Col:Update(tick, col, moused, maxcol)
 	    group_members[name] = nil
 	else
 	    grouped = grouped + 1
-	    if player.Tick == tick then
-		ticked = ticked + 1
-	    elseif plunk(player, apid, tick) then
+	    if plunk(player, apid, tick) then
 		keys[#keys + 1] = name
+	    elseif player.Tick == tick then
+		ticked = ticked + 1
 	    end
 	end
     end
@@ -1208,8 +1208,7 @@ function Cols:SetLaneUlt(id, apid)
     watch("Cols:SetLaneUlt", id, apid)
     local switchi, switchv
     if apid ~= maxping then
-	for i = 1, saved.SwimlaneMaxCols do
-	    local v = self[i]
+	for i,v in ipairs(self) do
 	    if v.Apid == apid then
 		watch("Cols:SetLaneUlt", _, v.Apid, '==', apid)
 		local oapid = saved.LaneIds[id]
