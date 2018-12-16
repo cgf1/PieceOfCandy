@@ -66,6 +66,9 @@ Col.__index = Col
 
 local MIA = {}
 
+local mias = 6
+local miasper = 24 / mias
+
 local ultn
 
 local stats
@@ -375,7 +378,7 @@ function Cols:Update(x)
 	wasmaxed = moused
 	if not moused and saved.MIA then
 	    for i,v in ipairs(MIA) do
-		if not v:Update(tick, col, false, 8) and col >= lastcolseen then
+		if not v:Update(tick, col, false, miasper) and col >= lastcolseen then
 		    break
 		end
 		col = col + 1
@@ -443,6 +446,7 @@ function plunk_not_mia(self, apid, tick)
 end
 
 function plunk_mia(self, apid, tick)
+watch('plunk_mia', 'pingtag', self.PingTag, 'tick', tick)
     if self.Tick == tick then
 	return false
     else
@@ -642,13 +646,6 @@ function Col:Update(tick, col, moused, maxcol)
 	if playername == nil then
 	    break
 	end
-	if n > maxcol then
-	    if not isMIA then
-		while table.remove(keys, 1) ~= nil do end
-	    end
-	    -- log here?
-	    break
-	end
 	local player = group_members[playername]
 	local priult = player.UltMain == apid
 	displayed = true
@@ -683,9 +680,16 @@ function Col:Update(tick, col, moused, maxcol)
 	    y = self:UpdateCell(n, player, playername, priult)
 	    ultn_show(n, ready)
 	end
-	n = n + 1
 	if y > max_y then
 	    max_y = y
+	end
+	n = n + 1
+	if n > maxcol then
+	    if not isMIA then
+		while table.remove(keys, 1) ~= nil do end
+	    end
+	    -- log here?
+	    break
 	end
     end
 
@@ -1305,8 +1309,8 @@ function Cols:New()
     for i, apid in ipairs(saved.LaneIds) do
 	self[i] = Col.New(apid, i)
     end
-    for i = 0, 2 do
-	MIA[i + 1] = Col.New(maxping, maxping + i)
+    for i = 1, mias do
+	MIA[i] = Col.New(maxping, maxping + i - 1)
     end
     return self
 end
