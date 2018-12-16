@@ -446,7 +446,6 @@ function plunk_not_mia(self, apid, tick)
 end
 
 function plunk_mia(self, apid, tick)
-watch('plunk_mia', 'pingtag', self.PingTag, 'tick', tick)
     if self.Tick == tick then
 	return false
     else
