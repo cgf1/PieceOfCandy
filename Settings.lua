@@ -65,7 +65,7 @@ end
 
 -- Sets maximum number of cells in a swimlane
 --
-local function set_max_swimlane(max)
+local function set_max_rows(max)
     if type(max) ~= 'number' then
 	max = tonumber(max)
     end
@@ -74,7 +74,7 @@ end
 
 -- Sets maximum number of swimlanes
 --
-local function set_max_swimlaneCols(max)
+local function set_max_cols(max)
     if type(max) ~= 'number' then
 	max = tonumber(max)
     end
@@ -180,9 +180,7 @@ local function initialize_window(version)
 	getFunc = function()
 	    return saved.Style
 	end,
-	setFunc = function(value)
-	    set_style(value)
-	end,
+	setFunc = set_style,
 	default = default.Style
     }
     o[#o + 1] = {
@@ -191,7 +189,7 @@ local function initialize_window(version)
 	min = 1, max = 24, step = 1,
 	getFunc = function() return saved.SwimlaneMax end,
 	width = "full",
-	setFunc = function(value) set_max_swimlane(value) end,
+	setFunc =  set_max_rows,
 	default = 24,
     }
     o[#o + 1] = {
@@ -200,7 +198,7 @@ local function initialize_window(version)
 	min = 1, max = Ult.MaxPing - 1, step = 1,
 	getFunc = function() return saved.SwimlaneMaxCols end,
 	width = "full",
-	setFunc = function(value) set_max_swimlaneCols(value) end,
+	setFunc = set_max_cols,
 	default = 6,
     }
     o[#o + 1] = {
@@ -236,7 +234,7 @@ local function initialize_window(version)
 	getFunc = function()
 	    return saved.UltNumberShow
 	end,
-	setFunc = function(val) show_ult_number(val) end,
+	setFunc = show_ult_number,
 	default = default.UltNumberShow
     }
     o[#o + 1] = {
@@ -246,7 +244,7 @@ local function initialize_window(version)
 	getFunc = function()
 	    return saved.WereNumberOne
 	end,
-	setFunc = function(val) were_number_one(val) end,
+	setFunc = were_number_one,
 	default = default.WereNumberOne
     }
     o[#o + 1] = {
@@ -271,7 +269,7 @@ local function initialize_window(version)
 	end,
 	setFunc = function (what)
 	    saved.ShowUnusedCols = what
-	    Swimlanes.Update("unused columns toggled")
+	    Swimlanes.Redo()
 	end,
 	default = default.ShowUnusedCols
     }
@@ -497,5 +495,5 @@ function Settings.Initialize(version)
 	end
     end)
     Slash("map", "set map to use for communication", getmapindex)
-    Slash("cols", "set max number of columns to display", set_max_swimlaneCols)
+    Slash("cols", "set max number of columns to display", set_max_cols)
 end

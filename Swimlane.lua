@@ -73,6 +73,8 @@ local ultn
 
 local stats
 
+local ultm_isactive
+
 local play_sound = false
 local last_played = 0
 Player = {
@@ -104,6 +106,7 @@ local Cols = {}
 Cols.__index = Cols
 
 local maxcols = 0
+local maxrows = 0
 
 local saved
 
@@ -303,11 +306,9 @@ local function dump(name)
     end
 end
 
-local function showall()
-    -- local control = WINDOW_MANAGER:GetMouseOverControl()
---  HERE(control:GetName())
-    -- return saved.ShowUnusedCols or MouseIsOver(widget) or UltMenu.IsActive()
-    return saved.ShowUnusedCols or UltMenu.IsActive()
+local function showcols()
+    local showall = ultm_isactive()
+    return saved.ShowUnusedCols or showall, showall
 end
 
 -- Sets visibility of labels
@@ -350,14 +351,6 @@ function Cols:Update(x)
 	refresh = true
     end
     watch("Cols:Update", x, 'refresh', refresh, 'wasactive', wasactive)
-    local moused
-    if showall() then
-	moused = true
-    else
-	moused = false
-	need_to_fire = true
-    end
-
     if refresh then
 	watch("refresh")
 	-- Check all swimlanes
@@ -365,26 +358,31 @@ function Cols:Update(x)
 	max_x = 0
 	max_y = 60
 	local col = 1
+	local showunused, showall = showcols()
+	local ncolseen = 0
 	for _, v in ipairs(self) do
-	    local didit, finished = v:Update(tick, col, moused, saved.SwimlaneMax)
+	    local didit, finished = v:Update(tick, col, showunused, maxrows)
 	    if didit then
 		displayed = true
+		if col <= maxcols then
+		    ncolseen = col
+		end
 		col = col + 1
 	    end
-	    if col >= lastcolseen and not moused and (finished or col > maxcols) then
+	    if not showall and col >= lastcolseen and (finished or col > maxcols) then
 		break
 	    end
 	end
-	wasmaxed = moused
-	if not moused and saved.MIA then
+	if saved.MIA then
 	    for i,v in ipairs(MIA) do
 		if not v:Update(tick, col, false, miasper) and col >= lastcolseen then
 		    break
 		end
+		ncolseen = col
 		col = col + 1
 	    end
 	end
-	lastcolseen = col
+	lastcolseen = ncolseen
     end
 
     if displayed then
@@ -604,13 +602,13 @@ end
 -- Update swimlane
 --
 local keys = {}
-function Col:Update(tick, col, moused, maxcol)
-    local displayed = moused
+function Col:Update(tick, col, showunused, maxrow)
+    local displayed = showunused
     local apid = self.Apid
     local isMIA = apid == maxping
     lane_apid = apid
 
-    self.Moused = moused
+    self.Moused = showunused
     self.Col = col
 
     local plunk = self.Plunk
@@ -631,7 +629,7 @@ function Col:Update(tick, col, moused, maxcol)
 	end
     end
 
-    local finished = grouped == ticked
+    local finished = not showunused and grouped == ticked
 
     if #keys > 1 then
 	table.sort(keys, self.Compare)
@@ -683,7 +681,7 @@ function Col:Update(tick, col, moused, maxcol)
 	    max_y = y
 	end
 	n = n + 1
-	if n > maxcol then
+	if n > maxrow then
 	    if not isMIA then
 		while table.remove(keys, 1) ~= nil do end
 	    end
@@ -1145,7 +1143,7 @@ function swimlanes:OnMove(stop)
 end
 
 function Col:SetHeader(what)
-    local moused = self.Moused
+    local showunused = self.Moused
     local twhat = type(what)
     local hide
     if type(what) == 'table' then
@@ -1166,7 +1164,7 @@ function Col:SetHeader(what)
 	hide = true
     end
     local text
-    if saved.Style == 'Standard' and not moused then
+    if saved.Style == 'Standard' and not showunused then
 	text = self.Name
     else
 	text = ''
@@ -1285,11 +1283,6 @@ function Col.New(apid, i)
 end
 
 function Cols:Redo()
-    -- Fill in any nil values
-    for _, v in pairs(group_members) do
-	v.DispName[true] = nil
-	v.DispName[false] = nil
-    end
     for _, v in ipairs(self) do
 	v:SetHeader()
 	-- Start fresh with any existing cells
@@ -1297,6 +1290,8 @@ function Cols:Redo()
 	    cellpool:ReleaseObject(table.remove(v, 1))
 	end
     end
+    lastcolseen = 0
+    maxrows = saved.SwimlaneMax
     maxcols = saved.SwimlaneMaxCols
     need_to_fire = true
     watch("need_to_fire", "Cols:Redo")
@@ -1304,6 +1299,7 @@ function Cols:Redo()
 end
 
 function Cols:New()
+    maxrows = saved.SwimlaneMax
     maxcols = saved.SwimlaneMaxCols
     for i, apid in ipairs(saved.LaneIds) do
 	self[i] = Col.New(apid, i)
@@ -1330,11 +1326,10 @@ function swimlanes.Initialize(major, minor, _saved)
     widget = POC_Main
     mvc = widget:GetNamedChild("MovableControl")
     widget:SetHidden(true)
-    -- widget:SetHandler("OnMouseEnter", function () HERE("widget mouse on") Cols:Update("mouse on") end)
-    -- widget:SetHandler("OnMouseExit", function () HERE("widget mouse off") Cols:Update("mouse off") end)
     fragment = ZO_SimpleSceneFragment:New(widget)
     group_members = saved.GroupMembers
     myults = saved.MyUltId[ultix]
+    ultm_isactive = UltMenu.IsActive
     if myults[1] == nil then
 	myults[1] = maxping
     end
@@ -1396,7 +1391,6 @@ function swimlanes.Initialize(major, minor, _saved)
     restore_position()
 
     ultn = WM:CreateControl(nil, widget, CT_LABEL)
-    -- ultn:SetDimensions(100, 100)
     ultn:SetHandler('OnMoveStop', ultn_save_pos)
     ultn:SetFont('$(BOLD_FONT)|40|soft-shadow-thick')
     ultn:ClearAnchors()
