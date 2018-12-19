@@ -46,8 +46,8 @@ end
 
 local iconPicker
 function UltMenu.IsActive()
-    local res = iconPicker and not iconPicker.control:IsHidden()
-    watch("UltMenu.IsActive", 'returning', res, "ishidden", iconPicker and iconPicker.control:IsHidden())
+    local res = iconPicker and not iconPicker:IsHidden()
+    watch("UltMenu.IsActive", 'returning', res, "ishidden", iconPicker and iconPicker:IsHidden())
     return res
 end
 
@@ -121,7 +121,14 @@ function UltMenu.Show(parent, id, apid)
 	    [5] = switch
 	}
 	if not iconPicker then
-	    iconPicker = LAM.util.GetIconPickerMenu()
+	    iconPicker = LAM.util.GetIconPickerMenu().control
+	    local onhide = iconPicker:GetHandler("OnEffectivelyHidden");
+	    iconPicker:SetHandler("OnEffectivelyHidden", function (self)
+		Swimlanes.Redo()
+		if onhide then
+		    self:onhide()
+		end
+	    end)
 	end
     end
     lam, container, dropdown, showicons, switch = unpack(lams[n])

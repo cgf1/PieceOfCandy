@@ -351,14 +351,14 @@ function Cols:Update(x)
 	refresh = true
     end
     watch("Cols:Update", x, 'refresh', refresh, 'wasactive', wasactive)
-    if refresh then
+    local showunused, showall = showcols()
+    if refresh or showall then
 	watch("refresh")
 	-- Check all swimlanes
 	tick = tick + 1
 	max_x = 0
 	max_y = 60
 	local col = 1
-	local showunused, showall = showcols()
 	local ncolseen = 0
 	for _, v in ipairs(self) do
 	    local didit, finished = v:Update(tick, col, showunused, maxrows)
