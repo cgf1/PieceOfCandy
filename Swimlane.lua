@@ -361,7 +361,7 @@ function Cols:Update(x)
 	local col = 1
 	local ncolseen = 0
 	for _, v in ipairs(self) do
-	    local didit, finished = v:Update(tick, col, showunused, maxrows)
+	    local didit, finished = v:Update(tick, col, showunused, showall, maxrows)
 	    if didit then
 		displayed = true
 		if col <= maxcols then
@@ -375,7 +375,7 @@ function Cols:Update(x)
 	end
 	if saved.MIA then
 	    for i,v in ipairs(MIA) do
-		if not v:Update(tick, col, false, miasper) and col >= lastcolseen then
+		if not v:Update(tick, col, false, false, miasper) and col >= lastcolseen then
 		    break
 		end
 		ncolseen = col
@@ -602,13 +602,13 @@ end
 -- Update swimlane
 --
 local keys = {}
-function Col:Update(tick, col, showunused, maxrow)
+function Col:Update(tick, col, showunused, showall, maxrow)
     local displayed = showunused
     local apid = self.Apid
     local isMIA = apid == maxping
     lane_apid = apid
 
-    self.Moused = showunused
+    self.Moused = showall
     self.Col = col
 
     local plunk = self.Plunk
