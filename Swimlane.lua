@@ -24,7 +24,7 @@ local ZO_DeepTableCopy = ZO_DeepTableCopy
 
 local tt = POC_CharTooltip
 
-local TIMEOUT = 10		-- s; GetTimeStamp() is in seconds
+local TIMEOUT = 10		-- GetTimeStamp() is in seconds
 local INRANGETIME = 120		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
 local MAXPLAYSOUNDTIME = 60
@@ -318,6 +318,7 @@ local wasactive = false
 local tickdown = 20
 local scene_showing
 local lastcolseen = 0
+local MIAshowing = false
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -373,9 +374,13 @@ function Cols:Update(x)
 		break
 	    end
 	end
-	if saved.MIA then
+	if saved.MIA and (MIAshowing or not finished) then
+	    MIAshowing = false
 	    for i,v in ipairs(MIA) do
-		if not v:Update(tick, col, false, false, miasper) and col >= lastcolseen then
+		if v:Update(tick, col, false, false, miasper) then
+		    lastcolseen = col
+		    MIAshowing = true
+		elseif col >= lastcolseen then
 		    break
 		end
 		ncolseen = col
@@ -1151,6 +1156,7 @@ function Col:SetHeader(what)
 	self.Icon:SetTexture(what.Icon)
 	self.Control.data.tooltipText = what.Desc
 	self.Name = what.Name
+	hide = true
     elseif twhat == 'number' then
 	local x, y = self:Info(what, 0)
 	if self.X ~= x then
