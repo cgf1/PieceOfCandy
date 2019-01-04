@@ -378,7 +378,6 @@ function Cols:Update(x)
 	    MIAshowing = false
 	    for i,v in ipairs(MIA) do
 		if v:Update(tick, col, false, false, miasper) then
-		    lastcolseen = col
 		    MIAshowing = true
 		elseif col >= lastcolseen then
 		    break
