@@ -379,10 +379,10 @@ function Cols:Update(x)
 	    for i,v in ipairs(MIA) do
 		if v:Update(tick, col, false, false, miasper) then
 		    MIAshowing = true
+		    ncolseen = col
 		elseif col >= lastcolseen then
 		    break
 		end
-		ncolseen = col
 		col = col + 1
 	    end
 	end
