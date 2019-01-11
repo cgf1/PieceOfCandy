@@ -317,8 +317,7 @@ local gc = GARBAGECOLLECT
 local wasactive = false
 local tickdown = 20
 local scene_showing
-local lastcolseen = 0
-local MIAshowing = false
+local MIAshowing = 0
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -360,33 +359,36 @@ function Cols:Update(x)
 	max_x = 0
 	max_y = 60
 	local col = 1
-	local ncolseen = 0
+	local nleft = 0
 	for _, v in ipairs(self) do
-	    local didit, finished = v:Update(tick, col, showunused, showall, maxrows)
+	    local didit
+	    didit, nleft = v:Update(tick, col, showunused, showall, maxrows)
 	    if didit then
 		displayed = true
-		if col <= maxcols then
-		    ncolseen = col
-		end
 		col = col + 1
 	    end
-	    if not showall and col >= lastcolseen and (finished or col > maxcols) then
+	    if not showall and (nleft <= 0 or col > maxcols) then
 		break
 	    end
 	end
-	if saved.MIA and (MIAshowing or not finished) then
-	    MIAshowing = false
+	if saved.MIA and (MIAshowing > 0 or nleft > 0) then
+	    nleft = math.floor(nleft / miasper + 0.9)
+	    local miacount
+	    if nleft > MIAshowing then
+		miacount = nleft
+	    else
+		miacount = MIAshowing
+	    end
 	    for i,v in ipairs(MIA) do
+		miacount = miacount - 1
 		if v:Update(tick, col, false, false, miasper) then
-		    MIAshowing = true
-		    ncolseen = col
-		elseif col >= lastcolseen then
+		    MIAshowing = MIAshowing + 1
+		elseif miacount <= 0 then
 		    break
 		end
 		col = col + 1
 	    end
 	end
-	lastcolseen = ncolseen
     end
 
     if displayed then
@@ -633,7 +635,7 @@ function Col:Update(tick, col, showunused, showall, maxrow)
 	end
     end
 
-    local finished = not showunused and grouped == ticked
+    local nleft = grouped - ticked
 
     if #keys > 1 then
 	table.sort(keys, self.Compare)
@@ -707,7 +709,7 @@ function Col:Update(tick, col, showunused, showall, maxrow)
     self:SetHeader(displayed and col)
 
     self.Moused = false
-    return displayed, finished
+    return displayed, nleft
 end
 
 local alivealpha = 1.0
@@ -1295,7 +1297,6 @@ function Cols:Redo()
 	    cellpool:ReleaseObject(table.remove(v, 1))
 	end
     end
-    lastcolseen = 0
     maxrows = saved.SwimlaneMax
     maxcols = saved.SwimlaneMaxCols
     need_to_fire = true
