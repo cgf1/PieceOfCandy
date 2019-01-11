@@ -1,3 +1,7 @@
+2018-12-18 (v3.32)
+
+- Fix issue with errant MIA when first joining a group.
+
 2018-12-18 (v3.31)
 
 - Add option (on by default) to only show populated ultimate columns.
