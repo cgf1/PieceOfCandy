@@ -105,7 +105,7 @@
             </Controls>
         </Control>
         <Control name="POC_Header" virtual="true">
-            <Dimensions x="100" y="25" />
+            <Dimensions x="25" y="25" />
             <Controls>
                 <Button name="$(parent)Button" ButtonState="BSTATE_NORMAL" tier="1">
                     <Dimensions x="25" y="25"/>

@@ -60,14 +60,14 @@ local icon_size = {25, 25}
 local max_x = 0
 local max_y = 0
 
-local Col = {
-}
+local Col = {}
 Col.__index = Col
 
 local MIA = {}
 
 local mias = 6
 local miasper = 24 / mias
+local mianada = setmetatable({}, Col)
 
 local ultn
 
@@ -91,7 +91,6 @@ local me = setmetatable({
     IsDead = false,
     IsMe = true,
     Pos = 0,
-    Tick = 0,
     TimeStamp = 0,
     UltMain = 0,
     Ults = {},
@@ -107,6 +106,7 @@ Cols.__index = Cols
 
 local maxcols = 0
 local maxrows = 0
+local laneids
 
 local saved
 
@@ -318,6 +318,7 @@ local wasactive = false
 local tickdown = 20
 local scene_showing
 local MIAshowing = 0
+local ults = {}
 function Cols:Update(x)
     local refresh
     local displayed = false
@@ -359,33 +360,50 @@ function Cols:Update(x)
 	max_x = 0
 	max_y = 60
 	local col = 1
-	local nleft = 0
-	for _, v in ipairs(self) do
-	    local didit
-	    didit, nleft = v:Update(tick, col, showunused, showall, maxrows)
-	    if didit then
-		displayed = true
-		col = col + 1
-	    end
-	    if not showall and (nleft <= 0 or col > maxcols) then
-		break
+	local totshown = 0
+	local MIAing = false
+	for _, apid in ipairs(laneids) do
+	    local v = self[apid]
+	    tbl = v.Players
+	    if next(tbl) ~= nil or showall then
+watch('MIAing', apid, maxping)
+		if showall or (not MIAing and col <= maxcols and apid < maxping) then
+		    ults[#ults + 1] = v
+		    col = col + 1
+		elseif not saved.MIA then
+		    break
+		elseif not MIAing then
+		    v = self[maxping]
+		    ults[#ults + 1] = v
+		    MIAing = true
+		end
+		for name, player in pairs(tbl) do
+		    local pingtag = player.PingTag
+		    if not player.Ults[apid] then
+			tbl[name] = nil
+		    end
+		    if not IsUnitGrouped(pingtag) or GetUnitName(pingtag) ~= name then
+			tbl[name] = nil
+			group_members[name] = nil
+		    end
+		    if tbl[name] and (MIAing or player.UltMain == apid) then
+			ults[#ults + 1] = name
+		    end
+		end
+	    elseif v.Displayed then
+		v:SetHeader()
 	    end
 	end
-	if saved.MIA and (MIAshowing > 0 or nleft > 0) then
-	    nleft = math.floor(nleft / miasper + 0.9)
-	    local miacount
-	    if nleft > MIAshowing then
-		miacount = nleft
+
+	col = 1
+	while ults[1] ~= nil do
+	    local v
+	    if type(ults[1]) == 'table' then
+		v = table.remove(ults, 1)
 	    else
-		miacount = MIAshowing
+		v = mianada
 	    end
-	    for i,v in ipairs(MIA) do
-		miacount = miacount - 1
-		if v:Update(tick, col, false, false, miasper) then
-		    MIAshowing = MIAshowing + 1
-		elseif miacount <= 0 then
-		    break
-		end
+	    if v:Update(col, ults, showunused, showall, maxrows) then
 		col = col + 1
 	    end
 	end
@@ -438,24 +456,6 @@ end
 --
 function Player:IsInRange()
     return self.InRange and (self.InRangeTime == nil or self.InRangeTime > 0)
-end
-
-function plunk_not_mia(self, apid, tick)
-    if self.Ults[apid] == nil then
-	return false
-    else
-	self.Tick = tick
-	return true
-    end
-end
-
-function plunk_mia(self, apid, tick)
-    if self.Tick == tick then
-	return false
-    else
-	self.Tick = tick
-	return true
-    end
 end
 
 local lane_apid
@@ -590,7 +590,6 @@ local function reset_cell(tbl)
     tbl.Control:ClearAnchors()
 end
 
-
 function Col:Info(col, row)
     local sizex = icon_size[1]
     local sizey = icon_size[2]
@@ -604,34 +603,31 @@ function Col:Info(col, row)
     return x, y, sizex, sizey
 end
 
-
 -- Update swimlane
 --
 local keys = {}
-function Col:Update(tick, col, showunused, showall, maxrow)
+function Col:Update(col, ults, showunused, showall, maxrow)
     local displayed = showunused
     local apid = self.Apid
-    local isMIA = apid == maxping
+    local isMIA = apid >= maxping
     lane_apid = apid
 
     self.Moused = showall
     self.Col = col
 
-    local plunk = self.Plunk
     local keys = keys
     local ticked = 0
     local grouped = 0
-    for name, player in pairs(group_members) do
-	local pingtag = player.PingTag
-	if (not IsUnitGrouped(pingtag)) or GetUnitName(pingtag) ~= name then
-	    group_members[name] = nil
+    while ults[1] do
+	if type(ults[1]) == 'table' then
+	    break
+	end
+	name = table.remove(ults, 1)
+	local pingtag = group_members[name].PingTag
+	if IsUnitGrouped(pingtag) and GetUnitName(pingtag) == name then
+	    keys[#keys + 1] = name
 	else
-	    grouped = grouped + 1
-	    if plunk(player, apid, tick) then
-		keys[#keys + 1] = name
-	    elseif player.Tick == tick then
-		ticked = ticked + 1
-	    end
+	    group_members[name] = nil
 	end
     end
 
@@ -698,7 +694,7 @@ function Col:Update(tick, col, showunused, showall, maxrow)
 
     if displayed then
 	local x, y, sizex, sizey = self:Info(col + 1, 0)
-	max_x = x
+	max_x = x	-- maximum relative x location
     end
 
     -- Clear any abandonded cells
@@ -709,7 +705,7 @@ function Col:Update(tick, col, showunused, showall, maxrow)
     self:SetHeader(displayed and col)
 
     self.Moused = false
-    return displayed, nleft
+    return displayed
 end
 
 local alivealpha = 1.0
@@ -965,6 +961,15 @@ function Player:Record(name, what, newval, oldval)
     end
 end
 
+function Player:add_colult(name, ...)
+    local apids = {...}
+    for _, apid in ipairs(apids) do
+	if apid ~= 0 then
+	    Cols[apid].Players[name] = self
+	end
+    end
+end
+
 local tmp_player = {}
 function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
     local name = GetUnitName(pingtag)
@@ -995,9 +1000,8 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	if apid1 == 0 then
 	    return			-- hopefully an anomaly
 	end
-    elseif not self.Visited then
-	-- coming from Player.Update - haven't seen yet
-    else
+    elseif self.Visited then
+	-- not coming from Player.Update - already seen.  Reset for next time
 	self.Visited = false
 	return self
     end
@@ -1049,6 +1053,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	    for n in pairs(self.Ults) do
 		self.Ults[n] = nil
 	    end
+	    self:add_colult(name, apid1, apid2)
 	end
 	if self.Ults[apid1] ~= pct1 then
 	    changed = true
@@ -1149,16 +1154,14 @@ function swimlanes:OnMove(stop)
 end
 
 function Col:SetHeader(what)
+    if not self.Control then
+	return
+    end
     local showunused = self.Moused
-    local twhat = type(what)
     local hide
-    if type(what) == 'table' then
-	self.Apid = what.Ping
-	self.Icon:SetTexture(what.Icon)
-	self.Control.data.tooltipText = what.Desc
-	self.Name = what.Name
+    if type(what) ~= 'number' then
 	hide = true
-    elseif twhat == 'number' then
+    else
 	local x, y = self:Info(what, 0)
 	if self.X ~= x then
 	    local control = self.Control
@@ -1167,18 +1170,14 @@ function Col:SetHeader(what)
 	    self.X = x
 	end
 	hide = false
-    else
-	hide = true
     end
-    local text
-    if saved.Style == 'Standard' and not showunused then
-	text = self.Name
-    else
-	text = ''
+
+    local wanthidden = hide or saved.Style ~= 'Standard' or showunused
+    if wanthidden ~= self.Label:IsHidden() then
+	self.Label:SetHidden(wanthidden)
     end
-    if text ~= self.LastText then
-	self.Label:SetText(text)
-    end
+
+    self.Displayed = not hide
     self.Control:SetHidden(hide)
 end
 
@@ -1191,6 +1190,9 @@ function Player.SetUlt()
 	myults = Settings.SavedVariables.MyUltId[ultix]
     end
     local aid = GetSlotBoundId(8)
+    if aid == 0 then
+	return
+    end
     local ult = Ult.ByAid(aid)
     if ult == nil then
 	if not warned_ult then
@@ -1212,28 +1214,35 @@ end
 
 -- Called when header clicked to change column identifier
 --
-function Cols:SetLaneUlt(id, apid)
-    watch("Cols:SetLaneUlt", id, apid)
+function Cols:SetLaneUlt(oapid, apid)
+    watch("Cols:SetLaneUlt", oapid, apid)
     local switchi, switchv
-    if apid ~= maxping then
-	for i,v in ipairs(self) do
-	    if v.Apid == apid then
-		watch("Cols:SetLaneUlt", _, v.Apid, '==', apid)
-		local oapid = saved.LaneIds[id]
-		saved.LaneIds[i] = oapid
-		self[i]:SetHeader(Ult.ByPing(oapid))
-		break
-	    end
+    if apid == maxping or oapid == maxping then
+	return
+    end
+    local oid, id
+    for i, a in ipairs(laneids) do
+	if a == apid then
+	    id = i
+	elseif a == oapid then
+	    oid = i
+	end
+	if id and oid then
+	    break
 	end
     end
-    saved.LaneIds[id] = apid		-- Remember what's here
-    self[id]:SetHeader(Ult.ByPing(apid))
+    -- watch("Cols:SetLaneUlt", "laneids[" .. tostring(oid) .. '] = ' .. tostring(apid), 'was', laneids[oid])
+    -- watch("Cols:SetLaneUlt", "laneids[" .. tostring(id) .. '] = ' .. tostring(oapid), 'was', laneids[id])
+    laneids[oid] = apid
+    laneids[id] = oapid
+    need_to_fire = true
+    Cols:Update('ult column changed')
 end
 
 -- Col:Click called on header clicked
 --
 function Col:Click()
-    UltMenu.Show(self.Button, self.Id, self.Apid)
+    UltMenu.Show(self.Button, self.Apid)
 end
 
 local function mouse_handler(self, on, what)
@@ -1246,27 +1255,28 @@ end
 
 -- Create icon/label at top of column
 --
-function Col.New(apid, i)
-    local self = setmetatable({Id = i}, Col)
+function Col.New(apid)
+    local self = setmetatable({Apid = apid, Players = {}}, Col)
     local ult = Ult.ByPing(apid)
 
-    local control = self.Control
-    local button
-    if control then
-	button = self.Button
-    else
-	control = CreateControlFromVirtual('POCheader' .. i, widget, 'POC_Header')
-	self.Control = control
-	self.Button = control:GetNamedChild("Button")
-	self.Icon = control:GetNamedChild("Icon")
-	self.Label = control:GetNamedChild("Label")
-	button = self.Button
-	local data = {}
-	control.data = data
-	button.data = data
-	self.Icon.data = data
-	self.Label.data = data
-    end
+    control = CreateControlFromVirtual('POCheader' .. apid, widget, 'POC_Header')
+    self.Control = control
+    self.Button = control:GetNamedChild("Button")
+    self.Icon = control:GetNamedChild("Icon")
+    self.Label = control:GetNamedChild("Label")
+    self.Label:SetHidden(true)
+
+    self:SetHeader()
+
+    button = self.Button
+    local data = {}
+    control.data = data
+    button.data = data
+    self.Icon.data = data
+    self.Label.data = data
+    self.Icon:SetTexture(ult.Icon)
+    self.Control.data.tooltipText = ult.Desc
+    self.Label:SetText(ult.Name)
 
     control:SetMouseEnabled(true)
     button:SetHandler("OnMouseEnter", function(self) mouse_handler(self, true, "button mouse on") end)
@@ -1274,24 +1284,19 @@ function Col.New(apid, i)
     button:SetHandler("OnMouseExit", function(self) mouse_handler(self, false, "button mouse off") end)
     control:SetHandler("OnMouseExit", function(self) mouse_handler(self, false, "control mouse off") end)
 
-    if apid == maxping then
+    if apid >= maxping then
 	self.Compare = compare_mia
-	self.Plunk = plunk_mia
 	button:SetHandler("OnClicked", nil)
     else
 	self.Compare = compare_not_mia
-	self.Plunk = plunk_not_mia
 	button:SetHandler("OnClicked", function() self:Click() end)
     end
-
-    self:SetHeader(ult)
 
     return self
 end
 
 function Cols:Redo()
     for _, v in ipairs(self) do
-	v:SetHeader()
 	-- Start fresh with any existing cells
 	while v[1] do
 	    cellpool:ReleaseObject(table.remove(v, 1))
@@ -1307,11 +1312,8 @@ end
 function Cols:New()
     maxrows = saved.SwimlaneMax
     maxcols = saved.SwimlaneMaxCols
-    for i, apid in ipairs(saved.LaneIds) do
-	self[i] = Col.New(apid, i)
-    end
-    for i = 1, mias do
-	MIA[i] = Col.New(maxping, maxping + i - 1)
+    for apid = 1, maxping do
+	self[apid] = Col.New(apid)
     end
     return self
 end
@@ -1333,13 +1335,49 @@ function swimlanes.Initialize(major, minor, _saved)
     mvc = widget:GetNamedChild("MovableControl")
     widget:SetHidden(true)
     fragment = ZO_SimpleSceneFragment:New(widget)
-    group_members = saved.GroupMembers
     myults = saved.MyUltId[ultix]
     ultm_isactive = UltMenu.IsActive
+    laneids = saved.LaneIds
     if myults[1] == nil then
 	myults[1] = maxping
     end
     maxping = Ult.MaxPing
+    mianada.Apid = maxping
+    me.UltMain = myults[1]
+    for n in pairs(me.Ults) do
+	if n == myults[1] or n == myults[2] then
+	    me.Ults[n] = 0
+	else
+	    me.Ults[n] = nil
+	end
+    end
+    local ultids = {}
+    local maxult = maxping - 1
+    local newlaneids = {}
+    -- make sure laneids are properly ordered
+    for i = 1, maxult  do
+	if laneids[i] == 'MIA' then
+	    table.remove(laneids, i)
+	    i = i - 1
+	elseif laneids[i] ~= nil then
+	    ultids[laneids[i]] = true
+	else
+	    for apid = 1, maxult do
+		if not ultids[apid] then
+		    laneids[i] = apid
+		    ultids[apid] = true
+		    break
+		end
+	    end
+	end
+    end
+    laneids[maxping] = maxping
+
+    cellpool = ZO_ObjectPool:New(create_cell, reset_cell)
+
+    Cols:New()
+
+    group_members = saved.GroupMembers
     for n, v in pairs(group_members) do
 	if n == myname then
 	    v =	 ZO_DeepTableCopy(v, me)
@@ -1360,40 +1398,17 @@ function swimlanes.Initialize(major, minor, _saved)
 	    v.DispName[true] = nil
 	    v.DispName[false] = nil
 	end
+	local ults = {v.UltMain}
+	for apid, _ in pairs(v.Ults) do
+	    if apid ~= v.UltMain then
+		ults[#ults + 1] = apid
+		break
+	    end
+	end
+	v:add_colult(n, unpack(ults))
 
 	group_members[n] = v
     end
-    me.UltMain = myults[1]
-    for n in pairs(me.Ults) do
-	if n == myults[1] or n == myults[2] then
-	    me.Ults[n] = 0
-	else
-	    me.Ults[n] = nil
-	end
-    end
-    local ultids = {}
-    local maxult = maxping - 1
-    local newlaneids = {}
-    for i = 1, maxult  do
-	if saved.LaneIds[i] == 'MIA' then
-	    table.remove(saved.LaneIds, i)
-	    i = i - 1
-	elseif saved.LaneIds[i] ~= nil then
-	    ultids[saved.LaneIds[i]] = true
-	else
-	    for apid = 1, maxult do
-		if not ultids[apid] then
-		    saved.LaneIds[i] = apid
-		    ultids[apid] = true
-		    break
-		end
-	    end
-	end
-    end
-
-    cellpool = ZO_ObjectPool:New(create_cell, reset_cell)
-
-    Cols:New()
     restore_position()
 
     ultn = WM:CreateControl(nil, widget, CT_LABEL)

@@ -32,7 +32,7 @@ local function initialize()
 	OPTIONS_ONLY_AVA_TOOLTIP =	 "If activated, all elements will only be visible in Cyrodiil (AvA).",
 	OPTIONS_USE_SORTING_LABEL =	 "Sort lists by ultimate progress",
 	OPTIONS_USE_SORTING_TOOLTIP =	 "If activated, all lists will be sorted by ultimate progress (Maximum on top).",
-	OPTIONS_STYLE_LABEL =		 "Choose style",
+	OPTIONS_STYLE_LABEL =		 "Ultimate display style",
 	OPTIONS_STYLE_TOOLTIP =		 "Choose your style: Standard or Compact",
 	OPTIONS_STYLE_SWIM =		 "Standard",
 	OPTIONS_STYLE_SHORT_SWIM =	 "Compact",

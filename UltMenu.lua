@@ -13,7 +13,6 @@ local lams = {}
 local container
 local dropdown
 local curapid
-local curid
 local showicons
 local switch
 
@@ -33,7 +32,7 @@ local function set_ult(iconstr)
     elseif iconstr == nook1img then
 	Ult.SetSavedId('MIA', 2)
     else
-	Swimlanes.SetLaneUlt(curid, Ult.UltApidFromIcon(iconstr))
+	Swimlanes.SetLaneUlt(curapid, Ult.UltApidFromIcon(iconstr))
     end
     Swimlanes.Sched()
     collectgarbage("collect")
@@ -55,9 +54,8 @@ end
 -- 1 = On non-selected: Show primary/secondary
 -- 2 = On primary: Show secondary with "switch note"
 -- 3 = On secondary: Show secondary with red circle
-function UltMenu.Show(parent, id, apid)
+function UltMenu.Show(parent, apid)
     watch("UltMenu.Show", id)
-    curid = id
     curapid = apid
     if parent.data == nil then
 	parent.data = {}
