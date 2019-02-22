@@ -237,8 +237,12 @@ function swimlanes.Sched(clear_dispname)
 end
 
 local function clear(verbose)
+    Cols:Redo()
     saved.GroupMembers = {}
     group_members = saved.GroupMembers
+    for _, x in ipairs(Cols) do
+	x.Players = {}
+    end
     me.Ults = {}
     me.Pos = 0
     forcepct = nil
@@ -366,7 +370,6 @@ function Cols:Update(x)
 	    local v = self[apid]
 	    tbl = v.Players
 	    if next(tbl) ~= nil or showall then
-watch('MIAing', apid, maxping)
 		if showall or (not MIAing and col <= maxcols and apid < maxping) then
 		    ults[#ults + 1] = v
 		    col = col + 1
@@ -379,6 +382,7 @@ watch('MIAing', apid, maxping)
 		end
 		for name, player in pairs(tbl) do
 		    local pingtag = player.PingTag
+watch('MIAing', name, apid, player.Ults[apid], group_members[name].Ults[apid])
 		    if not player.Ults[apid] then
 			tbl[name] = nil
 		    end
@@ -964,7 +968,8 @@ end
 function Player:add_colult(name, ...)
     local apids = {...}
     for _, apid in ipairs(apids) do
-	if apid ~= 0 then
+watch('MIAing', 'add_colult', name, apid)
+	if apid ~= nil and apid ~= 0 then
 	    Cols[apid].Players[name] = self
 	end
     end
@@ -986,14 +991,16 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 		Tick = 0,
 		TimeStamp = 0,
 		UltMain = maxping,
-		Ults = {
-		    [maxping] = 0
-		},
+		Ults = {},
 		Version = 'unknown',
 		Visited = false
 	    }
 	end
 	group_members[name] = setmetatable(self, Player)
+	if apid1 == nil then
+	    apid1 = maxping
+	    pct1 = 0
+	end
     end
 
     if timestamp ~= nil then
@@ -1046,10 +1053,13 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
 	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
 	end
-	-- Called from map ping
+	if apid2 == maxping then
+	    apid2 = nil
+	end
 	-- If either is nil then player changed their ultimate
-	if self.Ults[apid1] == nil or apid2 ~= nil and self.Ults[apid2] == nil then
+	if self.Ults[apid1] == nil or (apid2 and self.Ults[apid2] == nil) then
 	    changed = true
+watch('MIAing', 'Player.New', name, apid1, apid2)
 	    for n in pairs(self.Ults) do
 		self.Ults[n] = nil
 	    end
