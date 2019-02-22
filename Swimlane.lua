@@ -372,7 +372,6 @@ function Cols:Update(x)
 	    if next(tbl) ~= nil or showall then
 		if showall or (not MIAing and col <= maxcols and apid < maxping) then
 		    ults[#ults + 1] = v
-		    col = col + 1
 		elseif not saved.MIA then
 		    break
 		elseif not MIAing then
@@ -394,12 +393,20 @@ watch('MIAing', name, apid, player.Ults[apid], group_members[name].Ults[apid])
 			ults[#ults + 1] = name
 		    end
 		end
-	    elseif v.Displayed then
-		v:SetHeader()
+		if not showall and not next(tbl) then
+		    v.Displayed = true
+		    table.remove(ults)
+		else
+		    v.Col = col
+		    col = col + 1
+		    v.Displayed = false
+		end
+	    end
+	    if v.Displayed then
+		v:SetHeader(false)
 	    end
 	end
 
-	col = 1
 	while ults[1] ~= nil do
 	    local v
 	    if type(ults[1]) == 'table' then
@@ -407,9 +414,7 @@ watch('MIAing', name, apid, player.Ults[apid], group_members[name].Ults[apid])
 	    else
 		v = mianada
 	    end
-	    if v:Update(col, ults, showunused, showall, maxrows) then
-		col = col + 1
-	    end
+	    v:Update(ults, showunused, showall, maxrows)
 	end
     end
 
@@ -594,7 +599,8 @@ local function reset_cell(tbl)
     tbl.Control:ClearAnchors()
 end
 
-function Col:Info(col, row)
+function Col:Info(row, ix)
+    local col = self.Col + ix
     local sizex = icon_size[1]
     local sizey = icon_size[2]
     if saved.Style == 'Standard' and not self.Moused then
@@ -610,14 +616,14 @@ end
 -- Update swimlane
 --
 local keys = {}
-function Col:Update(col, ults, showunused, showall, maxrow)
+function Col:Update(ults, showunused, showall, maxrow)
     local displayed = showunused
     local apid = self.Apid
     local isMIA = apid >= maxping
     lane_apid = apid
 
     self.Moused = showall
-    self.Col = col
+    local col = self.Col
 
     local keys = keys
     local ticked = 0
@@ -626,16 +632,8 @@ function Col:Update(col, ults, showunused, showall, maxrow)
 	if type(ults[1]) == 'table' then
 	    break
 	end
-	name = table.remove(ults, 1)
-	local pingtag = group_members[name].PingTag
-	if IsUnitGrouped(pingtag) and GetUnitName(pingtag) == name then
-	    keys[#keys + 1] = name
-	else
-	    group_members[name] = nil
-	end
+	keys[#keys + 1] = table.remove(ults, 1)
     end
-
-    local nleft = grouped - ticked
 
     if #keys > 1 then
 	table.sort(keys, self.Compare)
@@ -651,7 +649,6 @@ function Col:Update(col, ults, showunused, showall, maxrow)
 	end
 	local player = group_members[playername]
 	local priult = player.UltMain == apid
-	displayed = true
 	local y
 	if not player.IsMe or not priult or isMIA then
 	    y = self:UpdateCell(n, player, playername, isMIA or priult)
@@ -696,20 +693,18 @@ function Col:Update(col, ults, showunused, showall, maxrow)
 	end
     end
 
-    if displayed then
-	local x, y, sizex, sizey = self:Info(col + 1, 0)
-	max_x = x	-- maximum relative x location
-    end
+    local x, y, sizex, sizey = self:Info(0, 1)
+    max_x = x	-- maximum relative x location
 
     -- Clear any abandonded cells
     while self[n] do
 	cellpool:ReleaseObject(table.remove(self, n))
     end
 
-    self:SetHeader(displayed and col)
+    self:SetHeader(true)
 
     self.Moused = false
-    return displayed
+    return
 end
 
 local alivealpha = 1.0
@@ -785,7 +780,7 @@ function Col:UpdateCell(i, player, playername, priult)
 	rowtbl.PlayerInfo[2] = playername
     end
 
-    local x, y, sizex, sizey = self:Info(col, i)
+    local x, y, sizex, sizey = self:Info(i, 0)
     if not self[ix] then
 	row:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 	row:SetWidth(sizex)
@@ -1163,32 +1158,28 @@ function swimlanes:OnMove(stop)
     end
 end
 
-function Col:SetHeader(what)
+function Col:SetHeader(show)
     if not self.Control then
 	return
     end
     local showunused = self.Moused
-    local hide
-    if type(what) ~= 'number' then
-	hide = true
-    else
-	local x, y = self:Info(what, 0)
+    if show then
+	local x, y = self:Info(0, 0)
 	if self.X ~= x then
 	    local control = self.Control
 	    control:ClearAnchors()
 	    control:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 	    self.X = x
 	end
-	hide = false
     end
 
-    local wanthidden = hide or saved.Style ~= 'Standard' or showunused
-    if wanthidden ~= self.Label:IsHidden() then
-	self.Label:SetHidden(wanthidden)
+    local hidelabel = not show or saved.Style ~= 'Standard' or showunused
+    if hidelabel ~= self.Label:IsHidden() then
+	self.Label:SetHidden(hidelabel)
     end
 
-    self.Displayed = not hide
-    self.Control:SetHidden(hide)
+    self.Displayed = show
+    self.Control:SetHidden(not show)
 end
 
 local warned_ult = false
@@ -1276,7 +1267,7 @@ function Col.New(apid)
     self.Label = control:GetNamedChild("Label")
     self.Label:SetHidden(true)
 
-    self:SetHeader()
+    self:SetHeader(false)
 
     button = self.Button
     local data = {}
