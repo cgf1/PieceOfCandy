@@ -4,6 +4,7 @@ allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort
 FORCE := false
 
 s:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
+t:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/pts/AddOns/POC
 e:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
 f:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/pts/AddOns/POC
 # allfiles := $(shell ( echo POC.txt ; egrep -v '^[ 	]*[;#]|$$' POC.txt; } | sort )
@@ -38,6 +39,8 @@ install-ednor: | all clean
 	@rm -rf /smb1$e/*
 	@echo Rsyncing to ednor live...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} $s
+	@echo Rsyncing to ednor PTS...
+	@/usr/bin/rsync -aR --delete --force ${allfiles} $t
 	@touch $s/POC.txt
 
 .PHONY: install-norton
