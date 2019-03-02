@@ -395,23 +395,22 @@ function Cols:Update(x)
 			ults[#ults + 1] = name
 		    end
 		end
-watch('blurfl', 'Cols:Update', apid, #ults == 0, 'needMIA', needMIA)
 		if (needMIA and apid < maxping) or (not showall and not showunused and #ults == 0) then
 		    clearheader = true
-		elseif not needMIA then
+		elseif needMIA then
+		    clearheader = false
+		else
 		    v:Update(col, ults, showused, showall, maxrows)
 		    clearheader = false
 		    col = col + 1
 		end
 	    end
 	    if clearheader then
-watch('blurfl', 'Cols:Update', 'clearing', apid)
 		v:Update(0, empty, false, false, 0)
 	    end
 	end
 	local apid = maxping
 	while ults[1] or self[apid].Displayed do
-watch('blurfl', 'Cols:Update', 'displaying', self[apid].Displayed, apid, ults[1])
 	    self[apid]:Update(col, ults, false, false, nmiasrow)
 	    apid = apid + 1
 	    if apid > maxmias then
@@ -958,6 +957,9 @@ end
 
 function Player:add_colult(name, ...)
     local apids = {...}
+    if apids[2] == maxping then
+	table.remove(apids, 2)
+    end
     for _, apid in ipairs(apids) do
 	if apid ~= nil and apid ~= 0 then
 	    Cols[apid].Players[name] = self
@@ -980,7 +982,6 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 		Pos = 0,
 		Tick = 0,
 		TimeStamp = 0,
-		UltMain = maxping,
 		Ults = {},
 		Version = 'unknown',
 		Visited = false
@@ -1043,9 +1044,6 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
 	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
 	end
-	if apid2 == maxping then
-	    apid2 = nil
-	end
 	-- If either is nil then player changed their ultimate
 	if self.Ults[apid1] == nil or (apid2 and self.Ults[apid2] == nil) then
 	    changed = true
@@ -1060,7 +1058,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	    self:Record(name, 'Primary Ult', pct1, self.Ults[apid1])
 	    self.Ults[apid1] = pct1		-- Primary ult pct changed
 	end
-	if apid2 ~= nil and self.Ults[apid2] ~= pct2 then
+	if apid2 ~= nil and apid2 ~= maxping and self.Ults[apid2] ~= pct2 then
 	    changed = true
 	    watch("need_to_fire", name, "apid2 different", self.Ults[apid2], '~=', pct2)
 	    self.Ults[apid2] = pct2		-- secondary ult pct changed
@@ -1180,9 +1178,7 @@ function Player.SetUlt()
     if GetActiveWeaponPairInfo() ~= 1 then
 	return
     end
-    if not myults then
-	myults = Settings.SavedVariables.MyUltId[ultix]
-    end
+    myults = myults or Settings.SavedVariables.MyUltId[ultix]
     local aid = GetSlotBoundId(8)
     if aid == 0 then
 	return
@@ -1195,13 +1191,13 @@ function Player.SetUlt()
 	end
 	return
     end
-    local pid = ult.Ping
-    if pid ~= myults[1] then
+    local apid = ult.Ping
+    if apid ~= myults[1] then
 	for n in pairs(me.Ults) do
 	    me.Ults[n] = nil
 	end
-	me.UltMain = pid
-	myults[1] = pid
+	me.UltMain = apid
+	myults[1] = apid
 	swimlanes.Sched(true)
     end
 end
@@ -1345,14 +1341,6 @@ function swimlanes.Initialize(major, minor, _saved)
     end
     maxping = Ult.MaxPing
     maxmias = maxping + (24 / nmiasrow) - 1
-    me.UltMain = myults[1]
-    for n in pairs(me.Ults) do
-	if n == myults[1] or n == myults[2] then
-	    me.Ults[n] = 0
-	else
-	    me.Ults[n] = nil
-	end
-    end
     local ultids = {}
     local maxult = maxping - 1
     local newlaneids = {}
@@ -1410,6 +1398,14 @@ function swimlanes.Initialize(major, minor, _saved)
 	v:add_colult(n, unpack(ults))
 
 	group_members[n] = v
+    end
+    me.UltMain = myults[1]
+    for n in pairs(me.Ults) do
+	if n == myults[1] or n == myults[2] then
+	    me.Ults[n] = 0
+	else
+	    me.Ults[n] = nil
+	end
     end
     restore_position()
 

@@ -62,49 +62,25 @@ local function mysplit(inputstr, sep)
     return unpack(t)
 end
 
-local function initwatch()
+local function empty_func()
+end
+
+local initwatch = function() 
     if not saved.WatchMen then
 	saved.WatchMen = {}
     end
     if not watchmen then
 	watchmen = saved.WatchMen
     end
-    initwatch = function() end
-end
-
-local function setwatch(x)
-    initwatch()
-    if x == "clear" then
-	saved.WatchMen = {}
-	watchmen = saved.WatchMen
-	Info("cleared all watchpoints")
-	return
-    end
-    if x:len() == 0 then
-	Info("Watchpoints")
-	for n, v in pairs(watchmen) do
-	    xxx(n .. ":", v)
-	end
-	return
-    end
-    local what, todo = mysplit(x)
-    local n = tonumber(todo)
-    if n ~= nil then
-	todo = n
-    elseif todo == nil then
-	todo = true
-    elseif todo == "on" or "todo" == "true" then
-	todo = true
-    elseif todo == "off" or todo == "false" then
-	todo = false
+    initwatch = empty_func
+    if next(watchmen) then
+	watch = real_watch
     else
-	Error("Can't grok" .. todo)
+	watch = empty_func
     end
-    watchmen[what] = todo
-    Info("watch", what, '=', todo)
 end
 
-function watch(what, ...)
+local function real_watch(what, ...)
     initwatch()
     local inargs = {...}
     if watchmen[what] == nil then
@@ -130,6 +106,44 @@ function watch(what, ...)
     end
 end
 
+local function setwatch(x)
+    initwatch()
+    if x == "clear" then
+	saved.WatchMen = {}
+	watchmen = saved.WatchMen
+	Info("cleared all watchpoints")
+	watch = empty_func
+	return
+    end
+    if x:len() == 0 then
+	Info("Watchpoints")
+	for n, v in pairs(watchmen) do
+	    xxx(n .. ":", v)
+	end
+	return
+    end
+    local what, todo = mysplit(x)
+    local n = tonumber(todo)
+    if n ~= nil then
+	todo = n
+    elseif todo == nil then
+	todo = true
+    elseif todo == "on" or "todo" == "true" then
+	todo = true
+    elseif todo == "off" or todo == "false" then
+	todo = false
+    else
+	Error("Can't grok" .. todo)
+    end
+    watchmen[what] = todo
+    if next(watchmen) then
+	watch = real_watch
+    else
+	watch = empty_func
+    end
+    Info("watch", what, '=', todo)
+end
+
 function player_name(tag)
     if saved.AtNames then
 	name = GetUnitDisplayName(tag)
@@ -138,5 +152,7 @@ function player_name(tag)
     end
     return name
 end
+
+watch = real_watch
 
 Slash("watch", 'display debugging info for given "thing"', setwatch)

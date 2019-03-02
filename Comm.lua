@@ -321,6 +321,8 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
 
     if saved.UpdateInterval == nil then
 	saved.UpdateInterval = 2000
+    elseif saved.UpdateInterval < 1000 then
+	saved.UpdateInterval = 1000
     end
     update_interval = saved.UpdateInterval
     update_interval_per_sec = update_interval / 1000
