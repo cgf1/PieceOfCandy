@@ -31,7 +31,7 @@ function myunpack(t, n, i)
 end
 
 function Info(...)
-    xxx("|cffff00POC:", ...)
+    xxx("|cffff00", "POC:", ...)
 end
 
 function xxx(...)
@@ -39,13 +39,15 @@ function xxx(...)
     local space = ''
     for i = 1, select('#', ...) do
 	accum = accum .. space .. tostring(select(i, ...))
-	space = ' '
+	if i > 1 then
+	    space = ' '
+	end
     end
     d(accum)
 end
 
 function HERE(...)
-    xxx("|c00ffffHERE", ...)
+    xxx("|c00ffff", "HERE", ...)
 end
 
 local watchmen
@@ -65,20 +67,7 @@ end
 local function empty_func()
 end
 
-local initwatch = function() 
-    if not saved.WatchMen then
-	saved.WatchMen = {}
-    end
-    if not watchmen then
-	watchmen = saved.WatchMen
-    end
-    initwatch = empty_func
-    if next(watchmen) then
-	watch = real_watch
-    else
-	watch = empty_func
-    end
-end
+local initwatch
 
 local function real_watch(what, ...)
     initwatch()
@@ -96,13 +85,7 @@ local function real_watch(what, ...)
 	doit = true
     end
     if doit then
-	local args = {}
-	args[1] = "|c00ff11" .. what .. ':'
-	for _, x in ipairs(inargs) do
-	    args[#args + 1] = x
-	end
-	-- args[#args + 1] = "|c"
-	xxx(unpack(args))
+	xxx("|c00ff11", ...)
     end
 end
 
@@ -118,7 +101,7 @@ local function setwatch(x)
     if x:len() == 0 then
 	Info("Watchpoints")
 	for n, v in pairs(watchmen) do
-	    xxx(n .. ":", v)
+	    xxx('', n .. ":", v)
 	end
 	return
     end
@@ -142,6 +125,21 @@ local function setwatch(x)
 	watch = empty_func
     end
     Info("watch", what, '=', todo)
+end
+
+initwatch = function() 
+    if not saved.WatchMen then
+	saved.WatchMen = {}
+    end
+    if not watchmen then
+	watchmen = saved.WatchMen
+    end
+    initwatch = empty_func
+    if next(watchmen) then
+	watch = real_watch
+    else
+	watch = empty_func
+    end
 end
 
 function player_name(tag)

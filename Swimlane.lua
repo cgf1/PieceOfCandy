@@ -364,8 +364,14 @@ function Cols:Update(x)
 	max_x = 0
 	max_y = 60
 	local col = 1
-	local totshown = 0
 	local needMIA = false
+	local maxc
+	if not showall then
+	    maxc = maxcols
+	else
+	    maxc = maxping - 1
+	    showunused = true
+	end
 	-- HEY!
 	for _, apid in ipairs(laneids) do
 	    if apid >= maxping and showall then
@@ -374,13 +380,13 @@ function Cols:Update(x)
 	    local v = self[apid]
 	    tbl = v.Players
 	    local clearheader = v.Displayed
-	    if next(tbl) ~= nil or showall then
-		if showall or (not needMIA and col <= maxcols and apid < maxping) then
+	    if next(tbl) ~= nil or showunused then
+		if needMIA or (col <= maxc and apid < maxping) then
 		    -- drop through
-		elseif not saved.MIA then
-		    break
-		elseif not needMIA then
+		elseif saved.MIA then
 		    needMIA = true
+		else
+		    break
 		end
 		for name, player in pairs(tbl) do
 		    local pingtag = player.PingTag
@@ -395,23 +401,19 @@ function Cols:Update(x)
 			ults[#ults + 1] = name
 		    end
 		end
-		if (needMIA and apid < maxping) or (not showall and not showunused and #ults == 0) then
-		    clearheader = true
-		elseif needMIA then
-		    clearheader = false
-		else
-		    v:Update(col, ults, showused, showall, maxrows)
+		if not needMIA and (#ults ~= 0 or (showunused and col <= maxc)) then
+		    v:Update(col, ults, showunused, maxrows)
 		    clearheader = false
 		    col = col + 1
 		end
 	    end
 	    if clearheader then
-		v:Update(0, empty, false, false, 0)
+		v:Update(0, empty, false, 0)
 	    end
 	end
 	local apid = maxping
 	while ults[1] or self[apid].Displayed do
-	    self[apid]:Update(col, ults, false, false, nmiasrow)
+	    self[apid]:Update(col, ults, false, nmiasrow)
 	    apid = apid + 1
 	    if apid > maxmias then
 		break
@@ -617,17 +619,15 @@ end
 
 -- Update swimlane
 --
-function Col:Update(col, keys, showunused, showall, maxrow)
+function Col:Update(col, keys, showunused, maxrow)
     local displayed = showunused
     local apid = self.Apid
     local isMIA = apid >= maxping
     lane_apid = apid
 
-    self.Moused = showall
+    self.Moused = showunused
     self.Col = col
 
-    local ticked = 0
-    local grouped = 0
     if #keys > 1 then
 	table.sort(keys, self.Compare)
     end
@@ -635,7 +635,7 @@ function Col:Update(col, keys, showunused, showall, maxrow)
     -- Update sorted swimlane
     local gt100 = SWIMLANEPCTADD
     local n = 1
-    local displayed = showunused or showall
+    local displayed = showunused
     while true do
 	local playername = table.remove(keys, 1)
 	if playername == nil then
@@ -1207,7 +1207,7 @@ end
 function Cols:SetLaneUlt(oapid, apid)
     watch("Cols:SetLaneUlt", oapid, apid)
     local switchi, switchv
-    if apid == maxping or oapid == maxping then
+    if apid == maxping or oapid == maxping or oapid == apid then
 	return
     end
     local oid, id
