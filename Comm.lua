@@ -65,16 +65,15 @@ end
 local lasttime = 0
 local lastpower = 0
 local lastult = 0
-local function ult_fired()
+local function ult_fired(thistime)
     watch('ult_fired0', lastult)
     if lastult == 0 then
 	return 0
     end
-    local thistime = GetTimeStamp()
     thispower = GetUnitPower("player", POWERTYPE_ULTIMATE)
     local delta = thistime - lasttime
     watch('ult_fired', 'lastult', lastult, 'lastpower', lastpower, 'thispower', thispower, 'delta', delta)
-    if thispower ~= 0 and thispower >= lastpower or delta <= 10 then
+    if thispower ~= 0 and thispower >= lastpower or delta <= 10000 then
 	watch('ult_fired', 'not sending', thispower, lastpower, delta)
 	lastult = 0
 	return 0
@@ -132,24 +131,28 @@ end
 
 local counter = 0
 local lastupdate = 0
-local function sanity()
-    if not saved.CommSanity then
-	return
-    end
-    local now = GetTimeStamp()
+local pings = 0
+local function sanity(now)
     local lu = now - lastupdate
-    local lmy = now - PingPipe.lastmytime
+    if lu < 500 then
+-- watch('sanity', now, 'vs', lastupdate, lu)
+	return false
+    end
     lastupdate = now
-    watch("sanity", string.format('last update secs %d, since last ping %d, counter %d', lu, lmy, counter))
-    local lx = 3 * update_interval_per_sec
-    if (lu > lx) or (lmy < 30) or (counter < 10) then
-	return
+-- watch('sanity', 'sane', lu)
+    if saved.CommSanity then
+	local lmy = now - PingPipe.lastmytime
+	watch("sanity", string.format('last update secs %d, since last ping %d, counter %d', lu, lmy, counter))
+	local lx = 3 * update_interval_per_sec
+	if (lu > lx) or (lmy < 30) or (counter < 10) then
+	    -- ok
+	elseif PingPipe.lastmytime == 0 then
+	    Error("Haven't ever heard from myself")
+	else
+	    Error(string.format("Haven't heard from myself in %d seconds, last command: %02x, last update %d/%d seconds", lmy, PingPipe.lastmycomm, lu, lx))
+	end
     end
-    if PingPipe.lastmytime == 0 then
-	Error("Haven't ever heard from myself")
-    else
-	Error(string.format("Haven't heard from myself in %d seconds, last command: %02x, last update %d/%d seconds", lmy, PingPipe.lastmycomm, lu, lx))
-    end
+    return true
 end
 
 local function setult()
@@ -178,7 +181,6 @@ local function on_update()
     end
     local notify_when_not_grouped = true
     Swimlanes.Update("map update")
-    sanity()
     setult()
 
     counter = counter + 1
@@ -186,10 +188,11 @@ local function on_update()
 	Quest.Ping()
     end
 
+    local now = GetGameTimeMilliseconds()
     local apid1pct1 = ultpct(myults[1])
     local queue = campaign.QueuePosition(false)
     local send = COMM_ULTPCT_MUL1 * apid1pct1
-    local ultf = ult_fired()
+    local ultf = ult_fired(now)
     local cmd
     local fwctimer = (GetNextForwardCampRespawnTime() / 1000) - GetFrameTimeSeconds()
     if IsUnitDead("player") and fwctimer > 0 then
@@ -210,6 +213,9 @@ local function on_update()
 	    return
 	end
 	cmd = COMM_TYPE_PCTULT
+    end
+    if not sanity(now) then
+	return	-- Don't ping too quickly
     end
     watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
