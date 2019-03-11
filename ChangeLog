@@ -1,3 +1,24 @@
+***
+If anyone actually reads these things: I'm looking for a new EP PVP
+guild who can help me develop and debug any issues with this addon.
+
+I'm @Smilier in-game.
+***
+
+2019-03-10 (v3.34)
+
+- Try harder to limit map pings to avoid message flood and subsequent logout
+
+- Reorganize and hopefully streamline column updates.
+
+2019-03-01 (v3.33)
+
+- Update for Wrathstone
+
+- Limit map pings to potentially avoid ESO kick.
+
+- Don't die if no ultimate is selected
+
 2018-01-10 (v3.32)
 
 - Fix issue with errant MIA when first joining a group.
