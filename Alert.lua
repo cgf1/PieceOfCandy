@@ -160,7 +160,10 @@ local function clearernow()
 end
 
 function Texture(what)
-    if not what then
+    RefreshSettings()
+    Info("Refresh Settings")
+    if true then
+    elseif not what then
 	SetCrownCrateNPCVisible(false)
     else
 	SetCrownCrateNPCVisible(true)
