@@ -1045,7 +1045,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
 	end
 	-- If either is nil then player changed their ultimate
-	if self.Ults[apid1] == nil or (apid2 and self.Ults[apid2] == nil) then
+	if self.Ults[apid1] == nil or (apid2 and apid2 ~= maxping and self.Ults[apid2] == nil) then
 	    changed = true
 	    for n in pairs(self.Ults) do
 		self.Ults[n] = nil

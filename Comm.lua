@@ -217,8 +217,8 @@ local function on_update()
     if not sanity(now) then
 	return	-- Don't ping too quickly
     end
-    watch("on_update", myults[1], myults[2], tostring(send))
     local bytes = Comm.ToBytes(send)
+    watch("on_update", string.format('0x%x', bytes))
     Comm.Send(cmd, bytes[1], bytes[2], bytes[3])
 end
 
@@ -226,6 +226,8 @@ function Comm.IsActive()
     return (comm ~= nil and comm.active) or load_later
 end
 
+local last_stealth_state
+local last_combat_state
 function Comm.Load(verbose)
     if saved.CommOff then
 	return
@@ -239,15 +241,19 @@ function Comm.Load(verbose)
 	lastult = 0
 	comm.Load()
 	EVENT_MANAGER:RegisterForUpdate(Comm.Name, update_interval, on_update)
-	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED, function(_, unittag, y)
-	    if unittag == "player" then
+	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED, function(_, unittag, stealth_state)
+	    if unittag == "player" and stealth_state ~= last_stealth_state then
 		watch("stealth", "changed", unittag, y)
+		last_stealth_state = stealth_state
 		on_update()
 	    end
 	end)
-	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE, function(_, x)
-	    watch("combat", "changed", x)
-	    on_update()
+	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE, function(_, combat_state)
+	    watch("combat", "changed", combat_state)
+	    if last_combat_state ~= combat_state then
+		last_combat_state = combat_state
+		on_update()
+	    end
 	end)
 	update_interval_per_sec = update_interval / 1000
 	Comm.SendVersion()
