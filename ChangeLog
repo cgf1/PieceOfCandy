@@ -1,9 +1,15 @@
 ***
-If anyone actually reads these things: I'm looking for a new EP PVP
+If anyone actually reads these things: I'm looking for a new NA EP PVP
 guild who can help me develop and debug any issues with this addon.
 
 I'm @Smilier in-game.
 ***
+
+2019-03-13 (v3.35)
+
+- More performance improvements.  This version updates the screen MUCH less
+and throttles map pings more aggressively which should continue to help with
+message flood problems.
 
 2019-03-10 (v3.34)
 
