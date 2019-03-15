@@ -218,7 +218,7 @@ local function on_update()
 	return	-- Don't ping too quickly
     end
     local bytes = Comm.ToBytes(send)
-    watch("on_update", string.format('0x%x', bytes))
+    -- watch("on_update", string.format('0x%x', send))
     Comm.Send(cmd, bytes[1], bytes[2], bytes[3])
 end
 
