@@ -5,6 +5,10 @@ guild who can help me develop and debug any issues with this addon.
 I'm @Smilier in-game.
 ***
 
+2019-03-13 (v3.36)
+
+- Try harder to hide UI as soon as we leave group.
+
 2019-03-13 (v3.35)
 
 - More performance improvements.  This version updates the screen MUCH less
