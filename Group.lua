@@ -12,7 +12,13 @@ local saved
 local JUMP1 = 'JUMP_TO_GROUP_LEADER_WORLD_PROMPT'
 local JUMP2 = 'JUMP_TO_GROUP_LEADER_OCCURANCE_PROMPT'
 
-local supdate
+local swimupdate
+local swimsched
+
+local function supdate(x)
+    swimsched(false)
+    swimupdate(x)
+end
 
 -- Called when group member joined group
 --
@@ -127,7 +133,8 @@ function Group.Initialize(_saved)
 	end
     end
 
-    supdate = Swimlanes.Update
+    swimupdate = Swimlanes.Update
+    swimsched = Swimlanes.Sched
     -- Initial call
     on_group_update()
 
