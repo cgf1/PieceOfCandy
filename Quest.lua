@@ -23,6 +23,7 @@ local saved	-- alias for Settings.SavedVariables
 local want	-- alias for saved.Quests
 
 local sharequests = false
+local player_get
 
 local function ignore(cat)
     if not cat or not want[cat] then
@@ -52,9 +53,9 @@ local function _init(_saved)
 	    {"keep", "Capture Chalman Keep"},
 	    {"resource", "Capture Chalman Mine"},
 	    {"kill", "Kill Enemy Players"},
-	    {"keep", "-- don't share keep quest --"},
-	    {"resource", "-- don't share resource quest --"},
-	    {"kill", "-- don't share kill enemy quest --"},
+	    {"keep", "-- no keep quest wanted --"},
+	    {"resource", "-- no resource quest wanted --"},
+	    {"kill", "-- no kill enemy quest wanted --"},
 	    {"conquest", "-- don't share conquest quest --"},
 	    {"conquest", "Capture All 3 Towns"},
 	    {"conquest", "Capture Any Nine Resources"},
@@ -341,18 +342,24 @@ local function _init(_saved)
     end
 
     want = saved.Quests
-    local default = next(want) == nil
-    if default or want[OLDKEEP_IX] then
-	want['keep'] = OLDKEEP_IX
-	want[OLDKEEP_IX] = nil
-    end
-    if default or want[OLDKILL_IX] then
-	want['kill'] = OLDKILL_IX
-	want[OLDKILL_IX] = nil
-    end
-    if default or want[OLDRESOURCE_IX] then
-	want['resource'] = OLDRESOURCE_IX
-	want[OLDRESOURCE_IX] = nil
+    if next(want) == nil then
+	-- default everything to not shared
+	want['kill'] = OLDKILL_IX	-- Assume kill enemy players is wanted
+	want['keep'] = OLDKEEP_IX + 3
+	want['resource'] = OLDRESOURCE_IX + 3
+    else
+	if want[OLDKEEP_IX] then
+	    want['keep'] = OLDKEEP_IX
+	    want[OLDKEEP_IX] = nil
+	end
+	if want[OLDKILL_IX] then
+	    want['kill'] = OLDKILL_IX
+	    want[OLDKILL_IX] = nil
+	end
+	if want[OLDRESOURCE_IX] then
+	    want['resource'] = OLDRESOURCE_IX
+	    want[OLDRESOURCE_IX] = nil
+	end
     end
 
     have = {}
@@ -370,7 +377,7 @@ local function quest_shared(eventcode, qid)
 	watch('quest_shared', cat, qid, '=', qname)
 	local ix = nametoix[qname]
 
-	if sharequests and want[cat] == ix then
+	if want[cat] == ix then
 	    Info("Automatically accepted:", qname)
 	    AcceptSharedQuest(qid)
 	    have[cat] = true
@@ -396,29 +403,41 @@ local function quest_gone(eventcode, completed, jix, qname, zix, poiIndex, qid)
     end
 end
 
-function Quest.Process(player, ix)
-    watch("Quest.Process", player, ix)
+function Quest.Process(pingtag, nplayer, ix)
+    watch("Quest.Process", pingtag, nplayer, ix)
     if ix <= 0 then
 	watch("Quest.Process", "zero quest ix?	shouldn't happen")
 	return
     end
-    if player == COMM_ALL_PLAYERS then
+    if not sharequests then
+	watch('Quest.Process', 'not sharing since turned off')
+    end
+    --[[if nplayer == COMM_ALL_PLAYERS then
 	-- everyone plays
     else
-	local groupn = "group" .. player
-	if GetUnitName(groupn) ~= myname then
+	local unit = "group" .. nplayer
+	if GetUnitName(unit) ~= myname then
 	    return
 	end
-    end
+    end--]]
     local qname = ixtoname[ix]
     if qname:sub(1, 2) == '--' then
 	watch("Quest.Process", "ignored quest?	shouldn't happen", qname)
 	return
     end
     if sharequests and qname then
+	local player = player_get(pingtag)
+	local now = GetTimeStamp()
+	player.LastQuestShareTime = player.LastQuestShareTime or {}
+	local before = player.LastQuestShareTime[ix] or 0
+	player.LastQuestShareTime[ix] = now
+	if (now - before) < 180 then
+	    watch('Quest.Process', 'not sharing since too close to last send:', now, '-', before, '=', now - before, 'seconds')
+	    return
+	end
 	for i = 1, GetNumJournalQuests() do
 	    if GetJournalQuestName(i) == qname then
-		-- Info(zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
+		watch('Quest.Process', zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
 		ShareQuest(i)
 		return
 	    end
@@ -444,6 +463,7 @@ function Quest.ShareThem(x)
     elseif x == false or x == "off" or x == "false" or x == "no" then
 	sharequests = false
     end
+    Player.ResetQuestShare()
     saved.ShareQuests = sharequests
 end
 
@@ -482,6 +502,7 @@ function Quest.Initialize(_saved)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_ADDED, quest_added)
     saved.ChalKeep = nil
     saved.ChalMine = nil
+    player_get = Player.Get
 
     Slash("quest", "turn off quest sharing", function (x)
 	if x ~= '' then

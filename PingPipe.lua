@@ -84,7 +84,7 @@ local function on_map_ping(pingtype, pingtag)
     if ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
     elseif ctype == COMM_TYPE_NEEDQUEST then
-	Quest.Process(bytes[2], bytes[3])
+	Quest.Process(pingtag, bytes[2], bytes[3])
     elseif ctype == COMM_TYPE_MYVERSION then
 	Player.SetVersion(pingtag, bytes[2], bytes[3], bytes[4])
     elseif ctype == COMM_TYPE_KEEPALIVE then

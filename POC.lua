@@ -3,13 +3,15 @@ Name = "POC"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.36'
+local version = '3.37'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
 
 local addon_conflicts = {
+    BanditsUserInterface = true,
     GroupDamageShare = true,
+    HodorReflexes = true,
     RaidNotifier = true,
     SanctsUltimateOrganiser = true,
     TaosGroupTools = true,

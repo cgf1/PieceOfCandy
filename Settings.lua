@@ -49,6 +49,7 @@ Settings = {
     SavedVariables = nil
 }
 Settings.__index = Settings
+
 local saved
 
 -- Sets SetStyleSettings and fires POC-StyleChanged callbacks

@@ -967,6 +967,24 @@ function Player:add_colult(name, ...)
     end
 end
 
+function Player.Get(pingtag)
+    local name = GetUnitName(pingtag)
+    if not name then
+	return nil
+    end
+    return group_members[name]
+end
+
+function Player.ResetQuestShare()
+    for _, player in pairs(group_members) do
+	if player.LastQuestShareTime then
+	    for n in pairs(player.LastQuestShareTime) do
+		player.LastQuestShareTime[n] = nil
+	    end
+	end
+    end
+end
+
 local tmp_player = {}
 function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
     local name = GetUnitName(pingtag)
@@ -999,7 +1017,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	    return			-- hopefully an anomaly
 	end
     elseif self.Visited then
-	-- not coming from Player.Update - already seen.  Reset for next time
+	-- coming from Player.Update and already seen.	Reset for next time
 	self.Visited = false
 	return self
     end

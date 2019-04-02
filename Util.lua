@@ -85,7 +85,7 @@ local function real_watch(what, ...)
 	doit = true
     end
     if doit then
-	xxx("|c00ff11", ...)
+	xxx("|c00ff11", what .. ': ', ...)
     end
 end
 
