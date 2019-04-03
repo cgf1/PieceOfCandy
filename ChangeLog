@@ -1,9 +1,9 @@
-***
-If anyone actually reads these things: I'm looking for a new NA EP PVP
-guild who can help me develop and debug any issues with this addon.
+2019-04-02 (v3.37)
 
-I'm @Smilier in-game.
-***
+- Change quest share logic.  Don't request keep or resource by default
+but always share quests unless quest sharing is turned on.
+
+- Warn about two new conflicting addons.
 
 2019-03-13 (v3.36)
 
