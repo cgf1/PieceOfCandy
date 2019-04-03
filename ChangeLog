@@ -1,7 +1,7 @@
 2019-04-02 (v3.37)
 
 - Change quest share logic.  Don't request keep or resource by default
-but always share quests unless quest sharing is turned on.
+but always share quests unless quest sharing is turned off.
 
 - Warn about two new conflicting addons.
 
