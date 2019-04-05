@@ -1,3 +1,8 @@
+2019-04-05 (v3.38)
+
+- Fix possible ESO bug with delayed quest log loading that caused addon to
+believe that it was missing quests which caused unnecessary traffic.
+
 2019-04-02 (v3.37)
 
 - Change quest share logic.  Don't request keep or resource by default
