@@ -24,6 +24,7 @@ local want	-- alias for saved.Quests
 
 local sharequests = false
 local player_get
+local me
 
 local function ignore(cat)
     if not cat or not want[cat] then
@@ -46,8 +47,21 @@ local function havequest(cat)
     return false
 end
 
+local function inithave()
+    have = have or {}
+    for cat, ix in pairs(want) do
+	local qname = ixtoname[ix]
+	have[cat] = havequest(cat)
+    end
+    if GetNumJournalQuests() == 0 then
+	return inithave
+    else
+	return function() end
+    end
+end
+
 local function _init(_saved)
-    saved = _saved
+    saved = saved or _saved
     local ref = {
 	en = {
 	    {"keep", "Capture Chalman Keep"},
@@ -362,12 +376,7 @@ local function _init(_saved)
 	end
     end
 
-    have = {}
-    for cat, ix in pairs(want) do
-	local qname = ixtoname[ix]
-	have[cat] = havequest(cat)
-    end
-    _init = function() end
+    _init = inithave()
 end
 
 local function quest_shared(eventcode, qid)
@@ -405,6 +414,10 @@ end
 
 function Quest.Process(pingtag, nplayer, ix)
     watch("Quest.Process", pingtag, nplayer, ix)
+    if pingtag == me.PingTag then
+	watch('Quest.Process', "ignoring my own quest request")
+	return
+    end
     if ix <= 0 then
 	watch("Quest.Process", "zero quest ix?	shouldn't happen")
 	return
@@ -446,6 +459,7 @@ function Quest.Process(pingtag, nplayer, ix)
 end
 
 function Quest.Ping()
+    _init()
     for cat, gotit in pairs(have) do
 	if gotit then
 	    watch("Quest.Ping", "already have something in category", cat, ixtoname[want[cat]])
@@ -495,7 +509,6 @@ function Quest.Want(cat, qname)
 end
 
 function Quest.Initialize(_saved)
-    saved = _saved
     _init(_saved)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_REMOVED, quest_gone)
     EVENT_MANAGER:RegisterForEvent(Quest.Name, EVENT_QUEST_SHARED, quest_shared)
@@ -503,6 +516,7 @@ function Quest.Initialize(_saved)
     saved.ChalKeep = nil
     saved.ChalMine = nil
     player_get = Player.Get
+    me = Me
 
     Slash("quest", "turn off quest sharing", function (x)
 	if x ~= '' then
