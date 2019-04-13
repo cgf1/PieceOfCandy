@@ -67,6 +67,8 @@ end
 local function empty_func()
 end
 
+Watching = false
+
 local initwatch
 
 local function real_watch(what, ...)
@@ -96,6 +98,7 @@ local function setwatch(x)
 	watchmen = saved.WatchMen
 	Info("cleared all watchpoints")
 	watch = empty_func
+	Watching = false
 	return
     end
     if x:len() == 0 then
@@ -121,8 +124,10 @@ local function setwatch(x)
     watchmen[what] = todo
     if next(watchmen) then
 	watch = real_watch
+	Watching = true
     else
 	watch = empty_func
+	Watching = false
     end
     Info("watch", what, '=', todo)
 end
@@ -137,8 +142,10 @@ initwatch = function()
     initwatch = empty_func
     if next(watchmen) then
 	watch = real_watch
+	Watching = true
     else
 	watch = empty_func
+	Watching = false
     end
 end
 

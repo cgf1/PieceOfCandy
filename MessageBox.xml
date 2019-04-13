@@ -1,0 +1,42 @@
+<GuiXml>
+    <Controls>
+	<TopLevelControl name="MessageBox" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="true" tier="HIGH" layer="CONTROLS">
+	    <Dimensions x="700" y="300" />
+	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER" offsetY="-120" />
+	    <Controls>
+		<Backdrop name="$(parent)BG" inherits="ZO_ThinBackdrop">
+		    <AnchorFill/>
+		</Backdrop>
+		<Label name="$(parent)Title" font="$(BOLD_FONT)|$(KB_20)" wrapMode="ELLIPSIS" verticalAlignment="TOP">
+		    <Anchor relativeTo="$(parent)" relativePoint="TOPLEFT" point="TOPLEFT" offsetX="5" offsetY="5" />
+		</Label>
+		<Label name="$(parent)About" font="ZoFontGame" wrapMode="ELLIPSIS">
+		    <Anchor relativeTo="$(parent)" relativePoint="TOPLEFT" point="TOPLEFT" offsetX="10" offsetY="40" />
+		</Label>
+		<Button name="$(parent)Close" inherits="ZO_CloseButton">
+		    <Anchor point="TOPRIGHT" offsetY="3" offsetX = "-3" />
+		    <OnClicked>
+			POC.HandleMessageBox()
+		    </OnClicked>
+		</Button>
+
+		 <Control name="$(parent)Container" inherits="ZO_ScrollContainer">
+		    <OnInitialized>
+			ZO_Scroll_Initialize(self)
+		    </OnInitialized>
+		    <Dimensions x="695" y="220"/>
+		    <Anchor point="BOTTOMLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="6" offsetY="290" />
+		</Control>
+
+		<Label name="$(parent)Text" font="ZoFontGame" wrapMode="ELLIPSIS">
+		    <Dimensions x="670" />
+		    <OnInitialized>
+			self:SetParent(GetControl("MessageBoxContainerScrollChild"))
+			self:SetAnchor(TOPLEFT, MessageBoxContainerScrollChild, TOPLEFT, 4, 4)
+		    </OnInitialized>
+		</Label>
+
+	    </Controls>
+	</TopLevelControl>
+    </Controls>
+</GuiXml>

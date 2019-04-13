@@ -56,8 +56,8 @@ end
 
 -- Called on map ping from LibMapPing
 --
+local before = 0
 local function on_map_ping(pingtype, pingtag)
-    -- local before = GetGameTimeMilliseconds()
     if pingtype ~= MAP_PIN_TYPE_PING then
 	return
     end
@@ -78,33 +78,54 @@ local function on_map_ping(pingtype, pingtag)
 	PingPipe.lastmycomm = ctype
     end
     local data = math.floor(input / 256)
-    watch('on_map_ping', string.format("0x%2x", ctype))
     local apid1, pct1, pos, apid2, pct2
     local fwctimer = 0
+    local name
     if ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
+	name = 'COUNTDOWN'
     elseif ctype == COMM_TYPE_NEEDQUEST then
 	Quest.Process(pingtag, bytes[2], bytes[3])
+	name = 'NEEDQUEST'
     elseif ctype == COMM_TYPE_MYVERSION then
 	Player.SetVersion(pingtag, bytes[2], bytes[3], bytes[4])
+	name = 'MYVERSION'
     elseif ctype == COMM_TYPE_KEEPALIVE then
 	Player.New(pingtag, timenow)
+	name = 'KEEPALIVE'
     elseif ctype == COMM_TYPE_MAKEMELEADER then
 	Player.MakeLeader(pingtag)
+	name = 'MAKEMELEADER'
     elseif ctype == COMM_TYPE_NEEDHELP then
 	Alert.NeedsHelp(pingtag)
+	name = 'NEEDSHELP'
     elseif ctype == COMM_TYPE_ULTFIRED then
 	Alert.UltFired(pingtag, data)
+	name = 'ULTFIRED'
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	apid1, pct1, pos, apid2, pct2 =	 unpack_ultpct(ctype, data)
+	if ctype == COMM_TYPE_PCTULT then
+	    name = 'PCTULT'
+	else
+	    name = 'PCULTPOS'
+	end
     elseif ctype == COMM_TYPE_FWCAMPTIMER then
 	fwctimer = data
+	name = 'FWCAMPTIMER'
+    else
+	name = 'UNKNOWN'
     end
-    Player.New(pingtag, timenow, fwctimer, apid1, pct1, pos, apid2, pct2)
+    if name ~= 'UNKNOWN' then
+	Player.New(pingtag, timenow, fwctimer, apid1, pct1, pos, apid2, pct2)
+    end
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
 	LMP:SuppressPing(pingtype, pingtag)
     end
-    -- watch('on_map_ping', pingtag, GetGameTimeMilliseconds() - before)
+    if Watching then
+	local now = GetGameTimeMilliseconds()
+	watch('on_map_ping', string.format('%s %s delta %5.2f', name, pingtag, (now - before) / 1000))
+	before = now
+    end
 end
 
 function PingPipe.SendWord(word)

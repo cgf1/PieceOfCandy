@@ -24,7 +24,7 @@ local ZO_DeepTableCopy = ZO_DeepTableCopy
 
 local tt = POC_CharTooltip
 
-local TIMEOUT = 10		-- GetTimeStamp() is in seconds
+local TIMEOUT = 12		-- GetTimeStamp() is in seconds
 local INRANGETIME = 120		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
 local MAXPLAYSOUNDTIME = 60

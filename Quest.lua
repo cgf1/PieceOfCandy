@@ -375,6 +375,13 @@ local function _init(_saved)
 	    want[OLDRESOURCE_IX] = nil
 	end
     end
+    if not saved.SetKeepResourceQuests and want['keep'] == OLDKEEP_IX and want['resource'] == OLDRESOURCE_IX then
+	want['keep'] = OLDKEEP_IX + 3
+	want['resource'] = OLDRESOURCE_IX + 3
+	Message('Quest requests for keep and resource has been reset', 'Requests for keep and resources quests has been set to "do not request".', 'Type /POC and choose "Automatically request XXX" if you want to continue to request Chalman mine and keep.')
+HERE('sent the message')
+    end
+    saved.SetKeepResourceQuests = true
 
     _init = inithave()
 end

@@ -24,8 +24,8 @@ COMM_ALL_PLAYERS	= 0
 local update_interval
 local update_interveal_per_sec
 
-local QUEST_PING = 2
-local KEEPALIVE_PING_SECS = 6
+local QUEST_PING = 4
+local KEEPALIVE_PING_SECS = 8
 local keepalive_ping
 
 local major, minor, beta
@@ -34,6 +34,9 @@ local load_later = false
 local campaign
 local max_ping
 local oldqueue
+
+local IsUnitDead = IsUnitDead
+local IsUnitInCombat = IsUnitInCombat
 
 local me
 
@@ -165,6 +168,8 @@ local function setult()
 end
 
 local old_queue = 0
+local before = 0
+local last_ult_ping = 0
 local function on_update()
     if not comm.active then
 	return
@@ -184,7 +189,7 @@ local function on_update()
     setult()
 
     counter = counter + 1
-    if (counter % QUEST_PING) == 0 then
+    if (not IsUnitInCombat('player')) and ((counter % QUEST_PING) == 0) then
 	Quest.Ping()
     end
 
@@ -195,16 +200,20 @@ local function on_update()
     local ultf = ult_fired(now)
     local cmd
     local fwctimer = (GetNextForwardCampRespawnTime() / 1000) - GetFrameTimeSeconds()
+    local name
     if IsUnitDead("player") and fwctimer > 0 then
 	cmd = COMM_TYPE_FWCAMPTIMER
 	send = math.floor(fwctimer)
+	name = 'FWCAMPTIMER'
     elseif ultf ~= 0 then
 	cmd = COMM_TYPE_ULTFIRED
 	send = ultf
+	name = 'ULTFIRED'
     elseif queue ~= old_queue then
 	send = send + queue
 	cmd = COMM_TYPE_PCTULTPOS
 	old_queue = queue
+	name = 'PCTULTPOS'
     else
 	send = send + ultpct(myults[2])
 	if send ~= last_ult_ping then
@@ -213,12 +222,17 @@ local function on_update()
 	    return
 	end
 	cmd = COMM_TYPE_PCTULT
+	name = 'PCTULT'
     end
     if not sanity(now) then
 	return	-- Don't ping too quickly
     end
     local bytes = Comm.ToBytes(send)
-    -- watch("on_update", string.format('0x%x', send))
+    if Watching then
+	local now = GetGameTimeMilliseconds()
+	watch("on_update", string.format('%s counter %d, delta %d', name, counter, (now - before) / 1000))
+	before = now
+    end
     Comm.Send(cmd, bytes[1], bytes[2], bytes[3])
 end
 
@@ -379,7 +393,7 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
 		saved.UpdateInterval = update_interval
 	    end
 	end
-	Info(string.format("update every %d seconds",  update_interval / 1000))
+	Info(string.format("update every %d seconds, keepalive every %d",  update_interval / 1000, keepalive_ping))
     end)
     Slash("sanity", "debugging: do behind the scenes sanity-checking", function (x)
 	x = x:lower()

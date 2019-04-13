@@ -4,12 +4,12 @@
 ; States and/or other countries. All rights reserved.
 ; You can read the full terms at https://account.elderscrollsonline.com/add-on-terms
 
-## APIVersion: 100025 100026
+## APIVersion: 100026
 ## Title: Piece of Candy
 ## Author: |c66ffff|Valandil|r
 ## Description: PVP Helper
 ## SavedVariables: POCSettings
-## DependsOn: LibAddonMenu-2.0 LibGPS LibMapPing LibMsgWin-1.0 LibStub
+## DependsOn: LibAddonMenu-2.0 LibGPS LibMapPing LibStub
 ## OptionalDependsOn: tom
 ## OptionalDependsOn: pChat
 
@@ -25,6 +25,7 @@ textures/hover.dds
 VirtualControls.xml
 Bindings.xml
 Countdown.xml
+MessageBox.xml
 Swimlane.xml
 
 POC0.lua
@@ -48,5 +49,7 @@ Alert.lua
 Campaign.lua
 
 Test.lua
+
+Message.lua
 
 POC.lua
