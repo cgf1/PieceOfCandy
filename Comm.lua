@@ -24,7 +24,7 @@ COMM_ALL_PLAYERS	= 0
 local update_interval
 local update_interveal_per_sec
 
-local QUEST_PING = 4
+local QUEST_PING = 2
 local KEEPALIVE_PING_SECS = 8
 local keepalive_ping
 
