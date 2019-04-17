@@ -1,3 +1,7 @@
+2019-04-17 (v3.40)
+
+- Remove debugging "HERE" message.  Oops.
+
 2019-04-16 (v3.39)
 
 - Don't ask for a quest while in combat.
