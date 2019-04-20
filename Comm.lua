@@ -159,10 +159,13 @@ local function sanity(now)
 end
 
 local function setult()
-    if Me.UltMain == nil or Me.UltMain == 0 or Me.UltMain == 30 then
+    if not Ult.MaxPing then
+	return
+    end
+    if me.UltMain == nil or me.UltMain == 0 or me.UltMain == Ult.MaxPing then
 	Player.SetUlt()
     end
-    if me.UltMain ~= nil and Me.UltMain ~= 0  and me.UltMain ~= 30 then
+    if me.UltMain ~= nil and me.UltMain ~= 0  and me.UltMain ~= Ult.MaxPing then
 	local function setult() end
     end
 end

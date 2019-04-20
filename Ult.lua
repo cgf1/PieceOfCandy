@@ -89,13 +89,13 @@ end
 local function mkulttbl()
     local tbl = {}
     local iconlist = {}
-    for aid = 1, 99999 do
+    for aid = 1, 120000 do
 	if DoesAbilityExist(aid) then
 	    local cost, mechanic = GetAbilityCost(aid)
-	    if cost ~= 0 and mechanic == POWERTYPE_ULTIMATE then
+	    local icon = GetAbilityIcon(aid)
+	    if (cost ~= 0 or icon:find('warden_018.dds')) and mechanic == POWERTYPE_ULTIMATE then
 		local _, _, _, morphChoice = GetSpecificSkillAbilityKeysByAbilityId(aid)
 		if morphChoice == 0 then
-		    local icon = GetAbilityIcon(aid)
 		    tbl[icon] = aid
 		    local icon1
 		    if icon:find("destructionstaff_013") then
@@ -222,6 +222,11 @@ local function create_ults()
 		Ping = 14,
 		Name = 'WDHEAL',
 		Icon = '/esoui/art/icons/ability_warden_012.dds'
+	    },
+	    {
+		Ping = 31,
+		Name = 'GUARDIAN',
+		Icon = '/esoui/art/icons/ability_warden_018.dds'
 	    }
 	},
 	['Destruction Staff'] = {
@@ -323,11 +328,18 @@ local function create_ults()
 		Icon = '/esoui/art/icons/ability_ava_003.dds'
 	    }
 	},
+	['Psijic'] = {
+	    {
+		Ping = 30,
+		Name = 'UNDO',
+		Icon = '/esoui/art/icons/ability_psijic_001.dds'
+	    }
+	},
 	['POC'] = {
 	    {
 		Name = 'MIA',
 		Desc = 'POC: Incommunicado Player',
-		Ping = 30,
+		Ping = 32,
 		Aid = 'MIA',
 		Icon = MIAicon
 	    }
