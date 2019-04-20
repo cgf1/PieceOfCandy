@@ -48,7 +48,7 @@ function Ult.ByAid(aid)
     end
 
     -- not found
-    Error(string.format("AbilityId not found %d/%d %s", aid, base_aid, GetAbilityIcon(base_aid)))
+    -- Error(string.format("AbilityId not found %d/%d %s", aid, base_aid, GetAbilityIcon(base_aid)))
 
     return nil
 end

@@ -1,3 +1,7 @@
+2019-04-20 (v3.41)
+
+- Don't warn when can't find AbilityId.
+
 2019-04-17 (v3.40)
 
 - Remove debugging "HERE" message.  Oops.
