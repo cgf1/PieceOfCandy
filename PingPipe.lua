@@ -1,9 +1,10 @@
 setfenv(1, POC)
 local LMP = LibStub("LibMapPing")
 local LGPS = LibStub("LibGPS2", true)
+local GetAPIVersion = GetAPIVersion
 
-local TWOBYTES = 65536
-local ROUND = .5 / TWOBYTES
+local XY
+local ROUND
 
 local pingerr = function() end
 local show_errors = false
@@ -22,8 +23,9 @@ local max_ping
 
 local myname = GetUnitName("player")
 
+local tobytes
+
 local saved
-local sendword
 
 -- LIFO!
 local function unpack_ultpct(ctype, x)
@@ -66,10 +68,9 @@ local function on_map_ping(pingtype, pingtag)
 	return
     end
 
-    local input = math.floor((x + ROUND) * TWOBYTES) +
-		  (TWOBYTES * math.floor((y + ROUND) * TWOBYTES))
+    local input = math.floor((x + ROUND) * XY) + (XY * math.floor((y + ROUND) * XY))
 
-    local bytes = Comm.ToBytes(input)
+    local bytes = tobytes(input)
     local ctype = bytes[1]
     local timenow = GetTimeStamp()
     local name = GetUnitName(pingtag)
@@ -81,6 +82,7 @@ local function on_map_ping(pingtype, pingtag)
     local apid1, pct1, pos, apid2, pct2
     local fwctimer = 0
     local name
+    local watchme = ''
     if ctype == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(bytes[2])
 	name = 'COUNTDOWN'
@@ -104,6 +106,9 @@ local function on_map_ping(pingtype, pingtag)
 	name = 'ULTFIRED'
     elseif ctype == COMM_TYPE_PCTULT or ctype == COMM_TYPE_PCTULTPOS then
 	apid1, pct1, pos, apid2, pct2 =	 unpack_ultpct(ctype, data)
+	if Watching then
+	    watchme = string.format(" ult info: 0x%02x 0x%02x 0x%02x 0x%02x", bytes[1], bytes[2], bytes[3], bytes[4])
+	end
 	if ctype == COMM_TYPE_PCTULT then
 	    name = 'PCTULT'
 	else
@@ -115,7 +120,7 @@ local function on_map_ping(pingtype, pingtag)
     else
 	name = 'UNKNOWN'
     end
-    if name ~= 'UNKNOWN' then
+    if apid1 or fwctimer then
 	Player.New(pingtag, timenow, fwctimer, apid1, pct1, pos, apid2, pct2)
     end
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
@@ -123,34 +128,29 @@ local function on_map_ping(pingtype, pingtag)
     end
     if Watching then
 	local now = GetGameTimeMilliseconds()
-	watch('on_map_ping', string.format('%s %s delta %5.2f', name, pingtag, (now - before) / 1000))
+	watch('on_map_ping', string.format('%s %s delta %5.2f input 0x%08x%s', name, pingtag, (now - before) / 1000, input, watchme))
 	before = now
     end
 end
 
-function PingPipe.SendWord(word)
-    local x = (word % TWOBYTES) / TWOBYTES
-    local y = math.floor(word / TWOBYTES) / TWOBYTES
+function PingPipe.Send(...)
+    local bytes = {...}
+    local data = 0
+    local mul = 1
+    for i, v in ipairs(bytes) do
+	data = data + (mul * v)
+	mul = mul * 256
+    end
+
+    local x = (data % XY) / XY
+    local y = math.floor(data / XY) / XY
     if y == 0 then
-	y = .1 / TWOBYTES
+	y = 0.1 / XY
     end
 
     -- local before = GetGameTimeMilliseconds()
     mapop(PingMap, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
-    -- watch("PingPipe.SendWord", GetGameTimeMilliseconds() - before)
-end
-
-local sendword = PingPipe.SendWord
-function PingPipe.Send(...)
-    local bytes = {...}
-    local word = 0
-    local mul = 1
-    for i, v in ipairs(bytes) do
-	word = word + (mul * v)
-	mul = mul * 256
-    end
-
-    sendword(word)
+    -- watch("PingPipe.Send", GetGameTimeMilliseconds() - before)
 end
 
 -- Unload PingPipe
@@ -170,8 +170,15 @@ function PingPipe.Load()
     LMP:RegisterCallback("BeforePingAdded", on_map_ping)
 
     saved = Settings.SavedVariables
+    tobytes = Comm.ToBytes
 
     max_ping = Ult.MaxPing
+    if GetAPIVersion() >= 100027 then
+	XY = 100000
+    else
+	XY = 65536
+    end
+    ROUND = .5 / XY
 
     Slash("pingerr", "debugging: show all map ping errors",function()
 	show_errors = not show_errors

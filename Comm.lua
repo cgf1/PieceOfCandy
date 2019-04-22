@@ -7,17 +7,17 @@ local EVENT_MANAGER = EVENT_MANAGER
 local Swimlanes = Swimlanes
 local SOUNDS = SOUNDS
 
-COMM_MAGIC		= 0x0c
-COMM_TYPE_FWCAMPTIMER	= 0x01 + (COMM_MAGIC * 16)
-COMM_TYPE_COUNTDOWN	= 0x02 + (COMM_MAGIC * 16)
-COMM_TYPE_PCTULT	= 0x03 + (COMM_MAGIC * 16)
-COMM_TYPE_NEEDQUEST	= 0x04 + (COMM_MAGIC * 16)
-COMM_TYPE_MYVERSION	= 0x05 + (COMM_MAGIC * 16)
-COMM_TYPE_PCTULTPOS	= 0x06 + (COMM_MAGIC * 16)
-COMM_TYPE_KEEPALIVE	= 0x07 + (COMM_MAGIC * 16)
-COMM_TYPE_MAKEMELEADER	= 0x08 + (COMM_MAGIC * 16)
-COMM_TYPE_ULTFIRED	= 0x09 + (COMM_MAGIC * 16)
-COMM_TYPE_NEEDHELP	= 0x0a + (COMM_MAGIC * 16)
+COMM_MAGIC		= 0xc0
+COMM_TYPE_FWCAMPTIMER	= 0x01 + COMM_MAGIC
+COMM_TYPE_COUNTDOWN	= 0x02 + COMM_MAGIC
+COMM_TYPE_PCTULT	= 0x03 + COMM_MAGIC
+COMM_TYPE_NEEDQUEST	= 0x04 + COMM_MAGIC
+COMM_TYPE_MYVERSION	= 0x05 + COMM_MAGIC
+COMM_TYPE_PCTULTPOS	= 0x06 + COMM_MAGIC
+COMM_TYPE_KEEPALIVE	= 0x07 + COMM_MAGIC
+COMM_TYPE_MAKEMELEADER	= 0x08 + COMM_MAGIC
+COMM_TYPE_ULTFIRED	= 0x09 + COMM_MAGIC
+COMM_TYPE_NEEDHELP	= 0x0a + COMM_MAGIC
 
 COMM_ALL_PLAYERS	= 0
 
@@ -50,6 +50,7 @@ local Comm = Comm
 local ultix = GetUnitName("player")
 local comm
 local notify_when_not_grouped = false
+local tobytes
 
 local ultpct_mul2
 
@@ -107,10 +108,11 @@ end
 
 function Comm.ToBytes(n)
     local bytes = {}
-    for i = 1, 4 do
+    for i = 1, 3 do
 	bytes[i] = n % 256
 	n = math.floor(n / 256)
     end
+    bytes[4] = n
     return bytes
 end
 
@@ -129,7 +131,7 @@ local function ultpct(apid)
 	    pct = curpct
 	end
     end
-    return (((apid - 1) * 124) + pct)
+    return ((apid - 1) * 124) + pct
 end
 
 local counter = 0
@@ -230,13 +232,14 @@ local function on_update()
     if not sanity(now) then
 	return	-- Don't ping too quickly
     end
-    local bytes = Comm.ToBytes(send)
+    local bytes = tobytes(send)
     if Watching then
 	local now = GetGameTimeMilliseconds()
-	watch("on_update", string.format('%s counter %d, delta %d', name, counter, (now - before) / 1000))
+	watch("on_update", string.format('%s counter %d, delta %d, sending: 0x%02x %d', name, counter, (now - before) / 1000, cmd, send))
 	before = now
     end
     Comm.Send(cmd, bytes[1], bytes[2], bytes[3])
+    -- Comm.Send(cmd, send)
 end
 
 function Comm.IsActive()
@@ -340,6 +343,8 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
     if comm == nil then
 	Error(string.format("Unknown communication type: %s", saved.Comm))
     end
+
+    tobytes = Comm.ToBytes
 
     major = inmajor
     minor = inminor

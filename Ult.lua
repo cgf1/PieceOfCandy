@@ -89,7 +89,7 @@ end
 local function mkulttbl()
     local tbl = {}
     local iconlist = {}
-    for aid = 1, 120000 do
+    for aid = 1, 190000 do
 	if DoesAbilityExist(aid) then
 	    local cost, mechanic = GetAbilityCost(aid)
 	    local icon = GetAbilityIcon(aid)
@@ -137,6 +137,7 @@ local function create_ults()
 	[2] = "Sorcerer",
 	[3] = "Nightblade",
 	[4] = "Warden",
+	[5] = "Necromancer",
 	[6] = "Templar"
     }
 
@@ -335,11 +336,28 @@ local function create_ults()
 		Icon = '/esoui/art/icons/ability_psijic_001.dds'
 	    }
 	},
+	['Necromancer'] = {
+	    {
+		Ping = 32,
+		Name = 'COLOSSUS',
+		Icon = '/esoui/art/icons/ability_necromancer_006.dds'
+	    },
+	    {
+		Ping = 33,
+		Name = 'GOLIATH',
+		Icon = '/esoui/art/icons/ability_necromancer_012.dds'
+	    },
+	    {
+		Name = 'REANIMATE',
+		Ping = 34,
+		Icon = '/esoui/art/icons/ability_necromancer_018.dds'
+	    }
+	},
 	['POC'] = {
 	    {
 		Name = 'MIA',
+		Ping = 0,
 		Desc = 'POC: Incommunicado Player',
-		Ping = 32,
 		Aid = 'MIA',
 		Icon = MIAicon
 	    }
@@ -348,10 +366,14 @@ local function create_ults()
 
     -- Create tables indexed by different things
     local xltults, iconlist = mkulttbl()
+    local maxping = 0
     for class, x in pairs(ults) do
 	for _, group in pairs(x) do
+	    local ping
 	    if group.Aid then
 		byids[group.Aid] = group
+	    elseif (group.Ping > 31) and (GetAPIVersion() < 100027) then
+		group.Ping = 0
 	    else
 		local icon = group.Icon
 		local aid = xltults[icon]
@@ -366,14 +388,22 @@ local function create_ults()
 		    byids[aid] = group
 		end
 	    end
-	    bypings[group.Ping] = group
-	    if group.Ping > Ult.MaxPing then
-		Ult.MaxPing = group.Ping
+	    if group.Ping > 0 then
+		bypings[group.Ping] = group
+	    end
+	    if group.Ping > maxping then
+		maxping = group.Ping
 	    end
 	end
     end
-    mia = bypings[Ult.MaxPing]
+
+    maxping = maxping + 1
+    mia = byids['MIA']
     mia.IsMIA = true
+    mia.Ping = maxping
+    Ult.MaxPing = maxping
+    bypings[maxping] = mia
+
     local i = 0
     i = insert_group_table(bynames, ults, class, i)
     i = insert_group_table(bynames, ults, "Destruction Staff", i)

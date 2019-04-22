@@ -33,8 +33,6 @@ local GARBAGECOLLECT = 60 * 3
 local widget = nil
 local mvc = nil
 local cellpool = nil
-local namelen = 12
-local topleft = 25
 local swimlanerow
 
 local SWIMLANEULTMAX = 24
@@ -608,7 +606,7 @@ function Col:Info(row, ix)
     local sizex = icon_size[1]
     local sizey = icon_size[2]
     if saved.Style == 'Standard' and not self.Moused then
-	sizex = sizex + 75	-- room for text
+	sizex = sizex + 86	-- room for text
     else
 	sizex = sizex + 27
     end
@@ -1361,14 +1359,14 @@ function swimlanes.Initialize(major, minor, _saved)
     maxmias = maxping + (24 / nmiasrow) - 1
     local ultids = {}
     local maxult = maxping - 1
-    local newlaneids = {}
     -- make sure laneids are properly ordered
     for i = 1, maxult  do
-	if laneids[i] == 'MIA' then
+	local apid = laneids[i]
+	if apid == 'MIA' then
 	    table.remove(laneids, i)
 	    i = i - 1
-	elseif laneids[i] ~= nil then
-	    ultids[laneids[i]] = true
+	elseif apid ~= nil and not ultids[apid] then
+	    ultids[apid] = true
 	else
 	    for apid = 1, maxult do
 		if not ultids[apid] then
