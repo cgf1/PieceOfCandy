@@ -70,7 +70,7 @@ local function _init(_saved)
 	    {"keep", "-- no keep quest wanted --"},
 	    {"resource", "-- no resource quest wanted --"},
 	    {"kill", "-- no kill enemy quest wanted --"},
-	    {"conquest", "-- don't share conquest quest --"},
+	    {"conquest", "-- no conquest quest wanted --"},
 	    {"conquest", "Capture All 3 Towns"},
 	    {"conquest", "Capture Any Nine Resources"},
 	    {"conquest", "Capture Any Three Keeps"},
@@ -378,7 +378,7 @@ local function _init(_saved)
     if not saved.SetKeepResourceQuests and want['keep'] == OLDKEEP_IX and want['resource'] == OLDRESOURCE_IX then
 	want['keep'] = OLDKEEP_IX + 3
 	want['resource'] = OLDRESOURCE_IX + 3
-	Message('Quest requests for keep and resource has been reset', 'Requests for keep and resources quests has been set to "do not request".', 'Type /POC and choose "Automatically request XXX" if you want to continue to request Chalman mine and keep.')
+	Message('Quest requests for keep and resource have been reset', 'Requests for keep and resources quests has been set to "do not request".', 'Type /POC and choose "Automatically request XXX" if you want to continue to request Chalman mine and keep.')
     end
     saved.SetKeepResourceQuests = true
 
