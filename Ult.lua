@@ -69,7 +69,7 @@ end
 function Ult.Icons()
     local icons = {}
     for v in idpairs(bynames, 'Id', tmp) do
-	if v.Aid ~= 'MIA' then
+	if not v.IsMia then
 	    table.insert(icons, v.Icon)
 	end
     end
@@ -122,9 +122,11 @@ local function insert_group_table(to_table, from_table, from_key, i)
     local t = from_table[from_key]
     from_table[from_key] = nil
     for _, v in ipairs(t) do
-	to_table[v.Name] = v
-	i = i + 1
-	v.Id = i
+	if v.Ping ~= 0 then
+	    to_table[v.Name] = v
+	    i = i + 1
+	    v.Id = i
+	end
     end
     return i
 end
@@ -418,6 +420,7 @@ local function create_ults()
     i = insert_group_table(bynames, ults, "Vampire", i)
     i = insert_group_table(bynames, ults, "Werewolf", i)
     i = insert_group_table(bynames, ults, "Soul Magic", i)
+    i = insert_group_table(bynames, ults, "Psijic", i)
     for _, class in pairs(classes) do
 	if ults[class] ~= nil then
 	    i = insert_group_table(bynames, ults, class, i)

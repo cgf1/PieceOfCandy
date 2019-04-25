@@ -70,7 +70,7 @@ local function on_map_ping(pingtype, pingtag)
 
     local input = math.floor((x + ROUND) * XY) + (XY * math.floor((y + ROUND) * XY))
 
-    local bytes = tobytes(input)
+    local bytes = tobytes(input, 4)
     local ctype = bytes[1]
     local timenow = GetTimeStamp()
     local name = GetUnitName(pingtag)
@@ -173,7 +173,7 @@ function PingPipe.Load()
     tobytes = Comm.ToBytes
 
     max_ping = Ult.MaxPing
-    if GetAPIVersion() >= 100027 then
+    if true or GetAPIVersion() >= 100027 then
 	XY = 100000
     else
 	XY = 65536

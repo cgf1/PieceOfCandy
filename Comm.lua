@@ -52,7 +52,6 @@ local comm
 local notify_when_not_grouped = false
 local tobytes
 
-local ultpct_mul2
 
 local myults
 
@@ -106,13 +105,13 @@ function Comm.SendVersion()
     Comm.Send(COMM_TYPE_MYVERSION, major, minor, beta)
 end
 
-function Comm.ToBytes(n)
+function Comm.ToBytes(n, max)
     local bytes = {}
-    for i = 1, 3 do
+    for i = 1, max - 1 do
 	bytes[i] = n % 256
 	n = math.floor(n / 256)
     end
-    bytes[4] = n
+    bytes[max] = n
     return bytes
 end
 
@@ -232,10 +231,10 @@ local function on_update()
     if not sanity(now) then
 	return	-- Don't ping too quickly
     end
-    local bytes = tobytes(send)
+    local bytes = tobytes(send, 3)
     if Watching then
 	local now = GetGameTimeMilliseconds()
-	watch("on_update", string.format('%s counter %d, delta %d, sending: 0x%02x %d', name, counter, (now - before) / 1000, cmd, send))
+	watch("on_update", string.format('%s counter %d, delta %d, sending: 0x%02x 0x%02x 0x%02x 0x%02x', name, counter, (now - before) / 1000, cmd, unpack(bytes)))
 	before = now
     end
     Comm.Send(cmd, bytes[1], bytes[2], bytes[3])
@@ -351,7 +350,6 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
     beta = inbeta
     max_ping = Ult.MaxPing
     COMM_ULTPCT_MUL1 = max_ping * 124
-    ultpct_mul2 = COMM_ULTPCT_MUL1 ^ 2
 
     if saved.UpdateInterval == nil then
 	saved.UpdateInterval = 2000
