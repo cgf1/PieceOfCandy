@@ -7,19 +7,30 @@ local EVENT_MANAGER = EVENT_MANAGER
 local Swimlanes = Swimlanes
 local SOUNDS = SOUNDS
 
-COMM_MAGIC		= 0xc0
+COMM_MAGIC		= 90
 COMM_TYPE_FWCAMPTIMER	= 0x01 + COMM_MAGIC
 COMM_TYPE_COUNTDOWN	= 0x02 + COMM_MAGIC
 COMM_TYPE_PCTULT	= 0x03 + COMM_MAGIC
 COMM_TYPE_NEEDQUEST	= 0x04 + COMM_MAGIC
 COMM_TYPE_MYVERSION	= 0x05 + COMM_MAGIC
 COMM_TYPE_PCTULTPOS	= 0x06 + COMM_MAGIC
-COMM_TYPE_KEEPALIVE	= 0x07 + COMM_MAGIC
-COMM_TYPE_MAKEMELEADER	= 0x08 + COMM_MAGIC
-COMM_TYPE_ULTFIRED	= 0x09 + COMM_MAGIC
-COMM_TYPE_NEEDHELP	= 0x0a + COMM_MAGIC
+COMM_TYPE_MAKEMELEADER	= 0x07 + COMM_MAGIC
+COMM_TYPE_ULTFIRED	= 0x08 + COMM_MAGIC
+COMM_TYPE_NEEDHELP	= 0x09 + COMM_MAGIC
 
 COMM_ALL_PLAYERS	= 0
+
+local packing = {
+    [COMM_TYPE_FWCAMPTIMER] = {3},
+    [COMM_TYPE_COUNTDOWN] = {2},
+    [COMM_TYPE_PCTULT] = {4, 4},
+    [COMM_TYPE_NEEDQUEST] = {1, 3},
+    [COMM_TYPE_MYVERSION] = {2, 3, 2},
+    [COMM_TYPE_PCTULTPOS] = {4, 4},
+    [COMM_TYPE_MAKEMELEADER] = {},
+    [COMM_TYPE_ULTFIRED] = {6},
+    [COMM_TYPE_NEEDHELP] = {}
+}
 
 local update_interval
 local update_interveal_per_sec
@@ -43,6 +54,7 @@ local me
 Comm = {
     active = false,
     Name = "POC-Comm",
+    Packing = packing
 }
 Comm.__index = Comm
 
@@ -52,14 +64,11 @@ local comm
 local notify_when_not_grouped = false
 local tobytes
 
+local function emptyfunc() end
+
+local send = emptyfunc
 
 local myults
-
-function Comm.Send(...)
-    if comm and comm.active then
-	comm.Send(...)
-    end
-end
 
 function Comm.Ready()
     return comm ~= nil
@@ -102,7 +111,7 @@ function Comm.UltFired(n, p)
 end
 
 function Comm.SendVersion()
-    Comm.Send(COMM_TYPE_MYVERSION, major, minor, beta)
+    send(COMM_TYPE_MYVERSION, sendversion)
 end
 
 function Comm.ToBytes(n, max)
@@ -130,7 +139,7 @@ local function ultpct(apid)
 	    pct = curpct
 	end
     end
-    return ((apid - 1) * 124) + pct
+    return (124 * (apid - 1)) + pct
 end
 
 local counter = 0
@@ -145,15 +154,15 @@ local function sanity(now)
     lastupdate = now
 -- watch('sanity', 'sane', lu)
     if saved.CommSanity then
-	local lmy = now - PingPipe.lastmytime
+	local lmy = now - comm.lastmytime
 	watch("sanity", string.format('last update secs %d, since last ping %d, counter %d', lu, lmy, counter))
 	local lx = 3 * update_interval_per_sec
 	if (lu > lx) or (lmy < 30) or (counter < 10) then
 	    -- ok
-	elseif PingPipe.lastmytime == 0 then
+	elseif comm.lastmytime == 0 then
 	    Error("Haven't ever heard from myself")
 	else
-	    Error(string.format("Haven't heard from myself in %d seconds, last command: %02x, last update %d/%d seconds", lmy, PingPipe.lastmycomm, lu, lx))
+	    Error(string.format("Haven't heard from myself in %d seconds, last command: %02x, last update %d/%d seconds", lmy, comm.lastmycomm, lu, lx))
 	end
     end
     return true
@@ -173,7 +182,8 @@ end
 
 local old_queue = 0
 local before = 0
-local last_ult_ping = 0
+local last_ult_ping = {}
+local tosend = {}
 local function on_update()
     if not comm.active then
 	return
@@ -198,47 +208,58 @@ local function on_update()
     end
 
     local now = GetGameTimeMilliseconds()
-    local apid1pct1 = ultpct(myults[1])
     local queue = campaign.QueuePosition(false)
-    local send = COMM_ULTPCT_MUL1 * apid1pct1
     local ultf = ult_fired(now)
     local cmd
     local fwctimer = (GetNextForwardCampRespawnTime() / 1000) - GetFrameTimeSeconds()
     local name
+    local apid1pct1 = ultpct(myults[1])
     if IsUnitDead("player") and fwctimer > 0 then
+	tosend[1] = math.floor(fwctimer)
 	cmd = COMM_TYPE_FWCAMPTIMER
-	send = math.floor(fwctimer)
 	name = 'FWCAMPTIMER'
     elseif ultf ~= 0 then
+	tosend[1] = ultf
 	cmd = COMM_TYPE_ULTFIRED
-	send = ultf
 	name = 'ULTFIRED'
     elseif queue ~= old_queue then
-	send = send + queue
-	cmd = COMM_TYPE_PCTULTPOS
+	tosend[1] = apid1pct1
+	tosend[2] = queue
 	old_queue = queue
+	cmd = COMM_TYPE_PCTULTPOS
 	name = 'PCTULTPOS'
     else
-	send = send + ultpct(myults[2])
-	if send ~= last_ult_ping then
-	    last_ult_ping = send
+	tosend[1] = apid1pct1
+	tosend[2] = ultpct(myults[2])
+	local same = true
+	for i, x in ipairs(tosend) do
+	    if last_ult_ping[i] ~= x then
+		last_ult_ping[i] = x
+		same = false
+	    end
+	end
+	if not same then
+	    -- fall through
 	elseif (counter % keepalive_ping) ~= 0 then
 	    return
 	end
 	cmd = COMM_TYPE_PCTULT
 	name = 'PCTULT'
     end
-    if not sanity(now) then
+    if not send or not sanity(now) then
 	return	-- Don't ping too quickly
     end
-    local bytes = tobytes(send, 3)
     if Watching then
 	local now = GetGameTimeMilliseconds()
-	watch("on_update", string.format('%s counter %d, delta %d, sending: 0x%02x 0x%02x 0x%02x 0x%02x', name, counter, (now - before) / 1000, cmd, unpack(bytes)))
+	local s = ''
+	for _, x in ipairs(tosend) do
+	    s = s .. ' ' .. x
+	end
+
+	watch("on_update", string.format('%s counter %d, delta %d, sending: %s%s', name, counter, (now - before) / 1000, cmd, s))
 	before = now
     end
-    Comm.Send(cmd, bytes[1], bytes[2], bytes[3])
-    -- Comm.Send(cmd, send)
+    send(cmd, tosend)
 end
 
 function Comm.IsActive()
@@ -259,6 +280,9 @@ function Comm.Load(verbose)
 	lastpower = 0
 	lastult = 0
 	comm.Load()
+	sendversion = sendversion or {major, minor, beta}
+	Comm.Send = comm.Send
+	send = comm.Send
 	EVENT_MANAGER:RegisterForUpdate(Comm.Name, update_interval, on_update)
 	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED, function(_, unittag, stealth_state)
 	    if unittag == "player" and stealth_state ~= last_stealth_state then
@@ -291,6 +315,8 @@ function Comm.Unload(verbose)
 	say = "already off"
     else
 	comm.Unload()
+	Comm.Send = emptyfunc
+	send = emptyfunc
 	EVENT_MANAGER:UnregisterForUpdate(Comm.Name)
 	EVENT_MANAGER:UnregisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED)
 	EVENT_MANAGER:UnregisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE)
@@ -305,8 +331,8 @@ end
 local function commtype(s)
     local toset
     s = s:lower()
-    if s:find('pipe') ~= nil then
-	toset = PingPipe
+    if s:find('pipe') or s:find('mapcomm') then
+	toset = MapComm
     elseif s:find('ping') then
 	toset = MapPing
     elseif s == 'lgs' or s == 'libgroupsocket' then
@@ -328,8 +354,8 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
     saved.MapPing = nil
     Swimlanes = POC.Swimlanes
     myults = saved.MyUltId[ultix]
-    if saved.Comm == nil then
-	saved.Comm = 'PingPipe'
+    if saved.Comm == nil or saved.Comm == 'PingPipe' then
+	saved.Comm = 'MapComm'
     end
     if saved.OldCount then
 	saved.OldCount = nil
@@ -349,7 +375,6 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
     minor = inminor
     beta = inbeta
     max_ping = Ult.MaxPing
-    COMM_ULTPCT_MUL1 = max_ping * 124
 
     if saved.UpdateInterval == nil then
 	saved.UpdateInterval = 2000

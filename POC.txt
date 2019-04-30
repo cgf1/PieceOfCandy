@@ -31,7 +31,7 @@ Swimlane.xml
 POC0.lua
 LuaErrors.lua
 
-PingPipe.lua
+MapComm.lua
 Comm.lua
 
 Settings.lua

@@ -448,12 +448,21 @@ local function getmapindex(name)
 	return
     end
     local lname = name:lower()
-    for i = 1, GetNumMaps() do
-	if GetMapNameByIndex(i):lower() == lname then
-	    saved.MapIndex = i
-	    d("Setting reference map to " .. GetMapNameByIndex(i) .. " (" .. tostring(i) .. ")")
-	    return
+    local n
+    if tonumber(name) then
+	n = tonumber(name)
+    else
+	for i = 1, GetNumMaps() do
+	    if GetMapNameByIndex(i):lower() == lname then
+		n = i
+		break
+	    end
 	end
+    end
+    if n and n <= GetNumMaps() and GetMapNameByIndex(n) then
+	saved.MapIndex = n
+	Info(string.format("Setting reference map to %s(%d)", GetMapNameByIndex(n), n))
+	return
     end
     Error("unknown map - " .. name)
 end

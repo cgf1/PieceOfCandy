@@ -472,7 +472,7 @@ function Quest.Ping()
 	else
 	    local ix = want[cat]
 	    watch("Quest.Ping", "need", cat, ix)
-	    Comm.Send(COMM_TYPE_NEEDQUEST, COMM_ALL_PLAYERS, ix)
+	    Comm.Send(COMM_TYPE_NEEDQUEST, {COMM_ALL_PLAYERS, ix})
 	end
     end
 end
