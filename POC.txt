@@ -47,6 +47,7 @@ Countdown.lua
 Quest.lua
 Alert.lua
 Campaign.lua
+Stats.lua
 
 Test.lua
 

@@ -993,7 +993,9 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	    self = me
 	else
 	    self = {
+		Damage = 0,
 		DispName = {},
+		Heal = 0,
 		IsMe = false,
 		Pos = 0,
 		Tick = 0,
