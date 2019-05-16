@@ -23,6 +23,7 @@ local default = {
     },
     MIA = true,
     MapIndex = 30,	-- Vvardenfell
+    MapIndex2 = 32,	-- Summerset
     MyUltId = {
 	[ultix] = {}
     },
@@ -460,7 +461,7 @@ local function getmapindex(name)
 	end
     end
     if n and n <= GetNumMaps() and GetMapNameByIndex(n) then
-	saved.MapIndex = n
+	saved.MapIndex2 = n
 	Info(string.format("Setting reference map to %s(%d)", GetMapNameByIndex(n), n))
 	return
     end

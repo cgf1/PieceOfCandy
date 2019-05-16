@@ -10,8 +10,14 @@ local saved
 local group_members
 
 local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid)
-    local name = GetUnitName(uid)
-    local player = group_members[name]
+    if sname then
+	sname = sname:gsub('(.*)^.*', '%1')
+    else
+	return
+    end
+    watch('oncombat', 'aid_name', aid_name, 'sname', sname, 'stype', stype, 'tname', tname, 'ttype', ttype, 'hit', hit, 'power_type', power_type, 'damage_type', damage_type, 'log', log, 'suid', suid, 'tuid', tuid, 'aid', aid)
+    watch('oncombat', result, ACTION_RESULT_HEAL, ACTION_RESULT_CRITICAL_HEAL, ACTION_RESULT_DAMAGE, ACTION_RESULT_CRITICAL_DAMAGE)
+    local player = group_members[sname]
     -- Add toggle to include self heals, self damage (?)
     if not player or not player.IsMe or tuid == 'player' then
 	return
@@ -19,7 +25,7 @@ local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname,
     if result == ACTION_RESULT_HEAL or result == ACTION_RESULT_CRITICAL_HEAL then
 	player.Heal = player.Heal + hit
     elseif result == ACTION_RESULT_DAMAGE or result == ACTION_RESULT_CRITICAL_DAMAGE then
-	player.Damage = player.Damge + damage
+	player.Damage = player.Damage + hit
     end
 end
 

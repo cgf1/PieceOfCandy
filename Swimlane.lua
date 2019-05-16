@@ -83,7 +83,9 @@ Player = {
 Player.__index = Player
 
 local me = setmetatable({
+    Damage = 0,
     DispName = {},
+    Heal = 0,
     InRangeTime = 0,
     IsDead = false,
     IsMe = true,

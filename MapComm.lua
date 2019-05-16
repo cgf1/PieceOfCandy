@@ -48,7 +48,7 @@ end
 local function mapop(func, ...)
     local args = {...}
     LGPS:PushCurrentMap()
-    SetMapToMapListIndex(saved.MapIndex)
+    SetMapToMapListIndex(saved.MapIndex2)
     local x, y = func(unpack(args))
     if x ~= nil and y ~= nil and not LMP:IsPositionOnMap(x, y) then
 	x = -1

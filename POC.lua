@@ -65,6 +65,7 @@ local function initialize()
     Quest.Initialize(saved)
     Alert.Initialize(saved)
     Campaign.Initialize(saved)
+    Stats.Initialize(saved)
 
     -- Start talking, see?
     Comm.Initialize(major, minor, beta, saved)
@@ -72,6 +73,7 @@ local function initialize()
     if type(Test) == 'table' then
 	Test.Initialize(saved)
     end
+
 
     -- Initialize settings
     Settings.Initialize(version)
