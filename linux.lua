@@ -147,4 +147,4 @@ end
 
 dofile('addons/LibStub/LibStub/LibStub.lua')
 dofile('addons/LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0.lua')
-dofile('addons/LibMapPing/LibMapPing/LibMapPing.lua')
+dofile('addons/LibMapPing/LibMapPing.lua')

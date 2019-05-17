@@ -443,31 +443,6 @@ local function initialize_window(version)
     LAM:RegisterOptionControls("POCSettingsMainMenu", o)
 end
 
-local function getmapindex(name)
-    if name:len() == 0 then
-	d("Reference map is " ..  GetMapNameByIndex(saved.MapIndex) .. " (" .. tostring(saved.MapIndex) .. ")")
-	return
-    end
-    local lname = name:lower()
-    local n
-    if tonumber(name) then
-	n = tonumber(name)
-    else
-	for i = 1, GetNumMaps() do
-	    if GetMapNameByIndex(i):lower() == lname then
-		n = i
-		break
-	    end
-	end
-    end
-    if n and n <= GetNumMaps() and GetMapNameByIndex(n) then
-	saved.MapIndex2 = n
-	Info(string.format("Setting reference map to %s(%d)", GetMapNameByIndex(n), n))
-	return
-    end
-    Error("unknown map - " .. name)
-end
-
 function Settings.GetSaved()
     saved = ZO_SavedVars:NewAccountWide(Settings.Name, SETTINGS_VERSION, nil, default)
     Settings.SavedVariables = saved
@@ -505,6 +480,6 @@ function Settings.Initialize(version)
 	    set_style(style)
 	end
     end)
-    Slash("map", "set map to use for communication", getmapindex)
+    Slash("map", "set map to use for communication", MapComm.MapIndex)
     Slash("cols", "set max number of columns to display", set_max_cols)
 end

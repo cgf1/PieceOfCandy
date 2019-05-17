@@ -26,6 +26,8 @@ local myname = GetUnitName("player")
 local saved
 local signif
 local fsignif
+local mapindex
+local dispatch
 
 -- LIFO!
 local function unpack_ultpct(cmd, data)
@@ -45,10 +47,10 @@ local function unpack_ultpct(cmd, data)
     return apid1, pct1, pos, apid2, pct2
 end
 
-local function mapop(func, ...)
+local function mapop(func, mapindex, ...)
     local args = {...}
     LGPS:PushCurrentMap()
-    SetMapToMapListIndex(saved.MapIndex2)
+    SetMapToMapListIndex(mapindex)
     local x, y = func(unpack(args))
     if x ~= nil and y ~= nil and not LMP:IsPositionOnMap(x, y) then
 	x = -1
@@ -59,7 +61,7 @@ local function mapop(func, ...)
 end
 
 local function unpacker(x, y, data)
-    local xy = x .. y
+    local xy = string.format(fsignif, x + ROUND):sub(3) .. string.format(fsignif, y + ROUND):sub(3)
     cmd = tonumber(xy:sub(1, 2))
     local packing = Comm.Packing[cmd]
     if not packing then
@@ -77,82 +79,130 @@ local function unpacker(x, y, data)
     return cmd, data
 end
 
+local OXY = 65536
+local OROUND = .5 / OXY
+local OCMDOFF = 102
+local function ounpacker(x, y, data)
+    local n = math.floor((x + OROUND) * OXY) + (OXY * math.floor((y + OROUND) * OXY))
+    watch('ounpacker', string.format("0x%08x", n))
+    for i = 1, 4 do
+	data[i] = n % 256
+	n = math.floor(n / 256)
+    end
+    local cmd = table.remove(data, 1) - OCMDOFF
+    return cmd, data
+end
+
+local OCOMM_ULTPCT_MUL1 = 30 * 124
+local function ounpack_ultpct(cmd, data)
+    local x = 0
+    for i = #data, 1, -1 do
+	x = (x * 256) + data[i]
+    end
+    local lower = x % OCOMM_ULTPCT_MUL1
+    local upper = math.floor(x / OCOMM_ULTPCT_MUL1)
+    local pct1 = upper % 124
+    local apid1 = math.floor(upper / 124) + 1
+    local apid2, pct2, pos
+    if cmd ~= COMM_TYPE_PCTULT then
+	pos = lower
+    else
+	pct2 = lower % 124
+	apid2 = math.floor(lower / 124) + 1
+	pos = 0
+    end
+    if apid2 == 30 then
+	apid2 = max_ping
+    end
+    return apid1, pct1, pos, apid2, pct2
+end
 
 -- Called on map ping from LibMapPing
 --
 local before = 0
 local data = {}
+local sawold = 0
+local sendold = false
 local function on_map_ping(pingtype, pingtag)
     if pingtype ~= MAP_PIN_TYPE_PING then
 	return
     end
-    local x, y = mapop(LMP.GetMapPing, LMP, pingtype, pingtag)
-    if x < 0 then
-	return
-    end
-    local sx = string.format(fsignif, x + ROUND):sub(3)
-    local sy = string.format(fsignif, y + ROUND):sub(3)
-
-    local name
-    local watchme = ''
-    local cmd, data = unpacker(sx, sy, data)
-    if cmd then
-	local timenow = GetTimeStamp()
-	if name == myname then
-	    MapComm.lastmytime = timenow
-	    MapComm.lastmycomm = cmd
-	end
-	local apid1, pct1, pos, apid2, pct2
-	local fwctimer = 0
-	if cmd == COMM_TYPE_COUNTDOWN then
-	    Countdown.Start(data[1])
-	    name = 'COUNTDOWN'
-	elseif cmd == COMM_TYPE_NEEDQUEST then
-	    Quest.Process(pingtag, data[1], data[2])
-	    name = 'NEEDQUEST'
-	elseif cmd == COMM_TYPE_MYVERSION then
-	    Player.SetVersion(pingtag, data[1], data[2], data[3])
-	    name = 'MYVERSION'
-	elseif cmd == COMM_TYPE_KEEPALIVE then
-	    Player.New(pingtag, timenow)
-	    name = 'KEEPALIVE'
-	elseif cmd == COMM_TYPE_MAKEMELEADER then
-	    Player.MakeLeader(pingtag)
-	    name = 'MAKEMELEADER'
-	elseif cmd == COMM_TYPE_NEEDHELP then
-	    Alert.NeedsHelp(pingtag)
-	    name = 'NEEDSHELP'
-	elseif cmd == COMM_TYPE_ULTFIRED then
-	    Alert.UltFired(pingtag, data[1])
-	    name = 'ULTFIRED'
-	elseif cmd == COMM_TYPE_PCTULT or cmd == COMM_TYPE_PCTULTPOS then
-	    apid1, pct1, pos, apid2, pct2 =	 unpack_ultpct(cmd, data)
-	    if Watching then
-		watchme = string.format(" ult info: apid1 %d, pct1 %d, pos %d, apid2 %d, pct2 %d", apid1, pct1, pos, apid2, pct2)
-	    end
-	    if cmd == COMM_TYPE_PCTULT then
-		name = 'PCTULT'
-	    else
-		name = 'PCULTPOS'
-	    end
-	elseif cmd == COMM_TYPE_FWCAMPTIMER then
-	    fwctimer = data
-	    name = 'FWCAMPTIMER'
-	else
-	    name = 'UNKNOWN'
-	end
-	if apid1 or fwctimer then
-	    Player.New(pingtag, timenow, fwctimer, apid1, pct1, pos, apid2, pct2)
-	end
-    end
+    local x, y = mapop(LMP.GetMapPing, mapindex, LMP, pingtype, pingtag)
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
 	LMP:SuppressPing(pingtype, pingtag)
     end
-    if Watching and name then
-	local now = GetGameTimeMilliseconds()
-	watch('on_map_ping', string.format('%s %s delta %5.2f input %s %s%s', name, pingtag, (now - before) / 1000, sx, sy, watchme))
-	before = now
+
+    local unpdata, unppct
+    local now = GetTimeStamp()
+    if x >= 0 then
+	unpdata = unpacker
+	unppct = unpack_ultpct
+	if (now - sawold) > 20 then
+	    sendold = false
+	end
+    else 
+	if pingtag == Me.PingTag then
+	    return
+	end
+	x, y = mapop(LMP.GetMapPing, saved.MapIndex, LMP, pingtype, pingtag)
+	if x < 0 then
+	    return
+	end
+	unpdata = ounpacker
+	unppct = ounpack_ultpct
+	sawold = now
+	sendold = true
     end
+    local cmd, data = unpdata(x, y, data)
+    if cmd then
+	local before, name, watchme = dispatch(pingtag, cmd, data, unppct)
+	if Watching and name then
+	    local now = GetGameTimeMilliseconds()
+	    watch('on_map_ping', string.format('%s %s delta %5.2f input %f %f%s', name, pingtag, (now - before) / 1000, x, y, watchme))
+	    before = now
+	end
+    end
+end
+
+local function oultpct(apidpct)
+    if math.floor(apidpct / 124) >= 30 then
+	apidpct = (29 * 124) + (apidpct % 124)
+    end
+    return apidpct
+end
+
+local function osend(...)
+    local raw = {...}
+    if raw[1] == COMM_TYPE_PCTULT or raw[1] == COMM_TYPE_PCTULTPOS then
+	local word = oultpct(raw[2]) * OCOMM_ULTPCT_MUL1
+	if raw[1] == COMM_TYPE_PCTULT then
+	    raw[3] = oultpct(raw[3])
+	end
+	word = word + raw[3]
+	for i = 2, 4 do
+	    raw[i] = word % 256
+	    word = math.floor(word / 256)
+	end
+    end
+
+    raw[1] = raw[1] + OCMDOFF
+
+    local data = 0
+    local mul = 1
+    for _, v in ipairs(raw) do
+	data = data + (mul * v)
+	mul = mul * 256
+    end
+
+    local x = (data % OXY) / OXY
+    local y = math.floor(data / OXY) / OXY
+    if y == 0 then
+	y = 0.1 / OXY
+    end
+
+    -- local before = GetGameTimeMilliseconds()
+    mapop(PingMap, saved.MapIndex, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
+    -- watch("PingPipe.Send", GetGameTimeMilliseconds() - before)
 end
 
 local fmt = {
@@ -168,6 +218,10 @@ local fmt = {
     '%010d'
 }
 function MapComm.Send(cmd, send)
+    if sendold then
+	zo_callLater(function () osend(cmd, unpack(send)) end, 1000)
+    end
+
     local s = string.format('%02d', cmd)
     local packing = Comm.Packing[cmd]
     for i, wid in ipairs(packing) do
@@ -187,8 +241,35 @@ function MapComm.Send(cmd, send)
     end
 
     -- local before = GetGameTimeMilliseconds()
-    mapop(PingMap, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
+    mapop(PingMap, mapindex, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
     -- watch("MapComm.Send", GetGameTimeMilliseconds() - before)
+end
+
+function MapComm.MapIndex(name)
+    if name:len() == 0 then
+	Info("Reference map is " ..  GetMapNameByIndex(saved.MapIndex2) .. " (" .. tostring(saved.MapIndex2) .. ")")
+	Info("Old reference map is " ..	 GetMapNameByIndex(saved.MapIndex) .. " (" .. tostring(saved.MapIndex) .. ")")
+	return
+    end
+    local lname = name:lower()
+    local n
+    if tonumber(name) then
+	n = tonumber(name)
+    else
+	for i = 1, GetNumMaps() do
+	    if GetMapNameByIndex(i):lower() == lname then
+		n = i
+		break
+	    end
+	end
+    end
+    if n and n <= GetNumMaps() and GetMapNameByIndex(n) then
+	mapindex = n
+	saved.MapIndex2 = n
+	Info(string.format("Setting reference map to %s(%d)", GetMapNameByIndex(n), n))
+	return
+    end
+    Error(string.format("unknown map - %s", name))
 end
 
 -- Unload MapComm
@@ -233,6 +314,8 @@ function MapComm.Load()
 	end
 	Info(string.format("show_errors: %s", tostring(show_errors)))
     end)
+    mapindex = saved.MapIndex2
+    dispatch = Comm.Dispatch
     Slash('signify', 'whatever', function(n)
 	n = tonumber(n)
 	if n ~= nil then

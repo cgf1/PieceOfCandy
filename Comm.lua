@@ -266,6 +266,60 @@ function Comm.IsActive()
     return (comm ~= nil and comm.active) or load_later
 end
 
+function Comm.Dispatch(pingtag, cmd, data, unppct)
+    local name
+    local watchme = ''
+    local before = GetGameTimeMilliseconds()
+    local timenow = GetTimeStamp()
+    if name == myname then
+	comm.lastmytime = timenow
+	comm.lastmycomm = cmd
+    end
+    local apid1, pct1, pos, apid2, pct2
+    local fwctimer = 0
+    if cmd == COMM_TYPE_COUNTDOWN then
+	Countdown.Start(data[1])
+	name = 'COUNTDOWN'
+    elseif cmd == COMM_TYPE_NEEDQUEST then
+	Quest.Process(pingtag, data[1], data[2])
+	name = 'NEEDQUEST'
+    elseif cmd == COMM_TYPE_MYVERSION then
+	Player.SetVersion(pingtag, data[1], data[2], data[3])
+	name = 'MYVERSION'
+    elseif cmd == COMM_TYPE_KEEPALIVE then
+	Player.New(pingtag, timenow)
+	name = 'KEEPALIVE'
+    elseif cmd == COMM_TYPE_MAKEMELEADER then
+	Player.MakeLeader(pingtag)
+	name = 'MAKEMELEADER'
+    elseif cmd == COMM_TYPE_NEEDHELP then
+	Alert.NeedsHelp(pingtag)
+	name = 'NEEDSHELP'
+    elseif cmd == COMM_TYPE_ULTFIRED then
+	Alert.UltFired(pingtag, data[1])
+	name = 'ULTFIRED'
+    elseif cmd == COMM_TYPE_PCTULT or cmd == COMM_TYPE_PCTULTPOS then
+	apid1, pct1, pos, apid2, pct2 =	 unppct(cmd, data)
+	if Watching then
+	    watchme = string.format(" ult info: apid1 %d, pct1 %d, pos %d, apid2 %d, pct2 %d", apid1, pct1, pos, apid2, pct2)
+	end
+	if cmd == COMM_TYPE_PCTULT then
+	    name = 'PCTULT'
+	else
+	    name = 'PCULTPOS'
+	end
+    elseif cmd == COMM_TYPE_FWCAMPTIMER then
+	fwctimer = data
+	name = 'FWCAMPTIMER'
+    else
+	name = 'UNKNOWN'
+    end
+    if apid1 or fwctimer then
+	Player.New(pingtag, timenow, fwctimer, apid1, pct1, pos, apid2, pct2)
+    end
+    return before, name, watchme
+end
+
 local last_stealth_state
 local last_combat_state
 function Comm.Load(verbose)
@@ -333,12 +387,10 @@ local function commtype(s)
     s = s:lower()
     if s:find('pipe') or s:find('mapcomm') then
 	toset = MapComm
-    elseif s:find('ping') then
-	toset = MapPing
     elseif s == 'lgs' or s == 'libgroupsocket' then
 	toset = LGS
     else
-	return nil
+	toset = MapComm
     end
     saved.Comm = toset.Name
     return toset

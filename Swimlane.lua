@@ -1497,7 +1497,7 @@ function swimlanes.Initialize(major, minor, _saved)
     end)
     Slash("dump", "debugging: show collected information for specified player", function(x) dumpme = x end)
     Slash("leader", "make me group leader", function()
-	Comm.Send(COMM_TYPE_MAKEMELEADER)
+	Comm.Send(COMM_TYPE_MAKEMELEADER, {})
     end)
     Slash("record", "turn recording of interesting statistics on/off", function(x)
 	if x == "no" or x == "false" or x == "off" then

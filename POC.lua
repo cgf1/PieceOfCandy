@@ -3,7 +3,7 @@ Name = "POC"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.42b1'
+local version = '4.00b1'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'

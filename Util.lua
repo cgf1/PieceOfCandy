@@ -47,7 +47,7 @@ function xxx(...)
 end
 
 function HERE(...)
-    xxx("|c00ffff", "HERE", ...)
+    xxx('|c00ffffXXX ', ...)
 end
 
 local watchmen
