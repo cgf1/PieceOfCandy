@@ -84,12 +84,20 @@ local OROUND = .5 / OXY
 local OCMDOFF = 102
 local function ounpacker(x, y, data)
     local n = math.floor((x + OROUND) * OXY) + (OXY * math.floor((y + OROUND) * OXY))
+    local orig_n = n
     watch('ounpacker', string.format("0x%08x", n))
     for i = 1, 4 do
 	data[i] = n % 256
 	n = math.floor(n / 256)
     end
+    if data[1] > 0xc6 then
+	data[1] = data[1] - 1
+    end
     local cmd = table.remove(data, 1) - OCMDOFF
+    if cmd == COMM_TYPE_ULTFIRED then
+	data[1] = math.floor(orig_n / 256)
+    end
+    watch('ounpacker1', string.format('%d 0x%0x 0x%0x 0x%0x', cmd, data[1], data[2], data[3]))
     return cmd, data
 end
 
@@ -185,13 +193,21 @@ local function osend(...)
 	end
     end
 
+    local cmd = raw[1]
     raw[1] = raw[1] + OCMDOFF
+    if raw[1] > 0xc6 then
+	raw[1] = raw[1] + 1
+    end
 
     local data = 0
-    local mul = 1
-    for _, v in ipairs(raw) do
-	data = data + (mul * v)
-	mul = mul * 256
+    if	cmd == COMM_TYPE_ULTFIRED then
+	data = (raw[2] * 256) + raw[1]
+    else
+	local mul = 1
+	for _, v in ipairs(raw) do
+	    data = data + (mul * v)
+	    mul = mul * 256
+	end
     end
 
     local x = (data % OXY) / OXY

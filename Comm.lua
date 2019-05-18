@@ -487,6 +487,5 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
 	end
 	Info('Sanity is: ', saved.CommSanity)
     end)
-
     RegClear(clearernow)
 end
