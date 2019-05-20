@@ -141,7 +141,7 @@ local testgroup = {
 	["IsLeader"] = false,
 	["Pos"] = 0,
 	["Online"] = true,
-	["Ults"] = 
+	["Ults"] =
 	{
 	    [16] = 58,
 	    [30] = 0,
@@ -702,7 +702,7 @@ function Test.IsUnitOnline(x)
 end
 
 local function on_update()
-    
+
 end
 
 function Test.Initialize(_saved)

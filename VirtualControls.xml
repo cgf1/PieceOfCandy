@@ -4,7 +4,7 @@
     <Font name="SwimlaneListHeaderFont" font="$(BOLD_FONT)|21|soft-shadow-thin"/>
     <Font name="UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
     <Font name="UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
-  
+
     <Controls>
         <Control name="POC_Alert" hidden="true" layer="OVERLAY" level="1" virtual="true">
             <Anchor point="CENTER" relativeTo="GuiRoot" relativepoint="CENTER" />
@@ -35,16 +35,16 @@
             horizontalAlignment="LEFT"
             virtual="true"
         />
-    
+
         <Label
-            name="SwimlaneListHeaderLabel" 
-            width="75" 
-            height="25" 
-            font="UltHeaderFont" 
-            inheritAlpha="true" 
+            name="SwimlaneListHeaderLabel"
+            width="75"
+            height="25"
+            font="UltHeaderFont"
+            inheritAlpha="true"
             color="FFFFFF"
-            verticalAlignment="TEXT_ALIGN_TOP" 
-            horizontalAlignment="TEXT_ALIGN_LEFT" 
+            verticalAlignment="TEXT_ALIGN_TOP"
+            horizontalAlignment="TEXT_ALIGN_LEFT"
             virtual="true"
         />
 
@@ -73,7 +73,7 @@
             text="Label"
             virtual="true"
         />
-    
+
         <Control name="MovableBackdropControl" virtual="true" hidden="true">
             <Controls>
                 <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.1" >

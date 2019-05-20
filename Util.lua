@@ -131,7 +131,7 @@ local function setwatch(x)
     Info("watch", what, '=', todo)
 end
 
-initwatch = function() 
+initwatch = function()
     if not saved.WatchMen then
 	saved.WatchMen = {}
     end

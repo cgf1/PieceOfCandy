@@ -148,7 +148,7 @@ local function on_map_ping(pingtype, pingtag)
 	if (now - sawold) > 20 then
 	    sendold = false
 	end
-    else 
+    else
 	if pingtag == Me.PingTag then
 	    return
 	end
@@ -181,9 +181,13 @@ end
 
 local function osend(...)
     local raw = {...}
-    if raw[1] == COMM_TYPE_PCTULT or raw[1] == COMM_TYPE_PCTULTPOS then
+    local cmd = raw[1]
+    if cmd > COMM_TYPE_OLD then
+        return
+    end
+    if cmd == COMM_TYPE_PCTULT or cmd == COMM_TYPE_PCTULTPOS then
 	local word = oultpct(raw[2]) * OCOMM_ULTPCT_MUL1
-	if raw[1] == COMM_TYPE_PCTULT then
+	if cmd == COMM_TYPE_PCTULT then
 	    raw[3] = oultpct(raw[3])
 	end
 	word = word + raw[3]
@@ -193,7 +197,6 @@ local function osend(...)
 	end
     end
 
-    local cmd = raw[1]
     raw[1] = raw[1] + OCMDOFF
     if raw[1] > 0xc6 then
 	raw[1] = raw[1] + 1
