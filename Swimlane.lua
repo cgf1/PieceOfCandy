@@ -1353,9 +1353,8 @@ function swimlanes.Initialize(major, minor, _saved)
     mvc = widget:GetNamedChild("MovableControl")
     widget:SetHidden(true)
     fragment = ZO_SimpleSceneFragment:New(widget)
-    myults = saved.MyUltId[ultix]
+    myults = saved.MyUltId[ultix] or {}
     ultm_isactive = UltMenu.IsActive
-    laneids = saved.LaneIds
     if myults[1] == nil then
 	myults[1] = maxping
     end
@@ -1364,6 +1363,7 @@ function swimlanes.Initialize(major, minor, _saved)
     local ultids = {}
     local maxult = maxping - 1
     -- make sure laneids are properly ordered
+    laneids = saved.LaneIds
     for i = 1, maxult  do
 	local apid = laneids[i]
 	if apid == 'MIA' then
@@ -1388,36 +1388,41 @@ function swimlanes.Initialize(major, minor, _saved)
     Cols:New()
 
     group_members = saved.GroupMembers
+    local grouped = IsUnitGrouped('player')
     for n, v in pairs(group_members) do
-	if n == myname then
-	    v =	 ZO_DeepTableCopy(v, me)
-	end
-	setmetatable(v, Player)
-	if not v.UltMain or v.UltMain == 0 then
-	    v.UltMain = maxping
-	end
-	if not v.Ults[v.UltMain] then
-	    v.UltMain = 0
-	end
-	if v.Pos == nil then
-	    v.Pos = 0
-	end
-	if not v.DispName or v.DispName ~= 'table' then
-	    v.DispName = {}
+	if not grouped or GetUnitName(v.PingTag) ~= name then
+	    group_members[n] = nil
 	else
-	    v.DispName[true] = nil
-	    v.DispName[false] = nil
-	end
-	local ults = {v.UltMain}
-	for apid, _ in pairs(v.Ults) do
-	    if apid ~= v.UltMain and apid ~= maxping then
-		ults[#ults + 1] = apid
-		break
+	    if n == myname then
+		v = ZO_DeepTableCopy(v, me)
 	    end
-	end
-	v:add_colult(n, unpack(ults))
+	    setmetatable(v, Player)
+	    if not v.UltMain or v.UltMain == 0 then
+		v.UltMain = maxping
+	    end
+	    if not v.Ults[v.UltMain] then
+		v.UltMain = 0
+	    end
+	    if v.Pos == nil then
+		v.Pos = 0
+	    end
+	    if not v.DispName or v.DispName ~= 'table' then
+		v.DispName = {}
+	    else
+		v.DispName[true] = nil
+		v.DispName[false] = nil
+	    end
+	    local ults = {v.UltMain}
+	    for apid, _ in pairs(v.Ults) do
+		if apid ~= v.UltMain and apid ~= maxping then
+		    ults[#ults + 1] = apid
+		    break
+		end
+	    end
+	    v:add_colult(n, unpack(ults))
 
-	group_members[n] = v
+	    group_members[n] = v
+	end
     end
     me.UltMain = myults[1]
     for n in pairs(me.Ults) do
