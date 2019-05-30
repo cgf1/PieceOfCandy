@@ -9,7 +9,7 @@
 ## Author: |c66ffff|Valandil|r
 ## Description: PVP Helper
 ## SavedVariables: POCSettings
-## DependsOn: LibAddonMenu-2.0 LibGPS LibMapPing LibStub
+## DependsOn: LibAddonMenu-2.0 LibGPS LibMapPing
 ## OptionalDependsOn: tom
 ## OptionalDependsOn: pChat
 
@@ -47,7 +47,6 @@ Countdown.lua
 Quest.lua
 Alert.lua
 Campaign.lua
-Stats.lua
 
 Test.lua
 

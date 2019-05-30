@@ -1,3 +1,21 @@
+2019-04-20 (v3.42)
+
+- Bump API version for Elsewyr.
+
+- Delete old group members more reliably to avoid ghosts of previous group
+showing up inappropriately.
+
+- Add support for all known ultimates.
+
+- Change ping location to 'Summerset' to avoid interference with pervious
+versions of POC.
+
+- Stop using LibStub for libraries.
+
+- This version contains compability changes to allow it to interoperate with
+previous versions.  It will be disappearing soon since it makes POC slightly
+slower.
+
 2019-04-20 (v3.41)
 
 - Don't warn when can't find AbilityId.

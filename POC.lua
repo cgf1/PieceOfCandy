@@ -65,7 +65,7 @@ local function initialize()
     Quest.Initialize(saved)
     Alert.Initialize(saved)
     Campaign.Initialize(saved)
-    Stats.Initialize(saved)
+    -- Stats.Initialize(saved)
 
     -- Start talking, see?
     Comm.Initialize(major, minor, beta, saved)

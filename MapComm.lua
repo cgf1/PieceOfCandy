@@ -1,6 +1,6 @@
 setfenv(1, POC)
-local LMP = LibStub("LibMapPing")
-local LGPS = LibStub("LibGPS2", true)
+local LMP = LibMapPing
+local LGPS = LibGPS2
 local GetAPIVersion = GetAPIVersion
 
 local XY
@@ -183,7 +183,7 @@ local function osend(...)
     local raw = {...}
     local cmd = raw[1]
     if cmd > COMM_TYPE_OLD then
-        return
+	return
     end
     if cmd == COMM_TYPE_PCTULT or cmd == COMM_TYPE_PCTULTPOS then
 	local word = oultpct(raw[2]) * OCOMM_ULTPCT_MUL1

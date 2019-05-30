@@ -122,11 +122,10 @@ function Slash(name, help, func)
     SLASH_COMMANDS[name] = func
 end
 
-local lam = LibStub("LibAddonMenu-2.0")
 SLASH_COMMANDS["/poc"] = function(x)
     local c, rest = string.match(x, "([^ ]+)%s*(.*)")
     if c == nil or c:len() == 0 then
-	lam:OpenToPanel(POC.Panel)
+	LibAddonMenu2:OpenToPanel(POC.Panel)
 	return
     end
     if cmds[c] == nil then
