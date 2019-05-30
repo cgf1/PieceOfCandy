@@ -419,7 +419,7 @@ local function initialize_window(version)
 	end
     }
 
-    local LAM = LibStub("LibAddonMenu-2.0")
+    local LAM = LibAddonMenu2
     local manager = GetAddOnManager()
     local name, title, author, description
     for i = 1, manager:GetNumAddOns() do
