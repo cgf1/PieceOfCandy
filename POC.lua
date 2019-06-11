@@ -3,7 +3,7 @@ Name = "POC"
 
 LANG = GetCVar("Language.2")
 
-local version = '3.42'
+local version = '4.0b2'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
@@ -65,7 +65,7 @@ local function initialize()
     Quest.Initialize(saved)
     Alert.Initialize(saved)
     Campaign.Initialize(saved)
-    -- Stats.Initialize(saved)
+    Stats.Initialize(saved)
 
     -- Start talking, see?
     Comm.Initialize(major, minor, beta, saved)

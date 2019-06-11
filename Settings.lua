@@ -32,6 +32,7 @@ local default = {
     Quests = {},
     RelaxedCampaignAccept = false,
     ShareQuests = true,
+    ShareStats = false,
     ShowUnusedCols = false,
     Style = "Standard",
     SwimlaneMax = 24,
@@ -278,6 +279,16 @@ local function initialize_window(version)
     o[#o + 1] = {
 	type = "divider",
 	name = "DividerWeStand"
+    }
+    o[#o + 1] = {
+	type = "checkbox",
+	name = "Automatically share damage/heal statistics",
+	tooltip = "Automatically share damage or healing done with other people in your group",
+	getFunc = function()
+	    return saved.ShareStats
+	end,
+	setFunc = Stats.ShareThem,
+	default = default.ShareStats
     }
     o[#o + 1] = {
 	type = "checkbox",

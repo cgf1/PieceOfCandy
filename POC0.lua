@@ -106,6 +106,7 @@ cmds.help = {
 }
 SLASH_COMMANDS["/pochelp"] = pochelp
 
+local LSC = LibSlashCommander
 function Slash(name, help, func)
     if func == nil then
 	cmds[name] = nil
@@ -119,10 +120,14 @@ function Slash(name, help, func)
     if name:sub(1, 1) ~= '/' then
 	name = "/poc" .. name
     end
-    SLASH_COMMANDS[name] = func
+    if LSC then
+	LSC:Register(name, func, "POC: " .. help)
+    else
+	SLASH_COMMANDS[name] = func
+    end
 end
 
-SLASH_COMMANDS["/poc"] = function(x)
+Slash('/poc', 'show POC settings screen', function(x)
     local c, rest = string.match(x, "([^ ]+)%s*(.*)")
     if c == nil or c:len() == 0 then
 	LibAddonMenu2:OpenToPanel(POC.Panel)
@@ -133,7 +138,7 @@ SLASH_COMMANDS["/poc"] = function(x)
 	return
     end
     cmds[c].Func(rest)
-end
+end)
 
 Slash("/leave", "leave group", function () GroupLeave() end)
 

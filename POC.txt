@@ -10,8 +10,7 @@
 ## Description: PVP Helper
 ## SavedVariables: POCSettings
 ## DependsOn: LibAddonMenu-2.0 LibGPS LibMapPing
-## OptionalDependsOn: tom
-## OptionalDependsOn: pChat
+## OptionalDependsOn: LibSlashCommander pChat tom
 
 POCstats/POCstats.txt
 
@@ -27,6 +26,7 @@ Bindings.xml
 Countdown.xml
 MessageBox.xml
 Swimlane.xml
+Stats.xml
 
 POC0.lua
 LuaErrors.lua
@@ -47,6 +47,7 @@ Countdown.lua
 Quest.lua
 Alert.lua
 Campaign.lua
+Stats.lua
 
 Test.lua
 

@@ -986,10 +986,10 @@ function Player.ResetQuestShare()
 end
 
 local tmp_player = {}
-function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
+function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2, damage, heal)
     local name = GetUnitName(pingtag)
     local self = group_members[name]
-    watch("Player.New", name, pingtag, timestamp, apid1, pct1, apid2, pct2, pos, self)
+    watch("Player.New", name, pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2, pos, damage, heal)
     if self == nil then
 	if name == myname then
 	    self = me
@@ -1056,8 +1056,14 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2)
 	self.DispName[false] = nil
     end
 
-    if fwctimer ~= nil then
+    if fwctimer then
 	player.FwCampTimer = fwctimer
+    end
+    if damage then
+	player.Damage = player.Damage + damage
+    end
+    if heal then
+	player.Heal = Player.Heal + heal
     end
     if apid1 ~= nil then
 	-- Coming from on_map_ping

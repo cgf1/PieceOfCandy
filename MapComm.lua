@@ -182,7 +182,7 @@ end
 local function osend(...)
     local raw = {...}
     local cmd = raw[1]
-    if cmd > COMM_TYPE_OLD then
+    if cmd < COMM_MAGIC then
 	return
     end
     if cmd == COMM_TYPE_PCTULT or cmd == COMM_TYPE_PCTULTPOS then
@@ -221,7 +221,7 @@ local function osend(...)
 
     -- local before = GetGameTimeMilliseconds()
     mapop(PingMap, saved.MapIndex, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
-    -- watch("PingPipe.Send", GetGameTimeMilliseconds() - before)
+    -- watch("osend", GetGameTimeMilliseconds() - before)
 end
 
 local fmt = {
@@ -249,11 +249,12 @@ function MapComm.Send(cmd, send)
 
     local len = s:len()
     if len <= signif then
-	x = 1 / (XY * 10)
+	x = tonumber('.' .. s)
+	y = 1 / (XY * 10)
     else
 	x = tonumber('.' .. s:sub(0, signif))
+	y = tonumber('.' .. s:sub(0 - (len - signif)))
     end
-    y = tonumber('.' .. s:sub(0 - (len - signif)))
 
     if Watching then
 	watch('MapComm.Send', string.format('%s ' .. fsignif .. ' ' .. fsignif, s, x, y))

@@ -1,7 +1,6 @@
 <GuiXml>
     <Font name="MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin"/>
     <Font name="CellFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
-    <Font name="SwimlaneListHeaderFont" font="$(BOLD_FONT)|21|soft-shadow-thin"/>
     <Font name="UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
     <Font name="UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
 
