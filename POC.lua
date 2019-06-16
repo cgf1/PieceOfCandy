@@ -60,12 +60,12 @@ local function initialize()
 
     UltMenu.Initialize(saved)
 
+    Stats.Initialize(saved)
     Swimlanes.Initialize(major, minor, saved)
     Group.Initialize(saved)
     Quest.Initialize(saved)
     Alert.Initialize(saved)
     Campaign.Initialize(saved)
-    Stats.Initialize(saved)
 
     -- Start talking, see?
     Comm.Initialize(major, minor, beta, saved)

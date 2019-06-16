@@ -1,8 +1,8 @@
 <GuiXml>
-    <Font name="MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin"/>
-    <Font name="CellFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
-    <Font name="UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin"/>
-    <Font name="UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin"/>
+    <Font name="POC_MoveActiveFont" font="$(BOLD_FONT)|18|soft-shadow-thin" />
+    <Font name="POC_CellFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin" />
+    <Font name="POC_UltFont" font="$(MEDIUM_FONT)|16|soft-shadow-thin" />
+    <Font name="POC_UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin" />
 
     <Controls>
         <Control name="POC_Alert" hidden="true" layer="OVERLAY" level="1" virtual="true">
@@ -14,20 +14,20 @@
             </Controls>
         </Control>
         <Label
-            name="MoveActiveLabel"
+            name="POC_MoveActiveLabel"
             width="48"
             height="18"
-            font="MoveActiveFont"
+            font="POC_MoveActiveFont"
             inheritAlpha="true"
             color="FFFFFF"
             virtual="true"
         />
 
         <Label
-            name="CellLabel"
+            name="POC_CellLabel"
             width="90"
             height="16"
-            font="CellFont"
+            font="POC_CellFont"
             inheritAlpha="true"
             color="FFFFFF"
             verticalAlignment="CENTER"
@@ -36,10 +36,10 @@
         />
 
         <Label
-            name="SwimlaneListHeaderLabel"
+            name="POC_ColListHeaderLabel"
             width="75"
             height="25"
-            font="UltHeaderFont"
+            font="POC_UltHeaderFont"
             inheritAlpha="true"
             color="FFFFFF"
             verticalAlignment="TEXT_ALIGN_TOP"
@@ -47,59 +47,22 @@
             virtual="true"
         />
 
-        <Label
-            name="UltHeaderLabel"
-            width="200"
-            height="20"
-            font="UltHeaderFont"
-            inheritAlpha="true"
-            color="FFFFFF"
-            verticalAlignment="TEXT_ALIGN_TOP"
-            horizontalAlignment="TEXT_ALIGN_LEFT"
-            text="Header"
-            virtual="true"
-        />
-
-        <Label
-            name="UltLabel"
-            width="200"
-            height="16"
-            font="UltFont"
-            inheritAlpha="true"
-            color="FFFFFF"
-            verticalAlignment="TEXT_ALIGN_TOP"
-            horizontalAlignment="TEXT_ALIGN_LEFT"
-            text="Label"
-            virtual="true"
-        />
-
-        <Control name="MovableBackdropControl" virtual="true" hidden="true">
-            <Controls>
-                <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.1" >
-                    <Anchor point="TOPLEFT"/>
-                    <Anchor point="BOTTOMRIGHT" />
-                </Backdrop>
-                <Label name="$(parent)MoveActiveLabel" inherits="MoveActiveLabel" text="MOVE" tier="2">
-                    <Anchor point="CENTER"/>
-                </Label>
-            </Controls>
-        </Control>
         <Control name="POC_Cell" virtual="true">
             <Dimensions x="100" y="30" />
             <Controls>
                 <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="8168A6" alpha="0.6" >
                     <Dimensions x="102" y="28" />
-                    <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+                    <Anchor point="TOPLEFT"  relativeTo="$(parent)" relativePoint="TOPLEFT" />
                     <Edge edgeSize="1" />
                 </Backdrop>
                 <StatusBar name="$(parent)UltPct" alpha="0.7" textureFile="/POC/textures/grainy.dds">
                     <Dimensions x="100" y="28" />
-                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="0"/>
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="1" offsetY="0" />
                     <Limits min="0" max="100" />
                 </StatusBar>
-                <Label name="$(parent)PlayerName" inherits="CellLabel"  wrapMode="TRUNCATE" verticalAlignment="CENTER">
+                <Label name="$(parent)PlayerName" inherits="POC_CellLabel"  wrapMode="TRUNCATE" verticalAlignment="CENTER">
                     <Dimensions x="100" y="30" />
-                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="2"/>
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="2" />
                 </Label>
             </Controls>
         </Control>
@@ -107,18 +70,18 @@
             <Dimensions x="25" y="25" />
             <Controls>
                 <Button name="$(parent)Button" ButtonState="BSTATE_NORMAL" tier="1">
-                    <Dimensions x="25" y="25"/>
-                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
+                    <Dimensions x="25" y="25" />
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" />
                     <Textures normal="/esoui/art/actionbar/abilityframe64_up.dds"
                                       pressed="/esoui/art/actionbar/abilityframe64_down.dds"
-                                      mouseOver="/POC/textures/hover.dds"/>
+                                      mouseOver="/POC/textures/hover.dds" />
                 </Button>
                 <Texture name="$(parent)Icon" tier="0">
-                    <Dimensions x="24" y="24"/>
-                    <Anchor point="CENTER" relativeTo="$(parent)Button" relativePoint="CENTER"/>
+                    <Dimensions x="24" y="24" />
+                    <Anchor point="CENTER" relativeTo="$(parent)Button" relativePoint="CENTER" />
                 </Texture>
-                <Label name="$(parent)Label" inherits="SwimlaneListHeaderLabel" text="NEGATE">
-                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="28" offsetY="3"/>
+                <Label name="$(parent)Label" inherits="POC_ColListHeaderLabel" text="NEGATE">
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="28" offsetY="3" />
                 </Label>
             </Controls>
         </Control>

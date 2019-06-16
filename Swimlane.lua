@@ -68,6 +68,7 @@ local maxmias
 
 local ultn
 
+local info
 local stats
 
 local ultm_isactive
@@ -139,13 +140,14 @@ local function set_widget_movable()
     local movable = saved.AllowMove
     if movable == nil then
 	movable = true
+	saved.AllowMove = true
     end
     widget:SetMovable(movable)
     widget:SetMouseEnabled(movable)
 end
 
 function ultn_save_pos()
-    saved.UltNumberPos = {ultn:GetLeft(),ultn:GetTop()}
+    saved.UltNumberPos = {ultn:GetLeft(), ultn:GetTop()}
 end
 
 local function ultn_hide(x)
@@ -217,7 +219,7 @@ end
 --
 local function restore_position()
     if saved.WinPos == nil then
-	widget:GetNamedChild("MovableControl"):SetHidden(false)
+	mvc:SetHidden(false)
     else
 	widget:ClearAnchors()
 	widget:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, saved.WinPos.X, saved.WinPos.Y)
@@ -900,8 +902,8 @@ function Player:Record(name, what, newval, oldval)
     end
     lrecord[name] = lrecord[name] or {}
     local rtmp = lrecord[name]
-    stats[name] = stats[name] or {}
-    local srecord = stats[name]
+    info[name] = info[name] or {}
+    local srecord = info[name]
     local now = GetTimeStamp()
     if what == 'InRange' and (self.IsMe or me:IsInRange()) then
 	local other
@@ -1059,11 +1061,15 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2,
     if fwctimer then
 	player.FwCampTimer = fwctimer
     end
-    if damage then
-	player.Damage = player.Damage + damage
-    end
-    if heal then
-	player.Heal = Player.Heal + heal
+    if not self.IsMe then
+	if damage then
+	    player.Damage = self.Damage + damage
+	    stats.Refresh = true
+	end
+	if heal then
+	    player.Heal = self.Heal + heal
+	    stats.Refresh = true
+	end
     end
     if apid1 ~= nil then
 	-- Coming from on_map_ping
@@ -1342,9 +1348,9 @@ function Cols:New()
     return self
 end
 
-local function getstats()
-    if not stats and saved.RecordStats then
-	stats = ZO_SavedVars:NewAccountWide('POCstats', 1, nil, {Version = 1})
+local function getinfo()
+    if not info and saved.RecordStats then
+	info = ZO_SavedVars:NewAccountWide('POCstats', 1, nil, {Version = 1})
     end
 end
 
@@ -1356,7 +1362,8 @@ swimlanes.Redo = function() Cols:Redo() end
 function swimlanes.Initialize(major, minor, _saved)
     saved = _saved
     widget = POC_Main
-    mvc = widget:GetNamedChild("MovableControl")
+    mvc = widget:GetNamedChild("Movable")
+    stats = Stats
     widget:SetHidden(true)
     fragment = ZO_SimpleSceneFragment:New(widget)
     myults = saved.MyUltId[ultix] or {}
@@ -1456,7 +1463,7 @@ function swimlanes.Initialize(major, minor, _saved)
     ultn:SetMouseEnabled(true)
     ultn_hide(true)
 
-    getstats()
+    getinfo()
 
     version = tonumber(string.format("%d.%03d", major, minor))
     dversion = string.format("%d.%d", major, minor)
@@ -1515,10 +1522,10 @@ function swimlanes.Initialize(major, minor, _saved)
 	    saved.RecordStats = false
 	elseif x == "yes" or x == "true" or x == "on" then
 	    saved.RecordStats = true
-	    getstats()
+	    getinfo()
 	elseif x == "clear" then
-	    for k in pairs(stats) do
-		stats[k] = nil
+	    for k in pairs(info) do
+		info[k] = nil
 	    end
 	    Info("records cleared")
 	elseif x ~= "" then

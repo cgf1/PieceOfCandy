@@ -1,12 +1,12 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="POC_Main" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false"
-			 mouseEnabled="true" movable="true">
+	<TopLevelControl name="POC_Stats" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false"
+			 mouseEnabled="true" movable="true" resizeHandleSize="8">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
-	    <Dimensions x="1020" y="265" />
-	    <OnMoveStart>POC.Swimlanes:OnMove(false)</OnMoveStart>
-	    <OnMoveStop>POC.Swimlanes:OnMove(true)</OnMoveStop>
-	    <Controls>
+	    <Dimensions x="1100" y="264" />
+	    <OnMoveStart>POC.Stats:OnMove(false)</OnMoveStart>
+	    <OnMoveStop>POC.Stats:OnMove(true)</OnMoveStop>
+            <Controls>
                 <Control name="$(parent)Movable" tier="PARENT" hidden="true">
                     <Anchor point="TOPLEFT"/>
 -                   <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetY=60/>
@@ -20,14 +20,13 @@
                         </Label>
                     </Controls>
                 </Control>
-	    </Controls>
-	</TopLevelControl>
-        <TopLevelControl name="POC_CharTooltipTopLevel" inherits="TooltipTopLevel">
-            <Controls>
-                <Tooltip name="POC_CharTooltip"  inherits="ZO_BaseTooltip">
-		    <DimensionConstraints minX="10" maxX="4000" />
-                </Tooltip>
             </Controls>
-        </TopLevelControl>
+	</TopLevelControl>
+        <Control name="POC_Stat_Cell" virtual="true">
+            <Dimensions x="550" y="30" />
+            <Controls>
+                <Label name="$(parent)Label" width="75" height="25" font="UltHeaderFont" inheritAlpha="true" color="FFFFFF" verticalAlignment="TEXT_ALIGN_TOP" horizontalAlignment="TEXT_ALIGN_LEFT" />
+            </Controls>
+        </Control>
     </Controls>
 </GuiXml>

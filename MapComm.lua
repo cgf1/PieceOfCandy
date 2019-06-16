@@ -173,7 +173,7 @@ local function on_map_ping(pingtype, pingtag)
 end
 
 local function oultpct(apidpct)
-    if math.floor(apidpct / 124) >= 30 then
+    if not apidpct or math.floor(apidpct / 124) >= 30 then
 	apidpct = (29 * 124) + (apidpct % 124)
     end
     return apidpct

@@ -1,10 +1,17 @@
 setfenv(1, POC)
 
-local GetUnitPower = GetUnitPower
 local GetAbilityCost = GetAbilityCost
+local GetFrameTimeSeconds = GetFrameTimeSeconds
+local GetGameTimeMilliseconds = GetGameTimeMilliseconds
+local GetUnitPower = GetUnitPower
+local GetNextForwardCampRespawnTime = GetNextForwardCampRespawnTime
+local GetTimeStamp = GetTimeStamp
+local IsUnitDead = IsUnitDead
 local IsUnitGrouped = IsUnitGrouped
+local IsUnitInCombat = IsUnitInCombat
 local EVENT_MANAGER = EVENT_MANAGER
 local Swimlanes = Swimlanes
+local Stats = Stats
 local SOUNDS = SOUNDS
 
 COMM_MAGIC		= 90
@@ -51,9 +58,6 @@ local load_later = false
 local campaign
 local max_ping
 local oldqueue
-
-local IsUnitDead = IsUnitDead
-local IsUnitInCombat = IsUnitInCombat
 
 local me
 
@@ -204,11 +208,11 @@ local function statwhich(me, luping, now)
     local val
     if cmd == COMM_TYPE_STAT_DAMAGE then
 	val = me.Damage - luping.Damage[1]
-	luping.Damage[1] = val
+	luping.Damage[1] = me.Damage
 	luping.Damage[2] = now
     else
 	val = me.Heal - luping.Heal[1]
-	luping.Heal[1] = val
+	luping.Heal[1] = me.Heal
 	luping.Heal[2] = now
     end
     watch('statwhich', cmd, val, what)
@@ -239,6 +243,7 @@ local function on_update()
     end
     local notify_when_not_grouped = true
     Swimlanes.Update("map update")
+    Stats.Update("periodic update")
     setult()
 
     counter = counter + 1
@@ -404,6 +409,7 @@ function Comm.Load(verbose)
 	end)
 	update_interval_per_sec = update_interval / 1000
 	Comm.SendVersion()
+	Stats.ShareThem(saved.ShareStats, true)
 	say = "on"
     end
     if verbose then
@@ -425,6 +431,7 @@ function Comm.Unload(verbose)
 	EVENT_MANAGER:UnregisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED)
 	EVENT_MANAGER:UnregisterForEvent(Comm.Name, EVENT_PLAYER_COMBAT_STATE)
 	Swimlanes.Update("off")
+	Stats.ShareThem(false, true)
 	say = "off"
     end
     if verbose then

@@ -100,12 +100,6 @@ local function pochelp(x)
 
 end
 
-cmds.help = {
-    Help = 'show POC slash commands',
-    Func = pochelp
-}
-SLASH_COMMANDS["/pochelp"] = pochelp
-
 local LSC = LibSlashCommander
 function Slash(name, help, func)
     if func == nil then
@@ -120,12 +114,16 @@ function Slash(name, help, func)
     if name:sub(1, 1) ~= '/' then
 	name = "/poc" .. name
     end
-    if LSC then
+    if not LSC then
+	SLASH_COMMANDS[name] = func
+    elseif func then
 	LSC:Register(name, func, "POC: " .. help)
     else
-	SLASH_COMMANDS[name] = func
+	-- LSC:Unregister(name)
     end
 end
+
+Slash("help", 'show POC slash commands', pochelp)
 
 Slash('/poc', 'show POC settings screen', function(x)
     local c, rest = string.match(x, "([^ ]+)%s*(.*)")

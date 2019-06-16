@@ -16,7 +16,7 @@ local function error_handler(_, str)
     end
     ZO_ERROR_FRAME:HideCurrentError()
     if uhoh then
-	Error("Uh oh.  lua errors detected.  /pocerrors will show them")
+	Error("Uh oh.  lua errors detected.  /pocerr will show them")
 	uhoh = false
     end
     local firstline, rest = str:match('([^\n]+)(.*)')
