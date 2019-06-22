@@ -1,7 +1,7 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="POC_Stats" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false"
-			 mouseEnabled="true" movable="true" resizeHandleSize="8">
+	<TopLevelControl name="POC_Stats" hidden="true" layer="BACKGROUND" level="1" allowBringToTop="false"
+			 mouseEnabled="true" movable="true" resizeHandleSize="8" tier="LOW">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
 	    <Dimensions x="1100" y="264" />
 	    <OnMoveStart>POC.Stats:OnMove(false)</OnMoveStart>

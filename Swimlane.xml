@@ -1,7 +1,7 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="POC_Main" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false"
-			 mouseEnabled="true" movable="true">
+	<TopLevelControl name="POC_Main" hidden="true" layer="BACKGROUND" level="1" allowBringToTop="false"
+			 mouseEnabled="true" movable="true" tier="LOW">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
 	    <Dimensions x="1020" y="265" />
 	    <OnMoveStart>POC.Swimlanes:OnMove(false)</OnMoveStart>
