@@ -101,26 +101,32 @@ local function pochelp(x)
 end
 
 local LSC = LibSlashCommander
-function Slash(name, help, func)
-    if func == nil then
-	cmds[name] = nil
-    else
-	cmds[name] = {
-	    Debug = help:match('debug'),
-	    Help = help,
-	    Func = func
-	}
+function Slash(names, help, func)
+    if type(names) ~= 'table' then
+	names = {names}
     end
-    if name:sub(1, 1) ~= '/' then
-	name = "/poc" .. name
+    for _, name in ipairs(names) do
+	if func == nil then
+	    cmds[name] = nil
+	else
+	    cmds[name] = {
+		Debug = help:match('debug'),
+		Help = help,
+		Func = func
+	    }
+	end
+	if name:sub(1, 1) ~= '/' then
+	    name = "/poc" .. name
+	end
+	if not LSC then
+	    SLASH_COMMANDS[name] = func
+	elseif func then
+	    LSC:Register(name, func, "POC: " .. help)
+	else
+	    -- LSC:Unregister(name)
+	end
     end
-    if not LSC then
-	SLASH_COMMANDS[name] = func
-    elseif func then
-	LSC:Register(name, func, "POC: " .. help)
-    else
-	-- LSC:Unregister(name)
-    end
+    return func
 end
 
 Slash("help", 'show POC slash commands', pochelp)
