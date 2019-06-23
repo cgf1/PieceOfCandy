@@ -174,7 +174,7 @@ end
 
 local function oultpct(apidpct)
     if not apidpct or math.floor(apidpct / 124) >= 30 then
-	apidpct = (29 * 124) + (apidpct % 124)
+	apidpct = 0
     end
     return apidpct
 end
@@ -187,6 +187,9 @@ local function osend(...)
     end
     if cmd == COMM_TYPE_PCTULT or cmd == COMM_TYPE_PCTULTPOS then
 	local word = oultpct(raw[2]) * OCOMM_ULTPCT_MUL1
+	if word == 0 then
+	    return
+	end
 	if cmd == COMM_TYPE_PCTULT then
 	    raw[3] = oultpct(raw[3])
 	end
