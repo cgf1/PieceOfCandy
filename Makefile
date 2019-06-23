@@ -8,7 +8,7 @@ t:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/st
 e:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
 f:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/pts/AddOns/POC
 # allfiles := $(shell ( echo POC.txt ; egrep -v '^[ 	]*[;#]|$$' POC.txt; } | sort )
-all: ${modified}
+all: ${modified} | gotham-mounted
 
 .PHONY: FORCE
 FORCE:
@@ -26,7 +26,7 @@ tags ctags:
 install: install-gotham install-ednor# install-norton
 
 .PHONY: install-gotham
-install-gotham: gotham-mounted | all clean
+install-gotham: | all clean
 	@rm -rf /smb$e/*
 	@echo Rsyncing to gotham live...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb$e
