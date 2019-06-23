@@ -66,9 +66,7 @@ end
 
 function LuaErrors.Initialize()
     EVENT_MANAGER:RegisterForEvent("POC-Errors", EVENT_LUA_ERROR, error_handler)
-    Slash("err", "show any POC lua errors", show_errors)
-    SLASH_COMMANDS["/pocerror"] = show_errors
-    SLASH_COMMANDS["/pocerrors"] = show_errors
+    Slash({"err", "error", "errors"}, "show any POC lua errors", show_errors)
     SLASH_COMMANDS["/anerror"] = function()
 	local a = {}
 	a[nil] = 1
