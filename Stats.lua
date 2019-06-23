@@ -71,7 +71,7 @@ end
 local function dispall(category, which, tbl, tot, max)
     table.sort(tbl, sorter)
     local i = 1
-    fmt = '%' .. tostring(max):len() .. 'd %3d%%'
+    fmt = '%' .. tostring(max):len() .. 'd %2d%%'
     while tbl[1] do
 	local v = table.remove(tbl, 1)
 	local label, val = dispcol(category, which, i)
