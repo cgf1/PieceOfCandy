@@ -12,6 +12,7 @@ local group_members
 
 local widget
 local mvc
+local widgbot
 
 local me
 
@@ -20,25 +21,12 @@ local pairs = pairs
 local function emptyfunc()
 end
 
--- Saves current widget position to settings
---
-function Stats:OnMove(stop)
-    if not stop then
-	mvc:SetHidden(false)
-    else
-	mvc:SetHidden(true)
-	saved.StatWinPos.X = widget:GetLeft()
-	saved.StatWinPos.Y = widget:GetTop()
-    end
-end
-
 local damage = {}
 local heal = {}
 local rowlen
 local damagetrk = {}
 local healtrk = {}
 
-local tmp = {}
 local function sorter(a, b)
     local aname, aval = unpack(a)
     local bname, bval = unpack(b)
@@ -56,12 +44,10 @@ local function dispcol(category, which, i)
 	label = WM:CreateControl(name, widget, CT_LABEL)
 	label:SetFont("$(MEDIUM_FONT)|16|soft-shadow-thin")
 	label:SetAnchor(TOPLEFT, which[i - 1], BOTTOMLEFT, 0, 0)
-	-- label:SetWidth(namelen)
 	label:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
 	val = WM:CreateControl(name .. 'val', label, CT_LABEL)
 	val:SetFont("EsoUI/Common/Fonts/consola.ttf|16|soft-shadow-thin")
 	val:SetAnchor(TOPLEFT, label, TOPRIGHT, 0, 0)
-	-- val:SetWidth(vallen)
 	val:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
 	which[i] = label
     end
@@ -71,7 +57,11 @@ end
 local function dispall(category, which, tbl, tot, max)
     table.sort(tbl, sorter)
     local i = 1
-    fmt = '%' .. tostring(max):len() .. 'd %2d%%'
+    fmt = '%' .. tostring(max):len() .. 'd'
+    if saved.PctStats then
+	fmt = fmt .. ' %2d%%'
+    end
+
     while tbl[1] do
 	local v = table.remove(tbl, 1)
 	local label, val = dispcol(category, which, i)
@@ -83,23 +73,28 @@ local function dispall(category, which, tbl, tot, max)
 	local dispname = namefit(label, v[1], namelen)
 	label:SetText(dispname)
 	val:SetText(dispval)
+	if label:GetBottom() > widgbot then
+	    break
+	end
 	label:SetHidden(false)
 	val:SetHidden(false)
 	i = i + 1
     end
     while which[i] and not which[i]:IsHidden() do
-	which[i]:SetHidden(true)
-	which[i]:GetChild(1):SetHidden(true)
+	local label, val = which[i], which[i]:GetChild(1)
+	label:SetHidden(true)
+	val:SetHidden(true)
+	label:SetText('')
+	val:SetText('')
 	i = i + 1
     end
 end
 
 local function update_func()
-    if not Stats.Refresh then
+    if not Stats.Refresh  then
 	return
     end
     Stats.Refresh = false
-    watch('update_func', "Would have updated")
     local totdamage = 0
     local totheal = 0
     local maxdamage = 0
@@ -126,17 +121,42 @@ local function update_func()
     dispall('heal', heal, healtrk, totheal, maxheal)
 end
 
-local function resize()
-    local dimx, dimy = widget:GetDimensions()
-    saved.StatWinPos.DimX, saved.StatWinPos.DimY = dimx, dimy
-    rowlen = (dimx / 2) - 4
-    heal[0]:ClearAnchors()
-    heal[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
-    mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
-    mvc:SetDimensionConstraints(dimx, dimy)
+local function update_maybe()
     if Stats.Update == update_func then
 	Stats.Refresh = true
 	update_func()
+    end
+end
+
+-- Saves current widget position to settings
+--
+function Stats:OnMove(stop)
+    if not stop then
+	mvc:SetHidden(false)
+    else
+	mvc:SetHidden(true)
+	saved.StatWinPos.X = widget:GetLeft()
+	saved.StatWinPos.Y = widget:GetTop()
+	widgbot = widget:GetBottom()
+	update_maybe()
+    end
+end
+
+local function resize(start)
+    if start then
+	-- mvc:SetHidden(false)
+    else
+	-- mvc:SetHidden(true)
+	local dimx, dimy = widget:GetDimensions()
+	widgbot = widget:GetBottom()
+	saved.StatWinPos.DimX, saved.StatWinPos.DimY = dimx, dimy
+	rowlen = (dimx / 2) - 4
+	heal[0]:ClearAnchors()
+	heal[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
+	mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
+	mvc:SetDimensions(dimx, dimy)
+	mvc:SetDimensionConstraints(0, 0, dimx, dimy)
+	update_maybe()
     end
 end
 
@@ -146,11 +166,11 @@ local function initialize_update_func(x)
     else
 	widget:SetDimensions(saved.StatWinPos.DimX, saved.StatWinPos.DimY)
     end
+    widget:SetDimensionConstraints(100, 16, 99999, 99999)
     local dimx, dimy = saved.StatWinPos.DimX, saved.StatWinPos.DimY
     mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
-    mvc:SetDimensionConstraints(dimx, dimy)
+    mvc:SetDimensions(dimx, dimy)
     widget:SetHidden(false)
-    -- for now
     rowlen = (dimx / 2) - 4
     damage[0] = WM:CreateControl(nil, widget, CT_LABEL)
     damage[0]:ClearAnchors()
@@ -174,20 +194,12 @@ local function initialize_update_func(x)
     end
     widget:SetMovable(true)
     widget:SetMouseEnabled(true)
-    widget:SetHandler("OnResizeStop", resize)
+    widgbot = widget:GetBottom()
+    widget:SetHandler("OnResizeStart", function() resize(true) end)
+    widget:SetHandler("OnResizeStop", function() resize(false) end)
 
     Stats.Update = update_func
     update_func(x)
-end 
-
-function Foo(x)
-    if x == 'hide' then
-	widget:SetHidden(true)
-	mvc:SetHidden(true)
-    else
-	widget:SetHidden(false)
-	mvc:SetHidden(false)
-    end
 end
 
 local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid)

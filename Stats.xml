@@ -22,11 +22,5 @@
                 </Control>
             </Controls>
 	</TopLevelControl>
-        <Control name="POC_Stat_Cell" virtual="true">
-            <Dimensions x="550" y="30" />
-            <Controls>
-                <Label name="$(parent)Label" width="75" height="25" font="UltHeaderFont" inheritAlpha="true" color="FFFFFF" verticalAlignment="TEXT_ALIGN_TOP" horizontalAlignment="TEXT_ALIGN_LEFT" />
-            </Controls>
-        </Control>
     </Controls>
 </GuiXml>
