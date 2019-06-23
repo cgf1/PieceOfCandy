@@ -843,17 +843,7 @@ function Col:UpdateCell(i, player, playername, priult)
 	namecell:SetFont(namecell.Font)
     end
     if not player.DispName[stealthed] then
-	local toobig = false
-	while namecell:GetStringWidth(playername) > sizex do
-	    toobig = true
-	    playername = playername:sub(1, -2)
-	end
-
-	if toobig then
-	    local c = '·'
-	    playername = playername:sub(1, -2) .. '|cffff00' .. c .. '|r'
-	end
-	player.DispName[stealthed] = playername
+	player.DispName[stealthed] = namefit(namecell, playername, sizex)
     end
     playername = player.DispName[stealthed]
     namecell:SetText(prefix .. playername)
@@ -1403,13 +1393,17 @@ function swimlanes.Initialize(major, minor, _saved)
     group_members = saved.GroupMembers
     local grouped = IsUnitGrouped('player')
     for n, v in pairs(group_members) do
-	if not grouped or GetUnitName(v.PingTag) ~= name then
+	if not grouped or GetUnitName(v.PingTag) ~= n then
 	    group_members[n] = nil
 	else
 	    if n == myname then
 		v = ZO_DeepTableCopy(v, me)
+		group_members[n] = v
 	    end
 	    setmetatable(v, Player)
+	    if v.Damage ~= 0 or v.Heal ~= 0 then
+		Stats.Refresh = true
+	    end
 	    if not v.UltMain or v.UltMain == 0 then
 		v.UltMain = maxping
 	    end
@@ -1419,7 +1413,7 @@ function swimlanes.Initialize(major, minor, _saved)
 	    if v.Pos == nil then
 		v.Pos = 0
 	    end
-	    if not v.DispName or v.DispName ~= 'table' then
+	    if not v.DispName or type(v.DispName) ~= 'table' then
 		v.DispName = {}
 	    else
 		v.DispName[true] = nil

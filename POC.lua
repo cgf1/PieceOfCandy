@@ -60,8 +60,8 @@ local function initialize()
 
     UltMenu.Initialize(saved)
 
-    Stats.Initialize(saved)
     Swimlanes.Initialize(major, minor, saved)
+    Stats.Initialize(saved)
     Group.Initialize(saved)
     Quest.Initialize(saved)
     Alert.Initialize(saved)

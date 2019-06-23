@@ -16,6 +16,25 @@ function idpairs(hash, key, tmp)
     return iter, tmp, nil
 end
 
+local prefix = {[194] = true, [195] = true, [196] = true, [197] = true}
+
+function namefit(control, name, sizex)
+    local toobig = false
+    while control:GetStringWidth(name) > sizex do
+	name = name:sub(1, -2)
+	toobig = true
+    end
+    if toobig then
+	local n
+	name = name:sub(1, -2)
+	if prefix[name:sub(-1):byte()] then
+	    name = name:sub(1, -2)
+	end
+	name = name .. '|cffff00·|r'
+    end
+    return name
+end
+
 function Error(x)
     d(string.format("POC error: |cff0000%s|r", x))
 end
@@ -52,7 +71,7 @@ end
 
 local watchmen
 
-local function mysplit(inputstr, sep)
+function mysplit(inputstr, sep)
     if sep == nil then
 	sep = "%s"
     end
@@ -63,7 +82,9 @@ local function mysplit(inputstr, sep)
     return unpack(t)
 end
 
-local function empty_func()
+local mysplit = mysplit
+
+local function emptyfunc()
 end
 
 Watching = false
@@ -96,7 +117,7 @@ local function setwatch(x)
 	saved.WatchMen = {}
 	watchmen = saved.WatchMen
 	Info("cleared all watchpoints")
-	watch = empty_func
+	watch = emptyfunc
 	Watching = false
 	return
     end
@@ -125,7 +146,7 @@ local function setwatch(x)
 	watch = real_watch
 	Watching = true
     else
-	watch = empty_func
+	watch = emptyfunc
 	Watching = false
     end
     Info("watch", what, '=', todo)
@@ -138,12 +159,12 @@ initwatch = function()
     if not watchmen then
 	watchmen = saved.WatchMen
     end
-    initwatch = empty_func
+    initwatch = emptyfunc
     if next(watchmen) then
 	watch = real_watch
 	Watching = true
     else
-	watch = empty_func
+	watch = emptyfunc
 	Watching = false
     end
 end

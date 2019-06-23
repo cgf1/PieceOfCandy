@@ -13,6 +13,10 @@ local group_members
 local widget
 local mvc
 
+local me
+
+local pairs = pairs
+
 local function emptyfunc()
 end
 
@@ -28,18 +32,116 @@ function Stats:OnMove(stop)
     end
 end
 
-local first = false
-local damage, heal
-local function update_func(first)
+local damage = {}
+local heal = {}
+local rowlen
+local damagetrk = {}
+local healtrk = {}
+
+local tmp = {}
+local function sorter(a, b)
+    local aname, aval = unpack(a)
+    local bname, bval = unpack(b)
+    if aval == bval then
+	return aname < bname
+    else
+	return aval > bval
+    end
+end
+
+local function dispcol(category, which, i)
+    local label = which[i]
+    if not label then
+	local name = string.format("%s%02d", category, i)
+	label = WM:CreateControl(name, widget, CT_LABEL)
+	label:SetFont("$(MEDIUM_FONT)|16|soft-shadow-thin")
+	label:SetAnchor(TOPLEFT, which[i - 1], BOTTOMLEFT, 0, 0)
+	-- label:SetWidth(namelen)
+	label:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
+	val = WM:CreateControl(name .. 'val', label, CT_LABEL)
+	val:SetFont("EsoUI/Common/Fonts/consola.ttf|16|soft-shadow-thin")
+	val:SetAnchor(TOPLEFT, label, TOPRIGHT, 0, 0)
+	-- val:SetWidth(vallen)
+	val:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
+	which[i] = label
+    end
+    return label, label:GetChild(1)
+end
+
+local function dispall(category, which, tbl, tot, max)
+    table.sort(tbl, sorter)
+    local i = 1
+    fmt = '%' .. tostring(max):len() .. 'd %3d%%'
+    while tbl[1] do
+	local v = table.remove(tbl, 1)
+	local label, val = dispcol(category, which, i)
+	local dispval = string.format(fmt, v[2], 0.5 + (100 * (v[2] / tot)))
+	local n = val:GetStringWidth(dispval)
+	val:SetWidth(n)
+	local namelen = rowlen - n
+	label:SetWidth(namelen)
+	local dispname = namefit(label, v[1], namelen)
+	label:SetText(dispname)
+	val:SetText(dispval)
+	label:SetHidden(false)
+	val:SetHidden(false)
+	i = i + 1
+    end
+    while which[i] and not which[i]:IsHidden() do
+	which[i]:SetHidden(true)
+	which[i]:GetChild(1):SetHidden(true)
+	i = i + 1
+    end
+end
+
+local function update_func()
     if not Stats.Refresh then
 	return
     end
     Stats.Refresh = false
-    HERE("Would have updated")
+    watch('update_func', "Would have updated")
+    local totdamage = 0
+    local totheal = 0
+    local maxdamage = 0
+    local maxheal = 0
+    for name, player in pairs(group_members) do
+	local damage = player.Damage
+	if damage ~= 0 then
+	    damagetrk[#damagetrk + 1] = {name, damage}
+	    totdamage = totdamage + damage
+	    if damage > maxdamage then
+		maxdamage = damage
+	    end
+	end
+	local heal = player.Heal
+	if heal ~= 0 then
+	    healtrk[#healtrk + 1] = {name, heal}
+	    totheal = totheal + heal
+	    if heal > maxheal then
+		maxheal = heal
+	    end
+	end
+    end
+    dispall('damage', damage, damagetrk, totdamage, maxdamage)
+    dispall('heal', heal, healtrk, totheal, maxheal)
+end
+
+local function resize()
+    local dimx, dimy = widget:GetDimensions()
+    saved.StatWinPos.DimX, saved.StatWinPos.DimY = dimx, dimy
+    rowlen = (dimx / 2) - 4
+    heal[0]:ClearAnchors()
+    heal[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
+    mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
+    mvc:SetDimensionConstraints(dimx, dimy)
+    if Stats.Update == update_func then
+	Stats.Refresh = true
+	update_func()
+    end
 end
 
 local function initialize_update_func(x)
-    if not saved.StatWinPos.DimX then
+    if not saved.StatWinPos.DimX or saved.StatWinPos.DimX == 0 then
 	saved.StatWinPos.DimX, saved.StatWinPos.DimY = widget:GetDimensions()
     else
 	widget:SetDimensions(saved.StatWinPos.DimX, saved.StatWinPos.DimY)
@@ -48,21 +150,21 @@ local function initialize_update_func(x)
     mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
     mvc:SetDimensionConstraints(dimx, dimy)
     widget:SetHidden(false)
+    -- for now
+    rowlen = (dimx / 2) - 4
+    damage[0] = WM:CreateControl(nil, widget, CT_LABEL)
+    damage[0]:ClearAnchors()
+    damage[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, 0, 0)
+    damage[0]:SetFont('$(BOLD_FONT)|18|soft-shadow-thick')
+    damage[0]:SetText("|cffff00Damage Done|r")
+    damage[0]:SetHidden(false)
 
-    damage = WM:CreateControl(nil, widget, CT_LABEL)
-    damage:ClearAnchors()
-    damage:SetAnchor(TOPLEFT, widget, TOPLEFT, 0, 0)
-    damage:SetFont('$(BOLD_FONT)|18|soft-shadow-thick')
-    damage:SetText("|cffff00Damage Done|r")
-    damage:SetHidden(false)
-
-    local dimx, dimy = widget:GetDimensions()
-    heal = WM:CreateControl(nil, widget, CT_LABEL)
-    heal:ClearAnchors()
-    heal:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
-    heal:SetFont('$(BOLD_FONT)|18|soft-shadow-thick')
-    heal:SetText("|cffff00Healing Done|r")
-    heal:SetHidden(false)
+    heal[0] = WM:CreateControl(nil, widget, CT_LABEL)
+    heal[0]:ClearAnchors()
+    heal[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
+    heal[0]:SetFont('$(BOLD_FONT)|18|soft-shadow-thick')
+    heal[0]:SetText("|cffff00Healing Done|r")
+    heal[0]:SetHidden(false)
 
     widget:ClearAnchors()
     if saved.StatWinPos == nil then
@@ -72,14 +174,7 @@ local function initialize_update_func(x)
     end
     widget:SetMovable(true)
     widget:SetMouseEnabled(true)
-    widget:SetHandler("OnResizeStop", function(doit)
-	local dimx, dimy = widget:GetDimensions()
-	saved.StatWinPos.DimX, saved.StatWinPos.DimY = dimx, dimy
-	heal:ClearAnchors()
-	heal:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
-	mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
-	mvc:SetDimensionConstraints(dimx, dimy)
-    end)
+    widget:SetHandler("OnResizeStop", resize)
 
     Stats.Update = update_func
     update_func(x)
@@ -145,7 +240,7 @@ function Stats.ShareThem(x, doit)
     else
 	EVENT_MANAGER:RegisterForEvent(Stats.name, EVENT_COMBAT_EVENT, oncombat)
 	EVENT_MANAGER:AddFilterForEvent(Stats.name, EVENT_COMBAT_EVENT, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
-	if not damage then
+	if #damage == 0 then
 	    Stats.Update = initialize_update_func
 	else
 	    Stats.Update = update_func
@@ -157,13 +252,44 @@ function Stats.ShareThem(x, doit)
     end
 end
 
+function debug(what, x)
+    local val, name = mysplit(x)
+    local ival = tonumber(val)
+    if not ival then
+	Error(string.format('"%s" is not a number', val))
+	return
+    end
+    local player
+    if name == nil then
+	player = me
+    else
+	for n, v in pairs(group_members) do
+	    if string.find(n, name, 1) then
+		player = v
+		break
+	    end
+	end
+	if not v then
+	    Error(string.format('no group member named "%s"', name))
+	    return
+	end
+    end
+    if ival ~= 0 then
+	player[what] = player[what] + ival
+	Stats.Refresh = true
+    end
+    Info(string.format("%s is now %d", what, player[what]))
+end
+
 function Stats.Initialize(_saved)
     saved = _saved
     group_members = saved.GroupMembers
+    me = Me
     widget = POC_Stats
     mvc = widget:GetNamedChild("Movable")
     local x, y = widget:GetDimensions()
     saved.StatWinPos = saved.StatWinPos or {}
     -- Comm.Load will Call ShareThem as appropriate
-    Slash("/mmm", "Make stats movable again", function () Foo(1) end)
+    Slash({"dmg", 'damage'}, "debugging: Add a value to a player's healing total", function(x) debug('Damage', x) end)
+    Slash("heal", "debugging: Add a value to a player's healing total", function(x) debug('Heal', x) end)
 end
