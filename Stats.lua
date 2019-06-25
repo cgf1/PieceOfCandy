@@ -12,6 +12,7 @@ local group_members
 
 local widget
 local mvc
+local back
 local widgbot
 
 local me
@@ -45,10 +46,14 @@ local function dispcol(category, which, i)
 	label:SetFont("$(MEDIUM_FONT)|16|soft-shadow-thin")
 	label:SetAnchor(TOPLEFT, which[i - 1], BOTTOMLEFT, 0, 0)
 	label:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
+	label:SetDrawLayer(DL_BACKGROUND)
+	label:SetDrawTier(DT_LOW)
 	val = WM:CreateControl(name .. 'val', label, CT_LABEL)
 	val:SetFont("EsoUI/Common/Fonts/consola.ttf|16|soft-shadow-thin")
 	val:SetAnchor(TOPLEFT, label, TOPRIGHT, 0, 0)
 	val:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
+	val:SetDrawLayer(DL_BACKGROUND)
+	val:SetDrawTier(DT_LOW)
 	which[i] = label
     end
     return label, label:GetChild(1)
@@ -153,6 +158,8 @@ local function resize(start)
 	rowlen = (dimx / 2) - 4
 	heal[0]:ClearAnchors()
 	heal[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
+	back:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
+	back:SetDimensions(dimx, dimy)
 	mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
 	mvc:SetDimensions(dimx, dimy)
 	mvc:SetDimensionConstraints(0, 0, dimx, dimy)
@@ -161,13 +168,18 @@ local function resize(start)
 end
 
 local function initialize_update_func(x)
+    local firsttime
     if not saved.StatWinPos.DimX or saved.StatWinPos.DimX == 0 then
 	saved.StatWinPos.DimX, saved.StatWinPos.DimY = widget:GetDimensions()
+	firsttime = true
     else
 	widget:SetDimensions(saved.StatWinPos.DimX, saved.StatWinPos.DimY)
+	firsttime = false
     end
     widget:SetDimensionConstraints(100, 16, 99999, 99999)
     local dimx, dimy = saved.StatWinPos.DimX, saved.StatWinPos.DimY
+    back:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
+    back:SetDimensions(dimx, dimy)
     mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
     mvc:SetDimensions(dimx, dimy)
     widget:SetHidden(false)
@@ -177,6 +189,8 @@ local function initialize_update_func(x)
     damage[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, 0, 0)
     damage[0]:SetFont('$(BOLD_FONT)|18|soft-shadow-thick')
     damage[0]:SetText("|cffff00Damage Done|r")
+    damage[0]:SetDrawLayer(DL_BACKGROUND)
+    damage[0]:SetDrawTier(DT_LOW)
     damage[0]:SetHidden(false)
 
     heal[0] = WM:CreateControl(nil, widget, CT_LABEL)
@@ -184,16 +198,19 @@ local function initialize_update_func(x)
     heal[0]:SetAnchor(TOPLEFT, widget, TOPLEFT, dimx / 2, 0)
     heal[0]:SetFont('$(BOLD_FONT)|18|soft-shadow-thick')
     heal[0]:SetText("|cffff00Healing Done|r")
+    heal[0]:SetDrawLayer(DL_BACKGROUND)
+    heal[0]:SetDrawTier(DT_LOW)
     heal[0]:SetHidden(false)
 
     widget:ClearAnchors()
-    if saved.StatWinPos == nil then
-	widget:SetAnchor(CENTER, GuiRoot, CENTER, 0, 0)
+    if firsttime then
+	widget:SetAnchor(CENTER, GuiRoot, CENTER, 0, -dimy - 40)
     else
 	widget:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, saved.StatWinPos.X, saved.StatWinPos.Y)
     end
     widget:SetMovable(true)
     widget:SetMouseEnabled(true)
+    mvc:SetHidden(not firsttime)
     widgbot = widget:GetBottom()
     widget:SetHandler("OnResizeStart", function() resize(true) end)
     widget:SetHandler("OnResizeStop", function() resize(false) end)
@@ -249,6 +266,16 @@ function Stats.ShareThem(x, doit)
 	EVENT_MANAGER:UnregisterForEvent(Stats.name, EVENT_COMBAT_EVENT)
 	widget:SetHidden(true)
 	Stats.Update = emptyfunc
+	for i = 1, #damage do
+	    damage[i]:SetHidden(true)
+	    damage[i]:GetChild(1):SetHidden(true)
+	    damage[i]:SetText('')
+	end
+	for i = 1, #heal do
+	    heal[i]:SetHidden(true)
+	    heal[i]:GetChild(1):SetHidden(true)
+	    heal[i]:SetText('')
+	end
     else
 	EVENT_MANAGER:RegisterForEvent(Stats.name, EVENT_COMBAT_EVENT, oncombat)
 	EVENT_MANAGER:AddFilterForEvent(Stats.name, EVENT_COMBAT_EVENT, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
@@ -299,9 +326,11 @@ function Stats.Initialize(_saved)
     me = Me
     widget = POC_Stats
     mvc = widget:GetNamedChild("Movable")
+    back = widget:GetNamedChild("Background")
     local x, y = widget:GetDimensions()
     saved.StatWinPos = saved.StatWinPos or {}
     -- Comm.Load will Call ShareThem as appropriate
     Slash({"dmg", 'damage'}, "debugging: Add a value to a player's healing total", function(x) debug('Damage', x) end)
     Slash("heal", "debugging: Add a value to a player's healing total", function(x) debug('Heal', x) end)
+    Slash("clearstats", "debugging: clear stats window data", function () saved.StatWinPos = {} ReloadUI() end) 
 end

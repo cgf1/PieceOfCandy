@@ -1,12 +1,22 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="POC_Stats" hidden="true" layer="BACKGROUND" level="1" allowBringToTop="false"
+	<TopLevelControl name="POC_Stats" hidden="true" layer="BACKGROUND" level="0" allowBringToTop="false"
 			 mouseEnabled="true" movable="true" resizeHandleSize="8" tier="LOW">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
-	    <Dimensions x="1100" y="264" />
+	    <Dimensions x="400" y="264" />
 	    <OnMoveStart>POC.Stats:OnMove(false)</OnMoveStart>
 	    <OnMoveStop>POC.Stats:OnMove(true)</OnMoveStop>
             <Controls>
+                <Control name="$(parent)Background" tier="PARENT" edgecolor="696969" hidden="false">
+                    <Anchor point="TOPLEFT"/>
+-                   <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetY=60/>
+                    <Controls>
+                        <Backdrop name="$(parent)Backdrop" centerColor="696969" alpha="0.08" >
+                            <Anchor point="TOPLEFT" />
+                            <Anchor point="BOTTOMRIGHT" />
+                        </Backdrop>
+                    </Controls>
+                </Control>
                 <Control name="$(parent)Movable" tier="PARENT" hidden="true">
                     <Anchor point="TOPLEFT"/>
 -                   <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetY=60/>
