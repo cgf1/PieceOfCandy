@@ -1494,7 +1494,7 @@ function swimlanes.Initialize(major, minor, _saved)
 	    movable = true
 	elseif x == "no" or x == "false" or x == "off" then
 	    movable = false
-	elseif x ~= "" then
+	elseif x ~= nil and x ~= "" then
 	    Error("Huh?")
 	    return
 	end
