@@ -1,9 +1,7 @@
 setfenv(1, POC)
 Name = "POC"
 
-LANG = GetCVar("Language.2")
-
-local version = '4.0b4'
+local version = '4.0b5'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
