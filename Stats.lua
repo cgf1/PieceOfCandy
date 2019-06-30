@@ -237,12 +237,14 @@ local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname,
 	saved.StatMe = saved.StatMe or {}
 	saved.StatMe[#saved.StatMe + 1] = {result, iserror, aid_name, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid}
     end
-    watch('oncombat', 'aid_name', aid_name, 'sname', sname, 'stype', stype, 'tname', tname, 'ttype', ttype)
-    watch('oncombat', 'hit', hit, 'power_type', power_type, 'damage_type', damage_type, 'log', log, 'suid', suid, 'tuid', tuid, 'aid', aid)
-    watch('oncombat', result, ACTION_RESULT_HEAL, ACTION_RESULT_CRITICAL_HEAL, ACTION_RESULT_DAMAGE, ACTION_RESULT_CRITICAL_DAMAGE)
+    if Watching then
+	watch('oncombat', 'aid_name', aid_name, 'sname', sname, 'stype', stype, 'tname', tname, 'ttype', ttype)
+	watch('oncombat', 'hit', hit, 'power_type', power_type, 'damage_type', damage_type, 'log', log, 'suid', suid, 'tuid', tuid, 'aid', aid)
+	watch('oncombat', result, ACTION_RESULT_HEAL, ACTION_RESULT_CRITICAL_HEAL, ACTION_RESULT_DAMAGE, ACTION_RESULT_CRITICAL_DAMAGE)
+    end
     local player = group_members[sname]
     -- Add toggle to include self heals, self damage (?)
-    if not player or not player.IsMe or tuid == 'player' or ttype ~= COMBAT_UNIT_TYPE_OTHER then
+    if not player or not player.IsMe or (not saved.SelfStats and tuid == 'player') or (not saved.AllStats and ttype ~= COMBAT_UNIT_TYPE_OTHER) then
 	return
     end
     if result == ACTION_RESULT_HEAL or result == ACTION_RESULT_CRITICAL_HEAL then

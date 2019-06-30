@@ -441,7 +441,7 @@ function Cols:Update(x)
 	local bigy = max_y + 16
 	widget:SetDimensions(bigx, bigy)
 	mvc:SetDimensionConstraints(0, 0, bigx, bigy)
-	mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, max_x, bigy)
+	mvc:SetAnchor(BOTTOMRIGHT, widget, TOPLEFT, max_x, bigy)
     end
 end
 

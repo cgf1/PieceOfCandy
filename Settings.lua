@@ -5,6 +5,7 @@ local ultix = GetUnitName("player")
 
 local default = {
     AcceptPVP = false,
+    AllStats = false,
     AtNames = false,
     AutUlt = true,
     CommOff = false,
@@ -32,6 +33,7 @@ local default = {
     Quests = {},
     PctStats = true,
     RelaxedCampaignAccept = false,
+    SelfStats = false,
     ShareQuests = true,
     ShareStats = false,
     ShowUnusedCols = false,
@@ -346,13 +348,40 @@ local function initialize_window(version)
 		{
 		    type = "checkbox",
 		    name = "Show percentages",
-		    tooltip = "Show percentage of todal damage or dealing done",
+		    tooltip = "Show percentage of total damage or healing done",
 		    getFunc = function()
 			return saved.PctStats
 		    end,
-		    setFunc = function(on) saved.PctStats = on Stats.Refresh = true end,
+		    setFunc = function(on)
+			saved.PctStats = on
+			Stats.Refresh = true
+		    end,
 		    default = default.PctStats
 		},
+		{
+		    type = "checkbox",
+		    name = "Record when target is me",
+		    tooltip = "Record self heals and self damage(?)",
+		    getFunc = function()
+			return saved.SelfStats
+		    end,
+		    setFunc = function(on)
+			saved.SelfStats = on
+		    end,
+		    default = default.SelfStats
+		},
+		{
+		    type = "checkbox",
+		    name = "Record all damage",
+		    tooltip = "Record damage/heals to NPCs as well as players",
+		    getFunc = function()
+			return saved.AllStats
+		    end,
+		    setFunc = function(on)
+			saved.AllStats = on
+		    end,
+		    default = default.AllStats
+		}
 	    }
 	},
 	{
