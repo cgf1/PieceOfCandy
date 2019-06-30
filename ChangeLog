@@ -1,3 +1,17 @@
+2019-06-30 (v4.0b6)
+
+- Try to get damange/heal sharing working.
+
+- Try harder to not send new ultimates to old POC.
+
+- Reorganize settings menu into subcategories.
+
+- Fix issue which caused screen to be updated too frequently.
+
+- Fix breakage with countdown and alert.
+
+- Fix bleed-over from previous groups showing up when a new group is joined.
+
 2019-04-20 (v3.42)
 
 - Bump API version for Elsewyr.
