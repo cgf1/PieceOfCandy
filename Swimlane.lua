@@ -328,7 +328,7 @@ local empty = {}
 function Cols:Update(x)
     local refresh
     local displayed = false
-    local oldmax_x, old_max_y = max_x, max_y
+    local oldmax_x, oldmax_y = max_x, max_y
     if x == "left" then
 	need_to_fire = true
 	watch("need_to_fire", "left")
