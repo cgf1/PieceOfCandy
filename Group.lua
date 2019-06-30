@@ -18,6 +18,7 @@ local swimsched
 local function supdate(x)
     swimsched(false)
     swimupdate(x)
+    Stats.Refresh = true
 end
 
 -- Called when group member joined group
