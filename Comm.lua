@@ -33,7 +33,7 @@ COMM_ALL_PLAYERS	= 0
 
 local packing = {
     [COMM_TYPE_FWCAMPTIMER] = {3},
-    [COMM_TYPE_COUNTDOWN] = {2},
+    [COMM_TYPE_COUNTDOWN] = {3},
     [COMM_TYPE_PCTULT] = {4, 4},
     [COMM_TYPE_NEEDQUEST] = {1, 3},
     [COMM_TYPE_MYVERSION] = {2, 3, 2},

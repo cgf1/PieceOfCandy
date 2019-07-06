@@ -76,6 +76,6 @@ function Countdown.SavePos(self)
 end
 
 Slash("n", "send a countdown of n seconds (specified) to group", function(x)
-    Comm.Send(COMM_TYPE_COUNTDOWN, tonumber(x))
+    Comm.Send(COMM_TYPE_COUNTDOWN, {tonumber(x)})
 end)
 ZO_CreateStringId("SI_BINDING_NAME_POC_COUNTDOWN_KEY", "Send three second countdown")

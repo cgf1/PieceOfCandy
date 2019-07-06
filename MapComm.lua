@@ -28,6 +28,7 @@ local signif
 local fsignif
 local mapindex
 local dispatch
+local packing
 
 -- LIFO!
 local function unpack_ultpct(cmd, data)
@@ -63,7 +64,7 @@ end
 local function unpacker(x, y, data)
     local xy = string.format(fsignif, x + ROUND):sub(3) .. string.format(fsignif, y + ROUND):sub(3)
     cmd = tonumber(xy:sub(1, 2))
-    local packing = Comm.Packing[cmd]
+    local packing = packing[cmd]
     if not packing then
 	-- Error(string.format('unknown code: 0x%2x', cmd))
 	return nil
@@ -245,7 +246,7 @@ function MapComm.Send(cmd, send)
     end
 
     local s = string.format('%02d', cmd)
-    local packing = Comm.Packing[cmd]
+    local packing = packing[cmd]
     for i, wid in ipairs(packing) do
 	s = s .. string.format(fmt[wid], send[i])
     end
@@ -324,6 +325,7 @@ function MapComm.Load()
     end)]]--
 
     saved = Settings.SavedVariables
+    packing = Comm.Packing
 
     max_ping = Ult.MaxPing
     signify(5)
