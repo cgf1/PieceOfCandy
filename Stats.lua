@@ -327,6 +327,8 @@ function Stats.Initialize(_saved)
     group_members = saved.GroupMembers
     me = Me
     widget = POC_Stats
+    local register_widget = Visibility.Export()
+    register_widget(widget)
     mvc = widget:GetNamedChild("Movable")
     back = widget:GetNamedChild("Background")
     local x, y = widget:GetDimensions()

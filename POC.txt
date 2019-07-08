@@ -31,6 +31,8 @@ Stats.xml
 POC0.lua
 LuaErrors.lua
 
+Visibility.lua
+
 Stats.lua
 
 MapComm.lua

@@ -15,7 +15,6 @@ local IsUnitInCombat = IsUnitInCombat
 local IsUnitInGroupSupportRange = IsUnitInGroupSupportRange
 local IsUnitOnline = IsUnitOnline
 local PlaySound = PlaySound
-local SCENE_MANAGER = SCENE_MANAGER
 local SOUNDS = SOUNDS
 local table = table
 local WINDOW_MANAGER = WINDOW_MANAGER
@@ -126,13 +125,7 @@ local need_to_fire = true
 local msg = d
 local d = nil
 
-local function widget_should_be_visible()
-    if not (Group.IsGrouped() and Comm.IsActive()) then
-	return false
-    else
-	return (not saved.OnlyAva) or IsInCampaign()
-    end
-end
+local show_widget
 
 -- set_widget_movable sets the Movable and MouseEnabled flag in UI elements
 --
@@ -192,28 +185,6 @@ local function ultn_show(n, ready)
     me.Because = "false because we played the sound"
 end
 
--- Set hidden on control
---
-local fragment
-local function show_widget(showit)
-    showit = showit and widget_should_be_visible()
-    if scene_showing ~= showit then
-	scene_showing = showit
-	if not showit then
-	    SCENE_MANAGER:GetScene("hud"):RemoveFragment(fragment)
-	    SCENE_MANAGER:GetScene("hudui"):RemoveFragment(fragment)
-	    SCENE_MANAGER:GetScene("siegeBar"):RemoveFragment(fragment)
-	    -- SCENE_MANAGER:GetScene("worldMap"):RemoveFragment(fragment)
-	    -- widget:SetHidden(true)
-	else
-	    SCENE_MANAGER:GetScene("hud"):AddFragment(fragment)
-	    SCENE_MANAGER:GetScene("hudui"):AddFragment(fragment)
-	    SCENE_MANAGER:GetScene("siegeBar"):AddFragment(fragment)
-	    -- SCENE_MANAGER:GetScene("worldMap"):AddFragment(fragment)
-	    -- widget:SetHidden(false)
-	end
-    end
-end
 
 -- restore_position sets widget position
 --
@@ -321,7 +292,6 @@ end
 local gc = GARBAGECOLLECT
 local wasactive = false
 local tickdown = 20
-local scene_showing
 local MIAshowing = 0
 local ults = {}
 local empty = {}
@@ -432,10 +402,7 @@ function Cols:Update(x)
 	end
 	wasactive = true
     end
-    local show = widget_should_be_visible()
-    if show ~= scene_showing then
-	show_widget(show)
-    end
+    show_widget()
     if max_x ~= oldmax_x or max_y ~= oldmax_y then
 	local bigx = max_x + 16
 	local bigy = max_y + 16
@@ -1352,10 +1319,14 @@ swimlanes.Redo = function() Cols:Redo() end
 function swimlanes.Initialize(major, minor, _saved)
     saved = _saved
     widget = POC_Main
+
+    local register_widget
+    register_widget, show_widget = Visibility.Export()
+    register_widget(widget)
+
     mvc = widget:GetNamedChild("Movable")
     stats = Stats
     widget:SetHidden(true)
-    fragment = ZO_SimpleSceneFragment:New(widget)
     myults = saved.MyUltId[ultix] or {}
     ultm_isactive = UltMenu.IsActive
     if myults[1] == nil then
