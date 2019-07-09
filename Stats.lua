@@ -7,6 +7,17 @@ Stats = {
 local Stats = Stats
 Stats.__index = Stats
 
+local BOTTOMLEFT = BOTTOMLEFT
+local CENTER = CENTER
+local CT_LABEL = CT_LABEL
+local DL_BACKGROUND = DL_BACKGROUND
+local DT_LOW = DT_LOW
+local GetUIGlobalScale = GetUIGlobalScale
+local GuiRoot = GuiRoot
+local TEXT_WRAP_MODE_TRUNCATE = TEXT_WRAP_MODE_TRUNCATE
+local TOPLEFT = TOPLEFT
+local TOPRIGHT = TOPRIGHT
+
 local saved
 local group_members
 
@@ -71,7 +82,7 @@ local function dispall(category, which, tbl, tot, max)
 	local v = table.remove(tbl, 1)
 	local label, val = dispcol(category, which, i)
 	local dispval = string.format(fmt, v[2], 0.5 + (100 * (v[2] / tot)))
-	local n = val:GetStringWidth(dispval)
+	local n = val:GetStringWidth(dispval) / GetUIGlobalScale();
 	val:SetWidth(n)
 	local namelen = rowlen - n
 	label:SetWidth(namelen)

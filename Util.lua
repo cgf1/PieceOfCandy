@@ -1,5 +1,9 @@
 setfenv(1, POC)
 
+local d = d
+local df = df
+local GetUIGlobalScale = GetUIGlobalScale
+
 local function iter(tmp)
     return table.remove(tmp, 1)
 end
@@ -20,7 +24,8 @@ local prefix = {[194] = true, [195] = true, [196] = true, [197] = true}
 
 function namefit(control, name, sizex)
     local toobig = false
-    while control:GetStringWidth(name) > sizex do
+    local scale = GetUIGlobalScale()
+    while (control:GetStringWidth(name) / scale) > sizex do
 	name = name:sub(1, -2)
 	toobig = true
     end

@@ -6,9 +6,9 @@ local LAM = LibAddonMenu2
 UltMenu = {}
 UltMenu.__index = UltMenu
 
-local okimg = '/POC/icons/ok.dds'
-local ok1img = '/POC/icons/ok1.dds'
-local nook1img = '/POC/icons/nook1.dds'
+local okimg = 'POC/icons/ok.dds'
+local ok1img = 'POC/icons/ok1.dds'
+local nook1img = 'POC/icons/nook1.dds'
 local lams = {}
 local container
 local dropdown

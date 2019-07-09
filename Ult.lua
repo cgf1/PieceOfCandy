@@ -22,7 +22,7 @@ local tmp = {}
 
 local saved
 local mia
-local MIAicon = "/POC/icons/mia.dds"
+local MIAicon = "POC/icons/mia.dds"
 
 local myults
 
