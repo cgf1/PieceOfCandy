@@ -187,13 +187,12 @@ local function initialize_update_func(x)
 	widget:SetDimensions(saved.StatWinPos.DimX, saved.StatWinPos.DimY)
 	firsttime = false
     end
-    widget:SetDimensionConstraints(100, 16, 99999, 99999)
+    -- widget:SetDimensionConstraints(100, 16, 99999, 99999)
     local dimx, dimy = saved.StatWinPos.DimX, saved.StatWinPos.DimY
     back:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
     back:SetDimensions(dimx, dimy)
     mvc:SetAnchor(BOTTOMRIGHT, nil, TOPLEFT, dimx, dimy)
     mvc:SetDimensions(dimx, dimy)
-    widget:SetHidden(false)
     rowlen = (dimx / 2) - 4
     damage[0] = WM:CreateControl(nil, widget, CT_LABEL)
     damage[0]:ClearAnchors()
@@ -268,36 +267,27 @@ local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname,
 end
 
 function Stats.ShareThem(x, doit)
-    if x ~= nil and x == true or x == 'on' then
+    if x ~= nil and x == true or x == 'on' or x == 'true' then
 	sharestats = true
     elseif x == false or x == "off" or x == "false" or x == "no" then
 	sharestats = false
     end
+    local register_widget = Visibility.Export()
     if not doit and sharestats == saved.ShareStats then
 	-- nothing to do
-    elseif not sharestats then
-	EVENT_MANAGER:UnregisterForEvent(Stats.name, EVENT_COMBAT_EVENT)
-	widget:SetHidden(true)
-	Stats.Update = emptyfunc
-	for i = 1, #damage do
-	    damage[i]:SetHidden(true)
-	    damage[i]:GetChild(1):SetHidden(true)
-	    damage[i]:SetText('')
-	end
-	for i = 1, #heal do
-	    heal[i]:SetHidden(true)
-	    heal[i]:GetChild(1):SetHidden(true)
-	    heal[i]:SetText('')
-	end
-    else
+    elseif sharestats then
+	register_widget(widget, 'stats', true)
 	EVENT_MANAGER:RegisterForEvent(Stats.name, EVENT_COMBAT_EVENT, oncombat)
 	EVENT_MANAGER:AddFilterForEvent(Stats.name, EVENT_COMBAT_EVENT, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
 	if #damage == 0 then
 	    Stats.Update = initialize_update_func
 	else
 	    Stats.Update = update_func
-	    widget:SetHidden(false)
 	end
+    else
+	register_widget(widget, 'stats', false)
+	EVENT_MANAGER:UnregisterForEvent(Stats.name, EVENT_COMBAT_EVENT)
+	Stats.Update = emptyfunc
     end
     if not doit then
 	saved.ShareStats = sharestats
@@ -338,8 +328,6 @@ function Stats.Initialize(_saved)
     group_members = saved.GroupMembers
     me = Me
     widget = POC_Stats
-    local register_widget = Visibility.Export()
-    register_widget(widget)
     mvc = widget:GetNamedChild("Movable")
     back = widget:GetNamedChild("Background")
     local x, y = widget:GetDimensions()
@@ -348,4 +336,5 @@ function Stats.Initialize(_saved)
     Slash({"dmg", 'damage'}, "debugging: Add a value to a player's healing total", function(x) debug('Damage', x) end)
     Slash("heal", "debugging: Add a value to a player's healing total", function(x) debug('Heal', x) end)
     Slash("clearstats", "debugging: clear stats window data", function () saved.StatWinPos = {} ReloadUI() end) 
+    Slash("stats", "turn stat sharing on/off", Stats.ShareThem)
 end

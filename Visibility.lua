@@ -14,9 +14,19 @@ local function widget_should_be_visible()
 	return (not saved.OnlyAva) or IsInCampaign()
     end
 end
---
--- Set hidden on control
---
+
+local function addscene(f)
+    SCENE_MANAGER:GetScene("hud"):AddFragment(f)
+    SCENE_MANAGER:GetScene("hudui"):AddFragment(f)
+    SCENE_MANAGER:GetScene("siegeBar"):AddFragment(f)
+end
+
+local function rmscene(f)
+    SCENE_MANAGER:GetScene("hud"):RemoveFragment(f)
+    SCENE_MANAGER:GetScene("hudui"):RemoveFragment(f)
+    SCENE_MANAGER:GetScene("siegeBar"):RemoveFragment(f)
+end
+
 local function show_widget(showit)
     if showit == nil then
 	showit = widget_should_be_visible()
@@ -25,24 +35,30 @@ local function show_widget(showit)
     end
     if scene_showing ~= showit then
 	scene_showing = showit
+	local func
 	if not showit then
-	    for _, f in pairs(frags) do
-		SCENE_MANAGER:GetScene("hud"):RemoveFragment(f)
-		SCENE_MANAGER:GetScene("hudui"):RemoveFragment(f)
-		SCENE_MANAGER:GetScene("siegeBar"):RemoveFragment(f)
-	    end
+	    func = rmscene
 	else
-	    for _, f in pairs(frags) do
-		SCENE_MANAGER:GetScene("hud"):AddFragment(f)
-		SCENE_MANAGER:GetScene("hudui"):AddFragment(f)
-		SCENE_MANAGER:GetScene("siegeBar"):AddFragment(f)
-	    end
+	    func = addscene
+	end
+	for _, f in pairs(frags) do
+	    func(f)
 	end
     end
 end
 
-function register_widget(widget)
-    frags[#frags + 1] = ZO_SimpleSceneFragment:New(widget)
+function register_widget(widget, what, register)
+    if register then
+	widget:SetHidden(false)
+	frags[widget] = ZO_SimpleSceneFragment:New(widget)
+	if scene_showing then
+	    addscene(frags[widget])
+	end
+    elseif frags[widget] then
+	widget:SetHidden(true)
+	rmscene(frags[widget])
+	frags[widget] = nil
+    end
 end
 
 function Visibility.Export()

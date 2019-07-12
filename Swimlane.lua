@@ -1322,7 +1322,7 @@ function swimlanes.Initialize(major, minor, _saved)
 
     local register_widget
     register_widget, show_widget = Visibility.Export()
-    register_widget(widget)
+    register_widget(widget, 'main', true)
 
     mvc = widget:GetNamedChild("Movable")
     stats = Stats
