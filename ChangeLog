@@ -1,3 +1,7 @@
+2019-07-22 (v4.0b10)
+
+- Remove ability to communicate with pre-Elsewyr versions.
+
 2019-07-11 (v4.0b9)
 
 - Actually allow stats window to turn on and off when it is supposed to.
