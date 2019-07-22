@@ -3,6 +3,8 @@ local LMP = LibMapPing
 local LGPS = LibGPS2
 local GetAPIVersion = GetAPIVersion
 
+local getmapping = LMP.GetMapPing
+
 local XY
 local ROUND
 
@@ -80,28 +82,6 @@ local function unpacker(x, y, data)
     return cmd, data
 end
 
-local OXY = 65536
-local OROUND = .5 / OXY
-local OCMDOFF = 102
-local function ounpacker(x, y, data)
-    local n = math.floor((x + OROUND) * OXY) + (OXY * math.floor((y + OROUND) * OXY))
-    local orig_n = n
-    watch('ounpacker', string.format("0x%08x", n))
-    for i = 1, 4 do
-	data[i] = n % 256
-	n = math.floor(n / 256)
-    end
-    if data[1] > 0xc6 then
-	data[1] = data[1] - 1
-    end
-    local cmd = table.remove(data, 1) - OCMDOFF
-    if cmd == COMM_TYPE_ULTFIRED then
-	data[1] = math.floor(orig_n / 256)
-    end
-    watch('ounpacker1', string.format('%d 0x%0x 0x%0x 0x%0x', cmd, data[1], data[2], data[3]))
-    return cmd, data
-end
-
 local OCOMM_ULTPCT_MUL1 = 30 * 124
 local function ounpack_ultpct(cmd, data)
     local x = 0
@@ -130,38 +110,23 @@ end
 --
 local before = 0
 local data = {}
-local sawold = 0
-local sendold = false
 local function on_map_ping(pingtype, pingtag)
     if pingtype ~= MAP_PIN_TYPE_PING then
 	return
     end
-    local x, y = mapop(LMP.GetMapPing, mapindex, LMP, pingtype, pingtag)
+    local x, y = mapop(getmapping, mapindex, LMP, pingtype, pingtag)
+    if x < 0 then
+	return
+    end
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
+-- HERE('suppressed', pingtype, pingtag)
 	LMP:SuppressPing(pingtype, pingtag)
     end
 
-    local unpdata, unppct
+    local unpdata, unppct = unpacker, unpack_ultpct
+    unpdata = unpacker
+    unppct = unpack_ultpct
     local now = GetTimeStamp()
-    if x >= 0 then
-	unpdata = unpacker
-	unppct = unpack_ultpct
-	if (now - sawold) > 20 then
-	    sendold = false
-	end
-    else
-	if pingtag == Me.PingTag then
-	    return
-	end
-	x, y = mapop(LMP.GetMapPing, saved.MapIndex, LMP, pingtype, pingtag)
-	if x < 0 then
-	    return
-	end
-	unpdata = ounpacker
-	unppct = ounpack_ultpct
-	sawold = now
-	sendold = true
-    end
     local cmd, data = unpdata(x, y, data)
     if cmd then
 	local before, name, watchme = dispatch(pingtag, cmd, data, unppct)
@@ -171,61 +136,6 @@ local function on_map_ping(pingtype, pingtag)
 	    before = now
 	end
     end
-end
-
-local function oultpct(apidpct)
-    if not apidpct or math.floor(apidpct / 124) >= 30 then
-	apidpct = 0
-    end
-    return apidpct
-end
-
-local function osend(...)
-    local raw = {...}
-    local cmd = raw[1]
-    if cmd < COMM_MAGIC then
-	return
-    end
-    if cmd == COMM_TYPE_PCTULT or cmd == COMM_TYPE_PCTULTPOS then
-	local word = oultpct(raw[2]) * OCOMM_ULTPCT_MUL1
-	if word == 0 then
-	    return
-	end
-	if cmd == COMM_TYPE_PCTULT then
-	    raw[3] = oultpct(raw[3])
-	end
-	word = word + raw[3]
-	for i = 2, 4 do
-	    raw[i] = word % 256
-	    word = math.floor(word / 256)
-	end
-    end
-
-    raw[1] = raw[1] + OCMDOFF
-    if raw[1] > 0xc6 then
-	raw[1] = raw[1] + 1
-    end
-
-    local data = 0
-    if	cmd == COMM_TYPE_ULTFIRED then
-	data = (raw[2] * 256) + raw[1]
-    else
-	local mul = 1
-	for _, v in ipairs(raw) do
-	    data = data + (mul * v)
-	    mul = mul * 256
-	end
-    end
-
-    local x = (data % OXY) / OXY
-    local y = math.floor(data / OXY) / OXY
-    if y == 0 then
-	y = 0.1 / OXY
-    end
-
-    -- local before = GetGameTimeMilliseconds()
-    mapop(PingMap, saved.MapIndex, MAP_PIN_TYPE_PING, MAP_TYPE_LOCATION_CENTERED, x, y)
-    -- watch("osend", GetGameTimeMilliseconds() - before)
 end
 
 local fmt = {
@@ -241,10 +151,6 @@ local fmt = {
     '%010d'
 }
 function MapComm.Send(cmd, send)
-    if sendold then
-	zo_callLater(function () osend(cmd, unpack(send)) end, 1000)
-    end
-
     local s = string.format('%02d', cmd)
     local packing = packing[cmd]
     for i, wid in ipairs(packing) do
