@@ -119,7 +119,7 @@ local function on_map_ping(pingtype, pingtag)
 	return
     end
     if not LMP:IsPingSuppressed(pingtype, pingtag) then
--- HERE('suppressed', pingtype, pingtag)
+HERE('suppressed', pingtype, pingtag)
 	LMP:SuppressPing(pingtype, pingtag)
     end
 

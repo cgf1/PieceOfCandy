@@ -1,7 +1,7 @@
 setfenv(1, POC)
 Name = "POC"
 
-local version = '4.0b10'
+local version = '4.0b11'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'

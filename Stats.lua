@@ -229,10 +229,39 @@ local function initialize_update_func(x)
     update_func(x)
 end
 
+local isdamage = {
+    [ACTION_RESULT_CRITICAL_DAMAGE] = true,
+    [ACTION_RESULT_DAMAGE] = true,
+    [ACTION_RESULT_DOT_TICK] = true,
+    [ACTION_RESULT_DOT_TICK_CRITICAL] = true,
+    [ACTION_RESULT_PRECISE_DAMAGE] = true,
+    [ACTION_RESULT_WRECKING_DAMAGE] = true
+}
+
+local isheal = {
+    [ACTION_RESULT_CRITICAL_HEAL] = true,
+    [ACTION_RESULT_HEAL] = true,
+    [ACTION_RESULT_HOT_TICK] = true,
+    [ACTION_RESULT_HOT_TICK_CRITICAL] = true
+}
+
 local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid)
+    if POC_SAVESTATS then
+	saved.StatMe = saved.StatMe or {}
+	saved.StatMe[#saved.StatMe + 1] = {result, iserror, aid_name, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid}
+    end
+    if Watching then
+	watch('oncombat', 'aid_name', aid_name, 'sname', sname, 'stype', stype, 'tname', tname, 'ttype', ttype)
+	watch('oncombat', 'hit', hit, 'power_type', power_type, 'damage_type', damage_type, 'log', log, 'suid', suid, 'tuid', tuid, 'aid', aid)
+	watch('oncombat', result, ACTION_RESULT_HEAL, ACTION_RESULT_CRITICAL_HEAL, ACTION_RESULT_DAMAGE, ACTION_RESULT_CRITICAL_DAMAGE)
+    end
+    if stype ~= COMBAT_UNIT_TYPE_PLAYER and stype ~= COMBAT_UNIT_TYPE_PLAYER_PET then
+	return
+    end
     if not aid_name or aid_name:len() == 0 then
 	return
     end
+    --[[
     if sname then
 	sname = sname:gsub('(.*)^.*', '%1')
     else
@@ -243,25 +272,16 @@ local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname,
     else
 	return
     end
-    if POC_SAVESTATS then
-	saved.StatMe = saved.StatMe or {}
-	saved.StatMe[#saved.StatMe + 1] = {result, iserror, aid_name, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid}
-    end
-    if Watching then
-	watch('oncombat', 'aid_name', aid_name, 'sname', sname, 'stype', stype, 'tname', tname, 'ttype', ttype)
-	watch('oncombat', 'hit', hit, 'power_type', power_type, 'damage_type', damage_type, 'log', log, 'suid', suid, 'tuid', tuid, 'aid', aid)
-	watch('oncombat', result, ACTION_RESULT_HEAL, ACTION_RESULT_CRITICAL_HEAL, ACTION_RESULT_DAMAGE, ACTION_RESULT_CRITICAL_DAMAGE)
-    end
-    local player = group_members[sname]
+    --]]
     -- Add toggle to include self heals, self damage (?)
-    if not player or not player.IsMe or (not saved.SelfStats and tuid == 'player') or (not saved.AllStats and ttype ~= COMBAT_UNIT_TYPE_OTHER) then
+    if (not saved.SelfStats and ttype == COMBAT_UNIT_TYPE_PLAYER) or (not saved.AllStats and ttype ~= COMBAT_UNIT_TYPE_OTHER) then
 	return
     end
-    if result == ACTION_RESULT_HEAL or result == ACTION_RESULT_CRITICAL_HEAL then
-	player.Heal = player.Heal + hit
+    if isheal[result] then
+	me.Heal = me.Heal + hit
 	Stats.Refresh = true
-    elseif result == ACTION_RESULT_DAMAGE or result == ACTION_RESULT_CRITICAL_DAMAGE or result == ACTION_RESULT_PRECISE_DAMAGE or result == ACTION_RESULT_WRECKING_DAMAGE then
-	player.Damage = player.Damage + hit
+    elseif isdamage[result] then
+	me.Damage = me.Damage + hit
 	Stats.Refresh = true
     end
 end

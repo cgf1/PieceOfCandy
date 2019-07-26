@@ -1,3 +1,10 @@
+2019-07-26 (v4.0b11)
+
+- Disallow moving window while selecting an ultimate.
+
+- Add more events to track for healing and damage so that stats menu
+is more accurate.
+
 2019-07-22 (v4.0b10)
 
 - Remove ability to communicate with pre-Elsewyr versions.

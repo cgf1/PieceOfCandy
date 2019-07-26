@@ -31,6 +31,9 @@ COMM_TYPE_STAT_HEAL	=  1 + COMM_MAGIC1
 
 COMM_ALL_PLAYERS	= 0
 
+local D = COMM_TYPE_STAT_DAMAGE
+local H = COMM_TYPE_STAT_HEAL
+
 local packing = {
     [COMM_TYPE_FWCAMPTIMER] = {3},
     [COMM_TYPE_COUNTDOWN] = {3},
@@ -41,8 +44,8 @@ local packing = {
     [COMM_TYPE_MAKEMELEADER] = {},
     [COMM_TYPE_ULTFIRED] = {6},
     [COMM_TYPE_NEEDHELP] = {},
-    [COMM_TYPE_STAT_DAMAGE] = {8},
-    [COMM_TYPE_STAT_HEAL] = {8}
+    [COMM_TYPE_STAT_DAMAGE] = {7, 1},
+    [COMM_TYPE_STAT_HEAL] = {7, 1}
 }
 
 local update_interval
@@ -190,42 +193,49 @@ local function setult()
     end
 end
 
-local function statwhich(me, luping, now)
+local last_stat_ping = {
+    [D] = {0, 0, 0, 'DAMAGE'},
+    [H] = {0, 0, 0, 'HEAL'}
+}
+
+local function statwhich(me, now)
     local cmd, what
-    if me.Damage ~= luping.Damage[1] and me.Heal ~= luping.Heal[1] then
-	local ddelta = now - luping.Damage[2]
-	local hdelta = now - luping.Heal[2]
+    local lsdping = last_stat_ping[D]
+    local lshping = last_stat_ping[H]
+    local me_damage, me_heal = me.Damage, me.Heal
+    if me_damage ~= lsdping[1] and me_heal ~= lshping[1] then
+	local ddelta = now - lsdping[2]
+	local hdelta = now - lshping[2]
 	if ddelta > hdelta then
-	    cmd, what = COMM_TYPE_STAT_DAMAGE, 'DAMAGE'
+	    cmd = D
 	else
-	    cmd, what = COMM_TYPE_STAT_HEAL, 'HEAL'
+	    cmd = H
 	end
-    elseif me.Damage ~= luping.Damage[1] then
-	cmd, what = COMM_TYPE_STAT_DAMAGE, 'DAMAGE'
+    elseif me_damage ~= lsdping[1] then
+	cmd = D
     else
-	cmd, what = COMM_TYPE_STAT_HEAL, 'HEAL'
+	cmd = H
     end
-    local val
-    if cmd == COMM_TYPE_STAT_DAMAGE then
-	val = me.Damage - luping.Damage[1]
-	luping.Damage[1] = me.Damage
-	luping.Damage[2] = now
+    local tbl = last_stat_ping[cmd]
+    what = tbl[4]
+    local stat
+    if cmd == D then
+	stat = me_damage
     else
-	val = me.Heal - luping.Heal[1]
-	luping.Heal[1] = me.Heal
-	luping.Heal[2] = now
+	stat = me_heal
     end
-    watch('statwhich', cmd, val, what)
-    return cmd, val, what
+    local val = stat - tbl[1]
+    local seq = tbl[3]
+    tbl[1] = stat
+    tbl[2] = now
+    tbl[3] = tbl[3] + 1
+    watch('statwhich', cmd, val, seq, what)
+    return cmd, val, seq, what
 end
 
 local old_queue = 0
 local before = 0
 local last_ult_ping = {}
-local last_stat_ping = {
-    Damage = {0, 0},
-    Heal = {0, 0}
-}
 local tosend = {}
 local function on_update()
     if not comm.active then
@@ -286,9 +296,8 @@ local function on_update()
 	local namenext = 'PCTULT'
 	if not same then
 	    -- fall through
-	elseif saved.ShareStats and last_stat_ping.Damage[1] ~= me.Damage or last_stat_ping.Heal[1] ~= me.Heal then
-	    cmdnext, tosend[1], namenext = statwhich(me, last_stat_ping, now)
-	    tosend[2] = nil
+	elseif saved.ShareStats and last_stat_ping[D][1] ~= me.Damage or last_stat_ping[H][1] ~= me.Heal then
+	    cmdnext, tosend[1], tosend[2], namenext = statwhich(me, now)
 	elseif (counter % keepalive_ping) ~= 0 then
 	    return
 	end
@@ -324,7 +333,7 @@ function Comm.Dispatch(pingtag, cmd, data, unppct)
 	comm.lastmytime = timenow
 	comm.lastmycomm = cmd
     end
-    local apid1, pct1, pos, apid2, pct2, heal, damage
+    local apid1, pct1, pos, apid2, pct2, heal, damage, dseq, hseq
     local fwctimer = 0
     if cmd == COMM_TYPE_COUNTDOWN then
 	Countdown.Start(data[1])

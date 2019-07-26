@@ -129,11 +129,9 @@ local show_widget
 
 -- set_widget_movable sets the Movable and MouseEnabled flag in UI elements
 --
-local function set_widget_movable()
-    local movable = saved.AllowMove
-    if movable == nil then
-	movable = true
-	saved.AllowMove = true
+local function set_widget_movable(movable, set)
+    if set then
+	saved.AllowMove = movable
     end
     widget:SetMovable(movable)
     widget:SetMouseEnabled(movable)
@@ -282,8 +280,13 @@ local function dump(name)
     end
 end
 
+local ult_active
 local function showcols()
     local showall = ultm_isactive()
+    if showall ~= ult_active then
+	set_widget_movable(not showall)
+	ult_active = showall
+    end
     return saved.ShowUnusedCols or showall, showall
 end
 
@@ -1091,7 +1094,7 @@ function Player.Update(clear_need_to_fire)
 	local unitname = GetUnitName(unitid)
 	if unitname ~= nil and unitname:len() ~= 0 then
 	    nmembers = nmembers + 1
-	    player = Player.New(unitid)
+	    local player = Player.New(unitid)
 	    if player:TimedOut() then
 		nmembers = nmembers - 1
 	    elseif player.InRange then
@@ -1470,8 +1473,7 @@ function swimlanes.Initialize(major, minor, _saved)
 	    return
 	end
 	if movable ~= nil then
-	    saved.AllowMove = movable
-	    set_widget_movable()
+	    set_widget_movable(movable, true)
 	end
 	Info("movable state is:", saved.AllowMove)
     end)
