@@ -1,4 +1,26 @@
+2019-08-01 (v4.0)
+
+- Update for Scalebreaker.
+
+- Disallow moving window while selecting an ultimate.
+
+- Add experimental healing and damage tracking.
+
+- Remove ability to communicate with pre-Elsewyr versions.
+
+- Fix /pocn countdown.
+
+- Reorganize settings menu into subcategories.
+
+- Fix issue which caused screen to be updated too frequently.
+
+- Fix breakage with countdown and alert.
+
+- Fix bleed-over from previous groups showing up when a new group is joined.
+
 2019-07-26 (v4.0b11)
+
+- Update for Scalebreaker.
 
 - Disallow moving window while selecting an ultimate.
 
