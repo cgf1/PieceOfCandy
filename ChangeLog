@@ -1,6 +1,6 @@
 2019-08-01 (v4.0)
 
-- Update for Scalebreaker.
+- Bump API version for Scalebreaker.
 
 - Disallow moving window while selecting an ultimate.
 
