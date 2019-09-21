@@ -494,30 +494,6 @@ function Ult.Initialize(_saved)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_SKILL_RESPEC_RESULT, function () ability_updated('respec') end)
     EVENT_MANAGER:RegisterForEvent(Group.Name, EVENT_ABILITY_LIST_CHANGED, function () ability_updated('ability list changed') end)
 
-    local ids
-    if saved.SwimlaneUltIds == nil then
-	ids = saved.LaneIds
-    else
-	ids = saved.SwimlaneUltIds
-	saved.SwimlaneUltIds = nil
-    end
-
-    -- Convert array of ultimate ability ids to shorter ultimate ping ids
-    local newultids = {}
-    local changed = false
-    for i = 1, saved.SwimlaneMaxCols do
-	v = ids[i]
-	if v == nil or v == 'MIA' then
-	    v = Ult.MaxPing
-	elseif v > Ult.MaxPing then
-	    v = Ult.ByAid(v).Ping
-	    changed = true
-	end
-	newultids[i] = v
-    end
-    if changed then
-	saved.LaneIds = newultids
-    end
     for n, v in pairs(saved.MyUltId) do
 	if type(v) ~= 'table' then
 	    if v > Ult.MaxPing then

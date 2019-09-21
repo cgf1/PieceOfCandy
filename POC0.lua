@@ -106,24 +106,27 @@ function Slash(names, help, func)
 	names = {names}
     end
     for _, name in ipairs(names) do
+	if name:sub(1, 1) ~= '/' then
+	    name = "/poc" .. name
+	end
+	local this
 	if func == nil then
+	    this = cmds[name]
 	    cmds[name] = nil
 	else
-	    cmds[name] = {
+	    this = {
 		Debug = help:match('debug'),
 		Help = help,
 		Func = func
 	    }
-	end
-	if name:sub(1, 1) ~= '/' then
-	    name = "/poc" .. name
+	    cmds[name] = this
 	end
 	if not LSC then
 	    SLASH_COMMANDS[name] = func
 	elseif func then
-	    LSC:Register(name, func, "POC: " .. help)
-	else
-	    -- LSC:Unregister(name)
+	    this.LSC = LSC:Register(name, func, "POC: " .. help)
+	elseif this.LSC then
+	    LSC:Unregister(this.LSC)
 	end
     end
     return func

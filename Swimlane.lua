@@ -1340,8 +1340,21 @@ function swimlanes.Initialize(major, minor, _saved)
     local ultids = {}
     local maxult = maxping - 1
     -- make sure laneids are properly ordered
-    laneids = saved.LaneIds
-    for i = 1, maxult  do
+    if saved.LaneIds then
+	local lid = saved.LaneIds
+	for n, _ in pairs(saved.MyUltId) do
+	    if not saved.MyLaneIds[n] then
+		saved.MyLaneIds[n] = {}
+		for i, x in ipairs(lid) do
+		    saved.MyLaneIds[n][i] = x
+		end
+	    end
+	end
+	saved.LaneIds = nil
+    end
+    laneids = saved.MyLaneIds[ultix]
+
+    for i = 1, maxult do
 	local apid = laneids[i]
 	if apid == 'MIA' then
 	    table.remove(laneids, i)

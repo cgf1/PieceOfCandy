@@ -10,17 +10,19 @@ local default = {
     AutUlt = true,
     CommOff = false,
     GroupMembers = {},
-    LaneIds = {
-	1,	-- Negate
-	6,	-- Templar Heal
-	16,	-- Destro fire ultimate
-	13,	-- Warden Permafrost
-	27,	-- Dawnbreaker
-	26,	-- Meteor
-	28,	-- Barrier
-	29,	-- War horn
-	12,	-- Soul tether
-	14	-- Warden heal
+    MyLaneIds = {
+	[ultix] = {
+	    1,	-- Negate
+	    6,	-- Templar Heal
+	    16,	-- Destro fire ultimate
+	    13,	-- Warden Permafrost
+	    27,	-- Dawnbreaker
+	    26,	-- Meteor
+	    28,	-- Barrier
+	    29,	-- War horn
+	    12,	-- Soul tether
+	    14	-- Warden heal
+	}
     },
     MIA = true,
     MapIndex = 30,	-- Vvardenfell
