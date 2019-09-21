@@ -1,6 +1,6 @@
 2019-09-21 (v4.1)
 
-- Make organization of ultimates into perl-character rather than
+- Make organization of ultimates into per-character rather than
 per-account.
 
 - Update API for Dragonhold.
