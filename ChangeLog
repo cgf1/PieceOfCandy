@@ -3,6 +3,8 @@
 - Make organization of ultimates into perl-character rather than
 per-account.
 
+- Update API for Dragonhole.
+
 2019-08-01 (v4.0)
 
 - Bump API version for Scalebreaker.
