@@ -7,27 +7,27 @@
 	    <OnMoveStart>POC.Swimlanes:OnMove(false)</OnMoveStart>
 	    <OnMoveStop>POC.Swimlanes:OnMove(true)</OnMoveStop>
 	    <Controls>
-                <Control name="$(parent)Movable" tier="PARENT" hidden="true">
-                    <Anchor point="TOPLEFT"/>
+		<Control name="$(parent)Movable" tier="PARENT" hidden="true">
+		    <Anchor point="TOPLEFT"/>
 -                   <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetY=60/>
-                    <Controls>
-                        <Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.1" >
-                            <Anchor point="TOPLEFT" />
-                            <Anchor point="BOTTOMRIGHT" />
-                        </Backdrop>
-                        <Label name="$(parent)Label" inherits="POC_MoveActiveLabel" text="MOVE" tier="2">
-                            <Anchor point="CENTER" />
-                        </Label>
-                    </Controls>
-                </Control>
+		    <Controls>
+			<Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.1" >
+			    <Anchor point="TOPLEFT" />
+			    <Anchor point="BOTTOMRIGHT" />
+			</Backdrop>
+			<Label name="$(parent)Label" inherits="POC_MoveActiveLabel" text="MOVE" tier="2">
+			    <Anchor point="CENTER" />
+			</Label>
+		    </Controls>
+		</Control>
 	    </Controls>
 	</TopLevelControl>
-        <TopLevelControl name="POC_CharTooltipTopLevel" inherits="TooltipTopLevel">
-            <Controls>
-                <Tooltip name="POC_CharTooltip"  inherits="ZO_BaseTooltip">
+	<TopLevelControl name="POC_CharTooltipTopLevel" inherits="TooltipTopLevel">
+	    <Controls>
+		<Tooltip name="POC_CharTooltip"  inherits="ZO_BaseTooltip">
 		    <DimensionConstraints minX="10" maxX="4000" />
-                </Tooltip>
-            </Controls>
-        </TopLevelControl>
+		</Tooltip>
+	    </Controls>
+	</TopLevelControl>
     </Controls>
 </GuiXml>

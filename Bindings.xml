@@ -4,18 +4,18 @@
 	    <Action name="POC_COUNTDOWN_KEY">
 		<Down>
 		    if POC.Me ~= nil and POC.Me.IsLeader then
-                        POC.Comm.Send(POC.COMM_TYPE_COUNTDOWN, {3})
+			POC.Comm.Send(POC.COMM_TYPE_COUNTDOWN, {3})
 		    end
 		</Down>
 	    </Action>
 	    <Action name="POC_NEEDHELP_KEY">
 		<Down>
-                    POC.Comm.Send(POC.COMM_TYPE_NEEDHELP)
+		    POC.Comm.Send(POC.COMM_TYPE_NEEDHELP)
 		</Down>
 	    </Action>
 	    <Action name="POC_TEXTUREHACK_KEY">
 		<Down>
-                    POC.Texture(true)
+		    POC.Texture(true)
 		</Down>
 	    </Action>
 	</Category>
