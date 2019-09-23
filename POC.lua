@@ -93,6 +93,7 @@ local function player_activated()
     EVENT_MANAGER:UnregisterForEvent(Name, EVENT_ADD_ON_LOADED)
     if saved.WarnConflict and #conflicts > 0 then
 	Message("The following add-ons are known to conflict with Piece of Candy:", unpack(conflicts), '', '|cffff00Running these together will likely result in a game crash.|r')
+        saved.WarnConflict = nil
     end
 end
 
