@@ -106,7 +106,9 @@ function Slash(names, help, func)
 	names = {names}
     end
     for _, name in ipairs(names) do
+	local nopoc
 	if name:sub(1, 1) ~= '/' then
+	    nopoc = name
 	    name = "/poc" .. name
 	end
 	local this
@@ -120,6 +122,9 @@ function Slash(names, help, func)
 		Func = func
 	    }
 	    cmds[name] = this
+	    if nopoc then
+		cmds[nopoc] = this
+	    end
 	end
 	if not LSC then
 	    SLASH_COMMANDS[name] = func

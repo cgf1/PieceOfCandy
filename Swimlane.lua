@@ -932,6 +932,7 @@ end
 function Player.Get(pingtag)
     local name = GetUnitName(pingtag)
     if not name then
+	Error(string.format("ping tag %s - name not found"), pingtag)
 	return nil
     end
     return group_members[name]
