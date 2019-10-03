@@ -58,6 +58,12 @@ function Info(...)
     xxx("|cffff00", "POC:", ...)
 end
 
+function Verbose(...)
+    if saved.Verbose then
+	Info(...)
+    end
+end
+
 function xxx(...)
     local accum = ''
     local space = ''

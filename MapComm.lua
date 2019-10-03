@@ -206,6 +206,7 @@ end
 function MapComm.Unload()
     LMP:UnregisterCallback("BeforePingAdded", on_map_ping)
     Slash("pingerr")
+    Slash("signify")
     MapComm.active = false
     for i = 1, 24 do
 	LMP:UnsuppressPing(MAP_PIN_TYPE_PING, 'group' .. i)

@@ -47,6 +47,7 @@ local default = {
     UltNoise = false,
     UltNumberPos = nil,
     UltNumberShow = true,
+    Verbose = true,
     WarnConflict = true,
     WereNumberOne = true
 }
@@ -430,6 +431,17 @@ local function initialize_window(version)
 	    setFunc = function(val)
 		saved.UltNoise = val
 	    end
+	},
+	{
+	    type = "checkbox",
+	    name = "Show verbose chat messages",
+	    tooltip = "Show chat messages, like entering/leaving group, etc.",
+	    getFunc = function()
+		return saved.Verbose
+	    end,
+	    setFunc = function(val)
+		saved.Verbose = val
+	    end,
 	},
 	{
 	    type = "checkbox",

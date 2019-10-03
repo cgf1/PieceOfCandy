@@ -161,7 +161,7 @@ end
 
 function Texture(what)
     RefreshSettings()
-    Info("Refresh Settings")
+    Verbose("Refresh Settings")
     if true then
     elseif not what then
 	SetCrownCrateNPCVisible(false)

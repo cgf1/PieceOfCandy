@@ -316,7 +316,7 @@ function Cols:Update(x)
 	refresh = false
     else
 	if not Group.IsGrouped() then
-	    msg("POC: No longer grouped")
+	    Verbose("No longer grouped")
 	end
 	clear(false)
 	show_widget(false)
@@ -400,7 +400,7 @@ function Cols:Update(x)
     if displayed then
 	-- displayed should be false if not grouped
 	if not wasactive then
-	    msg("POC: now grouped")
+	    Verbose("now grouped")
 	    Comm.Load()
 	end
 	wasactive = true
