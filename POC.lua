@@ -12,6 +12,7 @@ local addon_conflicts = {
     GroupDamageShare = true,
     HodorReflexes = true,
     RaidNotifier = true,
+    RdKGroupTool = true,
     SanctsUltimateOrganiser = true,
     TaosGroupTools = true,
     TaosGroupUltimate = true

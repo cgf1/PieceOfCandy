@@ -446,19 +446,21 @@ function Quest.Process(pingtag, nplayer, ix)
     end
     if sharequests and qname then
 	local player = player_get(pingtag)
-	local now = GetTimeStamp()
-	player.LastQuestShareTime = player.LastQuestShareTime or {}
-	local before = player.LastQuestShareTime[ix] or 0
-	player.LastQuestShareTime[ix] = now
-	if (now - before) < 180 then
-	    watch('Quest.Process', 'not sharing since too close to last send:', now, '-', before, '=', now - before, 'seconds')
-	    return
-	end
-	for i = 1, GetNumJournalQuests() do
-	    if GetJournalQuestName(i) == qname then
-		watch('Quest.Process', zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
-		ShareQuest(i)
+	if player then
+	    local now = GetTimeStamp()
+	    player.LastQuestShareTime = player.LastQuestShareTime or {}
+	    local before = player.LastQuestShareTime[ix] or 0
+	    player.LastQuestShareTime[ix] = now
+	    if (now - before) < 180 then
+		watch('Quest.Process', 'not sharing since too close to last send:', now, '-', before, '=', now - before, 'seconds')
 		return
+	    end
+	    for i = 1, GetNumJournalQuests() do
+		if GetJournalQuestName(i) == qname then
+		    watch('Quest.Process', zo_strformat("Sharing quest <<1>>", GetJournalQuestName(i)))
+		    ShareQuest(i)
+		    return
+		end
 	    end
 	end
     end
