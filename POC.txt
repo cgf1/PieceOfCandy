@@ -11,7 +11,7 @@
 ## Description: PVP Helper
 ## SavedVariables: POCSettings
 ## DependsOn: LibAddonMenu-2.0 LibGPS LibMapPing
-## OptionalDependsOn: LibSlashCommander pChat tom
+## OptionalDependsOn: LibSlashCommander pChat tom LibDebugLogger
 
 POCstats/POCstats.txt
 

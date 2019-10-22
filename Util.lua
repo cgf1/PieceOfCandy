@@ -1,8 +1,16 @@
-setfenv(1, POC)
-
+local log
+if LibDebugLogger ~= nil then
+    log = LibDebugLogger.Create('POC')
+    log:SetEnabled(true)
+    LibDebugLogger:SetBlockChatOutputEnabled(false)
+end
 local d = d
 local df = df
 local GetUIGlobalScale = GetUIGlobalScale
+local GetUnitDisplayName = GetUnitDisplayName
+local GetUnitName = GetUnitName
+
+setfenv(1, POC)
 
 local function iter(tmp)
     return table.remove(tmp, 1)
@@ -41,7 +49,7 @@ function namefit(control, name, sizex)
 end
 
 function Error(x)
-    d(string.format("POC error: |cff0000%s|r", x))
+    df("POC error: |cff0000%s|r", x)
 end
 
 function myunpack(t, n, i)
@@ -55,7 +63,7 @@ function myunpack(t, n, i)
 end
 
 function Info(...)
-    xxx("|cffff00", "POC:", ...)
+    xxx(true, "|cffff00", "POC:", ...)
 end
 
 function Verbose(...)
@@ -64,7 +72,7 @@ function Verbose(...)
     end
 end
 
-function xxx(...)
+function xxx(chat, ...)
     local accum = ''
     local space = ''
     for i = 1, select('#', ...) do
@@ -73,11 +81,15 @@ function xxx(...)
 	    space = ' '
 	end
     end
-    d(accum)
+    if chat or not log then
+	d(accum)
+    else
+	log:Info(accum)
+    end
 end
 
 function HERE(...)
-    xxx('|c00ffffXXX ', ...)
+    xxx(false, '|c00ffffXXX ', ...)
 end
 
 local watchmen
@@ -118,7 +130,7 @@ local function real_watch(what, ...)
 	doit = true
     end
     if doit then
-	xxx("|c00ff11", what .. ': ', ...)
+	xxx(false, "|c00ff11", what .. ': ', ...)
     end
 end
 
@@ -135,7 +147,7 @@ local function setwatch(x)
     if x:len() == 0 then
 	Info("Watchpoints")
 	for n, v in pairs(watchmen) do
-	    xxx('', n .. ":", v)
+	    xxx(true, '', n .. ":", v)
 	end
 	return
     end
@@ -192,3 +204,4 @@ end
 watch = real_watch
 
 Slash("watch", 'display debugging info for given "thing"', setwatch)
+Slash("here", 'debugging: here', function (x) xxx(x) end)

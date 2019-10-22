@@ -60,7 +60,9 @@ function ZO_WorldMap_GetPanAndZoom()
 end
 function ZO_WorldMap_GetPinManager()
 end
-function ZO_WorldMap_AddCustomPin()
+function ZO_WorldMap_AddCustomPin(pinType, func)
+    local tbl = {customPins = {}, m_keyToPinMapping = {}}
+    func(tbl)
 end
 function ZO_WorldMap_SetCustomPinEnabled()
 end
@@ -265,7 +267,25 @@ ACTION_RESULT_UNEVEN_TERRAIN = 2900
 ACTION_RESULT_WEAPONSWAP = 2450
 ACTION_RESULT_WRECKING_DAMAGE = 8
 ACTION_RESULT_WRONG_WEAPON = 2380
+_G["LibMapPins_Hack_to_get_PinManager"] = 'BLAH'
+
+CALLBACK_MANAGER = {}
+function CALLBACK_MANAGER:RegisterCallback()
+    return
+end
+
+function ZO_PreHook()
+    return
+end
 
 dofile('addons/LibStub/LibStub/LibStub.lua')
 dofile('addons/LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0.lua')
 dofile('addons/LibMapPing/LibMapPing.lua')
+dofile('addons/LibGPS/LibGPS.lua')
+dofile('addons/LibGPS/LibGPS.lua')
+dofile('addons/LibMapPins-1.0/LibMapPins-1.0/LibMapPins-1.0.lua')
+local x = {
+    __index = _G,
+}
+CyroDoor = setmetatable(x, x)
+CyroDoor.CyroDoor = CyroDoor

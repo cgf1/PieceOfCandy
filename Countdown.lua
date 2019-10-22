@@ -10,12 +10,10 @@ local counting
 local first = 1
 
 local nnn
-local xxx
 
 local function init()
     nnn = POC_Countdown
     nnnlabel = POC_CountdownLabel
-    xxx = xxx
 
     saved = Settings.SavedVariables	-- convenience
 

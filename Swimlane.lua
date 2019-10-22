@@ -179,7 +179,6 @@ local function ultn_show(n, ready)
     PlaySound(SOUNDS.DUEL_START)
     last_played = GetTimeStamp()
     play_sound = false
-    -- xxx("sound", play_sound)
     me.Because = "false because we played the sound"
 end
 

@@ -2,5 +2,5 @@
 ## Author: Valandil
 ## DependsOn: POC
 ## AddOnVersion: 1
-## APIVersion: 100026 100027
+## APIVersion: 100028 100029
 ## SavedVariables: POCstats
