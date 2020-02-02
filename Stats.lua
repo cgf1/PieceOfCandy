@@ -277,7 +277,7 @@ local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname,
     if (not saved.SelfStats and ttype == COMBAT_UNIT_TYPE_PLAYER) or (not saved.AllStats and ttype ~= COMBAT_UNIT_TYPE_OTHER) then
 	return
     end
-    if isheal[result] then
+    if isheal[result] and ttype ~= COMBAT_UNIT_TYPE_NONE then
 	me.Heal = me.Heal + hit
 	Stats.Refresh = true
     elseif isdamage[result] then
