@@ -412,10 +412,10 @@ local function initialize_window(version)
 	},
 	{
 	    type = "checkbox",
-	    name = "Only accept request for campaign specified via /poccampaign",
+	    name = "Accept join requests for all campaigns",
 	    tooltip = "Accept all requests to enter campaign, regardless of whether they are for your main campaign",
 	    getFunc = function()
-		return saved.RelaxedCampaiginAccept
+		return saved.RelaxedCampaignAccept
 	    end,
 	    setFunc = function(val)
 		saved.RelaxedCampaignAccept = true

@@ -24,7 +24,7 @@ end
 
 local function joined(_, id, isgroup)
     watch("joined", id, isgroup)
-    if id == campaign_id then
+    if saved.RelaxedCampaignAccept or id == campaign_id then
 	local s
 	if isgroup then
 	    s = 'group '
@@ -56,7 +56,7 @@ local function pos_changed(_, id, isgroup, pos)
 end
 
 local function state_changed(_, id, isgroup, state)
-    watch("state_changed", id, isgroup, state, id == campaign_id, state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING)
+    watch("state_changed", id, isgroup, state, id == campaign_id, state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING, saved.RelaxedCampaignAccept)
     if saved.AcceptPVP and state == CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING and (saved.RelaxedCampaignAccept or id == campaign_id) then
 	ConfirmCampaignEntry(id, isgroup, true)
     end

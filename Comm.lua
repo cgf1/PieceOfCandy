@@ -454,7 +454,7 @@ local function commtype(s)
     if s:find('pipe') or s:find('mapcomm') then
 	toset = MapComm
     elseif s == 'lgs' or s == 'libgroupsocket' then
-	toset = LGS
+	toset = MapComm
     else
 	toset = MapComm
     end

@@ -283,7 +283,7 @@ dofile('addons/LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0.lua')
 dofile('addons/LibMapPing/LibMapPing.lua')
 dofile('addons/LibGPS/LibGPS.lua')
 dofile('addons/LibGPS/LibGPS.lua')
-dofile('addons/LibMapPins-1.0/LibMapPins-1.0/LibMapPins-1.0.lua')
+dofile('addons/LibMapPins-1.0/LibMapPins-1.0.lua')
 local x = {
     __index = _G,
 }
