@@ -1,10 +1,15 @@
-2019-10-21 (v4.2)
+2020-02-02 (v4.2)
 
 - Fix LibSlashCommand error when leaving group.
 
 - Use LibDebugLogger for some messages.
 
 - Add settings toggle to turn off notifications requested by a user.
+
+- Fix issue where wouldn't join Cyrodiil when not main campaign even
+  though you told it to.
+
+- Fix issue where wall repair was counted as a heal.
 
 2019-09-21 (v4.1)
 
