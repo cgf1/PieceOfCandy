@@ -412,7 +412,7 @@ local function initialize_window(version)
 	},
 	{
 	    type = "checkbox",
-	    name = "Accept join requests for all campaigns",
+	    name = "Accept request for any Cyrodill campaign",
 	    tooltip = "Accept all requests to enter campaign, regardless of whether they are for your main campaign",
 	    getFunc = function()
 		return saved.RelaxedCampaignAccept
