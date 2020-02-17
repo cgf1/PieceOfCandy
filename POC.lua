@@ -1,7 +1,7 @@
 setfenv(1, POC)
 Name = "POC"
 
-local version = '4.2'
+local version = '4.3'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
@@ -92,9 +92,10 @@ end
 
 local function player_activated()
     EVENT_MANAGER:UnregisterForEvent(Name, EVENT_ADD_ON_LOADED)
+    EVENT_MANAGER:UnregisterForEvent(Name, EVENT_PLAYER_ACTIVATED)
     if saved.WarnConflict and #conflicts > 0 then
 	Message("The following add-ons are known to conflict with Piece of Candy:", unpack(conflicts), '', '|cffff00Running these together will likely result in a game crash.|r')
-        saved.WarnConflict = nil
+	saved.WarnConflict = nil
     end
 end
 

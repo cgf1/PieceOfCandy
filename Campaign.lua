@@ -107,7 +107,7 @@ function Campaign.Initialize(_saved)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_LEFT, left)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_POSITION_CHANGED, pos_changed)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_STATE_CHANGED, state_changed)
-    Slash("campaign", 'specify desired PVP campaign (e.g. "vivec")', function(n)
+    Slash("campaign", 'specify desired PVP campaign (e.g. "kaalgrontiid")', function(n)
 	if n:len() ~= 0 then
 	    n = n:lower()
 	    saved.Campaign.Name = n
@@ -154,6 +154,7 @@ function Campaign.Initialize(_saved)
 	    Error("you're not the group leader")
 	else
 	    QueueForCampaign(campaign_id, what:len() > 0)
+	    saved.Campaign.Name = GetCampaignName(campaign_id):lower()
 	    Info(string.format("%squeuing for campaign %s", what, pretty()))
 	end
     end)
