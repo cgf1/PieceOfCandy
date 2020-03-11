@@ -95,6 +95,7 @@ end
 --
 local function show_ult_number(show)
     saved.UltNumberShow = show
+    Swimlanes.Redo()
 end
 
 -- Set whether to play a sound when you hit #1 in ultimate order

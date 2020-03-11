@@ -98,7 +98,7 @@ function Campaign.Initialize(_saved)
     if saved.Campaign and saved.Campaign.Name then
 	name = saved.Campaign.Name
     else
-	name = 'vivec'
+	name = 'gray host'
     end
     saved.Campaign = {Name = name}
     get_campaign_id(name)

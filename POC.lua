@@ -102,3 +102,4 @@ end
 EVENT_MANAGER:RegisterForEvent(Name, EVENT_ADD_ON_LOADED, OnAddOnLoaded);
 EVENT_MANAGER:RegisterForEvent(Name, EVENT_PLAYER_ACTIVATED, player_activated);
 Slash("/rrr", "alias for /reloadui",function () ReloadUI() end)
+Slash("/lll", "alias for /logout",function () Logout() end)
