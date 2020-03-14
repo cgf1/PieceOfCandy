@@ -1,13 +1,11 @@
 ## APIVersion: 100029 100030
-## AddonVersion: 403
+## AddonVersion: 404
 ## Title: Piece of Candy
 ## Author: |c66ffff|Valandil|r
 ## Description: PVP Helper
 ## SavedVariables: POCSettings
 ## DependsOn: LibAddonMenu-2.0 LibGPS LibMapPing
 ## OptionalDependsOn: LibSlashCommander pChat tom LibDebugLogger
-
-POCstats/POCstats.txt
 
 icons/ok.dds
 icons/ok1.dds

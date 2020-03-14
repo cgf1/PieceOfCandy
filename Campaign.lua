@@ -13,7 +13,7 @@ local campaign = Campaign
 local campaign_id
 
 local function pretty()
-    return string.gsub(" " .. saved.Campaign.Name, "%W%l", string.upper):sub(2)
+    return string.gsub(" " .. (saved.Campaign.Name or "(unknown)"), "%W%l", string.upper):sub(2)
 end
 
 function Campaign.QueuePosition(isgroup)
@@ -67,14 +67,11 @@ local function clearernow()
 end
 
 local function get_campaign_id(name)
-    local assigned = GetAssignedCampaignId()
-    local guest = GetGuestCampaignId()
     -- don't really know why this is necessary
     if GetNumSelectionCampaigns() == 0 and saved.KnownCampaigns and saved.KnownCampaigns[name] then
 	campaign_id = saved.KnownCampaigns[name]
 	return
     end
-    campaign_id = nil
     if GetNumSelectionCampaigns() ~= 0 then
 	saved.KnownCampaigns = {}
     end
@@ -85,10 +82,11 @@ local function get_campaign_id(name)
 	    local thisname = GetCampaignName(id):lower()
 	    saved.KnownCampaigns[thisname] = id
 	    if GetCampaignName(id):lower() == name then
-		campaign_id = id
+		return id
 	    end
 	end
     end
+    return nil
 end
 
 function Campaign.Initialize(_saved)
@@ -96,12 +94,17 @@ function Campaign.Initialize(_saved)
 
     local name
     if saved.Campaign and saved.Campaign.Name then
-	name = saved.Campaign.Name
+	campaign_id = get_campaign_id(saved.Campaign.Name)
+    end
+    if not campaign_id then
+	campaign_id = GetAssignedCampaignId()
+    end
+    if campaign_id then
+	name = GetCampaignName(campaign_id):lower()
     else
-	name = 'gray host'
+	Error("No main campaign assigned?")
     end
     saved.Campaign = {Name = name}
-    get_campaign_id(name)
 
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_JOINED, joined)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_LEFT, left)
@@ -109,9 +112,13 @@ function Campaign.Initialize(_saved)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_STATE_CHANGED, state_changed)
     Slash("campaign", 'specify desired PVP campaign (e.g. "kaalgrontiid")', function(n)
 	if n:len() ~= 0 then
-	    n = n:lower()
-	    saved.Campaign.Name = n
-	    get_campaign_id(n)
+	    local newcampaign_id = get_campaign_id(n:lower())
+	    if not newcampaign_id then
+		Error(string.format("unknown campaign: %s", n))
+	    else
+		saved.Campaign.Name = n:lower()
+		campaign_id = newcampaign_id
+	    end
 	end
 	local id
 	if campaign_id then
@@ -139,9 +146,6 @@ function Campaign.Initialize(_saved)
 	end
     end)
     Slash("pvp", "queue for your preferred PVP campaign (e.g., 'Vivec')", function(x)
-	if not campaign_id then
-	    get_campaign_id(saved.Campaign.Name)
-	end
 	local what
 	if x:lower() == 'group' then
 	    what = 'group '
