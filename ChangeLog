@@ -1,3 +1,10 @@
+2020-03-14 (v4.4)
+
+- Use home campaign if campaign name is unset or wrong (as when ZOS changes
+campaign names).
+
+- Refresh display when user toggles 'display ultimate number'.
+
 2020-02-17 (v4.3)
 
 - Try harder to report correct campaign when queuing.
