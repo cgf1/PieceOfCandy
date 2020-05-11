@@ -23,11 +23,10 @@ tags ctags:
 	@ctags --language-force=lua **/*.lua
 
 .PHONY: install
-install: install-gotham install-ednor# install-norton
+install: install-gotham install-ednor
 
 .PHONY: install-gotham
 install-gotham: | all clean
-	@rm -rf /smb$e/*
 	@echo Rsyncing to gotham live...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb$e
 	@echo Rsyncing to gotham PTS...
@@ -36,7 +35,6 @@ install-gotham: | all clean
 
 .PHONY: install-ednor
 install-ednor: | all clean
-	@rm -rf /smb1$e/*
 	@echo Rsyncing to ednor live...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} $s
 	@echo Rsyncing to ednor PTS...
