@@ -1,3 +1,7 @@
+2020-05-11 (v4.5)
+
+- Get working for API version 100031 (Greymoor Update 26).
+
 2020-03-14 (v4.4)
 
 - Use home campaign if campaign name is unset or wrong (as when ZOS changes
