@@ -1,4 +1,4 @@
-## APIVersion: 100029 100030
+## APIVersion: 100030 100031
 ## AddonVersion: 404
 ## Title: Piece of Candy
 ## Author: |c66ffff|Valandil|r

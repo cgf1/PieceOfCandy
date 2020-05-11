@@ -96,7 +96,7 @@ function Campaign.Initialize(_saved)
     if saved.Campaign and saved.Campaign.Name then
 	campaign_id = get_campaign_id(saved.Campaign.Name)
     end
-    if not campaign_id then
+    if not campaign_id or campaign_id == 0 then
 	campaign_id = GetAssignedCampaignId()
     end
     if campaign_id then

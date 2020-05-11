@@ -523,7 +523,6 @@ function Settings.Initialize(version)
     saved.KeepQuest = nil
     saved.KillQuest = nil
     saved.ResourceQuest = nil
-    saved.DELETEME = nil
 
     if saved.PosX ~= nil and saved.PosY ~= nil then
 	saved.WinPos = {

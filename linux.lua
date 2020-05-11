@@ -16,6 +16,14 @@ end
 function HERE()
 end
 
+function GetTimeStamp()
+    return 0
+end
+
+function GetGameTimeMilliseconds()
+    return 0
+end
+
 function ZO_CreateStringId(x)
     return
 end
@@ -280,10 +288,90 @@ end
 
 dofile('addons/LibStub/LibStub/LibStub.lua')
 dofile('addons/LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0.lua')
-dofile('addons/LibMapPing/LibMapPing.lua')
-dofile('addons/LibGPS/LibGPS.lua')
-dofile('addons/LibGPS/LibGPS.lua')
-dofile('addons/LibMapPins-1.0/LibMapPins-1.0.lua')
+
+local addons = {
+    'LibStub/LibStub/LibStub',
+
+    'LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0',
+
+    -- 'LibChatMessage/LibChatMessage',
+
+    --[[ 'LibDebugLogger/LibDebugLogger',
+    'LibDebugLogger/Constants',
+    'LibDebugLogger/Logger',
+    'LibDebugLogger/Settings',
+    'LibDebugLogger/StartUpConfig',
+    'LibDebugLogger/LogHandler',
+    'LibDebugLogger/Callbacks',
+    'LibDebugLogger/API',
+    'LibDebugLogger/Compatibility', --]]
+    -- 'LibDebugLogger/Initialization',
+
+    --[[ 'LibGPS/StartUp',
+    'LibGPS/Measurement',
+    'LibGPS/MapStack',
+    'LibGPS/MapAdapter',
+    'LibGPS/TamrielOMeter',
+    'LibGPS/WaypointManager',
+    'LibGPS/api',
+    'LibGPS/compatibility', --]]
+
+    'LibMapPing/LibMapPing',
+
+    'LibMapPins-1.0/LibMapPins-1.0',
+}
+
+ADDON_STATE_NO_STATE = 1
+ADDON_STATE_TOC_LOADED = 2
+ADDON_STATE_ENABLED = 3
+ADDON_STATE_DISABLED = 4
+ADDON_STATE_VERSION_MISMATCH = 5
+ADDON_STATE_DEPENDENCIES_DISABLED = 6
+ADDON_STATE_ERROR_STATE_UNABLE_TO_LOAD = 7
+EVENT_CHAT_MESSAGE_CHANNEL = 1
+EVENT_BROADCAST = 2
+EVENT_FRIEND_PLAYER_STATUS_CHANGED = 3
+EVENT_IGNORE_ADDED = 4
+EVENT_IGNORE_REMOVED = 5
+EVENT_GROUP_TYPE_CHANGED = 6
+EVENT_GROUP_INVITE_RESPONSE = 7
+EVENT_SOCIAL_ERROR = 8
+EVENT_TRIAL_FEATURE_RESTRICTED = 9
+EVENT_GROUP_MEMBER_LEFT = 10
+EVENT_BATTLEGROUND_INACTIVITY_WARNING = 11
+
+CHAT_ROUTER = {}
+setmetatable(CHAT_ROUTER, {__index = _G})
+CHAT_ROUTER[EVENT_CHAT_MESSAGE_CHANNEL] = function () end
+CHAT_ROUTER[EVENT_BROADCAST] = function () end
+CHAT_ROUTER[EVENT_BROADCAST] = function () end
+CHAT_ROUTER[EVENT_BROADCAST] = function () end
+CHAT_ROUTER[EVENT_BROADCAST] = function () end
+CHAT_ROUTER[EVENT_BROADCAST] = function () end
+CHAT_ROUTER[EVENT_BROADCAST] = function () end
+
+function LibChatMessage()
+end
+
+function CHAT_ROUTER:GetRegisteredMessageFormatters()
+    return CHAT_ROUTER
+end
+
+AM = {}
+setmetatable(AM, {__index = _G})
+
+function GetAddOnManager()
+    return AM
+end
+
+function AM:GetNumAddOns()
+    return 0
+end
+
+for _, s in ipairs(addons) do
+    dofile('addons/' .. s .. '.lua')
+end
+
 local x = {
     __index = _G,
 }

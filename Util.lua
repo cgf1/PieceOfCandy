@@ -76,15 +76,18 @@ function xxx(chat, ...)
     local accum = ''
     local space = ''
     for i = 1, select('#', ...) do
-	accum = accum .. space .. tostring(select(i, ...))
-	if i > 1 then
-	    space = ' '
+	local s = select(i, ...)
+	if not log or i ~= 1 or not s:find('|') then
+	    accum = accum .. space .. tostring(s)
+	    if i > 1 then
+		space = ' '
+	    end
 	end
     end
     if chat or not log then
 	d(accum)
     else
-	log:Info(accum)
+	log:Warn(accum)
     end
 end
 

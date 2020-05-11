@@ -1,7 +1,6 @@
 setfenv(1, POC)
 local LMP = LibMapPing
 local LGPS = LibGPS2
-local GetAPIVersion = GetAPIVersion
 
 local getmapping = LMP.GetMapPing
 

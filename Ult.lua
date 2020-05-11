@@ -87,6 +87,10 @@ function Ult.Descriptions()
 end
 
 local function mkulttbl()
+    local ver = tostring(GetAPIVersion())
+    if saved.UltAbilities and saved.UltAbilities[ver] then
+	return unpack(saved.UltAbilities[ver])
+    end
     local tbl = {}
     local iconlist = {}
     for aid = 1, 190000 do
@@ -115,6 +119,8 @@ local function mkulttbl()
 	    end
 	end
     end
+    saved.UltAbilities = {}
+    saved.UltAbilities[ver] = {tbl, iconlist}
     return tbl, iconlist
 end
 
@@ -302,7 +308,6 @@ local function create_ults()
 	    {
 		Ping = 25,
 		Name = 'VAMP',
-		Icon = '/esoui/art/icons/ability_vampire_001.dds'
 	    }
 	},
 	['Mages Guild'] = {
@@ -366,6 +371,12 @@ local function create_ults()
 	}
     }
 
+    if GetAPIVersion() >= 100031 then
+	ults['Vampire'][1]['Icon'] = '/esoui/art/icons/ability_u26_vampire_06.dds'
+    else
+	ults['Vampire'][1]['Icon'] = '/esoui/art/icons/ability_vampire_001.dds'
+    end
+    
     -- Create tables indexed by different things
     local xltults, iconlist = mkulttbl()
     local maxping = 0
@@ -374,8 +385,6 @@ local function create_ults()
 	    local ping
 	    if group.Aid then
 		byids[group.Aid] = group
-	    elseif (group.Ping > 31) and (GetAPIVersion() < 100027) then
-		group.Ping = 0
 	    else
 		local icon = group.Icon
 		local aid = xltults[icon]
