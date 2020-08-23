@@ -1,3 +1,13 @@
+2020-08-22 (v4.6)
+
+- Fix handling of /poccampaign so that it will correctly detect your home
+campaign.
+
+- Use LibChatMessage to display information.
+
+- Hopefully fix issues where members from previous groups or members who have
+left group still show up in list.
+
 2020-05-11 (v4.5)
 
 - Get working for API version 100031 (Greymoor Update 26).
