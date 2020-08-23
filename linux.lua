@@ -1,5 +1,7 @@
 POC = {}
 setmetatable(POC, {__index = _G})
+CyroDeal = {}
+setmetatable(CyroDeal, {__index = _G})
 local IsLinux = true
 LGS={} LGS.__index = LGS
 setmetatable(LGS, LGS)
@@ -286,7 +288,15 @@ function ZO_PreHook()
     return
 end
 
-dofile('addons/LibStub/LibStub/LibStub.lua')
+function ZO_PostHook()
+end
+
+ZO_ColorDef={} ZO_ColorDef.__index = ZO_ColorDef
+setmetatable(ZO_ColorDef, ZO_ColorDef)
+
+function ZO_ColorDef:New()
+end
+-- dofile('addons/LibStub/LibStub/LibStub.lua')
 dofile('addons/LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0.lua')
 
 local addons = {

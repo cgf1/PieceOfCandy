@@ -1,7 +1,7 @@
 setfenv(1, POC)
 Name = "POC"
 
-local version = '4.5'
+local version = '4.6'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
@@ -24,9 +24,6 @@ local conflicts = {}
 --
 local function initialize()
     LuaErrors.Initialize()
-    -- Initialize logging
-    df("Piece of Candy v%s", version)
-    df('Type "/poc" for the settings menu.  Type "/poc help" to see available slash commands.')
 
     local strings = {
 	OPTIONS_HEADER =		 "Options",
@@ -93,6 +90,11 @@ end
 local function player_activated()
     EVENT_MANAGER:UnregisterForEvent(Name, EVENT_ADD_ON_LOADED)
     EVENT_MANAGER:UnregisterForEvent(Name, EVENT_PLAYER_ACTIVATED)
+    zo_callLater(function ()
+	Info(string.format("Version %s", version))
+	Info('Type "/poc" for the settings menu.')
+	Info('Type "/poc help" to see available slash commands.')
+    end, 500)
     if saved.WarnConflict and #conflicts > 0 then
 	Message("The following add-ons are known to conflict with Piece of Candy:", unpack(conflicts), '', '|cffff00Running these together will likely result in a game crash.|r')
 	saved.WarnConflict = nil

@@ -70,7 +70,7 @@ local function get_campaign_id(name)
     -- don't really know why this is necessary
     if GetNumSelectionCampaigns() == 0 and saved.KnownCampaigns and saved.KnownCampaigns[name] then
 	campaign_id = saved.KnownCampaigns[name]
-	return
+	return campaign_id
     end
     if GetNumSelectionCampaigns() ~= 0 then
 	saved.KnownCampaigns = {}
@@ -86,25 +86,14 @@ local function get_campaign_id(name)
 	    end
 	end
     end
-    return nil
+    return GetAssignedCampaignId()
+end
+
+function curcampaign()
 end
 
 function Campaign.Initialize(_saved)
     saved = _saved
-
-    local name
-    if saved.Campaign and saved.Campaign.Name then
-	campaign_id = get_campaign_id(saved.Campaign.Name)
-    end
-    if not campaign_id or campaign_id == 0 then
-	campaign_id = GetAssignedCampaignId()
-    end
-    if campaign_id then
-	name = GetCampaignName(campaign_id):lower()
-    else
-	Error("No main campaign assigned?")
-    end
-    saved.Campaign = {Name = name}
 
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_JOINED, joined)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_LEFT, left)
@@ -115,6 +104,7 @@ function Campaign.Initialize(_saved)
 	    local newcampaign_id = get_campaign_id(n:lower())
 	    if not newcampaign_id then
 		Error(string.format("unknown campaign: %s", n))
+		return
 	    else
 		saved.Campaign.Name = n:lower()
 		campaign_id = newcampaign_id
@@ -152,10 +142,15 @@ function Campaign.Initialize(_saved)
 	else
 	    what = ''
 	end
+
+	campaign_id = get_campaign_id(saved.Campaign.Name)
 	if not campaign_id then
 	    Error(string.format("don't know how to queue for campaign %s", pretty()))
 	elseif what ~= '' and not IsUnitGroupLeader("player") then
 	    Error("you're not the group leader")
+	elseif x == 'leave' then
+	    LeaveCampaignQueue(campaign_id, false)
+	    Info(string.format("left campaign queue for %s", pretty()))
 	else
 	    QueueForCampaign(campaign_id, what:len() > 0)
 	    saved.Campaign.Name = GetCampaignName(campaign_id):lower()
@@ -164,3 +159,4 @@ function Campaign.Initialize(_saved)
     end)
     RegClear(clearernow)
 end
+

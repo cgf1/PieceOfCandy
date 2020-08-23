@@ -207,8 +207,9 @@ end
 
 local function clear(verbose)
     Cols:Redo()
-    saved.GroupMembers = {}
-    group_members = saved.GroupMembers
+    for x, _ in pairs(group_members) do
+	group_members[x] = nil
+    end
     for _, x in ipairs(Cols) do
 	x.Players = {}
     end

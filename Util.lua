@@ -4,6 +4,7 @@ if LibDebugLogger ~= nil then
     log:SetEnabled(true)
     LibDebugLogger:SetBlockChatOutputEnabled(false)
 end
+local lcm = LibChatMessage("Piece of Candy", "POC")
 local d = d
 local df = df
 local GetUIGlobalScale = GetUIGlobalScale
@@ -63,7 +64,7 @@ function myunpack(t, n, i)
 end
 
 function Info(...)
-    xxx(true, "|cffff00", "POC:", ...)
+    xxx(true, "|cffff00", ...)
 end
 
 function Verbose(...)
@@ -85,7 +86,7 @@ function xxx(chat, ...)
 	end
     end
     if chat or not log then
-	d(accum)
+	lcm:Print(accum)
     else
 	log:Warn(accum)
     end
@@ -208,3 +209,9 @@ watch = real_watch
 
 Slash("watch", 'display debugging info for given "thing"', setwatch)
 Slash("here", 'debugging: here', function (x) xxx(x) end)
+if LibDebugLogger then
+    Slash("/lno", "turn of LibDebugLogger chat output block", function ()
+	LibDebugLogger:SetBlockChatOutputEnabled(false)
+	d("SetBlockChatOutputEnabled = false")
+    end)
+end
