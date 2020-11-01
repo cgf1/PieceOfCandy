@@ -16,12 +16,6 @@ local function pretty()
     return string.gsub(" " .. (saved.Campaign.Name or "(unknown)"), "%W%l", string.upper):sub(2)
 end
 
-function Campaign.QueuePosition(isgroup)
-    local pos = GetCampaignQueuePosition(campaign_id, isgroup)
-    watch("Campaign.QueuePosition", campaign_id, isgroup, pos)
-    return pos
-end
-
 local function joined(_, id, isgroup)
     watch("joined", id, isgroup)
     if saved.RelaxedCampaignAccept or id == campaign_id then
@@ -89,6 +83,13 @@ local function get_campaign_id(name)
     return GetAssignedCampaignId()
 end
 
+function Campaign.QueuePosition(isgroup)
+    campaign_id = campaign_id or get_campaign_id(saved.Campaign.Name)
+    local pos = GetCampaignQueuePosition(campaign_id, isgroup)
+    watch("Campaign.QueuePosition", campaign_id, isgroup, pos)
+    return pos
+end
+
 function curcampaign()
 end
 
@@ -130,6 +131,8 @@ function Campaign.Initialize(_saved)
 	watch("queue", "isgroup", 'group', gpos, 'pos', pos)
 	if pos ~= 0 then
 	    Info(string.format("solo queue for %s: %d", pretty(), pos))
+	else
+	    Info("not queued? " .. pos)
 	end
 	if gpos ~= 0 then
 	    Info(string.format("group queue for %s: %d", pretty(), gpos))
