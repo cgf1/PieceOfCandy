@@ -1,6 +1,12 @@
+2020-11-21 (v4.8)
+
+- Fix stupid issue which caused first-time users to get a lua error.
+
+- Make sure that messages from this addon are properly tagged with [POC].
+
 2020-11-01 (v4.7)
 
-- Get working for API version 100032 (Malkarth update 27).
+- Get working for API version 100033 (Malkarth update 28).
 
 - Fix queue reporting via /pocqueue.
 
