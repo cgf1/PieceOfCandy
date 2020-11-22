@@ -100,6 +100,7 @@ function Campaign.Initialize(_saved)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_LEFT, left)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_POSITION_CHANGED, pos_changed)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_STATE_CHANGED, state_changed)
+    saved.Campaign = saved.Campaign or {}
     Slash("campaign", 'specify desired PVP campaign (e.g. "kaalgrontiid")', function(n)
 	if n:len() ~= 0 then
 	    local newcampaign_id = get_campaign_id(n:lower())
@@ -132,7 +133,7 @@ function Campaign.Initialize(_saved)
 	if pos ~= 0 then
 	    Info(string.format("solo queue for %s: %d", pretty(), pos))
 	else
-	    Info("not queued? " .. pos)
+	    Info("not queued?")
 	end
 	if gpos ~= 0 then
 	    Info(string.format("group queue for %s: %d", pretty(), gpos))

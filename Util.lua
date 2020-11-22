@@ -5,6 +5,11 @@ if LibDebugLogger ~= nil then
     LibDebugLogger:SetBlockChatOutputEnabled(false)
 end
 local lcm = LibChatMessage("Piece of Candy", "POC")
+if lcm then
+    lcm.settings = lcm.settings or {}
+    lcm.settings.tagPrefixMode = lcm.TAG_PREFIX_SHORT
+end
+
 local d = d
 local df = df
 local GetUIGlobalScale = GetUIGlobalScale
