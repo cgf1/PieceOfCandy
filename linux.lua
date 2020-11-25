@@ -360,7 +360,8 @@ CHAT_ROUTER[EVENT_BROADCAST] = function () end
 CHAT_ROUTER[EVENT_BROADCAST] = function () end
 CHAT_ROUTER[EVENT_BROADCAST] = function () end
 
-function LibChatMessage()
+LibChatMessage = {}
+function LibChatMessage.Create()
 end
 
 function CHAT_ROUTER:GetRegisteredMessageFormatters()

@@ -4,11 +4,6 @@ if LibDebugLogger ~= nil then
     log:SetEnabled(true)
     LibDebugLogger:SetBlockChatOutputEnabled(false)
 end
-local lcm = LibChatMessage("Piece of Candy", "POC")
-if lcm then
-    lcm.settings = lcm.settings or {}
-    lcm.settings.tagPrefixMode = lcm.TAG_PREFIX_SHORT
-end
 
 local d = d
 local df = df
@@ -78,7 +73,7 @@ function Verbose(...)
     end
 end
 
-function xxx(chat, ...)
+function xxx(dochat, ...)
     local accum = ''
     local space = ''
     for i = 1, select('#', ...) do
@@ -90,10 +85,10 @@ function xxx(chat, ...)
 	    end
 	end
     end
-    if chat or not log then
-	lcm:Print(accum)
-    else
+    if not dochat and log then
 	log:Warn(accum)
+    else
+	POCCHAT:Print(accum)
     end
 end
 
