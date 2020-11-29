@@ -10,8 +10,17 @@ local df = df
 local GetUIGlobalScale = GetUIGlobalScale
 local GetUnitDisplayName = GetUnitDisplayName
 local GetUnitName = GetUnitName
+local saved
+local LCM = LibChatMessage
+local TAG_PREFIX_OFF
+local chat
 
 setfenv(1, POC)
+Util = {
+    Name = "POC-Util"
+}
+local Util = Util
+Util.__index = Util
 
 local function iter(tmp)
     return table.remove(tmp, 1)
@@ -88,7 +97,11 @@ function xxx(dochat, ...)
     if not dochat and log then
 	log:Warn(accum)
     else
-	POCCHAT:Print(accum)
+	if LCM:GetTagPrefixMode() ~= TAG_PREFIX_OFF then
+	    chat:Print(accum)
+	else
+	    chat:Printf("[%s] %s", 'POC', accum)
+	end
     end
 end
 
@@ -203,6 +216,13 @@ function player_name(tag)
 	name = GetUnitName(tag)
     end
     return name
+end
+
+function Util.Init(_saved)
+    saved = _saved
+    local LCM = LibChatMessage
+    chat = LCM.Create("Piece of Candy", "POC")
+    TAG_PREFIX_OFF = LCM.TAG_PREFIX_OFF
 end
 
 watch = real_watch

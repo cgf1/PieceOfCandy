@@ -64,6 +64,8 @@ local oldqueue
 
 local me
 
+local saved
+
 Comm = {
     active = false,
     Name = "POC-Comm",
@@ -468,7 +470,7 @@ function clearernow()
 end
 
 function Comm.Initialize(inmajor, inminor, inbeta, _saved)
-    saved = saved
+    saved = _saved
     saved.MapPing = nil
     Swimlanes = POC.Swimlanes
     myults = saved.MyUltId[ultix]

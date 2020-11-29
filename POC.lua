@@ -1,10 +1,12 @@
 setfenv(1, POC)
 Name = "POC"
 
-local version = '4.8'
+local version = '4.9'
 local major = tonumber(version:match("^(%d+)"))
 local minor = tonumber(version:match("\.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
+
+local saved
 
 local addon_conflicts = {
     -- for testing -- AAQ = true,
@@ -49,8 +51,10 @@ local function initialize()
 
     WM = GetWindowManager()
 
-    saved = Settings.GetSaved()
+    local _saved = Settings.GetSaved()
+    saved = _saved
 
+    Util.Init(saved)
     -- Initialize available ultimates
     Ult.Initialize(saved)
 
@@ -91,9 +95,6 @@ local function player_activated()
     EVENT_MANAGER:UnregisterForEvent(Name, EVENT_ADD_ON_LOADED)
     EVENT_MANAGER:UnregisterForEvent(Name, EVENT_PLAYER_ACTIVATED)
     zo_callLater(function ()
-	local LCM = ZO_DeepTableCopy(LibChatMessage)
-	POCCHAT = LCM.Create("Piece of Candy", "POC")
-	LCM:SetTagPrefixMode(LCM.TAG_PREFIX_SHORT)
 	Info(string.format("Version %s", version))
 	Info('Type "/poc" for the settings menu.')
 	Info('Type "/poc help" to see available slash commands.')
