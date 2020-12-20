@@ -1,3 +1,4 @@
+local LC = LibCombat
 setfenv(1, POC)
 
 Stats = {
@@ -229,60 +230,36 @@ local function initialize_update_func(x)
     update_func(x)
 end
 
-local isdamage = {
-    [ACTION_RESULT_CRITICAL_DAMAGE] = true,
-    [ACTION_RESULT_DAMAGE] = true,
-    [ACTION_RESULT_DOT_TICK] = true,
-    [ACTION_RESULT_DOT_TICK_CRITICAL] = true,
-    [ACTION_RESULT_PRECISE_DAMAGE] = true,
-    [ACTION_RESULT_WRECKING_DAMAGE] = true
-}
+local unitcache = {}
+local function record(ev, timems, result, sid, tid, aid, hit, damage_type, overflow)
+    if not unitcache[tid] then
+	local fight = LC.GetCurrentFight()
+	if not fight or not fight.units[tid] then
+	    Info(string.format("*** couldn't find unit %d", tid))
+	    return
+	end
+	local this = fight.units[tid]
+	unitcache[tid] = {this.unitType, this.name};
+    end
 
-local isheal = {
-    [ACTION_RESULT_CRITICAL_HEAL] = true,
-    [ACTION_RESULT_HEAL] = true,
-    [ACTION_RESULT_HOT_TICK] = true,
-    [ACTION_RESULT_HOT_TICK_CRITICAL] = true
-}
+    if unitcache[tid][0] ~= COMBAT_UNIT_TYPE_OTHER then
+	return
+    end
 
-local function oncombat(_, result, iserror, aid_name, _, _, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid)
-    if POC_SAVESTATS then
-	saved.StatMe = saved.StatMe or {}
-	saved.StatMe[#saved.StatMe + 1] = {result, iserror, aid_name, sname, stype, tname, ttype, hit, power_type, damage_type, log, suid, tuid, aid}
-    end
-    if Watching then
-	watch('oncombat', 'aid_name', aid_name, 'sname', sname, 'stype', stype, 'tname', tname, 'ttype', ttype)
-	watch('oncombat', 'hit', hit, 'power_type', power_type, 'damage_type', damage_type, 'log', log, 'suid', suid, 'tuid', tuid, 'aid', aid)
-	watch('oncombat', result, ACTION_RESULT_HEAL, ACTION_RESULT_CRITICAL_HEAL, ACTION_RESULT_DAMAGE, ACTION_RESULT_CRITICAL_DAMAGE)
-    end
-    if stype ~= COMBAT_UNIT_TYPE_PLAYER and stype ~= COMBAT_UNIT_TYPE_PLAYER_PET then
-	return
-    end
-    if not aid_name or aid_name:len() == 0 then
-	return
-    end
-    --[[
-    if sname then
-	sname = sname:gsub('(.*)^.*', '%1')
+    local ix
+    if ev == LIBCOMBAT_EVENT_DAMAGE_OUT then
+	ix = 'Damage'
     else
-	return
+	ix = 'Heal'
     end
-    if tname then
-	tname = tname:gsub('(.*)^.*', '%1')
-    else
-	return
-    end
-    --]]
-    -- Add toggle to include self heals, self damage (?)
-    if (not saved.SelfStats and ttype == COMBAT_UNIT_TYPE_PLAYER) or (not saved.AllStats and ttype ~= COMBAT_UNIT_TYPE_OTHER) then
-	return
-    end
-    if isheal[result] and ttype ~= COMBAT_UNIT_TYPE_NONE then
-	me.Heal = me.Heal + hit
-	Stats.Refresh = true
-    elseif isdamage[result] then
-	me.Damage = me.Damage + hit
-	Stats.Refresh = true
+    watch('damage', ix, hit, unitcache[tid][1])
+    me[ix] = me[ix] + hit
+    Stats.Refresh = true
+end
+
+function clearcache()
+    for x in pairs(unitcache) do
+	unitcache[x] = nil
     end
 end
 
@@ -297,16 +274,25 @@ function Stats.ShareThem(x, doit)
 	-- nothing to do
     elseif sharestats then
 	register_widget(widget, 'stats', true)
-	EVENT_MANAGER:RegisterForEvent(Stats.name, EVENT_COMBAT_EVENT, oncombat)
-	EVENT_MANAGER:AddFilterForEvent(Stats.name, EVENT_COMBAT_EVENT, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
+	LC:RegisterCallbackType(LIBCOMBAT_EVENT_DAMAGE_OUT, record, "POC")
+	LC:RegisterCallbackType(LIBCOMBAT_EVENT_HEAL_OUT, record, "POC")
+	LC:RegisterCallbackType(LIBCOMBAT_EVENT_FIGHTRECAP, clearcache, "POC")
 	if #damage == 0 then
 	    Stats.Update = initialize_update_func
 	else
 	    Stats.Update = update_func
 	end
+	if not me.Heal then
+	    me.Heal = 0
+	end
+	if not me.Damage then
+	    me.Damage = 0
+	end
     else
 	register_widget(widget, 'stats', false)
-	EVENT_MANAGER:UnregisterForEvent(Stats.name, EVENT_COMBAT_EVENT)
+	LC:UnregisterCallbackType(LIBCOMBAT_EVENT_DAMAGE_OUT, record, "POC")
+	LC:UnregisterCallbackType(LIBCOMBAT_EVENT_HEAL_OUT, record, "POC")
+	LC:UnregisterCallbackType(LIBCOMBAT_EVENT_FIGHTRECAP, clearcache, "POC")
 	Stats.Update = emptyfunc
     end
     if not doit then
@@ -355,6 +341,6 @@ function Stats.Initialize(_saved)
     -- Comm.Load will Call ShareThem as appropriate
     Slash({"dmg", 'damage'}, "debugging: Add a value to a player's healing total", function(x) debug('Damage', x) end)
     Slash("heal", "debugging: Add a value to a player's healing total", function(x) debug('Heal', x) end)
-    Slash("clearstats", "debugging: clear stats window data", function () saved.StatWinPos = {} ReloadUI() end) 
+    Slash("clearstats", "debugging: clear stats window data", function () saved.StatWinPos = {} ReloadUI() end)
     Slash("stats", "turn stat sharing on/off", Stats.ShareThem)
 end

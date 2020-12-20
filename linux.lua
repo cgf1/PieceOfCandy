@@ -297,12 +297,12 @@ setmetatable(ZO_ColorDef, ZO_ColorDef)
 function ZO_ColorDef:New()
 end
 -- dofile('addons/LibStub/LibStub/LibStub.lua')
-dofile('addons/LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0.lua')
+dofile('addons/LibAddonMenu-2.0/LibAddonMenu-2.0.lua')
 
 local addons = {
     'LibStub/LibStub/LibStub',
 
-    'LibAddonMenu-2.0/LibAddonMenu-2.0/LibAddonMenu-2.0',
+    'LibAddonMenu-2.0/LibAddonMenu-2.0',
 
     -- 'LibChatMessage/LibChatMessage',
 

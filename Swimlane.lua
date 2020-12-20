@@ -270,7 +270,7 @@ local function dump(name)
 		else
 		    p = tostring(t)
 		end
-		msg(string.format("%s: %s", x, p))
+		Info(string.format("%s: %s", x, p))
 	    end
 	    found = true
 	end

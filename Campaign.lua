@@ -25,7 +25,7 @@ local function joined(_, id, isgroup)
 	else
 	    s = ''
 	end
-	Info(string.format("%squeued for campaign %s", s, pretty()))
+	Info(string.format("%squeued for campaign %s", s, GetCampaignName(id)))
 	if saved.AcceptPVP and isgroup and not IsUnitGroupLeader("player") and GetCampaignQueuePosition(id, isgroup) == 0 then
 	    watch("joined", "delayed start")
 	    zo_callLater(function () ConfirmCampaignEntry(id, isgroup, true) end, 3000)
@@ -80,13 +80,19 @@ local function get_campaign_id(name)
 	    end
 	end
     end
-    return GetAssignedCampaignId()
+    return nil
 end
 
 function Campaign.QueuePosition(isgroup)
     campaign_id = campaign_id or get_campaign_id(saved.Campaign.Name)
-    local pos = GetCampaignQueuePosition(campaign_id, isgroup)
-    watch("Campaign.QueuePosition", campaign_id, isgroup, pos)
+    local pos
+    if not campaign_id then
+	pos = 0
+	Error("No known campaign id")
+    else
+	pos = GetCampaignQueuePosition(campaign_id, isgroup)
+	watch("Campaign.QueuePosition", campaign_id, isgroup, pos)
+    end
     return pos
 end
 

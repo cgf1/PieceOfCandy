@@ -2,6 +2,7 @@ setfenv(1, POC)
 Visibility = {}
 Visibility.__index = Player
 
+local saved
 local SCENE_MANAGER = SCENE_MANAGER
 local ZO_SimpleSceneFragment = ZO_SimpleSceneFragment
 
@@ -63,4 +64,8 @@ end
 
 function Visibility.Export()
     return register_widget, show_widget
+end
+
+function Visibility.Initialize(_saved)
+    saved = _saved
 end

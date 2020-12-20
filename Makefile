@@ -3,6 +3,7 @@ modified := $(shell git status -uno | awk '/(new file|modified): .*\.lua/{print 
 allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort)
 FORCE := false
 
+r:=/home/cgf/.local/share/Steam/steamapps/compatdata/3938056110/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
 s:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
 t:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/pts/AddOns/POC
 e:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
@@ -23,7 +24,7 @@ tags ctags:
 	@ctags --language-force=lua **/*.lua
 
 .PHONY: install
-install: install-gotham install-ednor
+install: install-gotham install-ednor1 install-ednor2
 
 .PHONY: install-gotham
 install-gotham: | all clean
@@ -33,13 +34,19 @@ install-gotham: | all clean
 	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb$f
 	@touch /smb$e/POC.txt
 
-.PHONY: install-ednor
-install-ednor: | all clean
-	@echo Rsyncing to ednor live...
+.PHONY: install-ednor1
+install-ednor1: | all clean
+	@echo Rsyncing to ednor steam live...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} $s
-	@echo Rsyncing to ednor PTS...
+	@echo Rsyncing to ednor steam PTS...
 	@/usr/bin/rsync -aR --delete --force ${allfiles} $t
 	@touch $s/POC.txt
+
+.PHONY: install-ednor2
+install-ednor2: | all clean
+	@echo Rsyncing to ednor non-steam live...
+	@/usr/bin/rsync -aR --delete --force ${allfiles} $r
+	@touch $r/POC.txt
 
 .PHONY: install-norton
 install-norton: norton-mounted | all clean

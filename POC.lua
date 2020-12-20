@@ -54,11 +54,17 @@ local function initialize()
     local _saved = Settings.GetSaved()
     saved = _saved
 
-    Util.Init(saved)
+    Util.Initialize(saved)
+
     -- Initialize available ultimates
     Ult.Initialize(saved)
 
     UltMenu.Initialize(saved)
+
+    -- Start talking, see?
+    Comm.Initialize(major, minor, beta, saved)
+
+    Visibility.Initialize(saved)
 
     Swimlanes.Initialize(major, minor, saved)
     Stats.Initialize(saved)
@@ -66,9 +72,6 @@ local function initialize()
     Quest.Initialize(saved)
     Alert.Initialize(saved)
     Campaign.Initialize(saved)
-
-    -- Start talking, see?
-    Comm.Initialize(major, minor, beta, saved)
 
     if type(Test) == 'table' then
 	Test.Initialize(saved)

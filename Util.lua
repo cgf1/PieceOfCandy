@@ -218,7 +218,7 @@ function player_name(tag)
     return name
 end
 
-function Util.Init(_saved)
+function Util.Initialize(_saved)
     saved = _saved
     local LCM = LibChatMessage
     chat = LCM.Create("Piece of Candy", "POC")
