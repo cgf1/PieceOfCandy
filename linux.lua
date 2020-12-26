@@ -89,7 +89,7 @@ end
 
 SLASH_COMMANDS = {}
 SLASH_COMMANDS['/script'] = function(...)
-    x = assert(loadstring(...))
+    x = assert(load(...))
     x()
 end
 
@@ -153,7 +153,7 @@ local define = {
 
 for _, fn in pairs(define) do
     local doit = string.format("function %s(...) end", fn)
-    f=assert(loadstring(doit))
+    f=assert(load(doit))
     f()
 end
 
@@ -388,3 +388,6 @@ local x = {
 }
 CyroDoor = setmetatable(x, x)
 CyroDoor.CyroDoor = CyroDoor
+
+function setfenv()
+end

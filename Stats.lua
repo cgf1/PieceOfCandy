@@ -239,10 +239,12 @@ local function record(ev, timems, result, sid, tid, aid, hit, damage_type, overf
 	    return
 	end
 	local this = fight.units[tid]
-	unitcache[tid] = {this.unitType, this.name};
+	unitcache[tid] = {this.unitType, this.name}
+	watch('damage', tid, this.unitType, this.name)
     end
 
-    if unitcache[tid][0] ~= COMBAT_UNIT_TYPE_OTHER then
+    if unitcache[tid][1] ~= COMBAT_UNIT_TYPE_OTHER then
+	watch('damage', unitcache[tid][2], tostring(unitcache[tid][1]) .. '~=' .. COMBAT_UNIT_TYPE_OTHER)
 	return
     end
 
@@ -252,7 +254,7 @@ local function record(ev, timems, result, sid, tid, aid, hit, damage_type, overf
     else
 	ix = 'Heal'
     end
-    watch('damage', ix, hit, unitcache[tid][1])
+    watch('damage', ix, hit, unitcache[tid][2])
     me[ix] = me[ix] + hit
     Stats.Refresh = true
 end

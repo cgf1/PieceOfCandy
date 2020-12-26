@@ -3,7 +3,7 @@ Name = "POC"
 
 local version = '4.9'
 local major = tonumber(version:match("^(%d+)"))
-local minor = tonumber(version:match("\.(%d+)"))
+local minor = tonumber(version:match("%.(%d+)"))
 local beta = tonumber(version:match("b(%d+)")) or '0'
 
 local saved
@@ -54,27 +54,27 @@ local function initialize()
     local _saved = Settings.GetSaved()
     saved = _saved
 
-    Util.Initialize(saved)
+    Util.Initialize(_saved)
 
     -- Initialize available ultimates
-    Ult.Initialize(saved)
+    Ult.Initialize(_saved)
 
-    UltMenu.Initialize(saved)
+    UltMenu.Initialize(_saved)
 
     -- Start talking, see?
-    Comm.Initialize(major, minor, beta, saved)
+    Comm.Initialize(major, minor, beta, _saved)
 
-    Visibility.Initialize(saved)
+    Visibility.Initialize(_saved)
 
-    Swimlanes.Initialize(major, minor, saved)
-    Stats.Initialize(saved)
-    Group.Initialize(saved)
-    Quest.Initialize(saved)
-    Alert.Initialize(saved)
-    Campaign.Initialize(saved)
+    Swimlanes.Initialize(major, minor, _saved)
+    Stats.Initialize(_saved)
+    Group.Initialize(_saved)
+    Quest.Initialize(_saved)
+    Alert.Initialize(_saved)
+    Campaign.Initialize(_saved)
 
     if type(Test) == 'table' then
-	Test.Initialize(saved)
+	Test.Initialize(_saved)
     end
 
 

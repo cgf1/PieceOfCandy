@@ -24,6 +24,7 @@ local last_alert = 0
 local pool
 local tlw
 local font
+local saved
 
 local function create()
     local this = {}
@@ -172,6 +173,7 @@ function Texture(what)
 end
 
 function Alert.Initialize(_saved)
+    saved = _saved
     CALLBACK_MANAGER:RegisterCallback(Alert.Name, ALERT, alert_show)
     tlw = WM:CreateTopLevelWindow()
     alert_font = "$(HANDWRITTEN_FONT)|" .. tostring(fontsize)
