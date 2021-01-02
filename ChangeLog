@@ -1,3 +1,17 @@
+2021-01-02 (v4.9)
+
+- Get onscreen alerts working again.
+
+- Properly display actual campaign when reporting on "queued for campaign".
+
+- Issue an error when attempting to use an unknown campaign.
+
+- Avoid some lua errors when referencing saved content.
+
+- Use LibCombat for reporting combat/heals.
+
+- Force a [POC} prefix on all messages even if it's turned off in LibChatMessage.
+
 2020-11-21 (v4.8)
 
 - Fix stupid issue which caused first-time users to get a lua error.
