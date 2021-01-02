@@ -243,17 +243,25 @@ local function record(ev, timems, result, sid, tid, aid, hit, damage_type, overf
 	watch('damage', tid, this.unitType, this.name)
     end
 
+    local ix
+    local dtype = unitcache[tid][1]
+    if ev == LIBCOMBAT_EVENT_DAMAGE_OUT then
+	if dtype ~= COMBAT_UNIT_TYPE_OTHER then
+	    return
+	end
+	ix = 'Damage'
+    else
+	if dtype ~= COMBAT_UNIT_TYPE_OTHER and dtype ~= COMBAT_UNIT_TYPE_GROUP then
+	    return
+	end
+	ix = 'Heal'
+    end
+
     if unitcache[tid][1] ~= COMBAT_UNIT_TYPE_OTHER then
 	watch('damage', unitcache[tid][2], tostring(unitcache[tid][1]) .. '~=' .. COMBAT_UNIT_TYPE_OTHER)
 	return
     end
 
-    local ix
-    if ev == LIBCOMBAT_EVENT_DAMAGE_OUT then
-	ix = 'Damage'
-    else
-	ix = 'Heal'
-    end
     watch('damage', ix, hit, unitcache[tid][2])
     me[ix] = me[ix] + hit
     Stats.Refresh = true
