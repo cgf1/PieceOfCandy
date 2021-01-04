@@ -240,29 +240,27 @@ local function record(ev, timems, result, sid, tid, aid, hit, damage_type, overf
 	end
 	local this = fight.units[tid]
 	unitcache[tid] = {this.unitType, this.name}
-	watch('damage', tid, this.unitType, this.name)
+	watch('damage', ev, tid, this.unitType, this.name)
     end
 
     local ix
     local dtype = unitcache[tid][1]
+
     if ev == LIBCOMBAT_EVENT_DAMAGE_OUT then
 	if dtype ~= COMBAT_UNIT_TYPE_OTHER then
+	    watch('stats', 'returning combat')
 	    return
 	end
 	ix = 'Damage'
     else
 	if dtype ~= COMBAT_UNIT_TYPE_OTHER and dtype ~= COMBAT_UNIT_TYPE_GROUP then
+	    watch('stats', 'returning heal')
 	    return
 	end
 	ix = 'Heal'
     end
 
-    if unitcache[tid][1] ~= COMBAT_UNIT_TYPE_OTHER then
-	watch('damage', unitcache[tid][2], tostring(unitcache[tid][1]) .. '~=' .. COMBAT_UNIT_TYPE_OTHER)
-	return
-    end
-
-    watch('damage', ix, hit, unitcache[tid][2])
+    watch('stats', ix, hit, unitcache[tid][2])
     me[ix] = me[ix] + hit
     Stats.Refresh = true
 end
@@ -349,7 +347,7 @@ function Stats.Initialize(_saved)
     local x, y = widget:GetDimensions()
     saved.StatWinPos = saved.StatWinPos or {}
     -- Comm.Load will Call ShareThem as appropriate
-    Slash({"dmg", 'damage'}, "debugging: Add a value to a player's healing total", function(x) debug('Damage', x) end)
+    Slash({"dmg", 'damage'}, "debugging: Add a value to a player's damage total", function(x) debug('Damage', x) end)
     Slash("heal", "debugging: Add a value to a player's healing total", function(x) debug('Heal', x) end)
     Slash("clearstats", "debugging: clear stats window data", function () saved.StatWinPos = {} ReloadUI() end)
     Slash("stats", "turn stat sharing on/off", Stats.ShareThem)

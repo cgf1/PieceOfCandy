@@ -391,3 +391,9 @@ CyroDoor.CyroDoor = CyroDoor
 
 function setfenv()
 end
+
+WINDOW_MANAGER = { saveData = 0 }
+WINDOW_MANAGER.__index = WINDOW_MANAGER
+function WINDOW_MANAGER:CreateControl()
+    return {}
+end

@@ -3,7 +3,8 @@ modified := $(shell git status -uno | awk '/(new file|modified): .*\.lua/{print 
 allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort)
 FORCE := false
 
-r:=/home/cgf/.local/share/Steam/steamapps/compatdata/3938056110/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
+# r:=/home/cgf/.local/share/Steam/steamapps/compatdata/3938056110/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
+r:=/home/cgf/.proton/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
 s:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
 t:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/pts/AddOns/POC
 e:=/c/Users/cgf/Documents/Elder\ Scrolls\ Online/live/AddOns/POC
