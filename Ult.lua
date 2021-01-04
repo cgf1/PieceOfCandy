@@ -376,7 +376,7 @@ local function create_ults()
     else
 	ults['Vampire'][1]['Icon'] = '/esoui/art/icons/ability_vampire_001.dds'
     end
-    
+
     -- Create tables indexed by different things
     local xltults, iconlist = mkulttbl()
     local maxping = 0
