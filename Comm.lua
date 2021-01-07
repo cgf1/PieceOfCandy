@@ -3,8 +3,8 @@ setfenv(1, POC)
 local GetAbilityCost = GetAbilityCost
 local GetFrameTimeSeconds = GetFrameTimeSeconds
 local GetGameTimeMilliseconds = GetGameTimeMilliseconds
-local GetUnitPower = GetUnitPower
 local GetNextForwardCampRespawnTime = GetNextForwardCampRespawnTime
+local GetUnitPower = GetUnitPower
 local GetTimeStamp = GetTimeStamp
 local IsUnitDead = IsUnitDead
 local IsUnitGrouped = IsUnitGrouped

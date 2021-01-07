@@ -2,6 +2,7 @@ setfenv(1, POC)
 local GetAPIVersion = GetAPIVersion
 local GetAbilityIcon = GetAbilityIcon
 local GetAbilityName = GetAbilityName
+local GetActiveWeaponPairInfo = GetActiveWeaponPairInfo
 local GetSlotBoundId = GetSlotBoundId
 local GetSpecificSkillAbilityInfo = GetSpecificSkillAbilityInfo
 local GetSpecificSkillAbilityKeysByAbilityId = GetSpecificSkillAbilityKeysByAbilityId

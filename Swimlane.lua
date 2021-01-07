@@ -5,6 +5,7 @@ local FormatTimeSeconds = FormatTimeSeconds
 local GetAbilityDuration = GetAbilityDuration
 local GetActiveWeaponPairInfo = GetActiveWeaponPairInfo
 local GetGroupSize = GetGroupSize
+local GetSlotBoundId = GetSlotBoundId
 local GetTimeStamp = GetTimeStamp
 local GetUnitDisplayName = GetUnitDisplayName
 local GetUnitName = GetUnitName
