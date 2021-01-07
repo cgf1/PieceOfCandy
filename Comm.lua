@@ -183,18 +183,6 @@ local function sanity(now)
     return true
 end
 
-local function setult()
-    if not Ult.MaxPing then
-	return
-    end
-    if me.UltMain == nil or me.UltMain == 0 or me.UltMain == Ult.MaxPing then
-	Player.SetUlt()
-    end
-    if me.UltMain ~= nil and me.UltMain ~= 0  and me.UltMain ~= Ult.MaxPing then
-	local function setult() end
-    end
-end
-
 local last_stat_ping = {
     [D] = {0, 0, 0, 'DAMAGE'},
     [H] = {0, 0, 0, 'HEAL'}
@@ -256,7 +244,6 @@ local function on_update()
     local notify_when_not_grouped = true
     Swimlanes.Update("map update")
     Stats.Update("periodic update")
-    setult()
 
     counter = counter + 1
     if (not IsUnitInCombat('player')) and ((counter % QUEST_PING) == 0) then
@@ -386,6 +373,18 @@ function Comm.Dispatch(pingtag, cmd, data, unppct)
     return before, name, watchme
 end
 
+local function setult()
+    if not Ult.MaxPing then
+       return
+    end
+    if me.UltMain == nil or me.UltMain == 0 or me.UltMain == Ult.MaxPing then
+       Player.SetUlt()
+    end
+    if me.UltMain ~= nil and me.UltMain ~= 0  and me.UltMain ~= Ult.MaxPing then
+       local function setult() end
+    end
+end
+
 local last_stealth_state
 local last_combat_state
 function Comm.Load(verbose)
@@ -422,6 +421,7 @@ function Comm.Load(verbose)
 	Comm.SendVersion()
 	Stats.ShareThem(saved.ShareStats, true)
 	say = "on"
+	zo_callLater(setult, update_interval + 500)
     end
     if verbose then
 	Info(say)

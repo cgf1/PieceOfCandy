@@ -1,8 +1,13 @@
 setfenv(1, POC)
+local GetAPIVersion = GetAPIVersion
 local GetAbilityIcon = GetAbilityIcon
 local GetAbilityName = GetAbilityName
+local GetSlotBoundId = GetSlotBoundId
+local GetSpecificSkillAbilityInfo = GetSpecificSkillAbilityInfo
+local GetSpecificSkillAbilityKeysByAbilityId = GetSpecificSkillAbilityKeysByAbilityId
 local GetUnitClassId = GetUnitClassId
 local GetUnitName = GetUnitName
+local GetUnitPower = GetUnitPower
 local PlaySound = PlaySound
 local SOUNDS = SOUNDS
 
@@ -462,7 +467,8 @@ function Ult.SetSavedId(apid, n)
 	myults[2] = one
     else
 	if myults == nil then
-	    myults = {}
+	    myults = saved.MyUltId[ultix] or {}
+	    saved.MyUltId[ultix] = saved.MyUltId[ultix] or myults
 	end
 	myults[n] = apid
     end

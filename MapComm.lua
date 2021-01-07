@@ -4,6 +4,11 @@ local LGPS = LibGPS2
 
 local getmapping = LMP.GetMapPing
 
+local GetMapNameByIndex = GetMapNameByIndex
+local GetNumMaps = GetNumMaps
+local GetGameTimeMilliseconds = GetGameTimeMilliseconds
+local GetTimeStamp = GetTimeStamp
+
 local XY
 local ROUND
 

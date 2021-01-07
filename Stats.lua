@@ -235,7 +235,7 @@ local function record(ev, timems, result, sid, tid, aid, hit, damage_type, overf
     if not unitcache[tid] then
 	local fight = LC.GetCurrentFight()
 	if not fight or not fight.units[tid] then
-	    Info(string.format("*** couldn't find unit %d", tid))
+	    watch('record', string.format("*** couldn't find unit %d", tid))
 	    return
 	end
 	local this = fight.units[tid]

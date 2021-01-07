@@ -3,6 +3,7 @@ local collectgarbage = collectgarbage
 local CreateControlFromVirtual = CreateControlFromVirtual
 local FormatTimeSeconds = FormatTimeSeconds
 local GetAbilityDuration = GetAbilityDuration
+local GetActiveWeaponPairInfo = GetActiveWeaponPairInfo
 local GetGroupSize = GetGroupSize
 local GetTimeStamp = GetTimeStamp
 local GetUnitDisplayName = GetUnitDisplayName
@@ -998,7 +999,6 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2,
     player.IsDead = IsUnitDead(pingtag)
     player.IsOnline = IsUnitOnline(pingtag)
     player.PingTag = pingtag
-    player.UltMain = apid1
     player.Pos = pos
     -- Consider changed if we have a timestamp and timeout is detected
     local was_timedout = self.TimedOut
@@ -1033,6 +1033,7 @@ function Player.New(pingtag, timestamp, fwctimer, apid1, pct1, pos, apid2, pct2,
 	end
     end
     if apid1 ~= nil then
+	player.UltMain = apid1
 	-- Coming from on_map_ping
 	if self.IsMe and pct1 >= 100 and me.Ults ~= nil and me.Ults[apid1] ~= nil and me.Ults[apid1] >= 100 then
 	    pct1 = me.Ults[apid1]	-- don't mess with our calculated percent
