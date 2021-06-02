@@ -397,3 +397,10 @@ WINDOW_MANAGER.__index = WINDOW_MANAGER
 function WINDOW_MANAGER:CreateControl()
     return {}
 end
+
+function GetEventManager()
+    return {}
+end
+
+ZO_AddOnManager = {  }
+ZO_AddOnManager.__index = WINDOW_MANAGER
