@@ -1,6 +1,9 @@
 2021-06-04 (v4.12)
 
-- 
+- Get working for API version 10035 (Blackwood update 30)
+
+- Fix some issues with campaign joining.
+
 2021-01-06 (v4.11)
 
 - Attempt to fix situation where chosen ultimate gets reset.  I thought I'd
