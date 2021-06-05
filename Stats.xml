@@ -1,6 +1,6 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="POC_Stats" hidden="true" layer="BACKGROUND" level="0" allowBringToTop="false"
+	<TopLevelControl name="POC_Stats" hidden="true" level="0" allowBringToTop="false"
 			 mouseEnabled="true" movable="true" resizeHandleSize="8" tier="LOW" edgecolor="000000">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
 	    <Dimensions x="400" y="264" />
@@ -9,17 +9,14 @@
 	    <Controls>
 		<Backdrop name="$(parent)Background" tier="PARENT" edgeColor="696969" centerColor="696969" alpha="0.09" blendMode="ADD">
 		    <Anchor point="TOPLEFT" />
-		    <Anchor point="BOTTOMRIGHT" />
 		    -- <Edge file="EsoUI/Art/ChatWindow/chat_BG_edge.dds" edgeFileWidth="256" edgeFileHeight="256" edgeSize="32"/>
 		    <Edge edgeSize="1"/>
 		</Backdrop>
 		<Control name="$(parent)Movable" tier="PARENT" hidden="true">
 		    <Anchor point="TOPLEFT"/>
--                   <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetY=60/>
 		    <Controls>
 			<Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.1" >
 			    <Anchor point="TOPLEFT" />
-			    <Anchor point="BOTTOMRIGHT" />
 			</Backdrop>
 			<Label name="$(parent)Label" inherits="POC_MoveActiveLabel" text="MOVE" tier="2">
 			    <Anchor point="CENTER" />

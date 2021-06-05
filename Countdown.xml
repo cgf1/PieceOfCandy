@@ -1,6 +1,6 @@
 <GuiXml>
   <Controls>
-    <TopLevelControl name="POC_Countdown" hidden="true" layer="OVERLAY" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
+    <TopLevelControl name="POC_Countdown" hidden="true" level="1" allowBringToTop="false" mouseEnabled="true" movable="true" clampedToScreen="true">
 	<Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER" offsetY="0" />
 	<Dimensions x="100" y="100" />
 	<OnMoveStop>

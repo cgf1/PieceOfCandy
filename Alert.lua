@@ -1,13 +1,42 @@
-setfenv(1, POC)
+local ALERT = ALERT
+local ANIMATION_ALPHA = ANIMATION_ALPHA
+local ANIMATION_MANAGER = ANIMATION_MANAGER
+local ANIMATION_PLAYBACK_ONE_SHOT = ANIMATION_PLAYBACK_ONE_SHOT
+local ANIMATION_PLAYBACK_PING_PONG = ANIMATION_PLAYBACK_PING_PONG
+local ANIMATION_TRANSLATE = ANIMATION_TRANSLATE
+local CALLBACK_MANAGER = CALLBACK_MANAGER
+local CENTER = CENTER
+local CT_LABEL = CT_LABEL
+local GetAbilityDuration = GetAbilityDuration
+local GetAbilityName = GetAbilityName
 local GetTimeStamp = GetTimeStamp
+local GetUnitName = GetUnitName
+local GuiRoot = GuiRoot
+local player_name = POC.player_name
+local PlaySound = PlaySound
+local RefreshSettings = RefreshSettings
+local RegClear = POC.RegClear
+local SetCrownCrateNPCVisible = SetCrownCrateNPCVisible
+local Slash = POC.Slash
 local SOUNDS = SOUNDS
+local TOPLEFT = TOPLEFT
+local Ult = POC.Ult
+local Verbose = POC.Verbose
+local watch = POC.watch
+local WM = WINDOW_MANAGER
+local zo_callLater = zo_callLater
+local ZO_EaseInOutCubic = ZO_EaseInOutCubic
 local ZO_EaseInQuadratic = ZO_EaseInQuadratic
+local ZO_ObjectPool = ZO_ObjectPool
+
+setfenv(1, POC)
 
 Alert = {
     Name = 'POC-Alert'
 }
 Alert.__index = Alert
 local Alert = Alert
+_ = ''
 
 local controls = {}
 local animations = {}
@@ -83,6 +112,7 @@ local function alert_show(text, total_duration, flash)
     local offset
     local loopcount
     local color
+    local duration
     if	flash then
 	ease = ZO_EaseInOutCubic
 	atype = ANIMATION_PLAYBACK_PING_PONG

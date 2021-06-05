@@ -1,16 +1,29 @@
-setfenv(1, POC)
-
+local CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING = CAMPAIGN_QUEUE_REQUEST_STATE_CONFIRMING
+local ConfirmCampaignEntry = ConfirmCampaignEntry
+local Error = POC.Error
 local GetCampaignName = GetCampaignName
+local GetCampaignQueuePosition = GetCampaignQueuePosition
+local GetNumSelectionCampaigns = GetNumSelectionCampaigns
+local GetSelectionCampaignId = GetSelectionCampaignId
+local Info = POC.Info
+local IsUnitGroupLeader = IsUnitGroupLeader
+local LeaveCampaignQueue = LeaveCampaignQueue
 local QueueForCampaign = QueueForCampaign
-local saved
+local RegClear = POC.RegClear
+local Slash = POC.Slash
+local watch = POC.watch
+local zo_callLater = zo_callLater
 
+setfenv(1, POC)
 Campaign = {
     Name = 'POC-Campaign'
 }
 Campaign.__index = Campaign
+_ = ''
 
 local campaign = Campaign
 local campaign_id
+local saved
 
 local function pretty()
     return string.gsub(" " .. (saved.Campaign.Name or "(unknown)"), "%W%l", string.upper):sub(2)
@@ -101,6 +114,18 @@ end
 
 function Campaign.Initialize(_saved)
     saved = _saved
+    local reset = true
+    for i = 1, GetNumSelectionCampaigns() do
+	local id = GetSelectionCampaignId(i)
+	if id and id ~= 0 then
+	    local thisname = GetCampaignName(id):lower()
+	    if reset then
+		saved.KnownCampaigns = {}
+		reset = false
+	    end
+	    saved.KnownCampaigns[thisname] = id
+	end
+    end
 
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_JOINED, joined)
     EVENT_MANAGER:RegisterForEvent(Campaign.Name, EVENT_CAMPAIGN_QUEUE_LEFT, left)
@@ -128,6 +153,7 @@ function Campaign.Initialize(_saved)
     end)
     Slash("queue", "show position in queue", function ()
 	local s
+	local isgroup -- this is broken
 	if isgroup then
 	    s = 'Group queue: '
 	else
@@ -169,4 +195,3 @@ function Campaign.Initialize(_saved)
     end)
     RegClear(clearernow)
 end
-

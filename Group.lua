@@ -67,12 +67,12 @@ local function on_invite(_, charname, displayname)
 end
 
 local function autoaccept(name)
-    if name:len() > 0 then
-	saved.AutoAccept[name] = true
-	Info(string.format("automatically accept group invites from %s", name))
-    elseif name == 'clear' then
+    if name == 'clear' then
 	Info("clearing all auto accept group invites")
 	saved.AutoAccept = {}
+    elseif name:len() > 0 then
+	saved.AutoAccept[name] = true
+	Info(string.format("automatically accept group invites from %s", name))
     else
 	local keys = {}
 	for n in pairs(saved.AutoAccept) do

@@ -1,7 +1,6 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="POC_Main" hidden="true" layer="BACKGROUND" level="0" allowBringToTop="false"
-			 mouseEnabled="true" movable="true" tier="LOW">
+	<TopLevelControl name="POC_Main" hidden="true" level="0" allowBringToTop="false" mouseEnabled="true" movable="true">
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER"/>
 	    <Dimensions x="1020" y="265" />
 	    <OnMoveStart>POC.Swimlanes:OnMove(false)</OnMoveStart>
@@ -9,11 +8,9 @@
 	    <Controls>
 		<Control name="$(parent)Movable" tier="PARENT" hidden="true">
 		    <Anchor point="TOPLEFT"/>
--                   <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" offsetY=60/>
 		    <Controls>
 			<Backdrop name="$(parent)Backdrop" edgeColor="000000" centerColor="FF0000" alpha="0.1" >
 			    <Anchor point="TOPLEFT" />
-			    <Anchor point="BOTTOMRIGHT" />
 			</Backdrop>
 			<Label name="$(parent)Label" inherits="POC_MoveActiveLabel" text="MOVE" tier="2">
 			    <Anchor point="CENTER" />

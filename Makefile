@@ -3,6 +3,7 @@ modified := $(shell git status -uno | awk '/(new file|modified): .*\.lua/{print 
 allfiles := $(shell { echo POC.txt; egrep -v '^[ 	]*(;|\#|$$)' POC.txt; } | sort)
 FORCE := false
 
+a:=-rRlD
 # r:=/home/cgf/.local/share/Steam/steamapps/compatdata/3938056110/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
 r:=/home/cgf/.proton/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
 s:=/home/cgf/.local/share/Steam/steamapps/compatdata/306130/pfx/drive_c/users/steamuser/My?Documents/Elder?Scrolls?Online/live/AddOns/POC
@@ -30,32 +31,32 @@ install: install-gotham install-ednor1 install-ednor2
 .PHONY: install-gotham
 install-gotham: | all clean
 	@echo Rsyncing to gotham live...
-	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb$e
+	@/usr/bin/rsync $a --delete --force ${allfiles} /smb$e
 	@echo Rsyncing to gotham PTS...
-	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb$f
+	@/usr/bin/rsync $a --delete --force ${allfiles} /smb$f
 	@touch /smb$e/POC.txt
 
 .PHONY: install-ednor1
 install-ednor1: | all clean
 	@echo Rsyncing to ednor steam live...
-	@/usr/bin/rsync -aR --delete --force ${allfiles} $s
+	@/usr/bin/rsync $a --delete --force ${allfiles} $s
 	@echo Rsyncing to ednor steam PTS...
-	@/usr/bin/rsync -aR --delete --force ${allfiles} $t
+	@/usr/bin/rsync $a --delete --force ${allfiles} $t
 	@touch $s/POC.txt
 
 .PHONY: install-ednor2
 install-ednor2: | all clean
 	@echo Rsyncing to ednor non-steam live...
-	@/usr/bin/rsync -aR --delete --force ${allfiles} $r
+	@/usr/bin/rsync $a --delete --force ${allfiles} $r
 	@touch $r/POC.txt
 
 .PHONY: install-norton
 install-norton: norton-mounted | all clean
 	@rm -rf /smb1$e/*
 	@echo Rsyncing to norton live...
-	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb1$e
+	@/usr/bin/rsync $a --delete --force ${allfiles} /smb1$e
 	@echo Rsyncing to norton PTS...
-	@/usr/bin/rsync -aR --delete --force ${allfiles} /smb1$f
+	@/usr/bin/rsync $a --delete --force ${allfiles} /smb1$f
 	@touch /smb1$e/POC.txt
 
 .PHONY: clean

@@ -1,5 +1,3 @@
-setfenv(1, POC)
-
 local GetAbilityCost = GetAbilityCost
 local GetFrameTimeSeconds = GetFrameTimeSeconds
 local GetGameTimeMilliseconds = GetGameTimeMilliseconds
@@ -10,9 +8,11 @@ local IsUnitDead = IsUnitDead
 local IsUnitGrouped = IsUnitGrouped
 local IsUnitInCombat = IsUnitInCombat
 local EVENT_MANAGER = EVENT_MANAGER
-local Swimlanes = Swimlanes
-local Stats = Stats
 local SOUNDS = SOUNDS
+local GetUnitName = GetUnitName
+local POWERTYPE_ULTIMATE = POWERTYPE_ULTIMATE
+local PlaySound = PlaySound
+local zo_callLater = zo_callLater
 
 COMM_MAGIC		= 90
 COMM_TYPE_FWCAMPTIMER	=  1 + COMM_MAGIC
@@ -31,8 +31,13 @@ COMM_TYPE_STAT_HEAL	=  1 + COMM_MAGIC1
 
 COMM_ALL_PLAYERS	= 0
 
+setfenv(1, POC)
+local Player, Swimlanes, Stats, Alert, Campaign, Countdown, Error, Info, MapComm, Me, Quest, RegClear, Slash, Ult, Watching, watch
+_ = ''
+
 local D = COMM_TYPE_STAT_DAMAGE
 local H = COMM_TYPE_STAT_HEAL
+local myname = GetUnitName("player")
 
 local packing = {
     [COMM_TYPE_FWCAMPTIMER] = {3},
@@ -49,16 +54,17 @@ local packing = {
 }
 
 local update_interval
-local update_interveal_per_sec
+local update_interval_per_sec
 
 local QUEST_PING = 2
 local KEEPALIVE_PING_SECS = 8
 local keepalive_ping
 
 local major, minor, beta
+local sendversion
 
 local load_later = false
-local campaign
+local queuepos
 local max_ping
 local oldqueue
 
@@ -84,6 +90,7 @@ local function emptyfunc() end
 local send = emptyfunc
 
 local myults
+local thispower
 
 function Comm.Ready()
     return comm ~= nil
@@ -97,7 +104,7 @@ local function ult_fired(thistime)
     if lastult == 0 then
 	return 0
     end
-    thispower = GetUnitPower("player", POWERTYPE_ULTIMATE)
+    local thispower = GetUnitPower("player", POWERTYPE_ULTIMATE)
     local delta = thistime - lasttime
     watch('ult_fired', 'lastult', lastult, 'lastpower', lastpower, 'thispower', thispower, 'delta', delta)
     if thispower ~= 0 and thispower >= lastpower or delta <= 10000 then
@@ -251,7 +258,7 @@ local function on_update()
     end
 
     local now = GetGameTimeMilliseconds()
-    local queue = campaign.QueuePosition(false)
+    local queue = queuepos(false)
     local ultf = ult_fired(now)
     local cmd
     local fwctimer = (GetNextForwardCampRespawnTime() / 1000) - GetFrameTimeSeconds()
@@ -333,9 +340,6 @@ function Comm.Dispatch(pingtag, cmd, data, unppct)
     elseif cmd == COMM_TYPE_MYVERSION then
 	Player.SetVersion(pingtag, data[1], data[2], data[3])
 	name = 'MYVERSION'
-    elseif cmd == COMM_TYPE_KEEPALIVE then
-	Player.New(pingtag, timenow)
-	name = 'KEEPALIVE'
     elseif cmd == COMM_TYPE_MAKEMELEADER then
 	Player.MakeLeader(pingtag)
 	name = 'MAKEMELEADER'
@@ -388,6 +392,7 @@ end
 local last_stealth_state
 local last_combat_state
 function Comm.Load(verbose)
+    local say
     if saved.CommOff then
 	return
     elseif comm == nil then
@@ -405,7 +410,7 @@ function Comm.Load(verbose)
 	EVENT_MANAGER:RegisterForUpdate(Comm.Name, update_interval, on_update)
 	EVENT_MANAGER:RegisterForEvent(Comm.Name, EVENT_STEALTH_STATE_CHANGED, function(_, unittag, stealth_state)
 	    if unittag == "player" and stealth_state ~= last_stealth_state then
-		watch("stealth", "changed", unittag, y)
+		watch("stealth", "changed", unittag)
 		last_stealth_state = stealth_state
 		on_update()
 	    end
@@ -472,7 +477,23 @@ end
 function Comm.Initialize(inmajor, inminor, inbeta, _saved)
     saved = _saved
     saved.MapPing = nil
+    Player = POC.Player
+    Stats = POC.Stats
+    Alert = POC.Alert
+    Campaign = POC.Campaign
+    Countdown = POC.Countdown
+    Error = POC.Error
+    Info = POC.Info
+    MapComm = POC.MapComm
+    Me = POC.Me
+    Quest = POC.Quest
+    RegClear = POC.RegClear
+    Slash = POC.Slash
     Swimlanes = POC.Swimlanes
+    Ult = POC.Ult
+    Watching = POC.Watching
+    watch = POC.watch
+
     myults = saved.MyUltId[ultix]
     if saved.Comm == nil or saved.Comm == 'PingPipe' then
 	saved.Comm = 'MapComm'
@@ -480,7 +501,7 @@ function Comm.Initialize(inmajor, inminor, inbeta, _saved)
     if saved.OldCount then
 	saved.OldCount = nil
     end
-    campaign = Campaign
+    queuepos = Campaign.QueuePosition
 
     Comm.Driver = commtype(saved.Comm)
     comm = Comm.Driver

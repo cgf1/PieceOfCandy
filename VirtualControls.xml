@@ -5,7 +5,7 @@
     <Font name="POC_UltHeaderFont" font="$(BOLD_FONT)|16|soft-shadow-thin" />
 
     <Controls>
-        <Control name="POC_Alert" hidden="true" layer="OVERLAY" level="1" virtual="true">
+        <Control name="POC_Alert" hidden="true" level="1" virtual="true">
             <Anchor point="CENTER" relativeTo="GuiRoot" relativepoint="CENTER" />
             <Controls>
                 <Label name="${parent}Label" width="1000" height="20" inheritAlpha="true" relativePoint="TOP">

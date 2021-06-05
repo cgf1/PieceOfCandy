@@ -1,27 +1,50 @@
-setfenv(1, POC)
+local BOTTOMRIGHT = BOTTOMRIGHT
+local CENTER = CENTER
+local ClearTooltip = ClearTooltip
 local collectgarbage = collectgarbage
+local COMM_TYPE_MAKEMELEADER = COMM_TYPE_MAKEMELEADER
 local CreateControlFromVirtual = CreateControlFromVirtual
+local CT_LABEL = CT_LABEL
 local FormatTimeSeconds = FormatTimeSeconds
 local GetAbilityDuration = GetAbilityDuration
 local GetActiveWeaponPairInfo = GetActiveWeaponPairInfo
 local GetGroupSize = GetGroupSize
 local GetSlotBoundId = GetSlotBoundId
 local GetTimeStamp = GetTimeStamp
+local GetUnitClass = GetUnitClass
 local GetUnitDisplayName = GetUnitDisplayName
 local GetUnitName = GetUnitName
+local GetUnitStealthState = GetUnitStealthState
+local GetUnitZone = GetUnitZone
+local GroupPromote = GroupPromote
+local GuiRoot = GuiRoot
 local InitializeTooltip = InitializeTooltip
 local IsUnitDead = IsUnitDead
-local IsUnitGroupLeader = IsUnitGroupLeader
 local IsUnitGrouped = IsUnitGrouped
+local IsUnitGroupLeader = IsUnitGroupLeader
 local IsUnitInCombat = IsUnitInCombat
 local IsUnitInGroupSupportRange = IsUnitInGroupSupportRange
 local IsUnitOnline = IsUnitOnline
+local LEFT = LEFT
 local PlaySound = PlaySound
+local POC_Main = POC_Main
+local RIGHT = RIGHT
 local SOUNDS = SOUNDS
-local table = table
-local WINDOW_MANAGER = WINDOW_MANAGER
-local ZO_ObjectPool_CreateControl = ZO_ObjectPool_CreateControl
+local TIME_FORMAT_DIRECTION_NONE = TIME_FORMAT_DIRECTION_NONE
+local TIME_FORMAT_PRECISION_SECONDS = TIME_FORMAT_PRECISION_SECONDS
+local TIME_FORMAT_STYLE_DURATION = TIME_FORMAT_STYLE_DURATION
+local TOPLEFT = TOPLEFT
+local widget = POC_Main
+local WM = WINDOW_MANAGER
 local ZO_DeepTableCopy = ZO_DeepTableCopy
+local ZO_ObjectPool_CreateControl = ZO_ObjectPool_CreateControl
+local ZO_ObjectPool = ZO_ObjectPool
+local ZO_Options_OnMouseEnter = ZO_Options_OnMouseEnter
+local ZO_Options_OnMouseExit = ZO_Options_OnMouseExit
+local ZO_SavedVars = ZO_SavedVars
+
+setfenv(1, POC)
+local Comm, Error, Group, Info, namefit, RunClear, Settings, Slash, Stats, UltMenu, Ult, Verbose, Visibility, watch
 
 local tt = POC_CharTooltip
 
@@ -30,8 +53,8 @@ local INRANGETIME = 120		-- Reset ultpct if not inrange for at least this long
 local REFRESH_IF_CHANGED = 1
 local MAXPLAYSOUNDTIME = 60
 local GARBAGECOLLECT = 60 * 3
+local gc = GARBAGECOLLECT
 
-local widget = nil
 local mvc = nil
 local cellpool = nil
 local swimlanerow
@@ -76,6 +99,13 @@ local ultm_isactive
 
 local play_sound = false
 local last_played = 0
+
+Swimlanes = {
+    Name = "POC-Swimlanes",
+}
+Swimlanes.__index = Swimlanes
+local Swimlanes = Swimlanes
+
 Player = {
     IsMe = false,
     Pos = 0,
@@ -84,7 +114,7 @@ Player = {
 }
 Player.__index = Player
 
-local me = setmetatable({
+local me = {
     Damage = 0,
     DispName = {},
     Heal = 0,
@@ -96,8 +126,10 @@ local me = setmetatable({
     UltMain = 0,
     Ults = {},
     Visited = false
-}, Player)
+}
 Me = me
+setmetatable(me, Player)
+local Me = me
 
 local myname = GetUnitName("player")
 local ultix = myname
@@ -112,15 +144,6 @@ local laneids
 local saved
 
 local dumpme
-
--- Table Swimlanes
---
-Swimlanes = {
-    Name = "POC-Swimlanes",
-}
-Swimlanes.__index = Swimlanes
-
-local swimlanes = Swimlanes
 
 local need_to_fire = true
 
@@ -139,7 +162,7 @@ local function set_widget_movable(movable, set)
     widget:SetMouseEnabled(movable)
 end
 
-function ultn_save_pos()
+local function ultn_save_pos()
     saved.UltNumberPos = {ultn:GetLeft(), ultn:GetTop()}
 end
 
@@ -196,9 +219,9 @@ local function restore_position()
     end
 end
 
-function swimlanes.Sched(clear_dispname)
+function Swimlanes.Sched(clear_dispname)
     need_to_fire = true
-    watch("need_to_fire", "swimlanes.Sched")
+    watch("need_to_fire", "Swimlanes.Sched")
     if clear_dispname and group_members then
 	for _, v in pairs(group_members) do
 	    v.DispName[true] = nil
@@ -294,7 +317,6 @@ end
 
 -- Sets visibility of labels
 --
-local gc = GARBAGECOLLECT
 local wasactive = false
 local tickdown = 20
 local MIAshowing = 0
@@ -336,7 +358,7 @@ function Cols:Update(x)
     local showunused, showall = showcols()
     if refresh or showall then
 	watch("refresh")
-	-- Check all swimlanes
+	-- Check all Swimlanes
 	tick = tick + 1
 	max_x = 0
 	max_y = 60
@@ -355,7 +377,7 @@ function Cols:Update(x)
 		break	-- don't bother showing MIA when reorganizing ults
 	    end
 	    local v = self[apid]
-	    tbl = v.Players
+	    local tbl = v.Players
 	    local clearheader = v.Displayed
 	    if next(tbl) ~= nil or showunused then
 		if needMIA or (col <= maxc and apid < maxping) then
@@ -739,7 +761,7 @@ end
 --
 function Col:UpdateCell(i, player, playername, priult)
     local col = self.Col
-    rowtbl, key = cellpool:AcquireObject(self[i])
+    local rowtbl, key = cellpool:AcquireObject(self[i])
     local row = rowtbl.Control
     local bgcell = rowtbl.Backdrop
     local namecell = rowtbl.Name
@@ -750,7 +772,7 @@ function Col:UpdateCell(i, player, playername, priult)
     end
 
     local x, y, sizex, sizey = self:Info(i, 0)
-    if not self[ix] then
+    if not self[i] then
 	row:SetAnchor(TOPLEFT, widget, TOPLEFT, x, y)
 	row:SetWidth(sizex)
 	bgcell:SetWidth(sizex)
@@ -1102,6 +1124,9 @@ function Player.Update(clear_need_to_fire)
 		nmembers = nmembers - 1
 	    elseif player.InRange then
 		inrange = inrange + 1
+		if player.IsLeader then
+		    inrange = inrange + 2
+		end
 	    elseif player.IsLeader then
 		inrange = inrange - 1
 	    end
@@ -1133,7 +1158,7 @@ end
 
 -- Saves current widget position to settings
 --
-function swimlanes:OnMove(stop)
+function Swimlanes:OnMove(stop)
     if not stop then
 	mvc:SetHidden(false)
     else
@@ -1193,7 +1218,7 @@ function Player.SetUlt()
 	end
 	me.UltMain = apid
 	myults[1] = apid
-	swimlanes.Sched(true)
+	Swimlanes.Sched(true)
     end
 end
 
@@ -1299,7 +1324,7 @@ function Cols:Redo()
     maxcols = saved.SwimlaneMaxCols
     need_to_fire = true
     watch("need_to_fire", "Cols:Redo")
-    swimlanes.Sched(true)
+    Swimlanes.Sched(true)
 end
 
 function Cols:New()
@@ -1319,12 +1344,26 @@ end
 
 -- Initialize Swimlanes
 --
-swimlanes.Update = function(x) Cols:Update(x) end
-swimlanes.SetLaneUlt = function(apid, icon) Cols:SetLaneUlt(apid, icon) end
-swimlanes.Redo = function() Cols:Redo() end
-function swimlanes.Initialize(major, minor, _saved)
+Swimlanes.Update = function(x) Cols:Update(x) end
+Swimlanes.SetLaneUlt = function(apid, icon) Cols:SetLaneUlt(apid, icon) end
+Swimlanes.Redo = function() Cols:Redo() end
+function Swimlanes.Initialize(major, minor, _saved)
     saved = _saved
-    widget = POC_Main
+
+    Comm = POC.Comm
+    Error = POC.Error
+    Group = POC.Group
+    Info = POC.Info
+    namefit = POC.namefit
+    RunClear = POC.RunClear
+    Settings = POC.Settings
+    Slash = POC.Slash
+    Stats = POC.Stats
+    UltMenu = POC.UltMenu
+    Ult = POC.Ult
+    Verbose = POC.Verbose
+    Visibility = POC.Visibility
+    watch = POC.watch
 
     local register_widget
     register_widget, show_widget = Visibility.Export()

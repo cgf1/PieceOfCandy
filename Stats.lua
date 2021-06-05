@@ -1,5 +1,23 @@
+local BOTTOMLEFT = BOTTOMLEFT
+local BOTTOMRIGHT = BOTTOMRIGHT
+local CENTER = CENTER
+local COMBAT_UNIT_TYPE_GROUP = COMBAT_UNIT_TYPE_GROUP
+local COMBAT_UNIT_TYPE_OTHER = COMBAT_UNIT_TYPE_OTHER
+local CT_LABEL = CT_LABEL
+local DL_BACKGROUND = DL_BACKGROUND
+local DT_LOW = DT_LOW
+local GetUIGlobalScale = GetUIGlobalScale
+local GuiRoot = GuiRoot
 local LC = LibCombat
-setfenv(1, POC)
+local LIBCOMBAT_EVENT_DAMAGE_OUT = LIBCOMBAT_EVENT_DAMAGE_OUT
+local LIBCOMBAT_EVENT_FIGHTRECAP = LIBCOMBAT_EVENT_FIGHTRECAP
+local LIBCOMBAT_EVENT_HEAL_OUT = LIBCOMBAT_EVENT_HEAL_OUT
+local POC_Stats = POC_Stats
+local TEXT_WRAP_MODE_TRUNCATE = TEXT_WRAP_MODE_TRUNCATE
+local TOPLEFT = TOPLEFT
+local TOPRIGHT = TOPRIGHT
+local widget = POC_Stats
+local WM = WINDOW_MANAGER
 
 Stats = {
     Name = "POC-Stats",
@@ -8,26 +26,12 @@ Stats = {
 local Stats = Stats
 Stats.__index = Stats
 
-local BOTTOMLEFT = BOTTOMLEFT
-local CENTER = CENTER
-local CT_LABEL = CT_LABEL
-local DL_BACKGROUND = DL_BACKGROUND
-local DT_LOW = DT_LOW
-local GetUIGlobalScale = GetUIGlobalScale
-local GuiRoot = GuiRoot
-local TEXT_WRAP_MODE_TRUNCATE = TEXT_WRAP_MODE_TRUNCATE
-local TOPLEFT = TOPLEFT
-local TOPRIGHT = TOPRIGHT
-
 local saved
 local group_members
 
-local widget
-local mvc
-local back
+local mvc = widget:GetNamedChild("Movable")
+local back = widget:GetNamedChild("Background")
 local widgbot
-
-local me
 
 local pairs = pairs
 
@@ -39,6 +43,10 @@ local heal = {}
 local rowlen
 local damagetrk = {}
 local healtrk = {}
+setfenv(1, POC)
+local Error, Info, Me, mysplit, namefit, ReloadUI, Slash, Visibility, watch
+
+_ = ''	-- start parsing
 
 local function sorter(a, b)
     local aname, aval = unpack(a)
@@ -60,7 +68,7 @@ local function dispcol(category, which, i)
 	label:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
 	label:SetDrawLayer(DL_BACKGROUND)
 	label:SetDrawTier(DT_LOW)
-	val = WM:CreateControl(name .. 'val', label, CT_LABEL)
+	local val = WM:CreateControl(name .. 'val', label, CT_LABEL)
 	val:SetFont("EsoUI/Common/Fonts/consola.ttf|16|soft-shadow-thin")
 	val:SetAnchor(TOPLEFT, label, TOPRIGHT, 0, 0)
 	val:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
@@ -74,7 +82,7 @@ end
 local function dispall(category, which, tbl, tot, max)
     table.sort(tbl, sorter)
     local i = 1
-    fmt = '%' .. tostring(max):len() .. 'd'
+    local fmt = '%' .. tostring(max):len() .. 'd'
     if saved.PctStats then
 	fmt = fmt .. ' %2d%%'
     end
@@ -261,7 +269,7 @@ local function record(ev, timems, result, sid, tid, aid, hit, damage_type, overf
     end
 
     watch('stats', ix, hit, unitcache[tid][2])
-    me[ix] = me[ix] + hit
+    Me[ix] = Me[ix] + hit
     Stats.Refresh = true
 end
 
@@ -272,6 +280,7 @@ function clearcache()
 end
 
 function Stats.ShareThem(x, doit)
+    local sharestats
     if x ~= nil and x == true or x == 'on' or x == 'true' then
 	sharestats = true
     elseif x == false or x == "off" or x == "false" or x == "no" then
@@ -290,11 +299,11 @@ function Stats.ShareThem(x, doit)
 	else
 	    Stats.Update = update_func
 	end
-	if not me.Heal then
-	    me.Heal = 0
+	if not Me.Heal then
+	    Me.Heal = 0
 	end
-	if not me.Damage then
-	    me.Damage = 0
+	if not Me.Damage then
+	    Me.Damage = 0
 	end
     else
 	register_widget(widget, 'stats', false)
@@ -317,7 +326,7 @@ function debug(what, x)
     end
     local player
     if name == nil then
-	player = me
+	player = Me
     else
 	for n, v in pairs(group_members) do
 	    if string.find(n, name, 1) then
@@ -325,7 +334,7 @@ function debug(what, x)
 		break
 	    end
 	end
-	if not v then
+	if not player then
 	    Error(string.format('no group member named "%s"', name))
 	    return
 	end
@@ -340,11 +349,17 @@ end
 function Stats.Initialize(_saved)
     saved = _saved
     group_members = saved.GroupMembers
-    me = Me
-    widget = POC_Stats
-    mvc = widget:GetNamedChild("Movable")
-    back = widget:GetNamedChild("Background")
-    local x, y = widget:GetDimensions()
+
+    Error = POC.Error
+    Info = POC.Info
+    Me = POC.Me
+    mysplit = POC.mysplit
+    namefit = POC.namefit
+    ReloadUI = POC.ReloadUI
+    Slash = POC.Slash
+    Visibility = POC.Visibility
+    watch = POC.watch
+
     saved.StatWinPos = saved.StatWinPos or {}
     -- Comm.Load will Call ShareThem as appropriate
     Slash({"dmg", 'damage'}, "debugging: Add a value to a player's damage total", function(x) debug('Damage', x) end)

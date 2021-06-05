@@ -1,6 +1,6 @@
 <GuiXml>
     <Controls>
-	<TopLevelControl name="MessageBox" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="true" tier="HIGH" layer="CONTROLS">
+	<TopLevelControl name="MessageBox" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="true" tier="HIGH">
 	    <Dimensions x="700" y="300" />
 	    <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER" offsetY="-120" />
 	    <Controls>

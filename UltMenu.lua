@@ -1,6 +1,11 @@
-setfenv(1, POC)
 local collectgarbage = collectgarbage
 local GetUnitName = GetUnitName
+local BOTTOMRIGHT = BOTTOMRIGHT
+local LAMCreateControl = LAMCreateControl
+
+setfenv(1, POC)
+local Settings, Swimlanes, Ult, watch
+_ = ''
 
 local LAM = LibAddonMenu2
 UltMenu = {}
@@ -55,7 +60,7 @@ end
 -- 2 = On primary: Show secondary with "switch note"
 -- 3 = On secondary: Show secondary with red circle
 function UltMenu.Show(parent, apid)
-    watch("UltMenu.Show", id)
+    watch("UltMenu.Show", apid)
     curapid = apid
     if parent.data == nil then
 	parent.data = {}
@@ -100,7 +105,7 @@ function UltMenu.Show(parent, apid)
 	for i, x in ipairs(Ult.Descriptions()) do
 	    tooltips[#tooltips + 1] = x
 	end
-	lam = LAMCreateControl.iconpicker(parent, {
+	local lam = LAMCreateControl.iconpicker(parent, {
 	    type = "iconpicker",
 	    tooltip = "Select ultimate",
 	    choices = icons,
@@ -129,6 +134,7 @@ function UltMenu.Show(parent, apid)
 	    end)
 	end
     end
+    local lam
     lam, container, dropdown, showicons, switch = unpack(lams[n])
     dropdown:SetParent(parent)
     dropdown:ClearAnchors()
@@ -140,6 +146,10 @@ end
 
 -- Initialize UltMenu
 --
-function UltMenu.Initialize()
-    myults = Settings.SavedVariables.MyUltId[ultix]
+function UltMenu.Initialize(_saved)
+    myults = _saved.MyUltId[ultix]
+    Settings = POC.Settings
+    Swimlanes = POC.Swimlanes
+    Ult = POC.Ult
+    watch = POC.watch
 end

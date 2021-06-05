@@ -1,6 +1,12 @@
+local IsInCampaign = IsInCampaign
+local SCENE_MANAGER = SCENE_MANAGER
+local ZO_SimpleSceneFragment = ZO_SimpleSceneFragment
+
 setfenv(1, POC)
+local Comm, Group
 Visibility = {}
 Visibility.__index = Player
+_ = ''
 
 local saved
 local SCENE_MANAGER = SCENE_MANAGER
@@ -68,4 +74,6 @@ end
 
 function Visibility.Initialize(_saved)
     saved = _saved
+    Comm = POC.Comm
+    Group = POC.Group
 end

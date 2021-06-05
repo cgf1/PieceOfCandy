@@ -1,5 +1,5 @@
-## APIVersion: 100033 100034
-## AddonVersion: 4011
+## APIVersion: 100035 100036
+## AddonVersion: 4012
 ## Title: Piece of Candy
 ## Author: |c66ffff|Valandil|r
 ## Description: PVP Helper
@@ -36,8 +36,8 @@ Group.lua
 Ult.lua
 Util.lua
 
-Swimlane.lua
 UltMenu.lua
+Swimlane.lua
 
 Countdown.lua
 
