@@ -1,5 +1,5 @@
-## APIVersion: 100035 100036
-## AddonVersion: 4012
+## APIVersion: 101031
+## AddonVersion: 4013
 ## Title: Piece of Candy
 ## Author: |c66ffff|Valandil|r
 ## Description: PVP Helper
