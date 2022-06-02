@@ -92,18 +92,23 @@ function Ult.Descriptions()
     return desclist
 end
 
-local function mkulttbl()
+local function mkulttbl(ults)
     local ver = tostring(GetAPIVersion())
     if saved.UltAbilities and saved.UltAbilities[ver] then
 	return unpack(saved.UltAbilities[ver])
     end
+
     local tbl = {}
     local iconlist = {}
+    for _, x in pairs(ults) do
+	for _, y in ipairs(x) do
+	    iconlist[y.Icon] = {}
+	end
+    end
     for aid = 1, 190000 do
 	if DoesAbilityExist(aid) then
-	    local cost, mechanic = GetAbilityCost(aid)
 	    local icon = GetAbilityIcon(aid)
-	    if (cost ~= 0 or icon:find('warden_018.dds')) and mechanic == POWERTYPE_ULTIMATE then
+	    if iconlist[icon] then
 		local _, _, _, morphChoice = GetSpecificSkillAbilityKeysByAbilityId(aid)
 		if morphChoice == 0 then
 		    tbl[icon] = aid
@@ -116,9 +121,6 @@ local function mkulttbl()
 			icon1 = "/esoui/art/icons/ability_destructionstaff_015_a.dds"
 		    else
 			icon1 = icon
-		    end
-		    if not iconlist[icon1] then
-			iconlist[icon1] = {}
 		    end
 		    table.insert(iconlist[icon1], aid)
 		end
@@ -377,17 +379,13 @@ local function create_ults()
 	}
     }
 
-    if GetAPIVersion() >= 100031 then
-	ults['Vampire'][1]['Icon'] = '/esoui/art/icons/ability_u26_vampire_06.dds'
-    else
-	ults['Vampire'][1]['Icon'] = '/esoui/art/icons/ability_vampire_001.dds'
-    end
+    ults['Vampire'][1]['Icon'] = '/esoui/art/icons/ability_u26_vampire_06.dds'
 
     -- Create tables indexed by different things
-    local xltults, iconlist = mkulttbl()
+    local xltults, iconlist = mkulttbl(ults)
     local maxping = 0
     for class, x in pairs(ults) do
-	for _, group in pairs(x) do
+	for _, group in ipairs(x) do
 	    local ping
 	    if group.Aid then
 		byids[group.Aid] = group
