@@ -4,6 +4,7 @@ local GetGameTimeMilliseconds = GetGameTimeMilliseconds
 local GetNextForwardCampRespawnTime = GetNextForwardCampRespawnTime
 local GetUnitPower = GetUnitPower
 local GetTimeStamp = GetTimeStamp
+local HERE = POC.HERE
 local IsUnitDead = IsUnitDead
 local IsUnitGrouped = IsUnitGrouped
 local IsUnitInCombat = IsUnitInCombat
@@ -385,7 +386,7 @@ local function setult()
        Player.SetUlt()
     end
     if me.UltMain ~= nil and me.UltMain ~= 0  and me.UltMain ~= Ult.MaxPing then
-       local function setult() end
+       setult = function() end
     end
 end
 

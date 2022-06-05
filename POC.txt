@@ -22,7 +22,7 @@ Swimlane.xml
 Stats.xml
 
 POC0.lua
-LuaErrors.lua
+Util.lua
 
 Visibility.lua
 
@@ -34,7 +34,6 @@ Comm.lua
 Settings.lua
 Group.lua
 Ult.lua
-Util.lua
 
 UltMenu.lua
 Swimlane.lua

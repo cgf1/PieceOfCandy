@@ -25,8 +25,6 @@ local conflicts = {}
 -- POC:initialize initializes addon
 --
 local function initialize()
-    LuaErrors.Initialize()
-
     local strings = {
 	OPTIONS_HEADER =		 "Options",
 	OPTIONS_ONLY_AVA_LABEL =	 "Show only in AvA",

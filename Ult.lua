@@ -1,16 +1,38 @@
-setfenv(1, POC)
-local GetAPIVersion = GetAPIVersion
+local Comm = POC.Comm
+local DoesAbilityExist = DoesAbilityExist
+local Error = POC.Error
+local GetAbilityCost = GetAbilityCost
 local GetAbilityIcon = GetAbilityIcon
+local GetAbilityIdByIndex = GetAbilityIdByIndex
 local GetAbilityName = GetAbilityName
+local GetAbilityProgressionAbilityId = GetAbilityProgressionAbilityId
+local GetAbilityProgressionInfo = GetAbilityProgressionInfo
+local GetAbilityProgressionXPInfoFromAbilityId = GetAbilityProgressionXPInfoFromAbilityId
 local GetActiveWeaponPairInfo = GetActiveWeaponPairInfo
+local GetAPIVersion = GetAPIVersion
+local GetNumAbilities = GetNumAbilities
+local GetNumSkillAbilities = GetNumSkillAbilities
+local GetNumSkillLines = GetNumSkillLines
+local GetNumSkillTypes = GetNumSkillTypes
+local GetSkillAbilityId = GetSkillAbilityId
 local GetSlotBoundId = GetSlotBoundId
 local GetSpecificSkillAbilityInfo = GetSpecificSkillAbilityInfo
 local GetSpecificSkillAbilityKeysByAbilityId = GetSpecificSkillAbilityKeysByAbilityId
 local GetUnitClassId = GetUnitClassId
 local GetUnitName = GetUnitName
 local GetUnitPower = GetUnitPower
+local Group = POC.Group
+local HERE = POC.HERE
+local idpairs = POC.idpairs
+local Player = POC.Player
 local PlaySound = PlaySound
+local POWERTYPE_ULTIMATE = POWERTYPE_ULTIMATE
+local SetCrownCrateNPCVisible = SetCrownCrateNPCVisible
+local Slash = POC.Slash
 local SOUNDS = SOUNDS
+local watch = POC.watch
+
+setfenv(1, POC)
 
 Ult = {
     Name = "POC-Ult",
@@ -19,6 +41,7 @@ Ult = {
 }
 local Ult = Ult
 Ult.__index = Ult
+setmetatable(Ult, Ult)
 
 local ultix = GetUnitName("player")
 local bynames = {}
@@ -48,13 +71,13 @@ function Ult.ByAid(aid)
 	return byids[aid]
     end
     local skillType, skillLineIndex, skillIndex, _, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(aid)
-    local base_aid = GetSpecificSkillAbilityInfo(skillType, skillLineIndex, skillIndex, 0, rankIndex)
-    if byids[base_aid] then
-	return byids[base_aid]
+    local baid = GetSpecificSkillAbilityInfo(skillType, skillLineIndex, skillIndex, 0, rankIndex)
+    if byids[baid] then
+	return byids[baid]
     end
 
     -- not found
-    -- Error(string.format("AbilityId not found %d/%d %s", aid, base_aid, GetAbilityIcon(base_aid)))
+    -- Error(string.format("AbilityId not found %d/%d %s", aid, baid, GetAbilityIcon(baid)))
 
     return nil
 end
@@ -92,44 +115,37 @@ function Ult.Descriptions()
     return desclist
 end
 
-local function mkulttbl(ults)
-    local ver = tostring(GetAPIVersion())
-    if saved.UltAbilities and saved.UltAbilities[ver] then
-	return unpack(saved.UltAbilities[ver])
+local function baseaid(aid)
+    local hasp, pindex = GetAbilityProgressionXPInfoFromAbilityId(aid)
+    local baid
+    if not hasp then
+	baid = aid
+    else
+	local name, morph, rank = GetAbilityProgressionInfo(pindex)
+	baid = GetAbilityProgressionAbilityId(pindex, 0, rank)
     end
 
-    local tbl = {}
+    return baid
+end
+
+local function mkulttbl()
+    local nskt = GetNumSkillTypes()
     local iconlist = {}
-    for _, x in pairs(ults) do
-	for _, y in ipairs(x) do
-	    iconlist[y.Icon] = {}
-	end
-    end
-    for aid = 1, 190000 do
-	if DoesAbilityExist(aid) then
-	    local icon = GetAbilityIcon(aid)
-	    if iconlist[icon] then
-		local _, _, _, morphChoice = GetSpecificSkillAbilityKeysByAbilityId(aid)
-		if morphChoice == 0 then
-		    tbl[icon] = aid
-		    local icon1
-		    if icon:find("destructionstaff_013") then
-			icon1 = "/esoui/art/icons/ability_destructionstaff_013_a.dds"
-		    elseif icon:find("destructionstaff_014") then
-			icon1 = "/esoui/art/icons/ability_destructionstaff_014_a.dds"
-		    elseif icon:find("destructionstaff_015") then
-			icon1 = "/esoui/art/icons/ability_destructionstaff_015_a.dds"
-		    else
-			icon1 = icon
-		    end
-		    table.insert(iconlist[icon1], aid)
+    for i = 1, nskt do
+	local nskl = GetNumSkillLines(i)
+	for j=1,nskl do
+	    local nska =GetNumSkillAbilities(i, j)
+	    for k = 1, nska do
+		local aid = GetSkillAbilityId(i, j, k)
+		local _, ptype = GetAbilityCost(aid)
+		if true or ptype == POWERTYPE_ULTIMATE then
+		    local baid = baseaid(aid)
+		    iconlist[GetAbilityIcon(baid)] = aid
 		end
 	    end
 	end
     end
-    saved.UltAbilities = {}
-    saved.UltAbilities[ver] = {tbl, iconlist}
-    return tbl, iconlist
+    return iconlist
 end
 
 local function insert_group_table(to_table, from_table, from_key, i)
@@ -316,6 +332,7 @@ local function create_ults()
 	    {
 		Ping = 25,
 		Name = 'VAMP',
+		Icon = '/esoui/art/icons/ability_u26_vampire_06.dds'
 	    }
 	},
 	['Mages Guild'] = {
@@ -379,10 +396,8 @@ local function create_ults()
 	}
     }
 
-    ults['Vampire'][1]['Icon'] = '/esoui/art/icons/ability_u26_vampire_06.dds'
-
     -- Create tables indexed by different things
-    local xltults, iconlist = mkulttbl(ults)
+    local iconlist = mkulttbl(ults)
     local maxping = 0
     for class, x in pairs(ults) do
 	for _, group in ipairs(x) do
@@ -391,15 +406,12 @@ local function create_ults()
 		byids[group.Aid] = group
 	    else
 		local icon = group.Icon
-		local aid = xltults[icon]
-		if not aid then
+		if not iconlist[icon]  then
 		    Error(string.format('no icon found for: %s', group.Name))
 		else
+		    local aid = iconlist[icon]
 		    group.Aid = aid
 		    group.Desc = string.format('%s: %s', class, GetAbilityName(aid))
-		end
-		local name = GetAbilityName(aid)
-		for _, aid in pairs(iconlist[icon]) do
 		    byids[aid] = group
 		end
 	    end
@@ -500,6 +512,7 @@ end
 function Ult.Initialize(_saved)
     saved = _saved
     myults = saved.MyUltId[ultix]
+    saved.UltAbilities = nil
     create_ults()
     if saved.AutUlt then
 	Player.SetUlt()
@@ -538,12 +551,4 @@ function Ult.Initialize(_saved)
 	end
 	SetCrownCrateNPCVisible(onoff)
     end)
-    if false then
-	for i = 1, 8 do
-	    local aid = GetSlotBoundId(i)
-	    local skillType, skillLineIndex, skillIndex, _, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(aid)
-	    local base_aid = GetSpecificSkillAbilityInfo(skillType, skillLineIndex, skillIndex, 0, rankIndex)
-	    d(string.format("%2d %5d/%d %s/%s", i, aid, base_aid, GetAbilityName(aid), GetAbilityName(base_aid)))
-	end
-    end
 end
